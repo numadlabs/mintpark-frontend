@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=Bai+Jamjuree:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap");
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  font-family: "Bai Jamjuree", sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+.collection:hover .collection-card {
+  visibility: visible;
+  transition: all 0.3s ease;
+}
+
+.collection-card {
+  transition: all 0.3s ease;
+  visibility: hidden;
+}
+
+/* .hover-fill-brand {
+  transition: fill 0.3s ease;
+}
+
+.hover-fill-brand:hover {
+  fill: #D3F85A;
+} */
+.iconHover .iconHover:hover {
+  fill: #d3f85a;
+  
+}
+.headHover .headHover:hover{
+  color: #d3f85a;
+  box-shadow: "0 60px 103px 1px rgba(211, 248, 90, 0.5)";
+}
