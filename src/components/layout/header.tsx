@@ -30,10 +30,15 @@ export default function Header() {
     <div className="h-[72px] w-full flex justify-center bg-neutral500 bg-opacity-[50%] mt-5 rounded-3xl">
       <div className="flex flex-row justify-between items-center max-w-[1216px] w-full">
         <div className="flex flex-row justify-between items-center w-full pl-6 pr-4 h-full">
-          <Link href={"/"}>
-            <Image src={"/Logo.svg"} alt="coordinals" width={222} height={40} />
-          </Link>
-          <div className="flex flex-row overflow-hidden items-center gap-4">
+          <div className="flex gap-12">
+            <Link href={"/"}>
+              <Image
+                src={"/Logo.svg"}
+                alt="coordinals"
+                width={40}
+                height={40}
+              />
+            </Link>
             <div className="flex flex-row gap-2 text-neutral00">
               {routesData.map((item, index) => (
                 <HeaderItem
@@ -42,6 +47,11 @@ export default function Header() {
                   handleNav={() => router.push(item.pageUrl)}
                 />
               ))}
+            </div>
+          </div>
+          <div className="flex flex-row overflow-hidden items-center gap-4">
+            <div>
+              sdsadsadas
             </div>
             {walletState.connectionState !== "connected" ? (
               <Button
