@@ -73,7 +73,7 @@ module.exports = {
         white8:"rgba(255, 255, 255, 0.08)",
         white16:"rgba(255, 255, 255, 0.16)",
         gray30:"rgba(255, 255, 255, 0.3)",
-        gray50:"rgba(255, 255, 255, 0.4)",
+        gray50:"rgba(32, 34, 36, 0.5)",
         gray70:"rgba(255, 255, 255, 0.7)",
         brandBlack: "var(--Black-less-opacity, rgba(52, 61, 64, 0.50))",
         bannerBlack: "var(--Black-less-opacity, rgba(33, 37, 41, 0.70))",
