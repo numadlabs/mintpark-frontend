@@ -8,14 +8,14 @@ import ButtonLg from "@/components/ui/buttonLg";
 import { useRouter } from "next/navigation";
 import ButtonOutline from "@/components/ui/buttonOutline";
 import { tokenData } from "@/types";
-import { mintToken } from "@/utils/mint";
+// import { mintToken } from "@/utils/mint";
 import Layout from "@/components/layout/layout";
-import {
-  ASSETTYPE,
-  FEERATE,
-  RECEIVER_ADDRESS,
-  MOCK_MENOMIC,
-} from "@/lib/constants";
+// import {
+//   ASSETTYPE,
+//   FEERATE,
+//   RECEIVER_ADDRESS,
+//   MOCK_MENOMIC,
+// } from "@/lib/constants";
 import Image from "next/image";
 import useFormState from "@/lib/store/useFormStore";
 import { toast } from "sonner";
@@ -31,6 +31,8 @@ const SingleToken = () => {
     setTicker,
     headline,
     setHeadline,
+
+    supply,
     setSupply,
     imageUrl,
     setImageUrl,
@@ -66,14 +68,14 @@ const SingleToken = () => {
       },
     ];
 
-    const data: tokenData = {
-      address: RECEIVER_ADDRESS,
-      opReturnValues,
-      assetType: ASSETTYPE.TOKEN,
-      headline,
-      ticker,
-      supply,
-    };
+    // const data: tokenData = {
+    //   address: RECEIVER_ADDRESS,
+    //   opReturnValues,
+    //   assetType: ASSETTYPE.TOKEN,
+    //   headline,
+    //   ticker,
+    //   supply,
+    // };
 
     if (supply == 0) {
       setError("Supply can not be 0.");
@@ -93,32 +95,32 @@ const SingleToken = () => {
       return;
     }
 
-    if (data.ticker.length > 7) {
-      setIsLoading(false);
-      setError("Invalid ticker. Need to be no longer than 7 character long");
-      return;
-    }
-    try {
-      // console.log("🚀 ~ handleSubmit ~ res:", res);
-      // Call the mintToken function with the required data
-      const transactionResult = await mintToken(data, MOCK_MENOMIC, FEERATE);
+    // if (data.ticker.length > 7) {
+    //   setIsLoading(false);
+    //   setError("Invalid ticker. Need to be no longer than 7 character long");
+    //   return;
+    // }
+    // try {
+    //   // console.log("🚀 ~ handleSubmit ~ res:", res);
+    //   // Call the mintToken function with the required data
+    //   const transactionResult = await mintToken(data, MOCK_MENOMIC, FEERATE);
 
-      if (transactionResult && transactionResult.error == false) {
-        setError(transactionResult.message || "An error occurred"); // Set the error state
-        toast.error(transactionResult.message || "An error occurred");
-        setIsLoading(false);
-      } else {
-        setError("");
-        setIsLoading(false);
-        // setTxUrl(`https://testnet.coordiscan.io/tx/${mintResponse.result}`);
-        setStep(1);
-      }
-    } catch (error) {
-      console.log("🚀 ~ handleSubmit ~ error:", error);
-      setError(error.message || "An error occurred"); // Set the error state
-      toast.error(error.message || "An error occurred");
-      setIsLoading(false);
-    }
+    //   if (transactionResult && transactionResult.error == false) {
+    //     setError(transactionResult.message || "An error occurred"); // Set the error state
+    //     toast.error(transactionResult.message || "An error occurred");
+    //     setIsLoading(false);
+    //   } else {
+    //     setError("");
+    //     setIsLoading(false);
+    //     // setTxUrl(`https://testnet.coordiscan.io/tx/${mintResponse.result}`);
+    //     setStep(1);
+    //   }
+    // } catch (error) {
+    //   console.log("🚀 ~ handleSubmit ~ error:", error);
+    //   setError(error.message || "An error occurred"); // Set the error state
+    //   toast.error(error.message || "An error occurred");
+    //   setIsLoading(false);
+    // }
   };
 
   const triggerRefresh = () => {

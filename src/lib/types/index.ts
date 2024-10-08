@@ -76,3 +76,14 @@ export type CollectibleType = {
   status: "ACTIVE" | "INACTIVE";
   collectionId: string;
 };
+
+export type LaunchpadItemType = {
+  id: number;
+  image: string;
+  time: { day: number; hour: number; minute: number };
+  title: string;
+  price: number;
+  mint: number;
+  total: number;
+  type?: string;
+};

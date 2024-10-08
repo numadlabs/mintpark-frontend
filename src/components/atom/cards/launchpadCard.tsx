@@ -1,24 +1,8 @@
 import { Progress } from "@/components/ui/progress";
-import { CollectionType } from "@/lib/service/fetcher";
+import { CollectionType } from "@/lib/types";
 import { s3ImageUrlBuilder } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import HoverCard from "@/components/section/collections/hoverCard";
-
-type CardTime = {
-  day: number;
-  hour: number;
-  minute: number;
-};
-
-type CardType = {
-  image: string;
-  title: string;
-  price: number;
-  mint: number;
-  total: number;
-  time: CardTime;
-};
 
 export default function LaunchpadCard({
   collection,
@@ -55,7 +39,10 @@ export default function LaunchpadCard({
               </p>
             </div>
             <div className="flex h-2 mt-1 border border-gray-400 rounded-lg border-1">
-              <Progress value={3} className="bg-brand shadow-shadowBrands h-full w-[90%]" />
+              <Progress
+                value={3}
+                className="bg-brand shadow-shadowBrands h-full w-[90%]"
+              />
             </div>
             <p className="pt-3 font-bold text-end text-md">
               {/* {collection.mint} */}

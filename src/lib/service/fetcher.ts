@@ -4,6 +4,14 @@ import axios from "axios";
 import axiosClient from "../axios";
 import { CollectibleType, CollectionType } from "../types";
 
+/**
+ * Fetches unspent transaction outputs (UTXOs) for a given address.
+ *
+ * @param address - The Bitcoin address to fetch UTXOs for.
+ * @returns A promise that resolves to an array of UTXOs.
+ *
+ * @throws Will throw an error if the request fails.
+ */
 export function fetchUtxos(address: string) {
   return axios.post("/api/utxo", { address }).then((response) => {
     return response.data.data;

@@ -65,7 +65,7 @@ const SingleCollectible = () => {
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     setIsLoading(true);
     if (!imageBase64) {
@@ -222,7 +222,9 @@ const SingleCollectible = () => {
             stepperData={stepperData}
           />
           {step == 0 && (
-            <form onSubmit={handleSubmit}>
+            <div
+            // onSubmit={handleSubmit}
+            >
               <div className="w-[592px] items-start flex flex-col gap-16">
                 <div className="w-full gap-8 flex flex-col">
                   <p className="text-profileTitle text-neutral50 font-bold">
@@ -276,7 +278,7 @@ const SingleCollectible = () => {
                 </div>
               </div>
               <div className="text-red-500">{error}</div>
-            </form>
+            </div>
           )}
           {step == 1 && (
             <div className="w-[800px] flex flex-col gap-16">

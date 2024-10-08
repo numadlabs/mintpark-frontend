@@ -194,10 +194,14 @@ export async function createCollectibleHandler({
     }
   } catch (error) {
     console.error("Error creating collectible:", error);
-    const { response } = error;
-    const { request, ...errorObject } = response; // take everything but 'request'
-    console.log(errorObject);
-    throw error;
+    if (axios.isAxiosError(error)) {
+      const { response } = error;
+      const { ...errorObject } = response;
+      console.log(errorObject);
+      throw error;
+    } else {
+      console.error("Error creating collectible:", error);
+    }
   }
 }
 

@@ -164,15 +164,17 @@ export default function Page({ params }: { params: { launchId: string } }) {
                         </CarouselItem>
                       );
                     })} */}
-                <Image
-                  width={384}
-                  height={384}
-                  // src={item.image}
-                  // src={`/launchpads/launch_${item.id}.png`}
-                  src={s3ImageUrlBuilder(collectionDetail?.logoKey)}
-                  className="aspect-square rounded-3xl bg-no-repeat"
-                  alt="png"
-                />
+                {collectionDetail?.logoKey && (
+                  <Image
+                    width={384}
+                    height={384}
+                    // src={item.image}
+                    // src={`/launchpads/launch_${item.id}.png`}
+                    src={s3ImageUrlBuilder(collectionDetail?.logoKey)}
+                    className="aspect-square rounded-3xl bg-no-repeat"
+                    alt="png"
+                  />
+                )}
 
                 {/* <CarouselItem>
                     <Image
