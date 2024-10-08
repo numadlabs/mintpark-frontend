@@ -27,6 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { JsonDataItem, MergedObject } from "@/types";
 
 const stepperData = ["Details", "Upload", "Launch", "Confirm"];
 
@@ -55,7 +56,7 @@ const CollectionDetail = () => {
   const [files, setFiles] = useState<
     { base64: string; mimeType: string; fileName: string }[]
   >([]);
-  const [jsonData, setJsonData] = useState([]);
+  const [jsonData, setJsonData] = useState<JsonDataItem[]>([]);
   // const [mergedArray, setMergedArray] = useState([]);
   const [jsonMetaData, setJsonMetaData] = useState<File | null>(null);
 
@@ -126,13 +127,19 @@ const CollectionDetail = () => {
 
   useEffect(() => {
     if (jsonData && files && jsonData.length === files.length) {
-      const merged = jsonData.map((item, index) => ({
-        ...item,
-        ...files[index],
-      }));
+      const merged: MergedObject[] = jsonData.map((item, index) => {
+        const fileItem = files[index];
+        return {
+          attributes: item.attributes,
+          meta: item.meta,
+          base64: fileItem.base64,
+          fileName: fileItem.fileName,
+          mimeType: fileItem.mimeType,
+        };
+      });
       setMergedArray(merged);
     }
-  }, [jsonData, files]); // Dependencies array, re-run effect when jsonData or files change
+  }, [jsonData, files]);
 
   const handleCollectionImageUpload = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -263,6 +270,11 @@ const CollectionDetail = () => {
     router.push("/create");
   };
 
+  const handleSelect = (day: Date | undefined) => {
+    if (day) {
+      setStart(day);
+    }
+  };
   return (
     <Layout>
       <div className="flex flex-col w-full h-max bg-background pb-[148px]">
@@ -549,7 +561,7 @@ const CollectionDetail = () => {
                               >
                                 <Clock size="17" color="#f8f9fa" />
                                 {date ? (
-                                  format(toFormatTime, "HH:mm")
+                                  format(date, "HH:mm")
                                 ) : (
                                   <span className="font-normal text-neutral200 text-lg2 pl-3">
                                     HH : MM
@@ -564,7 +576,7 @@ const CollectionDetail = () => {
                               <Calendar
                                 mode="single"
                                 selected={start}
-                                onSelect={setStart}
+                                onSelect={handleSelect}
                                 initialFocus
                               />
                             </PopoverContent>

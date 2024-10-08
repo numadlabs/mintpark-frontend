@@ -234,14 +234,14 @@ const CollectionDetail = () => {
                     title="Supply"
                     text="Collection supply"
                     value={supply}
-                    onChange={(e) => setSupply(e.target.value)}
+                    onChange={(e) => setSupply(parseInt(e.target.value))}
                     type="number"
                   />
                   <Input
                     title="Price"
                     text="Collection price"
                     value={price}
-                    onChange={(e) => setPrice(e.target.value)}
+                    onChange={(e) => setPrice(parseInt(e.target.value))}
                     type="number"
                   />
                 </div>

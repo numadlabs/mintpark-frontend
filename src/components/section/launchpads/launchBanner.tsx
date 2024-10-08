@@ -1,7 +1,8 @@
 import LaunchpadCard from "@/components/atom/cards/launchpadCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { launchpad } from "@/lib/constants";
-import { CollectionType } from "@/lib/service/fetcher";
+import { CollectionType } from "@/lib/types";
+// import { CollectionType } from "@/lib/service/fetcher";
 // import { Toggle } from "@/components/ui/toggle";
 
 // import launchpadCard from '@/components/atom/cards/launchpadCard'
@@ -51,30 +52,30 @@ export default function LaunchBanner({
           ))}
         </TabsContent>
         <TabsContent value="live" className="grid grid-cols-4 gap-10">
-          {launchpad.map((item) => {
+          {/* {launchpad.map((item) => {
             return (
               <>
                 {item.type === "live" && (
                   <div key={item.id}>
-                    <LaunchpadCard key={item.id} data={item} />
+                    <LaunchpadCard data={item} />
                   </div>
                 )}
               </>
             );
-          })}
+          })} */}
         </TabsContent>
         <TabsContent value="past" className="grid grid-cols-4 gap-10">
-          {launchpad.map((item) => {
+          {/* {launchpad.map((item) => {
             return (
               <>
                 {item.type === "ended" && (
                   <div key={item.id}>
-                    <LaunchpadCard key={item.id} data={item} />{" "}
+                    <LaunchpadCard data={item} />{" "}
                   </div>
                 )}
               </>
             );
-          })}
+          })} */}
         </TabsContent>
       </Tabs>
     </>

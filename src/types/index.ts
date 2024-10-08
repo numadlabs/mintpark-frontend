@@ -65,3 +65,9 @@ export type TokenType = {
   accessToken: string;
   refreshToken: string;
 };
+
+export interface JsonDataItem {
+  attributes: Attribute[];
+  meta: Meta;
+  // Add other properties that exist in your JSON data
+}

@@ -28,7 +28,7 @@ const Launchpad = () => {
     <Layout>
       <Header />
       <LaunchpadBanner />
-      <LaunchBanner collections={collections} />
+      {collections && <LaunchBanner collections={collections} />}
     </Layout>
   );
 };
