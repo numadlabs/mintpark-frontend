@@ -57,6 +57,16 @@ module.exports = {
       },
       colors: {
         brand: "#D3F85A",
+        brand50:"#FFFCD6",
+        brand100:"#FFF9BB",
+        brand200:"#FFF698",
+        brand300:"#FFF476",
+        brand400:"#FFF154",
+        brand500:"#FFEE32",
+        brand600:"#D4C62A",
+        brand700:"#AA9F21",
+        brand800:"#807719",
+        brand900:"#554F11",
         background: "#111315",
         brandBlack: "var(--Black-less-opacity, rgba(52, 61, 64, 0.50))",
         bannerBlack: "var(--Black-less-opacity, rgba(33, 37, 41, 0.70))",
@@ -72,6 +82,10 @@ module.exports = {
         gradientStart: "#343A40",
         gradientEnd: "#343A40",
         neutral500Rgb: "rgba(52, 58, 64, 0.7)",
+        success:"#2CB59E",
+        errorMsg:"#ff5c69",
+        infoMsg:"#6db5e5"
+
       },
       border: {
         border1: "border-width: 1px",
