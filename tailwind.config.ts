@@ -56,7 +56,8 @@ module.exports = {
         chakra: ["Chakra Petch", "sans-serif"],
       },
       colors: {
-        brand: "#D3F85A",
+        // brand: "#D3F85A",
+        brand:"#FFEE32",
         brand50:"#FFFCD6",
         brand100:"#FFF9BB",
         brand200:"#FFF698",

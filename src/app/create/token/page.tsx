@@ -208,7 +208,7 @@ const SingleToken = () => {
                   </ButtonLg>
                 </div>
               </div>
-              {error && <div className="text-red-500">{error}</div>}
+              {error && <div className="text-errorMsg">{error}</div>}
             </form>
           )}
           {step == 1 && (

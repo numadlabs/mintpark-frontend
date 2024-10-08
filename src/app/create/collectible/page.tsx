@@ -282,7 +282,7 @@ const SingleCollectible = () => {
                   </ButtonLg>
                 </div>
               </div>
-              <div className="text-red-500">{error}</div>
+              <div className="text-errorMsg">{error}</div>
             </div>
           )}
           {step == 1 && (
