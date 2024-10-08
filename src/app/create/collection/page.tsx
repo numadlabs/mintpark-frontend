@@ -345,7 +345,7 @@ const CollectionDetail = () => {
                   Continue
                 </ButtonLg>
               </div>
-              {error && <div className="text-red-500 -mt-3">{error}</div>}
+              {error && <div className="text-errorMsg -mt-3">{error}</div>}
             </div>
           )}
 
@@ -437,7 +437,7 @@ const CollectionDetail = () => {
                   {isLoading ? "...loading" : "Continue"}
                 </ButtonLg>
               </div>
-              {error && <div className="text-red-500 -mt-5">{error}</div>}
+              {error && <div className="text-errorMsg -mt-5">{error}</div>}
             </div>
           )}
           {/* launchpad step */}
@@ -610,7 +610,7 @@ const CollectionDetail = () => {
                   {isLoading ? "...loading" : "Continue"}
                 </ButtonLg>
               </div>
-              {error && <div className="text-red-500 -mt-5">{error}</div>}
+              {error && <div className="text-errorMsg -mt-5">{error}</div>}
             </div>
           )}
           {step == 3 && (
