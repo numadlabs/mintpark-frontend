@@ -43,25 +43,25 @@ const Create = () => {
     //   pageUrl: "/create/collection",
     // },
     {
+      id: 4,
+      icon: BuyCrypto,
+      title: "Collection",
+      text: "A group of NFTs, best for brands and projects.",
+      pageUrl: "/create/launchPad",
+    },
+    {
       id: 2,
       icon: Stop,
       title: "Single Collectible",
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      text: "Solo NFTs for unique creations and spin offs.",
       pageUrl: "/create/collectible",
     },
     {
       id: 3,
       icon: BuyCrypto,
       title: "Token",
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      text: "Fungible assets for in-app currency or governance.",
       pageUrl: "/create/token",
-    },
-    {
-      id: 4,
-      icon: BuyCrypto,
-      title: "Launch",
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      pageUrl: "/create/launchPad",
     },
   ];
 
@@ -81,10 +81,10 @@ const Create = () => {
             />
             <div className="absolute top-0 flex flex-col items-center justify-center w-full h-full gap-6 bg-bannerBlack rounded-3xl backdrop-blur-3xl">
               <p className="text-4xl font-bold text-neutral50">
-                What are you going to create?
+              What do you want to create?
               </p>
               <p className="text-xl text-neutral-100">
-                Choose one of them to continue.
+                Choose one to continue.
               </p>
             </div>
           </div>
