@@ -25,7 +25,7 @@ export default function CollectionCard({ data }: { data: CardType }) {
   return (
     <Link
       href={`/collections/${data.id}`}
-      className="backdrop-blur-sm bg-gradient-to-br collection mt-4 from-gradientStart to-transparent border border-gray-700 rounded-xl pl-4 pr-4 pt-4 pb-5 flex flex-col justify-between"
+      className="backdrop-blur-sm bg-gradient-to-br collection mt-4 from-gradientStart to-transparent border border-neutral400 rounded-xl pl-4 pr-4 pt-4 pb-5 flex flex-col justify-between"
     >
       <Image
         width={248}

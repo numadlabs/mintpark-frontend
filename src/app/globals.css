@@ -52,10 +52,10 @@ body {
   fill: #D3F85A;
 } */
 .iconHover .iconHover:hover {
-  fill: #d3f85a;
+  fill: #FFEE32;
   
 }
 .headHover .headHover:hover{
-  color: #d3f85a;
+  color: #FFEE32;
   box-shadow: "0 60px 103px 1px rgba(211, 248, 90, 0.5)";
 }
