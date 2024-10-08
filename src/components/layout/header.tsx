@@ -7,6 +7,15 @@ import { Button } from "../ui/button";
 import HeaderItem from "../ui/headerItem";
 import { useAuth } from "../provider/auth-context-provider";
 import { useConnector } from "anduro-wallet-connector-react";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 // import { useAuth } from "@/context/AuthContext";
 
 export default function Header() {
@@ -27,7 +36,7 @@ export default function Header() {
   ];
 
   return (
-    <div className="h-[72px] w-full flex justify-center bg-neutral500 bg-opacity-[50%] mt-5 rounded-3xl">
+    <div className="h-[72px] w-full flex justify-center bg-neutral500 bg-opacity-50 backdrop-blur-4xl mt-5 rounded-3xl">
       <div className="flex flex-row justify-between items-center max-w-[1216px] w-full">
         <div className="flex flex-row justify-between items-center w-full pl-6 pr-4 h-full">
           <div className="flex gap-12">
@@ -51,7 +60,18 @@ export default function Header() {
           </div>
           <div className="flex flex-row overflow-hidden items-center gap-4">
             <div>
-              sdsadsadas
+              <Select>
+                <SelectTrigger className="w-[144px] h-10">
+                  <SelectValue placeholder="Select a fruit" />
+                </SelectTrigger>
+                <SelectContent className="w-[160px]">
+                  <SelectGroup>
+                    <SelectItem value="apple">Bitcoin</SelectItem>
+                    <SelectItem value="banana">Citrea</SelectItem>
+                    <SelectItem value="blueberry">Fractal</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
             {walletState.connectionState !== "connected" ? (
               <Button
@@ -59,6 +79,7 @@ export default function Header() {
                 size={"lg"}
                 onClick={connect}
                 disabled={isConnecting}
+                className="bg-opacity-[8%]"
               >
                 {isConnecting ? "Loading..." : "Connect Wallet"}
               </Button>
