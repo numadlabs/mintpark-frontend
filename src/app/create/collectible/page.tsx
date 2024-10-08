@@ -227,9 +227,14 @@ const SingleCollectible = () => {
             >
               <div className="w-[592px] items-start flex flex-col gap-16">
                 <div className="w-full gap-8 flex flex-col">
-                  <p className="text-profileTitle text-neutral50 font-bold">
+                <div className="flex flex-col gap-4">
+                <p className="text-profileTitle text-neutral50 font-bold">
                     Upload your Collectible
                   </p>
+                  <p className="text-neutral200 text-lg2">
+                  The NFT you wish to spawn into existence.
+                  </p>
+                </div>
                   {imageBase64 ? (
                     <UploadCardFit
                       image={imageBase64}

@@ -198,7 +198,7 @@ const CollectionDetail = () => {
           <Banner
             title={
               step == 0 || step == 1
-                ? "Launch your collection"
+                ? "Create Collection"
                 : "Your Collection is successfully launched!"
             }
             image={"/background-2.png"}
