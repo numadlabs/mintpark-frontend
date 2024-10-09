@@ -10,13 +10,28 @@ import { useRouter } from "next/navigation";
 import { useWalletStore } from "@/lib/store/walletStore";
 import moment from "moment";
 
-
-interface AuthContextType {
-  walletAddress: string;
-  isConnecting: boolean;
+interface AuthProps {
+  authState: {
+    token: string | null;
+    authenticated: boolean;
+    loading: boolean;
+    userId: string | null;
+    address: string | null;
+  };
+  onLogin: () => Promise<void>;
+  onLogout: () => void;
   connect: () => Promise<void>;
-  handleLogin: () => Promise<void>;
-  handleLogout: () => void;
+}
+
+declare global {
+  interface Window {
+    unisat: any;
+  }
+}
+
+interface AuthContextType extends AuthProps {
+  isConnecting: boolean;
+  walletAddress: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,7 +45,6 @@ type LoginParams = {
   message: string;
 };
 
-// Function to generate a fallback message
 const generateFallbackMessage = (address: string) => {
   const timestamp = Date.now();
   return `Sign this message to verify your ownership of the address ${address}. Timestamp: ${timestamp}`;
@@ -43,11 +57,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loginParams, setLoginParams] = useState<LoginParams | null>(null);
   const { setConnectedAddress, setConnected } = useWalletStore();
 
+  const [authState, setAuthState] = useState<AuthProps["authState"]>({
+    token: null,
+    authenticated: false,
+    loading: true,
+    userId: null,
+    address: null,
+  });
+
   const generateMessageMutation = useMutation({
     mutationFn: generateMessageHandler,
     onError: (error) => {
       console.error("Generate message error:", error);
-      toast.error("Failed to generate message from server. Using fallback message.");
+      toast.error(
+        "Failed to generate message from server. Using fallback message.",
+      );
     },
   });
 
@@ -59,9 +83,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     },
     onSuccess: (data) => {
       console.log("Login response:", data);
-      if(data.success){
-
+      if (data.success) {
         saveToken(data.data.auth);
+        const authData = {
+          accessToken: data.data.auth.accessToken,
+          userId: data.data.user.id,
+        };
+        localStorage.setItem("authToken", JSON.stringify(authData));
+        setAuthState((prev) => ({
+          ...prev,
+          token: data.data.auth.accessToken,
+          authenticated: true,
+          userId: data.data.user.id,
+          address: data.data.user.address,
+        }));
         toast.success("Successfully logged in");
       }
     },
@@ -73,25 +108,38 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (window.unisat) {
           const accounts = await window.unisat.getAccounts();
 
-          const detailsString = window.localStorage.getItem("userProfile");
+          const storedAuth = localStorage.getItem("authToken");
+          const userProfile = localStorage.getItem("userProfile");
 
-          if (detailsString !== null) {
-            const detailsJson =
-              detailsString !== "null" ? JSON.parse(detailsString) : null;
+          if (storedAuth && userProfile) {
+            const authData = JSON.parse(storedAuth);
+            const profileData = JSON.parse(userProfile);
+
             const now = moment();
-            if (now.isAfter(detailsJson.expiry) || accounts.length == 0) {
+            if (now.isAfter(profileData.expiry) || accounts.length === 0) {
               handleLogout();
               return;
             }
 
-            setWalletAddress(detailsJson.address);
+            setWalletAddress(profileData.address);
+            setAuthState((prev) => ({
+              ...prev,
+              token: authData.accessToken,
+              address: profileData.address,
+              authenticated: true,
+              loading: false,
+              userId: authData.userId,
+            }));
 
             setConnectedAddress(accounts[0]);
             setConnected(true);
+          } else {
+            setAuthState((prev) => ({ ...prev, loading: false }));
           }
         }
       } catch (error) {
         console.log(error);
+        setAuthState((prev) => ({ ...prev, loading: false }));
       }
     };
 
@@ -102,7 +150,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setConnectedAddress("");
     setConnected(false);
     setWalletAddress("");
-    window.localStorage.removeItem("userProfile");
+    setAuthState({
+      token: null,
+      authenticated: false,
+      loading: false,
+      userId: null,
+      address: null,
+    });
+    localStorage.removeItem("userProfile");
+    localStorage.removeItem("authToken");
     router.push("/");
     clearToken();
     toast.success("Successfully logged out");
@@ -118,7 +174,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (!loginParams) return;
 
     const { address, message } = loginParams;
-console.log(message)
+    console.log(message);
+
     try {
       if (!window.unisat) {
         throw new Error("Unisat wallet not found");
@@ -141,7 +198,7 @@ console.log(message)
           };
           setConnectedAddress(address);
           setConnected(true);
-          localStorage.setItem("userProfile", JSON.stringify( item ));
+          localStorage.setItem("userProfile", JSON.stringify(item));
         } else {
           throw new Error("Login failed");
         }
@@ -164,10 +221,10 @@ console.log(message)
       }
 
       const accounts = await window.unisat.requestAccounts();
-      
+
       if (accounts && accounts.length > 0) {
         const address = accounts[0];
-        
+
         let message: string;
         try {
           const messageData = await generateMessageMutation.mutateAsync({
@@ -193,22 +250,38 @@ console.log(message)
       setIsConnecting(false);
     }
   };
+
   useEffect(() => {
     try {
       window.unisat.on("accountsChanged", () => {
         setConnectedAddress("");
         setConnected(false);
         window.localStorage.removeItem("userProfile");
+        window.localStorage.removeItem("authToken");
+        setAuthState((prev) => ({
+          ...prev,
+          token: null,
+          authenticated: false,
+          userId: null,
+          address: null,
+        }));
         router.push("/");
       });
     } catch (error) {
       console.log(error);
     }
-  });
+  }, []);
 
   return (
     <AuthContext.Provider
-      value={{ walletAddress, isConnecting, connect, handleLogin, handleLogout }}
+      value={{
+        authState,
+        onLogin: handleLogin,
+        onLogout: handleLogout,
+        connect,
+        isConnecting,
+        walletAddress,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -222,3 +295,4 @@ export const useAuth = () => {
   }
   return context;
 };
+
