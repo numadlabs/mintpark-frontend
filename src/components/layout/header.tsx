@@ -51,7 +51,7 @@ export default function Header() {
   const routesData = [
     { title: "Create", pageUrl: "/create" },
     { title: "Launchpad", pageUrl: "/launchpad" },
-    { title: "Collections", pageUrl: "/collections" },
+    { title: "Collections", pageUrl: "/collections"  },
   ];
 
   const toggleWalletModal = () => {
