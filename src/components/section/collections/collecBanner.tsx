@@ -31,7 +31,7 @@ export default function CollecBanner({
   const [active, setActive] = useState(false);
   return (
     <>
-      <Tabs defaultValue="All" className="mt-20 mb-10">
+      <Tabs defaultValue="All" className="mt-20 mb-10 border-hidden">
         <section className="flex justify-between mb-7">
           {detail ? (
             <section className="flex justify-between ">
@@ -72,7 +72,7 @@ export default function CollecBanner({
                   <TabsTrigger
                     key={tab}
                     value={tab}
-                    className="w-[59px] h-10 font-semibold text-[15px] rounded-lg"
+                    className="w-[59px] h-10 font-semibold text-[15px] rounded-lg border-hidden"
                   >
                     {tab}
                   </TabsTrigger>
@@ -102,7 +102,7 @@ export default function CollecBanner({
             <TabsList className="text-neutral50 border border-neutral400 w-[92px] h-12">
               <TabsTrigger
                 value="All"
-                className="w-10 h-10 font-semibold text-[15px] rounded-lg p-[10px]"
+                className="w-10 h-10 font-semibold text-[15px] border-hidden rounded-lg p-[10px]"
               >
                 <Image
                   src="/collections/hashtag.png"
@@ -113,7 +113,7 @@ export default function CollecBanner({
               </TabsTrigger>
               <TabsTrigger
                 value="ColCard"
-                className="w-10 h-10 font-semibold text-[15px] rounded-lg p-[10px]"
+                className="w-10 h-10 font-semibold text-[15px] border-hidden rounded-lg p-[10px]"
               >
                 <Image
                   src="/collections/burger.png"
