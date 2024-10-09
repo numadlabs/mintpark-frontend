@@ -24,6 +24,7 @@ import useCreateFormState from "@/lib/store/createFormStore";
 import { CollectibleDataType } from "@/lib/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import SubmitPayModal from "@/components/modal/submit-pay-modal";
+import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 
 const stepperData = ["Upload", "Confirm"];
 
