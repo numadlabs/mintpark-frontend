@@ -15,22 +15,22 @@ export default function LaunchBanner({
     <>
       {/* <launchpadCard/> */}
       <Tabs defaultValue="all" className="text-neutral50 mt-20">
-        <TabsList className="mb-8 font-semibold text-[15px] border border-neutral400 rounded-xl">
+        <TabsList className="mb-8 font-semibold text-[15px] border border-neutral400 p-1 rounded-xl">
           <TabsTrigger
             value="all"
-            className="w-[59px] font-semibold text-[15px] rounded-lg"
+            className="w-[59px] font-semibold text-[15px] border-hidden rounded-lg"
           >
             All
           </TabsTrigger>
           <TabsTrigger
             value="live"
-            className="w-[159px] font-semibold text-[15px] rounded-lg"
+            className="w-[159px] font-semibold text-[15px] border-hidden rounded-lg"
           >
             Live & Upcoming
           </TabsTrigger>
           <TabsTrigger
             value="past"
-            className="w-[73px] font-semibold text-[15px] rounded-lg"
+            className="w-[73px] font-semibold text-[15px] border-hidden rounded-lg"
           >
             Past
           </TabsTrigger>

@@ -65,9 +65,11 @@ export default function page() {
             </div>
             <div className="w-[592px] h-[1px] bg-neutral500" />
             <div>
-              <Accordion type="single" collapsible className="w-full">
+              <Accordion type="single" collapsible className="w-[592px]">
                 <AccordionItem value="item-1">
-                  <AccordionTrigger className="text-neutral50">Detail</AccordionTrigger>
+                  <AccordionTrigger className="font-medium text-xl text-neutral50">
+                    Detail
+                  </AccordionTrigger>
                   <AccordionContent className="flex flex-col gap-6">
                     <div className="flex justify-between">
                       <h1 className="font-medium text-md text-neutral200">
@@ -81,7 +83,7 @@ export default function page() {
                       <h1 className="font-medium text-md text-neutral200">
                         Floor difference
                       </h1>
-                      <p className="font-medium text-md text-brand">120%</p>
+                      <p className="font-medium text-md text-success">120%</p>
                     </div>
                     <div className="flex justify-between">
                       <h1 className="font-medium text-md text-neutral200">
@@ -94,22 +96,184 @@ export default function page() {
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-2">
-                  <AccordionTrigger>About Abstracto</AccordionTrigger>
+                  <AccordionTrigger className="font-medium text-xl text-neutral50">
+                    About Abstracto
+                  </AccordionTrigger>
                   <AccordionContent>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Proin ac ornare nisi. Aliquam eget semper risus, sed commodo
-                    elit. Curabitur sed congue magna. Donec ultrices dui nec
-                    ullamcorper aliquet. Nunc efficitur mauris id mi venenatis
-                    imperdiet. Integer mauris lectus, pretium eu nibh molestie,
-                    rutrum lobortis tortor. Duis sit amet sem fermentum,
-                    consequat est nec, ultricies justo.
+                    <p className="text-neutral200 font-medium text-md">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Proin ac ornare nisi. Aliquam eget semper risus, sed
+                      commodo elit. Curabitur sed congue magna. Donec ultrices
+                      dui nec ullamcorper aliquet. Nunc efficitur mauris id mi
+                      venenatis imperdiet. Integer mauris lectus, pretium eu
+                      nibh molestie, rutrum lobortis tortor. Duis sit amet sem
+                      fermentum, consequat est nec, ultricies justo.
+                    </p>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-3">
-                  <AccordionTrigger>Activity</AccordionTrigger>
+                  <AccordionTrigger className="font-medium text-xl text-neutral50">
+                    Activity
+                  </AccordionTrigger>
                   <AccordionContent>
-                    Yes. It&apos;s animated by default, but you can disable it
-                    if you prefer.
+                    {/* Yes. It&apos;s animated by default, but you can disable it
+                    if you prefer. */}
+                    <div className="flex flex-col gap-4">
+                      <div className="w-[592px] h-[110px] border border-neutral500 flex justify-between items-center gap-4 rounded-2xl pt-4 pr-4 pb-5 pl-4">
+                        <div className="flex flex-col gap-5">
+                          <span className="flex justify-center rounded-lg gap-2 bg-gray50 pt-2 pr-3 pb-2 pl-3">
+                            <Image
+                              width={16}
+                              height={16}
+                              src={"/collections/tag.png"}
+                              className="aspect-square rounded-xl"
+                              alt="png"
+                            />
+                            <p className="text-neutral50 font-medium text-md">
+                              Listed
+                            </p>
+                          </span>
+                          <span className="flex items-center gap-2">
+                            <p className="text-neutral50 font-medium text-lg2">
+                              0.003 BTC
+                            </p>{" "}
+                            <p className="text-neutral200 text-md items-center font-medium">
+                              $12.87
+                            </p>
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-5">
+                          <span className="flex flex-col">
+                            <span className="text-neutral200 text-md font-medium">
+                              4 days ago
+                            </span>
+                          </span>
+                          <span className="text-neutral50 font-medium text-md">
+                            bc1a...5sd6
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-[592px] h-[110px] border border-neutral500 flex justify-between items-center gap-4 rounded-2xl pt-4 pr-4 pb-5 pl-4">
+                        <div className="flex flex-col gap-5">
+                          <span className="flex justify-center rounded-lg gap-2 bg-gray50 pt-2 pr-3 pb-2 pl-3">
+                            <Image
+                              width={16}
+                              height={16}
+                              src={"/collections/cube.png"}
+                              className="aspect-square rounded-xl"
+                              alt="png"
+                            />
+                            <p className="text-neutral50 font-medium text-md">
+                              Inscribed
+                            </p>
+                          </span>
+                          <span className="flex items-center gap-2">
+                            <p className="text-neutral50 font-medium text-lg2">
+                              0.003 BTC
+                            </p>{" "}
+                            <p className="text-neutral200 text-md items-center font-medium">
+                              $12.87
+                            </p>
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-5">
+                          <span className="flex flex-col">
+                            <span className="text-neutral200 text-md font-medium">
+                              4 days ago
+                            </span>
+                          </span>
+                          <span className="text-neutral50 font-medium text-md">
+                            bc1a...5sd6
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-[592px] h-[110px] border border-neutral500 flex justify-between items-center gap-4 rounded-2xl pt-4 pr-4 pb-5 pl-4">
+                        <div className="flex flex-col gap-5">
+                          <span className="flex justify-center rounded-lg gap-2 bg-gray50 pt-2 pr-3 pb-2 pl-3">
+                            <Image
+                              width={16}
+                              height={16}
+                              src={"/collections/check.png"}
+                              className="aspect-square rounded-xl"
+                              alt="png"
+                            />
+                            <p className="text-neutral50 font-medium text-md">
+                              Purchased
+                            </p>
+                          </span>
+                          <span className="flex items-center gap-2">
+                            <p className="text-neutral50 font-medium text-lg2">
+                              0.003 BTC
+                            </p>{" "}
+                            <p className="text-neutral200 text-md items-center font-medium">
+                              $12.87
+                            </p>
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-5">
+                          <span className="flex flex-col">
+                            <span className="text-neutral200 text-right text-md font-medium">
+                              4 days ago
+                            </span>
+                          </span>
+                          <span className="flex gap-2 text-neutral50 font-medium text-md">
+                            <p> bc1a...5sd6</p>
+                            <Image
+                              width={16}
+                              height={16}
+                              src={"/collections/arrowR.png"}
+                              className="aspect-square rounded-xl"
+                              alt="png"
+                            />
+                            <p> bc1a...5sd6</p>
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-[592px] h-[110px] border border-neutral500 flex justify-between items-center gap-4 rounded-2xl pt-4 pr-4 pb-5 pl-4">
+                        <div className="flex flex-col gap-5">
+                          <span className="flex justify-center rounded-lg gap-2 bg-gray50 pt-2 pr-3 pb-2 pl-3">
+                            <Image
+                              width={16}
+                              height={16}
+                              src={"/collections/transaction.png"}
+                              className="aspect-square rounded-xl"
+                              alt="png"
+                            />
+                            <p className="text-neutral50 font-medium text-md">
+                              Transfared
+                            </p>
+                          </span>
+                          <span className="flex items-center gap-2">
+                            <p className="text-neutral50 font-medium text-lg2">
+                              0.003 BTC
+                            </p>{" "}
+                            <p className="text-neutral200 text-md items-center font-medium">
+                              $12.87
+                            </p>
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-5">
+                          <span className="flex flex-col">
+                            <span className="text-neutral200 text-end text-md font-medium">
+                              4 days ago
+                            </span>
+                          </span>
+                          <span className="text-neutral50 font-medium text-md">
+                            <span className="flex gap-2 text-neutral50 font-medium text-md">
+                              <p> bc1a...5sd6</p>
+                              <Image
+                                width={16}
+                                height={16}
+                                src={"/collections/arrowR.png"}
+                                className="aspect-square rounded-xl"
+                                alt="png"
+                              />
+                              <p> bc1a...5sd6</p>
+                            </span>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

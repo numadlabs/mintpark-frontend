@@ -67,7 +67,7 @@ export default function CollecBanner({
             </section>
           ) : (
             <div>
-              <TabsList className="h-12 text-neutral50 border border-neutral400 rounded-xl gap-1">
+              <TabsList className="h-12 text-neutral50 p-1 border border-neutral400 rounded-xl gap-1">
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab}
@@ -80,7 +80,7 @@ export default function CollecBanner({
               </TabsList>
             </div>
           )}
-          <div className="flex justify-between items-center w-[330px] h-[48px] gap-4">
+          <div className="flex justify-between text-center items-center w-[330px] h-[48px] gap-4">
             <Select>
               <SelectTrigger className="w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50 pt-2 pr-4 pb-2 pl-5">
                 <SelectValue placeholder="Highest volume" />
@@ -91,15 +91,15 @@ export default function CollecBanner({
                   backdropFilter: "blur(30px)",
                 }}
               >
-                <SelectItem value="highest">Highest volume</SelectItem>
-                <SelectItem value="low">Lowest volume</SelectItem>
-                <SelectItem value="highestFloor">
+                <SelectItem value="highest" className="pl-10">Highest volume</SelectItem>
+                <SelectItem value="low" className="pl-10">Lowest volume</SelectItem>
+                <SelectItem value="highestFloor" className="pl-10">
                   Highest floor price
                 </SelectItem>
-                <SelectItem value="lowest">Lowest floor price</SelectItem>
+                <SelectItem value="lowest" className="pl-10">Lowest floor price</SelectItem>
               </SelectContent>
             </Select>
-            <TabsList className="text-neutral50 border border-neutral400 w-[92px] h-12">
+            <TabsList className="text-neutral50 border border-neutral400 rounded-xl w-[92px] h-12">
               <TabsTrigger
                 value="All"
                 className="w-10 h-10 font-semibold text-[15px] border-hidden rounded-lg p-[10px]"
