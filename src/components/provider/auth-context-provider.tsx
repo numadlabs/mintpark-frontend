@@ -6,49 +6,48 @@ import {
 } from "@/lib/service/postRequest";
 import { clearToken, saveToken } from "@/lib/auth";
 import { toast } from "sonner";
-import { useConnector } from "anduro-wallet-connector-react";
+import { useRouter } from "next/navigation";
+import { useWalletStore } from "@/lib/store/walletStore";
+import moment from "moment";
+
 
 interface AuthContextType {
   walletAddress: string;
   isConnecting: boolean;
   connect: () => Promise<void>;
-  disconnect: () => Promise<void>;
   handleLogin: () => Promise<void>;
+  handleLogout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: React.ReactNode;
-  connector: any;
 }
 
 type LoginParams = {
   address: string;
-  xpubKey: string;
   message: string;
 };
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({
-  children,
-  connector,
-}) => {
-  const {
-    sign,
-    networkState,
-    walletState,
-    connect: connectWallet,
-    disconnect: disconnectWallet,
-  } = useContext<any>(useConnector);
+// Function to generate a fallback message
+const generateFallbackMessage = (address: string) => {
+  const timestamp = Date.now();
+  return `Sign this message to verify your ownership of the address ${address}. Timestamp: ${timestamp}`;
+};
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const router = useRouter();
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [walletAddress, setWalletAddress] = useState<string>("");
   const [loginParams, setLoginParams] = useState<LoginParams | null>(null);
+  const { setConnectedAddress, setConnected } = useWalletStore();
 
   const generateMessageMutation = useMutation({
     mutationFn: generateMessageHandler,
     onError: (error) => {
       console.error("Generate message error:", error);
-      toast.error("Failed to generate message");
+      toast.error("Failed to generate message from server. Using fallback message.");
     },
   });
 
@@ -59,18 +58,55 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       toast.error("Failed to login");
     },
     onSuccess: (data) => {
-      console.log("🚀 ~ data:", data);
-      saveToken(data.data.auth);
-      toast.success("Successfully logged in");
+      console.log("Login response:", data);
+      if(data.success){
+
+        saveToken(data.data.auth);
+        toast.success("Successfully logged in");
+      }
     },
   });
 
   useEffect(() => {
-    const storedWalletAddress = localStorage.getItem("userProfile");
-    if (storedWalletAddress) {
-      setWalletAddress(JSON.parse(storedWalletAddress));
-    }
+    const connectWalletOnLoad = async () => {
+      try {
+        if (window.unisat) {
+          const accounts = await window.unisat.getAccounts();
+
+          const detailsString = window.localStorage.getItem("userProfile");
+
+          if (detailsString !== null) {
+            const detailsJson =
+              detailsString !== "null" ? JSON.parse(detailsString) : null;
+            const now = moment();
+            if (now.isAfter(detailsJson.expiry) || accounts.length == 0) {
+              handleLogout();
+              return;
+            }
+
+            setWalletAddress(detailsJson.address);
+
+            setConnectedAddress(accounts[0]);
+            setConnected(true);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    connectWalletOnLoad();
   }, []);
+
+  const handleLogout = () => {
+    setConnectedAddress("");
+    setConnected(false);
+    setWalletAddress("");
+    window.localStorage.removeItem("userProfile");
+    router.push("/");
+    clearToken();
+    toast.success("Successfully logged out");
+  };
 
   useEffect(() => {
     if (loginParams) {
@@ -81,34 +117,41 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const handleLogin = async () => {
     if (!loginParams) return;
 
-    const { address, xpubKey, message } = loginParams;
-
+    const { address, message } = loginParams;
+console.log(message)
     try {
-      // Sign the message
-      const signResponse = await sign({ message });
-      console.log("🚀 ~ handleLogin ~ signResponse:", signResponse);
+      if (!window.unisat) {
+        throw new Error("Unisat wallet not found");
+      }
 
-      if (signResponse.status) {
+      const signResponse = await window.unisat.signMessage(message);
+
+      if (signResponse) {
         const loginResponse = await loginMutation.mutateAsync({
           address,
-          signedMessage: signResponse.result,
-          xpub: xpubKey,
+          signedMessage: signResponse,
         });
-        console.log("🚀 ~ handleLogin ~ loginResponse:", loginResponse);
+
         if (loginResponse.success) {
           setWalletAddress(address);
-          localStorage.setItem("userProfile", JSON.stringify(address));
+          const item = {
+            address,
+            signature: signResponse,
+            expiry: moment().add(7, "days").format(),
+          };
+          setConnectedAddress(address);
+          setConnected(true);
+          localStorage.setItem("userProfile", JSON.stringify( item ));
         } else {
           throw new Error("Login failed");
         }
       } else {
-        throw new Error("Cannot sign");
+        throw new Error("Failed to sign message");
       }
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Error during login process");
     } finally {
-      // Clear login params after attempt
       setLoginParams(null);
     }
   };
@@ -116,29 +159,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const connect = async () => {
     try {
       setIsConnecting(true);
-      // await disconnectWallet();
-      const response = await connectWallet({ chainId: 5 });
-      console.log("🚀 ~ connect ~ response:", response);
-      if (response.status) {
-        const address = response.result.address;
+      if (!window.unisat) {
+        throw new Error("Unisat wallet not found");
+      }
 
-        // Generate message to sign
-        const messageData = await generateMessageMutation.mutateAsync({
-          address,
-        });
-        console.log("🚀 ~ connect ~ messageData:", messageData);
+      const accounts = await window.unisat.requestAccounts();
+      
+      if (accounts && accounts.length > 0) {
+        const address = accounts[0];
+        
+        let message: string;
+        try {
+          const messageData = await generateMessageMutation.mutateAsync({
+            address,
+          });
+          message = messageData.data.message;
+        } catch (error) {
+          console.error("Failed to generate message from server:", error);
+          message = generateFallbackMessage(address);
+        }
 
-        // Add a 2-second timeout
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        // Set login parameters
         setLoginParams({
-          address,
-          xpubKey: response.result.xpubKey,
-          message: messageData.data.message,
+          address: address,
+          message: message,
         });
       } else {
-        throw new Error("Failed to connect wallet");
+        throw new Error("No accounts found");
       }
     } catch (error) {
       console.error("Connection error:", error);
@@ -147,23 +193,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       setIsConnecting(false);
     }
   };
-
-  const disconnect = async () => {
+  useEffect(() => {
     try {
-      await disconnectWallet();
-      setWalletAddress("");
-      clearToken();
-      localStorage.removeItem("userProfile");
-      toast.success("Successfully disconnected");
+      window.unisat.on("accountsChanged", () => {
+        setConnectedAddress("");
+        setConnected(false);
+        window.localStorage.removeItem("userProfile");
+        router.push("/");
+      });
     } catch (error) {
-      console.error("Disconnection error:", error);
-      toast.error("Error when disconnecting wallet");
+      console.log(error);
     }
-  };
+  });
 
   return (
     <AuthContext.Provider
-      value={{ walletAddress, isConnecting, connect, disconnect, handleLogin }}
+      value={{ walletAddress, isConnecting, connect, handleLogin, handleLogout }}
     >
       {children}
     </AuthContext.Provider>

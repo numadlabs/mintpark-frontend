@@ -22,17 +22,15 @@ export async function generateMessageHandler({ address }: { address: string }) {
 export async function loginHandler({
   address,
   signedMessage,
-  xpub,
 }: {
   address: string;
   signedMessage: string;
-  xpub: string;
 }) {
   console.log("🚀 ~ loginHandler ~ walletData:", address);
   return axiosClient
     .post(
       `/api/v1/users/login`,
-      JSON.stringify({ address, signedMessage, xpub }),
+      JSON.stringify({ address, signedMessage }),
     )
     .then((response) => {
       return response.data;
