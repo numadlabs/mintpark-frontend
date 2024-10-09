@@ -25,6 +25,13 @@ import {
 import ConnectWalletModal from "../modal/connect-wallet-modal";
 import { Wallet2, I3Dcube, Logout, ArrowRight2 } from "iconsax-react";
 import { Avatar, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
+
+declare global {
+  interface Window {
+    unisat: any;
+  }
+}
 
 export default function Header() {
   const router = useRouter();
@@ -35,7 +42,7 @@ export default function Header() {
     connect: connectWallet,
     disconnect: disconnectWallet,
   } = useContext<any>(useConnector);
-  const { walletAddress, isConnecting, connect, disconnect, handleLogin } =
+  const { walletAddress, isConnecting, connect, handleLogin } =
     useAuth();
 
   const routesData = [
@@ -47,6 +54,15 @@ export default function Header() {
   const toggleWalletModal = () => {
     setWalletModal(!walletModal);
   };
+
+ const handleConnect = async () => {
+  try {
+    let accounts = await window.unisat.requestAccounts();
+    console.log('connect success', accounts);
+  } catch (e) {
+    console.log('connect failed');
+  }
+ }
 
   return (
     <>
@@ -142,18 +158,18 @@ export default function Header() {
                 {isConnecting ? "Loading..." : "Connect Wallet"}
               </Button>
             ) : (
-              <div className="flex gap-2">
-                <Button variant={"outline"} size={"lg"} onClick={disconnect}>
+              <div className="flex gap-2"> */}
+                {/* <Button variant={"outline"} size={"lg"} onClick={disconnect}>
                   Disconnect
                 </Button> */}
 
-              {/* <Button variant={"outline"} size={"lg"} onClick={toggleWalletModal}>
+              <Button variant={"outline"} size={"lg"} onClick={connect}>
                 Connect Wallet
-              </Button> */}
+              </Button>
               {/* </div>
             )} */}
-              <DropdownMenu>
-                <DropdownMenuTrigger className="flex flex-row items-center outline-none gap-2 max-w-[128px] w-full bg-white8 hover:bg-white16 duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
+              {/* <DropdownMenu>
+                <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[128px] w-full bg-white8 hover:bg-white16 duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
                   <Image
                     src={"/Avatar.png"}
                     alt="image"
@@ -192,7 +208,7 @@ export default function Header() {
                     Log Out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
-              </DropdownMenu>
+              </DropdownMenu> */}
             </div>
           </div>
         </div>
