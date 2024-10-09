@@ -219,15 +219,17 @@ export default function Header() {
                       </div>
                       <ArrowRight2 size={16} color="#D7D8D8" />
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="flex flex-row items-center justify-between text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                      <div className="flex flex-row items-center gap-2">
-                        <span>
-                          <I3Dcube size={24} color="#D7D8D8" />
-                        </span>
-                        Inscribe Orders
-                      </div>
-                      <ArrowRight2 size={16} color="#D7D8D8" />
-                    </DropdownMenuItem>
+                    <Link href="/orders">
+                      <DropdownMenuItem className="flex flex-row items-center justify-between text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                        <div className="flex flex-row items-center gap-2">
+                          <span>
+                            <I3Dcube size={24} color="#D7D8D8" />
+                          </span>
+                          <p>Inscribe Orders</p>{" "}
+                        </div>
+                        <ArrowRight2 size={16} color="#D7D8D8" />
+                      </DropdownMenuItem>
+                    </Link>
                     <DropdownMenuItem
                       className="text-neutral50 text-md font-medium flex flex-row gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
                       onClick={onLogout}
