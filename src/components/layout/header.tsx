@@ -74,12 +74,12 @@ export default function Header() {
             </div>
             <div className="flex flex-row overflow-hidden items-center gap-4">
               <div>
-                <Select defaultValue="bitcoin">
-                  <SelectTrigger className="max-w-[144px] flex flex-row items-center w-screen h-10 border-0 bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl">
+                <Select defaultValue="citrea">
+                  <SelectTrigger className="max-w-[144px] flex flex-row items-center w-screen h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl">
                     {/* <Avatar><AvatarImage src="/wallets/Bitcoin.png" alt="bitcoin" sizes="100%" width={24} height={24} className="w-6 h-6"/></Avatar>   */}
                     <SelectValue defaultValue={"bitcoin"} />
                   </SelectTrigger>
-                  <SelectContent className="max-w-[160px] w-screen mt-4 flex flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border-white4 rounded-2xl">
+                  <SelectContent className="max-w-[160px] w-screen mt-4 flex flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl">
                     <SelectItem
                       value="bitcoin"
                       className="w-[144px] hover:bg-white8 duration-300 transition-all flex flex-row items-center gap-2"
@@ -125,7 +125,7 @@ export default function Header() {
                             height={24}
                           />
                         </span>
-                        Bitcoin
+                        Fractal
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -153,7 +153,7 @@ export default function Header() {
               {/* </div>
             )} */}
               <DropdownMenu>
-                <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[128px] w-full bg-white8 hover:bg-white16 duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
+                <DropdownMenuTrigger className="flex flex-row items-center outline-none gap-2 max-w-[128px] w-full bg-white8 hover:bg-white16 duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
                   <Image
                     src={"/Avatar.png"}
                     alt="image"
