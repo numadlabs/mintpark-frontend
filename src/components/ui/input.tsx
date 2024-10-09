@@ -1,7 +1,7 @@
 import React from "react";
 
 interface InputProps {
-  title: string;
+  title?: string;
   text: string;
   value: string | number;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -21,7 +21,7 @@ const Input: React.FC<InputProps> = ({
       <input
         type={type ?? "text"}
         placeholder={text}
-        className="px-5 py-3.5 bg-background border rounded-xl border-neutral50 text-lg2 placeholder-neutral200 text-neutral-50 w-full"
+        className="px-5 py-3.5 h-12 bg-background border rounded-xl border-neutral50 text-lg2 placeholder-neutral200 text-neutral-50 w-full"
         value={value}
         onChange={onChange}
       />

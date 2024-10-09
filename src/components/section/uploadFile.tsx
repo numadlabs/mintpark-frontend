@@ -4,15 +4,11 @@ import { DocumentUpload } from "iconsax-react";
 interface FileProps {
   text: string;
   handleImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  multiple?: boolean;
-  acceptedFileTypes?: string;
 }
 
 const UploadFile: React.FC<FileProps> = ({
   text,
   handleImageUpload,
-  multiple = false,
-  acceptedFileTypes = "image/*",
 }) => {
   return (
     <div className="border border-dashed w-full rounded-3xl h-[280px] justify-center items-center flex cursor-pointer">
@@ -27,8 +23,7 @@ const UploadFile: React.FC<FileProps> = ({
         <input
           type="file"
           onChange={handleImageUpload}
-          multiple={multiple}
-          accept={acceptedFileTypes}
+          accept="image/*"
           className="hidden"
         />
       </label>

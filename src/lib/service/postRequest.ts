@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 import axiosClient from "../axios";
 import {
   CreateCollectionType,
@@ -7,7 +7,8 @@ import {
   User,
 } from "../types";
 import { getAccessToken } from "../auth";
-import { CreateCollectibleType } from "../types";
+import { CreateCollectibleType, CollectibleDataType } from "../types";
+import { collectiontFormData } from "./formHelper";
 
 export async function generateMessageHandler({ address }: { address: string }) {
   console.log("🚀 ~ loginHandler ~ walletData:", address);
@@ -46,6 +47,21 @@ export async function profileUpdateHandler({ userData }: { userData: User }) {
   } catch (error) {
     console.log("Error:", error);
   }
+}
+
+export async function createCollectible({ data }: { data: CollectibleDataType }) {
+  const formData = collectiontFormData(data);
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/collectibles/create-order`,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    data: formData,
+  };
+
+  const response = await axiosClient.request(config);
+  return response.data.data;
 }
 
 export async function createCollectionHandler({

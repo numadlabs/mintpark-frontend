@@ -77,6 +77,15 @@ export type CollectibleType = {
   collectionId: string;
 };
 
+export type CollectibleDataType = {
+  file: File | null;
+  name: string;
+  creator: string;
+  description: string;
+  mintLayerType: string;
+  feeRate: number;
+};
+
 export type LaunchpadItemType = {
   id: number;
   image: string;

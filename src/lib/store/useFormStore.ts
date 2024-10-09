@@ -7,6 +7,8 @@ interface FormState {
   setTicker: (ticker: string) => void;
   headline: string;
   setHeadline: (headline: string) => void;
+  creator: string;
+  setCreator: (creator: string) => void;
   imageBase64: string;
   setImageBase64: (imageBase64: string) => void;
   description: string;
@@ -33,6 +35,8 @@ const useFormState = create<FormState>((set) => ({
   setTicker: (ticker) => set({ ticker }),
   headline: "",
   setHeadline: (headline) => set({ headline }),
+  creator: "",
+  setCreator: (creator) => set({ creator }),
   imageBase64: "",
   setImageBase64: (imageBase64) => set({ imageBase64 }),
   imageMime: "",
@@ -55,6 +59,7 @@ const useFormState = create<FormState>((set) => ({
     set({
       ticker: "",
       headline: "",
+      creator: "",
       imageBase64: "",
       description: "",
       price: 0,
