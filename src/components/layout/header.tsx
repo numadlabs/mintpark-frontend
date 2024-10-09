@@ -46,16 +46,19 @@ export default function Header() {
     enabled: !!authState?.address,
   });
 
-  console.log("userData", user);
-
   const routesData = [
     { title: "Create", pageUrl: "/create" },
     { title: "Launchpad", pageUrl: "/launchpad" },
-    { title: "Collections", pageUrl: "/collections"  },
+    { title: "Collections", pageUrl: "/collections" },
   ];
 
   const toggleWalletModal = () => {
     setWalletModal(!walletModal);
+  };
+
+  const truncateAddress = (address: string) => {
+    if (address.length <= 10) return address;
+    return `${address.slice(0, 4)}...${address.slice(-4)}`;
   };
 
   return (
@@ -89,10 +92,11 @@ export default function Header() {
                     {/* <Avatar><AvatarImage src="/wallets/Bitcoin.png" alt="bitcoin" sizes="100%" width={24} height={24} className="w-6 h-6"/></Avatar>   */}
                     <SelectValue defaultValue={"bitcoin"} />
                   </SelectTrigger>
-                  <SelectContent className="max-w-[160px] w-screen mt-4 flex flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl">
+                  <SelectContent className="max-w-[196px] w-screen mt-4 flex flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl">
+                    <div className="flex flex-col gap-2">
                     <SelectItem
                       value="bitcoin"
-                      className="w-[144px] hover:bg-white8 duration-300 transition-all flex flex-row items-center gap-2"
+                      className="w-[180px] hover:bg-white8 duration-300 transition-all flex flex-row items-center gap-2"
                     >
                       <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
                         <span>
@@ -138,6 +142,55 @@ export default function Header() {
                         Fractal
                       </div>
                     </SelectItem>
+                    <SelectItem
+                      value="bitcoin test"
+                      className="w-[144px] hover:bg-white8 duration-300 transition-all flex flex-row items-center gap-2"
+                    >
+                      <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
+                        <span>
+                          <Image
+                            src={"/wallets/Bitcoin.png"}
+                            alt="bitcoin"
+                            width={24}
+                            height={24}
+                          />
+                        </span>
+                        Bitcoin Testnet
+                      </div>
+                    </SelectItem>
+                    <SelectItem
+                      value="citrea test"
+                      className="w-full hover:bg-white8 duration-300 transition-all"
+                    >
+                      <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
+                        <span>
+                          <Image
+                            src={"/wallets/Citrea.png"}
+                            alt="citrea"
+                            width={24}
+                            height={24}
+                          />
+                        </span>
+                        Citrea Testnet
+                      </div>
+                    </SelectItem>
+                    <SelectItem
+                      value="fractal test"
+                      className="w-full hover:bg-white8 duration-300 transition-all"
+                    >
+                      <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
+                        <span>
+                          <Image
+                            src={"/wallets/Fractal.png"}
+                            alt="fractal"
+                            width={24}
+                            height={24}
+                          />
+                        </span>
+                        Fractal Testnet
+                      </div>
+                    </SelectItem>
+                    </div>
                   </SelectContent>
                 </Select>
               </div>
@@ -153,7 +206,7 @@ export default function Header() {
                       className="object-cover rounded-full"
                     />
                     <span className="text-neutral50 text-md font-medium">
-                      bc1p...79t2
+                      {user?.address ? truncateAddress(user.address) : ""}
                     </span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="flex flex-col gap-2 max-w-[215px] w-screen p-2 border border-white4 bg-gray50 mt-4 rounded-2xl backdrop-blur-xl">
@@ -199,4 +252,3 @@ export default function Header() {
     </>
   );
 }
-

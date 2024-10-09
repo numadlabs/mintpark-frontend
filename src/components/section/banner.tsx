@@ -17,6 +17,7 @@ const Banner: React.FC<bannerProps> = ({
   stepperData,
 }) => {
   const { currentStep } = useStateStep();
+  
   setStep === currentStep;
 
   return (

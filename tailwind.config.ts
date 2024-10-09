@@ -20,7 +20,7 @@ module.exports = {
       sm: ["12px", "16px"],
       md: ["14px", "18px"],
       md2: ["15px", "24px"],
-      lg: ["17px", "24px"],
+      lg: ["16px", "20px"],
       lg2: ["16px", "20px"],
       xl: ["20px", "24px"],
       "2xl": ["24px", "36px"],
