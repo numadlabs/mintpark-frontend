@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,8 @@ interface modalProps {
 }
 
 const SubmitPayModal: React.FC<modalProps> = ({ open, onClose }) => {
+    const [amount, setAmount] = useState<number>(0)
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="flex flex-col p-6 gap-6 max-w-[592px] w-full items-center">
@@ -80,8 +82,8 @@ const SubmitPayModal: React.FC<modalProps> = ({ open, onClose }) => {
               <div className="flex relative items-center">
                 <Input
                   text="Amount"
-                  value={0.00023}
-                  onChange={() => console.log("asd")}
+                  value={amount}
+                  onChange={(e) => setAmount(Number(e.target.value))}
                 />
                 <div className="absolute right-3.5 top-[25px]">
                   <p className="text-md text-neutral200 font-medium">Sats/vB</p>
