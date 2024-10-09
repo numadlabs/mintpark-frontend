@@ -1,11 +1,10 @@
 "use client";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import HeaderItem from "../ui/headerItem";
 import { useAuth } from "../provider/auth-context-provider";
-import { useConnector } from "anduro-wallet-connector-react";
 import {
   Select,
   SelectContent,
@@ -26,6 +25,8 @@ import ConnectWalletModal from "../modal/connect-wallet-modal";
 import { Wallet2, I3Dcube, Logout, ArrowRight2 } from "iconsax-react";
 import { Avatar, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
+import { getUserById } from "@/lib/service/queryHelper";
+import { useQuery } from "@tanstack/react-query";
 
 declare global {
   interface Window {
@@ -36,14 +37,16 @@ declare global {
 export default function Header() {
   const router = useRouter();
   const [walletModal, setWalletModal] = useState(false);
-  const {
-    networkState,
-    walletState,
-    connect: connectWallet,
-    disconnect: disconnectWallet,
-  } = useContext<any>(useConnector);
-  const { walletAddress, isConnecting, connect, handleLogin } =
-    useAuth();
+  const { connect, authState, onLogout } = useAuth();
+  const address = authState.address;
+
+  const { data: user = [] } = useQuery({
+    queryKey: ["userData"],
+    queryFn: () => getUserById(authState?.address as string),
+    enabled: !!authState?.address,
+  });
+
+  console.log("userData", user);
 
   const routesData = [
     { title: "Create", pageUrl: "/create" },
@@ -54,15 +57,6 @@ export default function Header() {
   const toggleWalletModal = () => {
     setWalletModal(!walletModal);
   };
-
- const handleConnect = async () => {
-  try {
-    let accounts = await window.unisat.requestAccounts();
-    console.log('connect success', accounts);
-  } catch (e) {
-    console.log('connect failed');
-  }
- }
 
   return (
     <>
@@ -147,68 +141,56 @@ export default function Header() {
                   </SelectContent>
                 </Select>
               </div>
-              {/* {walletState.connectionState !== "connected" ? (
-              <Button
-                variant={"outline"}
-                size={"lg"}
-                onClick={connect}
-                disabled={isConnecting}
-                className="bg-opacity-[8%]"
-              >
-                {isConnecting ? "Loading..." : "Connect Wallet"}
-              </Button>
-            ) : (
-              <div className="flex gap-2"> */}
-                {/* <Button variant={"outline"} size={"lg"} onClick={disconnect}>
-                  Disconnect
-                </Button> */}
-
-              <Button variant={"outline"} size={"lg"} onClick={connect}>
-                Connect Wallet
-              </Button>
-              {/* </div>
-            )} */}
-              {/* <DropdownMenu>
-                <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[128px] w-full bg-white8 hover:bg-white16 duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
-                  <Image
-                    src={"/Avatar.png"}
-                    alt="image"
-                    sizes="100%"
-                    width={24}
-                    height={24}
-                    className="object-cover rounded-full"
-                  />
-                  <span className="text-neutral50 text-md font-medium">
-                    bc1p...79t2
-                  </span>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="flex flex-col gap-2 max-w-[215px] w-screen p-2 border border-white4 bg-gray50 mt-4 rounded-2xl backdrop-blur-xl">
-                  <DropdownMenuItem className="flex flex-row justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                    <div className="flex flex-row items-center gap-2">
-                      <span>
-                        <Wallet2 size={24} color="#D7D8D8" />
-                      </span>
-                      My Assets
-                    </div>
-                    <ArrowRight2 size={16} color="#D7D8D8" />
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="flex flex-row items-center justify-between text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                    <div className="flex flex-row items-center gap-2">
-                      <span>
-                        <I3Dcube size={24} color="#D7D8D8" />
-                      </span>
-                      Inscribe Orders
-                    </div>
-                    <ArrowRight2 size={16} color="#D7D8D8" />
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-neutral50 text-md font-medium flex flex-row gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                    <span>
-                      <Logout size={24} color="#D7D8D8" />
+              {authState?.authenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[128px] w-full bg-white8 hover:bg-white16 duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
+                    <Image
+                      src={"/Avatar.png"}
+                      alt="image"
+                      sizes="100%"
+                      width={24}
+                      height={24}
+                      className="object-cover rounded-full"
+                    />
+                    <span className="text-neutral50 text-md font-medium">
+                      bc1p...79t2
                     </span>
-                    Log Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu> */}
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="flex flex-col gap-2 max-w-[215px] w-screen p-2 border border-white4 bg-gray50 mt-4 rounded-2xl backdrop-blur-xl">
+                    <DropdownMenuItem className="flex flex-row justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                      <div className="flex flex-row items-center gap-2">
+                        <span>
+                          <Wallet2 size={24} color="#D7D8D8" />
+                        </span>
+                        My Assets
+                      </div>
+                      <ArrowRight2 size={16} color="#D7D8D8" />
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="flex flex-row items-center justify-between text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                      <div className="flex flex-row items-center gap-2">
+                        <span>
+                          <I3Dcube size={24} color="#D7D8D8" />
+                        </span>
+                        Inscribe Orders
+                      </div>
+                      <ArrowRight2 size={16} color="#D7D8D8" />
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="text-neutral50 text-md font-medium flex flex-row gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
+                      onClick={onLogout}
+                    >
+                      <span>
+                        <Logout size={24} color="#D7D8D8" />
+                      </span>
+                      Log Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button variant={"outline"} size={"lg"} onClick={connect}>
+                  Connect Wallet
+                </Button>
+              )}
             </div>
           </div>
         </div>
