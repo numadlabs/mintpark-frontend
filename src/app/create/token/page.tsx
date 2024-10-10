@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Banner from "@/components/section/banner";
 import Header from "@/components/layout/header";
-import Input from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import ButtonLg from "@/components/ui/buttonLg";
 import { useRouter } from "next/navigation";
 import ButtonOutline from "@/components/ui/buttonOutline";
@@ -20,6 +20,7 @@ import Image from "next/image";
 import useFormState from "@/lib/store/useFormStore";
 import { toast } from "sonner";
 import { useConnector } from "anduro-wallet-connector-react";
+import UploadFile from "@/components/section/uploadFile";
 
 const SingleToken = () => {
   const router = useRouter();
@@ -29,9 +30,10 @@ const SingleToken = () => {
   const {
     ticker,
     setTicker,
-    headline,
-    setHeadline,
-
+    // headline,
+    // setHeadline,
+    description,
+    setDescription,
     supply,
     setSupply,
     imageUrl,
@@ -55,12 +57,12 @@ const SingleToken = () => {
       setError("Image not provided.");
       return;
     }
-
-    if (!headline) {
-      setError("headline not provided.");
-      setIsLoading(false);
-      return;
-    }
+    //headline validation
+    // if (!headline) {
+    //   setError("headline not provided.");
+    //   setIsLoading(false);
+    //   return;
+    // }
 
     const opReturnValues = [
       {
@@ -122,7 +124,24 @@ const SingleToken = () => {
     //   setIsLoading(false);
     // }
   };
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageBase64(reader.result as string);
+        setImageUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDelete = () => {
+    setImageBase64(null);
+    setImageUrl("");
+  };
   const triggerRefresh = () => {
     reset();
     router.push("/create/token");
@@ -149,38 +168,62 @@ const SingleToken = () => {
                     Details
                   </p>
                   <div className="w-full gap-6 flex flex-col">
-                    <Input
-                      title="Name"
-                      text="Collectible name"
-                      value={headline}
-                      onChange={(e) => setHeadline(e.target.value)}
-                    />
-                    <Input
-                      title="Ticker"
-                      text="Collectible ticker"
-                      value={ticker}
-                      onChange={(e) => setTicker(e.target.value)}
-                    />
+                    <div className="flex flex-col gap-3">
+                      {/* <p>Name</p>
+                      <Input
+                        title="Name"
+                        // text="Collectible name"
+                        placeholder="Collectible name"
+                        value={headline}
+                        onChange={(e) => setHeadline(e.target.value)}
+                      /> */}
+                      <p>Name / Ticker</p>
+                      <Input
+                        title="Ticker"
+                        // text="Collectible ticker"
+                        placeholder="Collectible ticker"
+                        value={ticker}
+                        onChange={(e) => setTicker(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-3">
+                      <p>Supply</p>
+                      <div className="flex flex-col gap-3">
+                        <Input
+                          title="Supply"
+                          // text="Collectible supply"
+                          placeholder="Collectible supply"
+                          value={supply}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setSupply(value === "" ? 0 : parseInt(value, 10));
+                          }}
+                          type="number"
+                        />
+                      </div>
+                    </div>
                     {/* NaN erro */}
-                    <Input
-                      title="Supply"
-                      text="Collectible supply"
-                      value={supply}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        setSupply(value === "" ? 0 : parseInt(value, 10));
-                      }}
-                      type="number"
-                    />
-                    <Input
+                    <div className="flex flex-col gap-3 h-[128px]">
+                      <p>Description</p>
+                      <Input
+                        title="Token logo image url"
+                        // text="Collectible logo image"
+                        placeholder="Collectible description"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                      />
+                    </div>
+                    {/* <Input
                       title="Token logo image url"
-                      text="Collectible logo image"
+                      // text="Collectible logo image"
+                      placeholder="Collectible logo image"
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
-                    />
+                    /> */}
                   </div>
                 </div>
-                {/* <div className="flex flex-col gap-8 w-full">
+                <div className="flex flex-col gap-8 w-full">
                   <p className="text-profileTitle text-neutral50 font-bold">
                     Token logo (Optional)
                   </p>
@@ -192,7 +235,7 @@ const SingleToken = () => {
                       handleImageUpload={handleImageUpload}
                     />
                   )}
-                </div> */}
+                </div>
                 <div className="flex flex-row gap-8 justify-between w-full">
                   <ButtonOutline
                     title="Back"
