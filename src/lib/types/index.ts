@@ -108,3 +108,11 @@ export type LaunchpadItemType = {
   total: number;
   type?: string;
 };
+
+export type InscribeOrderData = {
+  orderId: string;
+  quantity: number;
+  status: string;
+  networkFee: number;
+  serviceFee: number;
+}
