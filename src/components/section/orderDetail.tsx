@@ -9,6 +9,8 @@ const OrderDetail = () => {
         queryKey: ["orderData"],
         queryFn: () => getOrderById(),
       });
+
+      console.log(orders)
   return (
     <div className="container relative m-auto z-50 pt-11 flex flex-col gap-8">
       <div className="flex w-full gap-4">
@@ -47,26 +49,28 @@ const OrderDetail = () => {
           ))}
         </div>
         <ScrollArea className="h-[700px] w-full pb-8 border-t-2 border-neutral500">
-          <div className="flex flex-col w-full pt-4 gap-4">
-              <div className="bg-gray50 rounded-2xl p-5">
-                <div className="grid grid-cols-4 w-full h-[18px]">
-                  <p className="font-medium text-md w-[160px] text-neutral200 truncate">
-                    {orders?.order_id}
-                  </p>
-                  <p className="pl-2 font-medium text-md text-neutral200">
-                    {orders?.quantity}
-                  </p>
-                  <p
-                    className={`pl-2 font-medium text-md ${orders.statusClass} truncate`}
-                  >
-                    {orders?.status}
-                  </p>
-                  <p className="pl-4 font-medium text-md text-neutral200">
-                    {orders?.created_at}
-                  </p>
-                </div>
+          {orders.map((item: any) => (
+            <div className="flex flex-col w-full pt-4 gap-4">
+            <div className="bg-gray50 rounded-2xl p-5">
+              <div className="grid grid-cols-4 w-full h-[18px]">
+                <p className="font-medium text-md w-[160px] text-neutral200 truncate">
+                  {item?.orderId}
+                </p>
+                <p className="pl-2 font-medium text-md text-neutral200">
+                  {item?.quantity}
+                </p>
+                <p
+                  className={`pl-2 font-medium text-md ${item.statusClass} truncate`}
+                >
+                  {item?.status}
+                </p>
+                <p className="pl-4 font-medium text-md text-neutral200">
+                  {item?.createdAt}
+                </p>
               </div>
-          </div>
+            </div>
+        </div>
+          ))}
         </ScrollArea>
       </div>
     </div>
