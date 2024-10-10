@@ -48,7 +48,7 @@ export default function Page() {
       >
         <DetailLayout>
           <Header />
-          <section className="grid grid-cols-3 gap-8 h-[464px] mt-24">
+          <section className="grid grid-cols-3 gap-8 h-[464px] mt-24 relative z-50">
             <div className="">
               <h1 className="text-4xl font-bold pb-7 pt-10 text-neutral00">
                 Void
