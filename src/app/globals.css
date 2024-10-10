@@ -27,6 +27,14 @@ body {
     rgb(var(--background-start-rgb));
   font-family: "Bai Jamjuree", sans-serif;
 }
+@font-face{
+  font-family: nebulax;
+  /* src: url('../app/fonts/Nebulax.ttf'); */
+  src: url('../app/fonts/Nebulax.ttf')
+}
+.nebulax {
+  font-family: nebulax;
+}
 
 @layer utilities {
   .text-balance {
