@@ -14,10 +14,10 @@ export async function getUserById(address: string) {
   }
   export async function getOrderById() {
     return axiosClient
-      .get(`/api/v1/orders/BITCOIN_TESTNET}`)
+      .get(`/api/v1/orders/BITCOIN_TESTNET`)
       .then((response) => {
         if (response.data.success) {
-          return response.data.orders;
+          return response.data.data;
         } else {
           throw new Error(response.data.error);
         }

@@ -128,3 +128,4 @@ const InscribeOrderModal: React.FC<modalProps> = ({
 };
 
 export default InscribeOrderModal;
+
