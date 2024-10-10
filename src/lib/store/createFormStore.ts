@@ -1,8 +1,8 @@
 import { create } from "zustand";
 
 interface FormState {
-  imageFile: File | null;
-  setImageFile: (imageFile: File | null) => void;
+  imageFile: File[];
+  setImageFile: (imageFile: File[]) => void;
   name: string;
   setName: (name: string) => void;
   creator: string;
@@ -17,8 +17,9 @@ interface FormState {
 }
 
 const useCreateFormState = create<FormState>((set) => ({
-  imageFile: null,
-  setImageFile: (imageFile: File | null) => set({ imageFile }),
+  imageFile: [],
+  setImageFile: (files: File[]) => set((state) => ({ imageFile: [...state.imageFile, ...files] })),
+
   name: "",
   setName: (name: string) => set({ name }),
   creator: "",
@@ -32,7 +33,7 @@ const useCreateFormState = create<FormState>((set) => ({
 
   reset: () =>
     set({
-      imageFile: null,
+      imageFile: [],
       name: "",
       creator: "",
       description: "",
