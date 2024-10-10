@@ -7,8 +7,8 @@ import {
   User,
 } from "../types";
 import { getAccessToken } from "../auth";
-import { CreateCollectibleType, CollectibleDataType } from "../types";
-import { collectiontFormData } from "./formHelper";
+import { CreateCollectibleType, CollectibleDataType, FeeRateAmount } from "../types";
+import { collectibleFormData, collectiontFormData } from "./formHelper";
 
 export async function generateMessageHandler({ address }: { address: string }) {
   console.log("🚀 ~ loginHandler ~ walletData:", address);
@@ -49,19 +49,42 @@ export async function profileUpdateHandler({ userData }: { userData: User }) {
   }
 }
 
-export async function createCollectible({ data }: { data: CollectibleDataType }) {
+export async function feeAmount({ data }: { data: FeeRateAmount }) {
   const formData = collectiontFormData(data);
   const config: AxiosRequestConfig = {
     method: "post",
-    url: `/api/v1/collectibles/create-order`,
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    data: formData,
+    url: `/api/v1/orders/estimated-fee`,
+    
+    data,
   };
 
   const response = await axiosClient.request(config);
   return response.data.data;
+}
+
+export async function createCollectible({ data }: { data: CollectibleDataType }) {
+  const formData = collectibleFormData(data);
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/collectibles/create-order`,
+
+    data: formData,
+  };
+
+  const response = await axiosClient.request(config);
+  return response.data;
+}
+
+export async function createCollectibleMint(orderId:string) {
+  try {
+    return axiosClient
+      .post(`/api/v1/collectibles/mint`, {orderId})
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
 }
 
 export async function createCollectionHandler({

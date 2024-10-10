@@ -7,7 +7,7 @@ import {
 } from "../ui/dialog";
 import { X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import Input from "../ui/input";
+import {Input} from "../ui/input";
 import { Button } from "../ui/button";
 
 interface modalProps {

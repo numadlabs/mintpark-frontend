@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,17 +7,129 @@ import {
 } from "../ui/dialog";
 import { X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { Avatar, AvatarImage } from "../ui/avatar";
-import Input from "../ui/input";
+import {Input} from "../ui/input";
 import { Button } from "../ui/button";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { getFeeRatesByLayer } from "@/lib/service/queryHelper";
+import { feeAmount, createCollectible, createCollectibleMint } from "@/lib/service/postRequest";
+import { useAuth } from "../provider/auth-context-provider";
+import { CollectibleDataType, FeeRateAmount } from "@/lib/types";
+import { toast } from "sonner";
+import useCreateFormState from "@/lib/store/createFormStore";
 
 interface modalProps {
   open: boolean;
   onClose: () => void;
+  file: File [];
+  name: string;
+  creator: string;
+  description: string;
 }
 
-const SubmitPayModal: React.FC<modalProps> = ({ open, onClose }) => {
-    const [amount, setAmount] = useState<number>(0)
+const SubmitPayModal: React.FC<modalProps> = ({ open, onClose, file, name, creator, description }) => {
+    const { authState } = useAuth();
+    const [feeRate, setFeeRate] = useState<number>(0);
+
+    const [estimatedFee, setEstimatedFee] = useState({
+      networkFee: 0,
+      serviceFee: 0,
+      totalFee: 0,
+    });
+    const { data: feeRates = [] } = useQuery({
+      queryKey: ["feeRatesData"],
+      queryFn: () => getFeeRatesByLayer(),
+    });
+
+    console.log(feeRates)
+
+    const { mutateAsync: feeAmountMutation } = useMutation({
+      mutationFn: feeAmount,
+      onSuccess: (data) => {
+        setEstimatedFee({
+          networkFee: data.estimatedFee.networkFee,
+          serviceFee: data.estimatedFee.serviceFee,
+          totalFee: data.estimatedFee.totalFee,
+        })
+      }
+    });
+
+    const { mutateAsync: createCollectibleMutation } = useMutation({
+      mutationFn: createCollectible,
+    });
+
+    const { mutateAsync: createCollectibleMintMutation } = useMutation({
+      mutationFn: createCollectibleMint,
+    });
+
+    useEffect(() => {
+      if (feeRate > 0 && file) {
+        calculateFeeAmount();
+      }
+    }, [feeRate, file]);
+    
+
+    const calculateFeeAmount = async () => {
+      if (!file || file.length === 0) {
+        console.error("No files provided");
+        toast.error("No files provided");
+        return;
+      }
+      try {
+        // const filesArray = [file];
+
+        const feeRateAmount: FeeRateAmount = {
+          fileSize: file[0].size,
+          layerType: "BITCOIN_TESTNET",
+          fileType: file[0].type,
+          feeRate: feeRate
+        };
+        await feeAmountMutation({ data: feeRateAmount });
+      } catch (error) {
+        // Error handling is done in the onError callback of useMutation
+      }
+    };
+
+    const handlePay = async () => {
+      try {
+        const params: CollectibleDataType = {
+          file: file[0],
+          name: name,
+          creator: creator,
+          description: description,
+          mintLayerType: "BITCOIN_TESTNET",
+          feeRate: feeRate
+        }
+        if(params){
+      const response =    await createCollectibleMutation({ data: params });
+      if(response && response.success){
+        // try {
+          let txid = await window.unisat.sendBitcoin(response.data.fundingAddress,response.data.requiredAmountToFund + 546);
+          console.log(txid)
+          if(txid){
+
+            // Insert 3 second timeout here
+            await new Promise(resolve => setTimeout(resolve, 30000));
+
+            const res= await createCollectibleMintMutation(  response.data.orderId )
+            if(res && res.success){
+              console.log("success")
+            }
+          }
+        }
+        // } catch (e) {
+        //   console.log(e);
+        // }
+        }
+      } catch (error) {
+        toast.error(error as string)
+        console.error(error)
+      }
+    }
+
+    const handleFeeRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newFeeRate = Number(e.target.value);
+      setFeeRate(newFeeRate);
+    };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -33,7 +145,7 @@ const SubmitPayModal: React.FC<modalProps> = ({ open, onClose }) => {
             Wallet address to receive the assets:
           </p>
           <p className="text-lg2 text-neutral50 font-medium">
-            bc1pqvhy3r8zsul5rf6gq7385lq5sk94ugm30xtlsa
+            {authState?.address}
           </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />
@@ -51,7 +163,7 @@ const SubmitPayModal: React.FC<modalProps> = ({ open, onClose }) => {
                   <p className="text-neutral100 text-lg font-medium">Slow</p>
                   <div className="flex flex-row gap-1 items-center">
                     <p className="text-lg2 text-neutral50 font-bold">
-                      0.000054
+                      {feeRates?.economyFee}
                     </p>
                     <p className="text-md text-neutral100 font-medium">
                       Sats/vB
@@ -64,7 +176,7 @@ const SubmitPayModal: React.FC<modalProps> = ({ open, onClose }) => {
                 >
                   <p className="text-neutral100 text-lg font-medium">Fast</p>
                   <div className="flex flex-row gap-1 items-center">
-                    <p className="text-lg2 text-neutral50 font-bold">0.00004</p>
+                    <p className="text-lg2 text-neutral50 font-bold">{feeRates?.fastestFee}</p>
                     <p className="text-md text-neutral100 font-medium">
                       Sats/vB
                     </p>
@@ -81,9 +193,8 @@ const SubmitPayModal: React.FC<modalProps> = ({ open, onClose }) => {
             <TabsContent value="Custom">
               <div className="flex relative items-center">
                 <Input
-                  text="Amount"
-                  value={amount}
-                  onChange={(e) => setAmount(Number(e.target.value))}
+                  value={feeRate}
+                  onChange={handleFeeRateChange}
                 />
                 <div className="absolute right-3.5 top-[25px]">
                   <p className="text-md text-neutral200 font-medium">Sats/vB</p>
@@ -96,20 +207,20 @@ const SubmitPayModal: React.FC<modalProps> = ({ open, onClose }) => {
                 <p className="text-lg2 text-neutral100 font-medium">
                   Network Fee
                 </p>
-                <p className="text-lg2 text-neutral50 font-bold">0.00023 Sats</p>
+                <p className="text-lg2 text-neutral50 font-bold">{estimatedFee?.networkFee} Sats</p>
               </div>
               <div className="flex flex-row justify-between items-center">
                 <p className="text-lg2 text-neutral100 font-medium">
                   Service Fee
                 </p>
-                <p className="text-lg2 text-neutral50 font-bold">0.00023 Sats</p>
+                <p className="text-lg2 text-neutral50 font-bold">{estimatedFee?.serviceFee} Sats</p>
               </div>
             </div>
             <div className="flex flex-row justify-between items-center -4 w-full bg-white4 rounded-2xl p-4">
               <p className="text-lg2 text-neutral100 font-medium">
                 Total Amount
               </p>
-              <p className="text-lg2 text-brand font-bold">0.00023 Sats</p>
+              <p className="text-lg2 text-brand font-bold">{estimatedFee?.totalFee} Sats</p>
             </div>
           </div>
         </Tabs>
@@ -118,7 +229,7 @@ const SubmitPayModal: React.FC<modalProps> = ({ open, onClose }) => {
           <Button variant={"secondary"} className="bg-white8 w-full">
             Cancel
           </Button>
-          <Button>Pay</Button>
+          <Button onClick={handlePay}>Pay</Button>
         </DialogFooter>
         <button
           className="w-12 h-12 absolute top-3 right-3 flex justify-center items-center"

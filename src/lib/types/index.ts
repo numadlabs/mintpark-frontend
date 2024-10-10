@@ -78,12 +78,24 @@ export type CollectibleType = {
 };
 
 export type CollectibleDataType = {
-  file: File | null;
+  file: File;
   name: string;
   creator: string;
   description: string;
   mintLayerType: string;
   feeRate: number;
+};
+
+export type FeeRateAmount = {
+  fileSize: number;
+  layerType: string;
+  fileType: string;
+  feeRate: number;
+};
+
+
+export type CollectibleMintParamsType = {
+  orderId: string;
 };
 
 export type LaunchpadItemType = {

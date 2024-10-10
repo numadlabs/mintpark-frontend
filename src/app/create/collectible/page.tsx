@@ -5,7 +5,7 @@ import Header from "@/components/layout/header";
 import Banner from "@/components/section/banner";
 import ButtonLg from "@/components/ui/buttonLg";
 import UploadFile from "@/components/section/uploadFile";
-import Input from "@/components/ui/input";
+import {Input} from "@/components/ui/input";
 import ButtonOutline from "@/components/ui/buttonOutline";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -42,10 +42,6 @@ const SingleCollectible = () => {
       setCreator,
       description,
       setDescription,
-      mintLayerType,
-      setMintLayerType,
-      feeRate,
-      setFeeRate,
       reset
     } = useCreateFormState();
 
@@ -90,45 +86,47 @@ const SingleCollectible = () => {
     const file = event.target.files?.[0] || null;
     if(file){
       console.log("Image file", file)
-      setImageFile(file);
+      setImageFile([file]);
     }
   };
+
+
 
   const handleNextStep = () => {
     setStep(1)
   }
 
-  const handleSubmit = async () => {
-    try {
-      if (!imageFile) {
-        throw new Error("Image file is required");
-      }
+  // const handleSubmit = async () => {
+  //   try {
+  //     if (!imageFile) {
+  //       throw new Error("Image file is required");
+  //     }
   
-      const collectibleData: CollectibleDataType = {
-        name,
-        creator,
-        description,
-        mintLayerType,
-        feeRate,
-        imageFile,
-      };
+  //     const collectibleData: CollectibleDataType = {
+  //       name,
+  //       creator,
+  //       description,
+  //       mintLayerType,
+  //       feeRate,
+  //       imageFile,
+  //     };
   
-      setIsLoading(true);
-      const result = await createCollectibleMutation({ data: collectibleData });
-      if (result.success) {
-        toast.success("Collectible successfully created");
-        reset();
-      } else {
-        throw new Error(result.message || "Failed to create collectible");
-      }
-    } catch (error: any) {
-      console.error("Error creating collectible:", error);
-      setError(error.message || "An error occurred while creating the collectible");
-      toast.error(error.message || "Failed to create collectible");
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  //     setIsLoading(true);
+  //     const result = await createCollectibleMutation({ data: collectibleData });
+  //     if (result.success) {
+  //       toast.success("Collectible successfully created");
+  //       reset();
+  //     } else {
+  //       throw new Error(result.message || "Failed to create collectible");
+  //     }
+  //   } catch (error: any) {
+  //     console.error("Error creating collectible:", error);
+  //     setError(error.message || "An error occurred while creating the collectible");
+  //     toast.error(error.message || "Failed to create collectible");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
 
   // const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
   //   event.preventDefault();
@@ -256,13 +254,14 @@ const SingleCollectible = () => {
   // };
 
   const handleDelete = () => {
-    setImageFile(null);
+    setImageFile([]);
   };
 
   const triggerRefresh = () => {
     reset();
     router.push("/create/collectible");
   };
+  
 
   return (
     <Layout>
@@ -289,9 +288,10 @@ const SingleCollectible = () => {
                   The NFT you wish to spawn into existence.
                   </p>
                 </div>
-                  {imageFile ? (
+                  {imageFile && imageFile[0] ?(
+                    
                     <UploadCardFit
-                      image={URL.createObjectURL(imageFile)}
+                      image={URL.createObjectURL(imageFile[0])}
                       onDelete={handleDelete}
                     />
                   ) : (
@@ -308,13 +308,11 @@ const SingleCollectible = () => {
                   <div className="flex flex-col gap-6 w-full">
                     <Input
                       title="Name"
-                      text="Collectable name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                     />
                     <Input
                       title="Creator (Optional)"
-                      text="Collectible creator name"
                       value={creator}
                       onChange={(e) => setCreator(e.target.value)}
                     />
@@ -343,14 +341,16 @@ const SingleCollectible = () => {
           {step == 1 && (
             <div className="w-[800px] flex flex-col gap-16">
               <div className="w-full flex flex-row items-center gap-8 justify-start">
+                {imageFile[0] &&
                 <Image
-                  src={URL.createObjectURL(imageFile)}
+                  src={URL.createObjectURL(imageFile[0])}
                   alt="background"
                   width={0}
                   height={160}
                   sizes="100%"
                   className="w-[280px] h-[280px] object-cover rounded-3xl"
                 />
+                }
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-3">
                     <p className="text-3xl text-neutral50 font-bold">
@@ -432,7 +432,7 @@ const SingleCollectible = () => {
           )} */}
         </div>
       </div>
-      <SubmitPayModal open={submitModal} onClose={toggleSubmitModal} />
+      <SubmitPayModal open={submitModal} onClose={toggleSubmitModal} file={imageFile} name={name} creator={creator} description={description}/>
     </Layout>
   );
 };

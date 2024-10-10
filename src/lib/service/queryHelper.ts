@@ -23,3 +23,15 @@ export async function getUserById(address: string) {
         }
       });
   }
+
+  export async function getFeeRatesByLayer() {
+    return axiosClient
+      .get(`/api/v1/orders/fee-rates/BITCOIN_TESTNET`)
+      .then((response) => {
+        if (response.data.success) {
+          return response.data.data;
+        } else {
+          throw new Error(response.data.error);
+        }
+      });
+  }

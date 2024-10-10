@@ -1,32 +1,25 @@
-import React from "react";
+import * as React from "react"
 
-interface InputProps {
-  title?: string;
-  text: string;
-  value: string | number;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  type?: string;
-}
+import { cn } from "@/lib/utils"
 
-const Input: React.FC<InputProps> = ({
-  title,
-  text,
-  value,
-  onChange,
-  type,
-}) => {
-  return (
-    <div className="flex flex-col w-full gap-3">
-      <p className="font-medium text-lg2 text-neutral50">{title}</p>
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {}
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, type, ...props }, ref) => {
+    return (
       <input
-        type={type ?? "text"}
-        placeholder={text}
-        className="px-5 py-3.5 h-12 bg-background border rounded-xl border-neutral50 text-lg2 placeholder-neutral200 text-neutral-50 w-full"
-        value={value}
-        onChange={onChange}
+        type={type}
+        className={cn(
+          "flex h-12 w-full rounded-xl border border-neutral400 bg-background px-3 py-2 text-sm",
+          className
+        )}
+        ref={ref}
+        {...props}
       />
-    </div>
-  );
-};
+    )
+  }
+)
+Input.displayName = "Input"
 
-export default Input;
+export { Input }

@@ -21,7 +21,13 @@ instance.interceptors.request.use(
     if (token) {
       config.headers["Authorization"] = "Bearer " + token;
     }
-    config.headers["Content-Type"] = "application/json";
+        // Set the correct Content-Type based on the request data
+        if (config.data instanceof FormData) {
+          config.headers["Content-Type"] = "multipart/form-data";
+        } else {
+          config.headers["Content-Type"] = "application/json";
+        }
+        
     return config;
   },
   (error) => {
