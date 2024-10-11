@@ -6,22 +6,23 @@ import { Carousel } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 // import { collection } from "@/lib/constants";
-import {
-  fetcCollectionByCollectionId,
-  fetchLaunchById,
-} from "@/lib/service/fetcher";
-import { CollectibleType } from "@/lib/types";
+// import {
+//   fetcCollectionByCollectionId,
+//   fetchLaunchById,
+// } from "@/lib/service/fetcher";
+import { CollectionType } from "@/lib/types";
 import { generateHex } from "@/lib/service/postRequest";
 import { s3ImageUrlBuilder } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { fetcCollectionByCollectionId } from "@/lib/service/queryHelper";
 
 export default function Page({ params }: { params: { launchId: string } }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentCollectible, setCurrentCollectible] =
-    useState<null | CollectibleType>(null);
+    useState<null | CollectionType>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const [active, setActive] = useState(false);
@@ -31,7 +32,7 @@ export default function Page({ params }: { params: { launchId: string } }) {
     // isLoading,
     isError,
     isFetching,
-    data: collectionDetail,
+    data: collection,
     error,
   } = useQuery({
     queryKey: ["collection", params.launchId],
@@ -43,6 +44,8 @@ export default function Page({ params }: { params: { launchId: string } }) {
     enabled: !!params.launchId,
   });
 
+  // console.log("colDetail", collection);
+
   const { isLoading: isCollectibleLoading, data: collectibles } = useQuery({
     queryKey: ["collectiblesByCollections", params.launchId],
     queryFn: () => {
@@ -52,6 +55,7 @@ export default function Page({ params }: { params: { launchId: string } }) {
     },
     enabled: !!params.launchId,
   });
+  console.log("colDetail", collectibles);
 
   useEffect(() => {
     if (collectibles && collectibles?.length !== 0) {
@@ -80,9 +84,7 @@ export default function Page({ params }: { params: { launchId: string } }) {
       <div
         style={{
           backgroundImage: `url(${s3ImageUrlBuilder(
-            collectionDetail
-              ? collectionDetail?.logoKey
-              : "/launchpads/bg_1.jpg",
+            collection ? collection?.logoKey : "/launchpads/bg_1.jpg",
           )})`,
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
@@ -96,13 +98,13 @@ export default function Page({ params }: { params: { launchId: string } }) {
           <section className="grid grid-cols-3 gap-8 h-[464px] mt-24">
             <div className="">
               <h1 className="pt-10 text-4xl font-bold capitalize pb-7 text-neutral50">
-                {collectionDetail?.name}
+                {collectibles?.name}
               </h1>
               <span className="">
                 <p className="h-1 w-[120px] rounded bg-brand shadow-shadowBrands"></p>
               </span>
               <p className="font-normal text-lg2 pt-7 text-neutral100">
-                {collectionDetail?.description}
+                {collectibles?.description}
               </p>
               <div className="flex gap-6 pt-8">
                 <span>
@@ -164,13 +166,13 @@ export default function Page({ params }: { params: { launchId: string } }) {
                         </CarouselItem>
                       );
                     })} */}
-                {collectionDetail?.logoKey && (
+                {collectibles?.logoKey && (
                   <Image
                     width={384}
                     height={384}
                     // src={item.image}
                     // src={`/launchpads/launch_${item.id}.png`}
-                    src={s3ImageUrlBuilder(collectionDetail?.logoKey)}
+                    src={s3ImageUrlBuilder(collectibles?.logoKey)}
                     className="aspect-square rounded-3xl bg-no-repeat"
                     alt="png"
                   />
@@ -207,7 +209,7 @@ export default function Page({ params }: { params: { launchId: string } }) {
                 <span>Total minted</span>
                 <h2>
                   <span className="text-neutral50">
-                    {collectionDetail?.mintedCount}
+                    {collectibles?.mintedCount}
                   </span>
                   <span
                     className="text-brand"
@@ -218,7 +220,7 @@ export default function Page({ params }: { params: { launchId: string } }) {
                     {" "}
                     /{/* <span className="h-2"></span> */}
                   </span>{" "}
-                  {collectionDetail?.totalCount}
+                  {collectibles?.totalCount}
                 </h2>
               </div>
             </div>
@@ -248,10 +250,10 @@ export default function Page({ params }: { params: { launchId: string } }) {
                         alt="png"
                         className="aspect-square"
                       />
-                      {collectionDetail?.price && (
+                      {collection?.price && (
                         <p className="pl-2 text-neutral50">
                           <span className="mr-1">
-                            {collectionDetail?.price / 10 ** 8}
+                            {collection?.price / 10 ** 8}
                           </span>
                           BTC
                         </p>
@@ -283,4 +285,7 @@ export default function Page({ params }: { params: { launchId: string } }) {
       </div>
     </>
   );
+}
+function fetchLaunchById(launchId: string): any {
+  throw new Error("Function not implemented.");
 }

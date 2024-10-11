@@ -54,15 +54,15 @@ export async function fetchLaunchs(): Promise<CollectionType[]> {
   });
 }
 
-export async function fetchLaunchById(id: string): Promise<CollectionType> {
-  return axiosClient.get(`/api/v1/collections/${id}`).then((response) => {
-    if (response.data.success) {
-      return response?.data.data;
-    } else {
-      throw new Error(response.data.error);
-    }
-  });
-}
+// export async function fetchLaunchById(id: string): Promise<CollectionType> {
+//   return axiosClient.get(`/api/v1/collections/${id}`).then((response) => {
+//     if (response.data.success) {
+//       return response?.data.data;
+//     } else {
+//       throw new Error(response.data.error);
+//     }
+//   });
+// }
 
 export async function fetcCollectionByCollectionId(
   id: string,

@@ -51,30 +51,65 @@ enum COLLECTION_STATUS {
   SOLD_OUT = "SOLD_OUT",
 }
 
+// export interface CollectionType {
+//   id: string;
+//   name: string;
+//   ticker: string;
+//   description: string;
+//   supply: number;
+//   price: number;
+//   createdAt: string;
+//   walletLimit: number;
+//   logoKey: string;
+//   POStartDate: string;
+//   status: COLLECTION_STATUS;
+//   totalCount: number;
+//   userId: string;
+//   mintedCount: number;
+// }
+
 export interface CollectionType {
   id: string;
   name: string;
-  ticker: string;
   description: string;
-  supply: number;
   price: number;
   createdAt: string;
   walletLimit: number;
   logoKey: string;
-  POStartDate: string;
-  status: COLLECTION_STATUS;
   totalCount: number;
-  userId: string;
   mintedCount: number;
+  POStartDate: string;
+  layer_type: string;
+  creator: string;
+  feeRate: number;
+  ownerAddress: string;
+  isLaunched: boolean;
+  status: string;
 }
 
 export type CollectibleType = {
+  // id: string;
+  // name: string;
+  // createdAt: Date;
+  // fileKey: string;
+  // status: "ACTIVE" | "INACTIVE";
+  // collectionId: string;
   id: string;
   name: string;
-  createdAt: Date;
-  fileKey: string;
-  status: "ACTIVE" | "INACTIVE";
-  collectionId: string;
+  description: string;
+  price: number;
+  createdAt: string;
+  walletLimit: number;
+  logoKey: string;
+  totalCount: number;
+  mintedCount: number;
+  POStartDate: string;
+  layer_type: string;
+  creator: string;
+  feeRate: number;
+  ownerAddress: string;
+  isLaunched: boolean;
+  status: string;
 };
 
 export type CollectibleDataType = {
@@ -92,7 +127,6 @@ export type FeeRateAmount = {
   fileType: string;
   feeRate: number;
 };
-
 
 export type CollectibleMintParamsType = {
   orderId: string;
@@ -115,4 +149,4 @@ export type InscribeOrderData = {
   status: string;
   networkFee: number;
   serviceFee: number;
-}
+};
