@@ -6,12 +6,12 @@ interface FileProps {
   handleImageUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const UploadFile: React.FC<FileProps> = ({
+const CollectionUploadFile: React.FC<FileProps> = ({
   text,
   handleImageUpload,
 }) => {
   return (
-    <div className="border border-dashed border-neutral400 w-full rounded-3xl h-[280px] justify-center items-center flex cursor-pointer">
+    <div className="border border-dashed w-full rounded-3xl h-[280px] justify-center items-center flex cursor-pointer">
       <label className="w-full flex items-center justify-center flex-col gap-4 cursor-pointer">
         <DocumentUpload size={64} color={"#CED4DA"} />
         <div className="flex flex-col gap-2 items-center">
@@ -22,6 +22,7 @@ const UploadFile: React.FC<FileProps> = ({
         </div>
         <input
           type="file"
+          multiple
           onChange={handleImageUpload}
           accept="image/*"
           className="hidden"
@@ -31,4 +32,4 @@ const UploadFile: React.FC<FileProps> = ({
   );
 };
 
-export default UploadFile;
+export default CollectionUploadFile;

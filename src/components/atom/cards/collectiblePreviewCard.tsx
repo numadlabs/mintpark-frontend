@@ -5,12 +5,10 @@ import { CloseSquare } from "iconsax-react";
 interface cardProps {
   image: any;
   title: string;
-  onDelete: () => void;
 }
 
 const CollectiblePreviewCard: React.FC<cardProps> = ({
   image,
-  onDelete,
   title,
 }) => {
   return (
@@ -26,14 +24,6 @@ const CollectiblePreviewCard: React.FC<cardProps> = ({
         />
       </div>
       <div className="pt-4 font-medium text-lg2 text-neutral00">{title}</div>
-
-      {/* clear button */}
-      <button
-        className="absolute flex items-center justify-center w-8 h-8 rounded-xl bg-neutral400 -top-3 -right-3"
-        onClick={onDelete}
-      >
-        <CloseSquare size={16} color="#F8F9FA" />
-      </button>
     </div>
   );
 };

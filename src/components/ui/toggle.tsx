@@ -3,7 +3,7 @@ import React from "react";
 interface ToggleProps {
   isChecked: boolean;
   
-  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }
 
 const Toggle: React.FC<ToggleProps> = ({ isChecked, onChange }) => {

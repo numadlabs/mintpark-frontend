@@ -307,12 +307,12 @@ const SingleCollectible = () => {
                   </p>
                   <div className="flex flex-col gap-6 w-full">
                     <Input
-                      title="Name"
+                      placeholder="Collectible name"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                     />
                     <Input
-                      title="Creator (Optional)"
+                      placeholder="Collectible creator name"
                       value={creator}
                       onChange={(e) => setCreator(e.target.value)}
                     />
