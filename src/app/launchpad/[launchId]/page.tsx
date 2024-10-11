@@ -96,17 +96,17 @@ export default function Page({ params }: { params: { launchId: string } }) {
         <DetailLayout>
           <Header />
           <section className="grid grid-cols-3 gap-8 h-[464px] mt-24">
-            <div className="">
-              <h1 className="pt-10 text-4xl font-bold capitalize pb-7 text-neutral50">
+            <div className="flex flex-col gap-6">
+              <h1 className="text-4xl font-bold capitalize text-neutral50">
                 {collectibles?.name}
               </h1>
               <span className="">
                 <p className="h-1 w-[120px] rounded bg-brand shadow-shadowBrands"></p>
               </span>
-              <p className="font-normal text-lg2 pt-7 text-neutral100">
+              <p className="font-normal text-lg2 text-neutral100">
                 {collectibles?.description}
               </p>
-              <div className="flex gap-6 pt-8">
+              <div className="flex gap-6">
                 <span>
                   <Image
                     width={32}
