@@ -1,7 +1,7 @@
 import React from "react";
 
 interface inputProps {
-  title: string;
+  title?: string;
   text: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
@@ -15,7 +15,7 @@ const Input: React.FC<inputProps> = ({ title, text, value, onChange }) => {
         value={value}
         onChange={onChange}
         placeholder={text}
-        className="px-5 py-3.5 bg-background border rounded-xl border-neutral50 text-lg2 placeholder-neutral200 
+        className="px-5 py-3.5 bg-background border rounded-xl border-neutral400 text-lg2 placeholder-neutral200 
         text-neutral-50 w-full h-[128px] text-start"
       />
     </div>

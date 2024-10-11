@@ -121,6 +121,15 @@ export type CollectibleDataType = {
   feeRate: number;
 };
 
+export type CollectionData = {
+  logo: File;
+  name: string;
+  creator: string;
+  description: string;
+  layerType: string;
+  feeRate: number;
+};
+
 export type FeeRateAmount = {
   fileSize: number;
   layerType: string;

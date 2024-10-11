@@ -3,191 +3,157 @@
 import React, { useState } from "react";
 import Banner from "@/components/section/banner";
 import Header from "@/components/layout/header";
-import Input from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import UploadFile from "@/components/section/uploadFile";
 import ButtonLg from "@/components/ui/buttonLg";
 import { useRouter } from "next/navigation";
 import ButtonOutline from "@/components/ui/buttonOutline";
 import Layout from "@/components/layout/layout";
 import UploadCardFill from "@/components/atom/cards/uploadCardFill";
-import useFormState from "@/lib/store/useFormStore";
 import Image from "next/image";
-
-import {
-  createCollectibleHandler,
-  createCollectionHandler,
-} from "@/lib/service/postRequest";
-import { toast } from "sonner";
 import CollectiblePreviewCard from "@/components/atom/cards/collectiblePreviewCard";
-import { CreateCollectionType, ImageFile } from "@/lib/types";
+import { ImageFile, CollectionData } from "@/lib/types";
+import TextArea from "@/components/ui/textArea";
+import {
+  createCollection,
+  createCollectiblesToCollection,
+} from "@/lib/service/postRequest";
+import useCreateFormState from "@/lib/store/createFormStore";
+import { useMutation } from "@tanstack/react-query";
+import CollectionUploadFile from "@/components/section/collectionUploadFile";
+import Toggle from "@/components/ui/toggle";
+import { Calendar2, Clock, Bitcoin } from "iconsax-react";
+import OrderPayModal from "@/components/modal/order-pay-modal";
+
 
 const CollectionDetail = () => {
   const router = useRouter();
   const {
-    ticker,
-    setTicker,
-    headline,
-    setHeadline,
-    imageBase64,
-    setImageBase64,
-    setImageMime,
-    supply,
-    setSupply, //add
+    imageFile,
+    setImageFile,
+    name,
+    setName,
     description,
-    setDescription, //add
-    price,
-    setPrice, //add
-    collectionId,
-    setCollectionId,
-  } = useFormState();
+    setDescription,
+    creator,
+    setCreator,
+  } = useCreateFormState();
   const [step, setStep] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
+  const [collectionId, setCollectionId] = useState<string>("");
+  const [isChecked, setIsChecked] = useState<boolean>(false);
+  const [payModal, setPayModal] = useState(false);
+  const [totalSize, setTotalSize] = useState<number>(0);
+  const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [logoImage, setImageLogo] = useState<ImageFile | null>(null);
-  const stepperData = ["Details", "Upload", "Confirm"];
+  const stepperData = ["Details", "Upload", "Launch", "Confirm"];
 
-  const handleSubmitCollection = async () => {
-    if (!logoImage) {
-      return toast.error("image not found");
-    }
+  const { mutateAsync: createCollectionMutation } = useMutation({
+    mutationFn: createCollection,
+  });
 
-    setIsLoading(true);
+  const { mutateAsync: createCollectiblesMutation } = useMutation({
+    mutationFn: createCollectiblesToCollection,
+  });
 
-    const data: CreateCollectionType = {
-      name: headline,
-      description,
-      ticker,
-      supply,
-      price,
-      walletLimit: 3,
-      POStartDate: new Date().getTime(),
-      logo: logoImage,
-    };
-
-    // Call the mintToken function for each item
-    const createResponse = await createCollectionHandler({
-      collectionData: data,
-    });
-    console.log("🚀 ~ handleSubmit ~ mintResponse:", createResponse);
-
-    if (createResponse.success == true) {
-      setStep(1);
-      if (!createResponse.data.id) {
-        return console.log("id not found");
-      }
-      setCollectionId(createResponse.data.id);
-      toast.success("Succesfully created collection");
-    } else {
-      toast.error(createResponse.error);
-    }
-    setIsLoading(false);
+  const formatFileTypes = (types: Set<string>): string => {
+    return Array.from(types)
+      .map(type => type.split('/')[1].toUpperCase())
+      .join(', ');
   };
 
-  const handleSubmit = async () => {
-    setIsLoading(true);
+  const updateFileInfo = (files: File[]) => {
+    const newSize = files.reduce((acc, file) => acc + file.size, 0);
+    const newTypes = files.map(file => file.type);
 
-    // const testCollectionId = "764  c7e32-a9fb-425d-be5b-6967cd1d907f";
-    /* const testData = [
-      {
-        file: imageFiles[0].file,
-        meta: { name: "test 1" },
-        collectionId: collectionId,
-      },
-      {
-        file: imageFiles[1].file,
-        meta: { name: "test 2" },
-        collectionId: collectionId,
-      },
-    ]; */
+    setTotalSize(prevSize => prevSize + newSize);
+    setFileTypes(prevTypes => {
+      const updatedTypes = new Set(prevTypes);
+      newTypes.forEach(type => updatedTypes.add(type));
+      return updatedTypes;
+    });
+  };
 
-    let i = 1;
-    const data = imageFiles.map((image) => {
-      i++;
-      return {
-        file: image.file,
-        meta: { name: `${headline} #${i}` },
-        collectionId: collectionId,
+  const handleCreateCollection = async () => {
+    try {
+      const params: CollectionData = {
+        logo: imageFile[0],
+        name: name,
+        creator: creator,
+        description: description,
+        layerType: "BITCOIN_TESTNET",
+        feeRate: 1,
       };
-    });
-
-    console.log(data);
-
-    const collectibleResponse = await createCollectibleHandler({
-      collectionData: data,
-      collectionId: collectionId,
-    });
-
-    console.log(
-      "🚀 ~ handleSubmit ~ collectibleResponse:",
-      collectibleResponse,
-    );
-    if (collectibleResponse.success == true) {
-      setStep(2);
-
-      // setCollectionId(collectibleResponse.data.id);
-      toast.success("Succesfully uploaded images to collection");
-    } else {
-      toast.error(collectibleResponse.error);
+      if (params) {
+        const response = await createCollectionMutation({ data: params });
+        if (response && response.success) {
+          const { id } = response.data;
+          setCollectionId(id);
+          console.log("create collection success", response);
+          setStep(1);
+        }
+      }
+    } catch (error) {
+      console.error("Error creating collection:", error);
     }
-    setIsLoading(false);
+  };
+
+  const handleCreateCollectibles = async () => {
+    const images = imageFiles.map((image) => image.file);
+    try {
+      if (images.length > 0 && collectionId) {
+        const response = await createCollectiblesMutation({
+          id: collectionId,
+          images: images,
+        });
+        if (response && response.success) {
+          console.log("create collectibles success", response);
+          setStep(2);
+        }
+      }
+    } catch (error) {
+      console.error("Error creating collectibles:", error);
+      // You might want to show an error message to the user here
+    }
+  };
+
+  const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
+    if (file) {
+      setImageFile([file]);
+      updateFileInfo([file]);
+    }
   };
 
   const handleUploadChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
+    const images = event.target.files;
 
-    if (files) {
-      const newImageFiles: ImageFile[] = Array.from(files).map((file) => ({
+    if (images) {
+      const newImageFiles: ImageFile[] = Array.from(images).map((file) => ({
         file,
         preview: URL.createObjectURL(file),
       }));
       // setImageLogo(newImageFiles);
       setImageFiles((prevFiles) => [...prevFiles, ...newImageFiles]);
+      updateFileInfo(Array.from(images));
     }
   };
 
-  const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]; // Get the first file from the FileList
-    console.log("🚀 ~ handleLogoChange ~ file:", file);
+  const togglePayModal = () => {
+    setPayModal(!payModal);
+  };
 
-    if (file) {
-      const reader = new FileReader();
-
-      reader.onloadend = () => {
-        const base64 = reader.result as string;
-        const mime = base64
-          .split(",")[0]
-          .split(":")[1]
-          .split(";")[0]
-          .split("/")[1];
-        setImageBase64(base64);
-        setImageMime(mime);
-      };
-
-      const imageFile: ImageFile = {
-        file,
-        preview: URL.createObjectURL(file),
-      };
-
-      setImageLogo(imageFile);
-
-      console.log(imageBase64);
-
-      reader.readAsDataURL(file);
-    }
-    /*
-    if (file) {
-      const imageFile: ImageFile = {
-        file,
-        preview: URL.createObjectURL(file),
-      };
-
-      setImageLogo(imageFile);
-    } */
+  const handleToggle = () => {
+    setIsChecked(!isChecked);
   };
 
   const handleDeleteLogo = () => {
     setImageLogo(null);
+  };
+
+  const handleNextStep = () => {
+    setStep(3);
   };
 
   return (
@@ -196,11 +162,7 @@ const CollectionDetail = () => {
         <Header />
         <div className="flex flex-col items-center gap-16 z-50">
           <Banner
-            title={
-              step == 0 || step == 1
-                ? "Create Collection"
-                : "Your Collection is successfully launched!"
-            }
+            title={"Create Collection"}
             image={"/background-2.png"}
             setStep={step}
             stepperData={stepperData}
@@ -214,35 +176,20 @@ const CollectionDetail = () => {
                 <div className="flex flex-col w-full gap-6">
                   <Input
                     title="Name"
-                    text="Collection name"
-                    value={headline}
-                    onChange={(e) => setHeadline(e.target.value)}
+                    placeholder="Collection name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
                   <Input
                     title="Description"
-                    text="Collection description"
+                    placeholder="Collection creator name"
+                    value={creator}
+                    onChange={(e) => setCreator(e.target.value)}
+                  />
+                  <TextArea
+                    text="Description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                  />
-                  <Input
-                    title="Ticker"
-                    text="Collection ticker"
-                    value={ticker}
-                    onChange={(e) => setTicker(e.target.value)}
-                  />
-                  <Input
-                    title="Supply"
-                    text="Collection supply"
-                    value={supply}
-                    onChange={(e) => setSupply(parseInt(e.target.value))}
-                    type="number"
-                  />
-                  <Input
-                    title="Price"
-                    text="Collection price"
-                    value={price}
-                    onChange={(e) => setPrice(parseInt(e.target.value))}
-                    type="number"
                   />
                 </div>
               </div>
@@ -250,15 +197,15 @@ const CollectionDetail = () => {
                 <p className="font-bold text-profileTitle text-neutral50">
                   Collection logo
                 </p>
-                {logoImage !== null ? (
+                {imageFile && imageFile[0] ? (
                   <UploadCardFill
-                    image={logoImage.preview}
+                    image={URL.createObjectURL(imageFile[0])}
                     onDelete={handleDeleteLogo}
                   />
                 ) : (
                   <UploadFile
                     text="Accepted file types: WEBP (recommended), JPEG, PNG, SVG, and GIF."
-                    handleImageUpload={handleLogoChange}
+                    handleImageUpload={handleUploadImage}
                   />
                 )}
               </div>
@@ -270,18 +217,11 @@ const CollectionDetail = () => {
                 <ButtonLg
                   title="Continue"
                   isSelected={true}
-                  onClick={() => handleSubmitCollection()}
+                  onClick={handleCreateCollection}
                 >
                   {isLoading ? "Loading..." : "Continue"}
                 </ButtonLg>
               </div>
-              {/* <ButtonLg
-                title="Continue"
-                isSelected={true}
-                onClick={() => handleSubmit()}
-              >
-                Test?
-              </ButtonLg> */}
             </div>
           )}
           {step == 1 && (
@@ -297,17 +237,15 @@ const CollectionDetail = () => {
                         <CollectiblePreviewCard
                           image={item.preview}
                           key={index}
-                          onDelete={() => console.log("s")}
                           title={item.file.name}
                         />
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <UploadFile
+                  <CollectionUploadFile
                     text="Accepted file types: WEBP (recommended), JPEG, PNG, SVG, and GIF."
                     handleImageUpload={handleUploadChange}
-                    multiple
                   />
                 )}
               </div>
@@ -362,74 +300,197 @@ const CollectionDetail = () => {
                 <ButtonLg
                   // type="submit"
                   isSelected={true}
-                  onClick={() => handleSubmit()}
+                  onClick={handleCreateCollectibles}
                   isLoading={isLoading}
                   // disabled={isLoading}
                 >
-                  {isLoading ? "...loading" : "Upload"}
+                  {isLoading ? "...loading" : "Continue"}
                 </ButtonLg>
               </div>
             </div>
           )}
           {step == 2 && (
+            <div className="w-[592px] items-start flex flex-col gap-16">
+              <div className="flex flex-col w-full gap-4">
+                <div className="flex flex-row justify-between items-center">
+                  <p className="font-bold text-profileTitle text-neutral50">
+                    Launch on Mint Park
+                  </p>
+                  <Toggle isChecked={isChecked} onChange={handleToggle} />
+                </div>
+                <p className="text-neutral200 text-lg">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin
+                  ac ornare nisi. Aliquam eget semper risus, sed commodo elit.
+                  Curabitur sed congue magna. Donec ultrices dui nec ullamcorper
+                  aliquet. Nunc efficitur mauris id mi venenatis imperdiet.
+                  Integer mauris lectus, pretium eu nibh molestie, rutrum
+                  lobortis tortor. Duis sit amet sem fermentum, consequat est
+                  nec, ultricies justo.
+                </p>
+              </div>
+              {isChecked ? (
+                <div className="flex flex-col gap-8">
+                  <div className="flex flex-col w-full gap-4">
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="font-bold text-profileTitle text-neutral50">
+                        Public phase
+                      </p>
+                    </div>
+                    <p className="text-neutral200 text-lg">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Proin ac ornare nisi. Aliquam eget semper risus, sed
+                      commodo elit. Curabitur sed congue magna. Donec ultrices
+                      dui nec ullamcorper aliquet. Nunc efficitur mauris id mi
+                      venenatis imperdiet. Integer mauris lectus, pretium eu
+                      nibh molestie, rutrum lobortis tortor. Duis sit amet sem
+                      fermentum, consequat est nec, ultricies justo.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral50 text-xl font-medium">
+                        Start date
+                      </p>
+                      <div className="flex flex-row gap-4">
+                        <div className="relative flex items-center">
+                          <Input
+                            type="birthdaytime"
+                            placeholder="YYYY - MM - DD"
+                            className="pl-10 w-[184px]"
+                          />
+                          <div className="absolute left-4">
+                            <Calendar2 size={20} color="#D7D8D8" />
+                          </div>
+                        </div>
+                        <div className="relative flex items-center">
+                          <Input
+                            placeholder="HH : MM"
+                            className="pl-10 w-[184px]"
+                          />
+                          <div className="absolute left-4">
+                            <Clock size={20} color="#D7D8D8" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral50 text-xl font-medium">
+                        End date
+                      </p>
+                      <div className="flex flex-row gap-4">
+                        <div className="relative flex items-center">
+                          <Input
+                            type="birthdaytime"
+                            placeholder="YYYY - MM - DD"
+                            className="pl-10 w-[184px]"
+                          />
+                          <div className="absolute left-4">
+                            <Calendar2 size={20} color="#D7D8D8" />
+                          </div>
+                        </div>
+                        <div className="relative flex items-center">
+                          <Input
+                            placeholder="HH : MM"
+                            className="pl-10 w-[184px]"
+                          />
+                          <div className="absolute left-4">
+                            <Clock size={20} color="#D7D8D8" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <p className="text-neutral50 text-lg font-medium">
+                      Public mint price
+                    </p>
+                    <div className="relative flex items-center">
+                      <Input placeholder="Amount" className="w-full pl-10" />
+                      <div className="absolute left-4">
+                        <Bitcoin size={20} color="#D7D8D8" />
+                      </div>
+                      <div className="absolute right-4">
+                        <p className="text-md text-neutral200 font-medium">
+                          BTC
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-neutral200 text-sm pl-4">
+                      Enter 0 for free mints
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    <p className="text-lg text-neutral50 font-medium">
+                      Max mint per wallet
+                    </p>
+                    <Input placeholder="0" />
+                  </div>
+                </div>
+              ) : (
+                ""
+              )}
+              <div className="flex flex-row w-full gap-8">
+                <ButtonOutline title="Back" onClick={() => setStep(step - 1)} />
+                <ButtonLg
+                  isSelected={true}
+                  onClick={handleNextStep}
+                  isLoading={isLoading}
+                >
+                  {isLoading ? "...loading" : "Continue"}
+                </ButtonLg>
+              </div>
+            </div>
+          )}
+          {step == 3 && (
             <div className="w-[800px] flex flex-col gap-16">
               <div className="flex flex-row items-center justify-start w-full gap-8">
-                {
+                {imageFile && imageFile[0] && (
                   <Image
-                    src={imageBase64}
+                    src={URL.createObjectURL(imageFile[0])}
                     alt="background"
                     width={0}
                     height={160}
                     sizes="100%"
                     className="w-[280px] h-[280px] object-cover rounded-3xl"
                   />
-                }
+                )}
+
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-3">
-                    <p className="text-3xl font-bold text-neutral50">
-                      {headline}
-                    </p>
+                    <p className="text-3xl font-bold text-neutral50">{name}</p>
                     <p className="text-xl font-medium text-neutral100">
-                      {ticker}
+                      By {creator}
                     </p>
                   </div>
-                  {/* <p className="text-neutral100 text-lg2">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Proin ac ornare nisi. Aliquam eget semper risus, sed commodo
-                    elit. Curabitur sed congue magna. Donec ultrices dui nec
-                    ullamcorper aliquet. Nunc efficitur mauris id mi venenatis
-                    imperdiet. Integer mauris lectus, pretium eu nibh molestie,
-                    rutrum lobortis tortor. Duis sit amet sem fermentum,
-                    consequat est nec.
-                  </p> */}
+                  <p className="text-neutral100 text-lg2">{description}</p>
                 </div>
               </div>
               <div className="relative flex flex-row w-full h-auto gap-8 overflow-x-auto">
-                {/* {mergedArray.map((item, index) => (
-                  <div key={index} className="w-full h-full">
-                    <CollectionCard
-                      image={item.base64}
-                      key={index}
-                      title={item.meta.name}
-                    />
+                {imageFiles.length > 0 && (
+                  <div className="flex flex-row w-full h-full gap-8 overflow-x-auto">
+                    {imageFiles.map((item, index) => (
+                      <div key={index} className="w-full h-full">
+                        <CollectiblePreviewCard
+                          image={item.preview}
+                          key={index}
+                          title={name + " " + "#" + index}
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))} */}
-                {/* todo ene gradient iig zasah */}
-                {/* <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-l from-neutral600 via-transparent to-neutral600" /> */}
+                )}
               </div>
               <div className="flex flex-row gap-8">
-                <ButtonOutline
-                  title="Go home"
-                  onClick={() => router.push("/")}
-                />
-                <ButtonLg isSelected={true} onClick={() => router.refresh()}>
-                  Create Again
+                <ButtonOutline title="Back" onClick={() => router.push("/")} />
+                <ButtonLg isSelected={true} onClick={togglePayModal}>
+                  Confirm
                 </ButtonLg>
               </div>
             </div>
           )}
         </div>
       </div>
+      <OrderPayModal open={payModal} onClose={togglePayModal} fileSize={totalSize} fileType={formatFileTypes(fileTypes)} id={collectionId}/>
     </Layout>
   );
 };

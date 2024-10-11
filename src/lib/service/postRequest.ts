@@ -7,7 +7,7 @@ import {
   User,
 } from "../types";
 import { getAccessToken } from "../auth";
-import { CreateCollectibleType, CollectibleDataType, FeeRateAmount } from "../types";
+import { CreateCollectibleType, CollectibleDataType, FeeRateAmount, CollectionData } from "../types";
 import { collectibleFormData, collectiontFormData } from "./formHelper";
 
 export async function generateMessageHandler({ address }: { address: string }) {
@@ -18,6 +18,30 @@ export async function generateMessageHandler({ address }: { address: string }) {
       // if(respo)
       return response.data;
     });
+}
+
+export async function createOrder({ id, feeRate }: { id: string, feeRate: number }) {
+  try {
+    return axiosClient
+      .post(`/api/v1/collections/${id}/create-order`, { feeRate })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function createMintCollection({ id }: { id: string}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/collections/${id}/mint`)
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
 }
 
 export async function loginHandler({
@@ -73,6 +97,52 @@ export async function createCollectible({ data }: { data: CollectibleDataType })
 
   const response = await axiosClient.request(config);
   return response.data;
+}
+
+export async function createCollection({ data }: { data: CollectionData }) {
+  const formData = collectibleFormData(data);
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/collections`,
+
+    data: formData,
+  };
+
+  const response = await axiosClient.request(config);
+  return response.data;
+}
+
+export async function createCollectiblesToCollection({ images, id }: { images: File[], id: string }) {
+  const formData = new FormData();
+  
+  images.forEach((file, index) => {
+    formData.append(`images`, file);
+    console.log(`Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`);
+  });
+
+  console.log('FormData contents:');
+  console.log('images:', formData.getAll('images'));
+
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/collections/${id}/collectibles`,
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  };
+
+  try {
+    const response = await axiosClient.request(config);
+    console.log('Server response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error in createCollectiblesToCollection:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Server error response:', error.response.data);
+    }
+    throw error;
+  }
 }
 
 export async function createCollectibleMint(orderId:string) {
