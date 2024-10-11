@@ -49,8 +49,6 @@ const OrderPayModal: React.FC<modalProps> = ({
   const [orderType, setOrderType] = useState<string>("")
   const [inscribeModal, setInscribeModal] = useState(false);
 
-  console.log("asdfasdf", id)
-
   const toggleInscribeModal = () => {
     setInscribeModal(!inscribeModal);
   };
@@ -63,11 +61,6 @@ const OrderPayModal: React.FC<modalProps> = ({
     slow: { networkFee: 0, serviceFee: 0, totalFee: 0 },
     fast: { networkFee: 0, serviceFee: 0, totalFee: 0 },
     custom: { networkFee: 0, serviceFee: 0, totalFee: 0 },
-  });
-
-  const { data: feeRates = [] } = useQuery({
-    queryKey: ["feeRatesData"],
-    queryFn: () => getFeeRatesByLayer(),
   });
 
   const { mutateAsync: feeAmountMutation } = useMutation({
@@ -91,30 +84,44 @@ const OrderPayModal: React.FC<modalProps> = ({
         feeRate: feeRate,
       };
       const result = await feeAmountMutation({ data: feeRateAmount });
+      
+      // Check if result is null or undefined, or if estimatedFee is missing
+      if (!result || !result.estimatedFee) {
+        console.error('Invalid response from feeAmountMutation:', result);
+        return { networkFee: 0, serviceFee: 0, totalFee: 0 };
+      }
+      
       return result.estimatedFee;
     } catch (error) {
-      console.error(error);
+      console.error("Error calculating fee amount:", error);
       return { networkFee: 0, serviceFee: 0, totalFee: 0 };
     }
   };
-
   const updateAllEstimatedFees = async () => {
-    const slowFee = await calculateFeeAmount(feeRates?.economyFee || 0);
-    const fastFee = await calculateFeeAmount(feeRates?.fastestFee || 0);
-    const customFee = await calculateFeeAmount(feeRate);
+    try {
+      const slowFee = await calculateFeeAmount(1);  // Always use 1 for slow
+      const fastFee = await calculateFeeAmount(1);  // Always use 1 for fast
+      const customFee = await calculateFeeAmount(feeRate);
 
-    setEstimatedFee({
-      slow: slowFee,
-      fast: fastFee,
-      custom: customFee,
-    });
+      setEstimatedFee({
+        slow: slowFee,
+        fast: fastFee,
+        custom: customFee,
+      });
+    } catch (error) {
+      console.error("Error updating estimated fees:", error);
+      // Set default values if there's an error
+      setEstimatedFee({
+        slow: { networkFee: 0, serviceFee: 0, totalFee: 0 },
+        fast: { networkFee: 0, serviceFee: 0, totalFee: 0 },
+        custom: { networkFee: 0, serviceFee: 0, totalFee: 0 },
+      });
+    }
   };
 
   useEffect(() => {
-    if (feeRates) {
-      updateAllEstimatedFees();
-    }
-  }, [feeRates, feeRate]);
+    updateAllEstimatedFees();
+  }, [feeRate]);
 
   const handleFeeRateChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -127,7 +134,7 @@ const OrderPayModal: React.FC<modalProps> = ({
 
   const handlePay = async () => {
     try {
-      if (id ) {
+      if (id) {
         const response = await createOrderMutation({ id: id, feeRate: feeRate });
         if (response && response.success) {
           let txid = await window.unisat.sendBitcoin(
@@ -194,7 +201,7 @@ const OrderPayModal: React.FC<modalProps> = ({
                   <p className="text-neutral100 text-lg font-medium">Slow</p>
                   <div className="flex flex-row gap-1 items-center">
                     <p className="text-lg2 text-neutral50 font-bold">
-                      {feeRates?.economyFee}
+                      1
                     </p>
                     <p className="text-md text-neutral100 font-medium">
                       Sats/vB
@@ -208,7 +215,7 @@ const OrderPayModal: React.FC<modalProps> = ({
                   <p className="text-neutral100 text-lg font-medium">Fast</p>
                   <div className="flex flex-row gap-1 items-center">
                     <p className="text-lg2 text-neutral50 font-bold">
-                      {feeRates?.fastestFee}
+                      1
                     </p>
                     <p className="text-md text-neutral100 font-medium">
                       Sats/vB
