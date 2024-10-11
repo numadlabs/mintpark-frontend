@@ -1,16 +1,23 @@
 import LaunchpadCard from "@/components/atom/cards/launchpadCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { launchpad } from "@/lib/constants";
+// import { launchpad } from "@/lib/constants";
+import { fetchLaunchs } from "@/lib/service/queryHelper";
 import { CollectionType } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
 // import { CollectionType } from "@/lib/service/fetcher";
 // import { Toggle } from "@/components/ui/toggle";
 
 // import launchpadCard from '@/components/atom/cards/launchpadCard'
+
 export default function LaunchBanner({
   collections,
 }: {
-  collections: CollectionType[];
+  collections: any;
 }) {
+  const { data: launchs = [] } = useQuery({
+    queryKey: ["launchData"],
+    queryFn: () => fetchLaunchs(),
+  });
   return (
     <>
       {/* <launchpadCard/> */}
@@ -36,48 +43,49 @@ export default function LaunchBanner({
           </TabsTrigger>
         </TabsList>
 
-        {/* <LaunchpadCard data={launchpad} /> */}
+        {/* <LaunchpadCard collection={launchs} /> */}
         <TabsContent value="all" className="grid grid-cols-4 gap-10">
-          {/* {launchpad.map((item) => {
+          {collections.map((item:any) => {
             return (
               <div key={item.id}>
-                <LaunchpadCard key={item.id} data={item} />
+                <LaunchpadCard key={item.id} collection={item} />
               </div>
             );
-          })} */}
-          {collections?.map((collection) => (
+          })}
+          {collections?.map((collection:any) => (
             <div key={collection.id}>
               <LaunchpadCard key={collection.id} collection={collection} />
             </div>
           ))}
         </TabsContent>
         <TabsContent value="live" className="grid grid-cols-4 gap-10">
-          {/* {launchpad.map((item) => {
+          {collections.map((item:any) => {
             return (
               <>
                 {item.type === "live" && (
                   <div key={item.id}>
-                    <LaunchpadCard data={item} />
+                    <LaunchpadCard collection={item} />
                   </div>
                 )}
               </>
             );
-          })} */}
+          })}
         </TabsContent>
         <TabsContent value="past" className="grid grid-cols-4 gap-10">
-          {/* {launchpad.map((item) => {
+          {collections.map((item:any) => {
             return (
               <>
                 {item.type === "ended" && (
                   <div key={item.id}>
-                    <LaunchpadCard data={item} />{" "}
+                    <LaunchpadCard collection={item} />{" "}
                   </div>
                 )}
               </>
             );
-          })} */}
+          })}
         </TabsContent>
       </Tabs>
     </>
   );
 }
+

@@ -4,7 +4,7 @@ import Header from "@/components/layout/header";
 import Layout from "@/components/layout/layout";
 import LaunchpadBanner from "@/components/section/launchpadBanner";
 import LaunchBanner from "@/components/section/launchpads/launchBanner";
-import { fetchLaunchs } from "@/lib/service/fetcher";
+import { fetchLaunchs } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 
 const Launchpad = () => {
@@ -12,10 +12,10 @@ const Launchpad = () => {
     isLoading,
     isError,
     isFetching,
-    data: collections,
+    data: launchData,
     error,
   } = useQuery({
-    queryKey: ["collections"],
+    queryKey: ["launchData"],
     queryFn: () => {
       // if (typeof slug === "string") {
       return fetchLaunchs();
@@ -23,12 +23,12 @@ const Launchpad = () => {
     },
     // enabled: !!slug,
   });
-  console.log("🚀 ~ Collections ~ raffleDetail:", collections);
+  console.log("🚀 ~ Collections ~ raffleDetail:", launchData);
   return (
     <Layout>
       <Header />
       <LaunchpadBanner />
-      {collections && <LaunchBanner collections={collections} />}
+      {launchData && <LaunchBanner collections={launchData} />}
     </Layout>
   );
 };
