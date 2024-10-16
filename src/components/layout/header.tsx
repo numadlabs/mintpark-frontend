@@ -87,10 +87,10 @@ export default function Header() {
             </div>
             <div className="flex flex-row overflow-hidden items-center gap-4">
               <div>
-                <Select defaultValue="citrea">
+                <Select defaultValue="bitcoin test">
                   <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl">
                     {/* <Avatar><AvatarImage src="/wallets/Bitcoin.png" alt="bitcoin" sizes="100%" width={24} height={24} className="w-6 h-6"/></Avatar>   */}
-                    <SelectValue defaultValue={"bitcoin"} />
+                    <SelectValue defaultValue={"bitcoin test"} />
                   </SelectTrigger>
                   <SelectContent className="w-full mt-4 flex flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl">
                     <div className="flex flex-col gap-2">
@@ -142,7 +142,7 @@ export default function Header() {
                           Fractal
                         </div>
                       </SelectItem> */}
-                      {/* <SelectItem
+                      <SelectItem
                         value="bitcoin test"
                         className="w-[144px] hover:bg-white8 duration-300 transition-all flex flex-row items-center gap-2"
                       >
@@ -157,7 +157,7 @@ export default function Header() {
                           </span>
                           Bitcoin Testnet
                         </div>
-                      </SelectItem> */}
+                      </SelectItem>
                       <SelectItem
                         value="citrea test"
                         className="w-full hover:bg-white8 duration-300 transition-all"
