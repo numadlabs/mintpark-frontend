@@ -41,10 +41,12 @@ export default function ColDetailCards({ data }: { data: CardType }) {
           <div className="w-full max-w-[200px] h-[18px]">
             <p className="font-medium text-lg2 text-neutral50">{data.owner}</p>
           </div>
-          <div className="w-full max-w-[200px] h-[18px]">
-            <span className="font-medium text-lg2 text-neutral50">
-              <span>{data.day} days ago</span>
-              <span></span>
+          <div className="w-full max-w-[200px] h-[18px] group">
+            <span className="font-medium text-lg2 text-neutral50 relative">
+              <span className="group-hover:hidden">{data.day} days ago</span>
+              <span className="hidden group-hover:block transition-opacity cursor-pointer duration-1000 ease-in-out w-[103px] h-10 absolute -top-2 -left-[60px] text-white bg-white4 pt-2 pr-5 pb-2 pl-5 rounded-lg">
+                Buy now
+              </span>
             </span>
           </div>
         </div>
