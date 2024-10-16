@@ -1,16 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { ScrollArea } from "../ui/scroll-area";
 import { getOrderById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
+import { ArrowRight2 } from "iconsax-react";
+import OrderDetailModal from "../modal/order-detail-modal";
+
+interface Order {
+  orderId: string;
+  quantity: number;
+  status: string;
+  createdAt: string;
+}
 
 const OrderDetail = () => {
+  const [orderModal, setOrderModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const { data: orders = [] } = useQuery({
     queryKey: ["orderData"],
     queryFn: () => getOrderById(),
   });
-
-  console.log(orders);
   const formatDateTime = (dateString: any) => {
     const date = new Date(dateString);
     const year = date.getFullYear();
@@ -18,7 +27,6 @@ const OrderDetail = () => {
     const day = String(date.getDate()).padStart(2, "0");
     const hours = String(date.getHours()).padStart(2, "0");
     const minutes = String(date.getMinutes()).padStart(2, "0");
-    // const seconds = String(date.getSeconds()).padStart(2, '0');
     return `${year}/${month}/${day}, ${hours}:${minutes}`;
   };
 
@@ -36,6 +44,11 @@ const OrderDetail = () => {
   };
   const capitalizeFirstLetter = (string: string) => {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  };
+
+  const toggleOrderModal = (order: any) => {
+    setSelectedOrder(order);
+    setOrderModal(!orderModal);
   };
   return (
     <div className="container relative m-auto z-50 pt-11 flex flex-col gap-8">
@@ -75,9 +88,13 @@ const OrderDetail = () => {
           ))}
         </div>
         <ScrollArea className="h-[700px] w-full pb-8 border-t-2 border-neutral500">
-          {orders.map((item: any) => (
-            <div className="flex flex-col w-full pt-4 gap-4">
-              <div className="bg-gray50 rounded-2xl p-5">
+          <div className="flex flex-col w-full pt-4 gap-4">
+            {orders.map((item: any) => (
+              <button
+                className="bg-gray50 rounded-2xl p-5 relative flex items-center"
+                key={item?.orderId}
+                onClick={() => toggleOrderModal(item)}
+              >
                 <div className="grid grid-cols-4 w-full h-[18px]">
                   <p className="font-medium text-md w-[160px] text-neutral200 truncate">
                     {item?.orderId}
@@ -94,11 +111,23 @@ const OrderDetail = () => {
                     {formatDateTime(item?.createdAt)}
                   </p>
                 </div>
-              </div>
-            </div>
-          ))}
+                <div className="absolute right-5">
+                  <ArrowRight2 size={16} color="#D7D8D8" />
+                </div>
+              </button>
+            ))}
+          </div>
         </ScrollArea>
       </div>
+      {selectedOrder && (
+        <OrderDetailModal
+          open={orderModal}
+          onClose={() => toggleOrderModal(null)}
+          orderId={selectedOrder.orderId}
+          status={selectedOrder.status}
+          quantity={selectedOrder.quantity}
+        />
+      )}
     </div>
   );
 };
