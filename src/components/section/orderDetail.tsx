@@ -26,7 +26,7 @@ const OrderDetail = () => {
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order: Order) =>
-      order.orderId.toLowerCase().includes(searchTerm.toLowerCase())
+      order.orderId.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [orders, searchTerm]);
 
