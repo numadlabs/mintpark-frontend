@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import { ScrollArea } from "../ui/scroll-area";
 import { getOrderById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight2 } from "iconsax-react";
 import OrderDetailModal from "../modal/order-detail-modal";
+import { Input } from "../ui/input";
 
 interface Order {
   orderId: string;
@@ -16,10 +17,19 @@ interface Order {
 const OrderDetail = () => {
   const [orderModal, setOrderModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const { data: orders = [] } = useQuery({
     queryKey: ["orderData"],
     queryFn: () => getOrderById(),
   });
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order: Order) =>
+      order.orderId.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [orders, searchTerm]);
+
   const formatDateTime = (dateString: any) => {
     const date = new Date(dateString);
     const year = date.getFullYear();
@@ -42,6 +52,7 @@ const OrderDetail = () => {
         return "text-[#B0B0B1]]";
     }
   };
+
   const capitalizeFirstLetter = (string: string) => {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   };
@@ -50,6 +61,7 @@ const OrderDetail = () => {
     setSelectedOrder(order);
     setOrderModal(!orderModal);
   };
+
   return (
     <div className="container relative m-auto z-50 pt-11 flex flex-col gap-8">
       <div className="flex w-full gap-4">
@@ -61,11 +73,13 @@ const OrderDetail = () => {
             height={20}
             className="w-[17.08px] h-[17.08px] relative left-8 top-4"
           />
-          <input
-            type="email"
+          <Input
+            type="text"
             name="Search"
             placeholder="Search by Order ID"
             className="w-[813px] h-[48px] rounded-xl pt-[14px] pr-[14px] pb-[14px] pl-10 bg-transparent border border-neutral400 text-neutral200"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <div className="flex justify-center items-center rounded-xl h-12 w-12 border border-neutral400 hover:border-neutral300 cursor-pointer">
@@ -89,26 +103,26 @@ const OrderDetail = () => {
         </div>
         <ScrollArea className="h-[700px] w-full pb-8 border-t-2 border-neutral500">
           <div className="flex flex-col w-full pt-4 gap-4">
-            {orders.map((item: any) => (
+            {filteredOrders.map((item: Order) => (
               <button
                 className="bg-gray50 rounded-2xl p-5 relative flex items-center"
-                key={item?.orderId}
+                key={item.orderId}
                 onClick={() => toggleOrderModal(item)}
               >
                 <div className="grid grid-cols-4 w-full h-[18px]">
                   <p className="font-medium text-md w-[160px] text-neutral200 truncate">
-                    {item?.orderId}
+                    {item.orderId}
                   </p>
                   <p className="pl-2 font-medium text-md text-neutral200">
-                    {item?.quantity}
+                    {item.quantity}
                   </p>
                   <p
-                    className={`pl-3 font-medium text-md ${getStatusColor(item?.status)} capitalize truncate`}
+                    className={`pl-3 font-medium text-md ${getStatusColor(item.status)} capitalize truncate`}
                   >
-                    {capitalizeFirstLetter(item?.status)}
+                    {capitalizeFirstLetter(item.status)}
                   </p>
                   <p className="pl-4 font-medium text-md text-neutral200">
-                    {formatDateTime(item?.createdAt)}
+                    {formatDateTime(item.createdAt)}
                   </p>
                 </div>
                 <div className="absolute right-5">
