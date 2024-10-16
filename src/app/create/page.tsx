@@ -56,13 +56,13 @@ const Create = () => {
       text: "Solo NFTs for unique creations and spin offs.",
       pageUrl: "/create/collectible",
     },
-    {
-      id: 3,
-      icon: BuyCrypto,
-      title: "Token",
-      text: "Fungible assets for in-app currency or governance.",
-      pageUrl: "/create/token",
-    },
+    // {
+    //   id: 3,
+    //   icon: BuyCrypto,
+    //   title: "Token",
+    //   text: "Fungible assets for in-app currency or governance.",
+    //   pageUrl: "/create/token",
+    // },
   ];
 
   return (

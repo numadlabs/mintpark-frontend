@@ -3,6 +3,7 @@ import Header from "@/components/layout/header";
 import Layout from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -19,18 +20,22 @@ export default function Home() {
               ornare nisi. Aliquam eget semper risus, sed commodo elit.{" "}
             </p>
             <div className="flex gap-8">
-              <Button
-                variant="outline"
-                className="w-[176px] h-12 cursor-pointer"
-              >
-                Create
-              </Button>
-              <Button
-                variant="default"
-                className="w-[176px] h-12 cursor-pointer"
-              >
-                Explore
-              </Button>
+              <Link href={"/create"} className="cursor-pointer">
+                <Button
+                  variant="outline"
+                  className="w-[176px] h-12 cursor-pointer"
+                >
+                  Create
+                </Button>
+              </Link>
+              <Link href={"/collections"} className="cursor-pointer">
+                <Button
+                  variant="default"
+                  className="w-[176px] h-12 cursor-pointer"
+                >
+                  Explore
+                </Button>
+              </Link>
             </div>
           </div>
           <div className="h-[520px] relative bottom-10">
