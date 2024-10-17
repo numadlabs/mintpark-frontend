@@ -1,3 +1,4 @@
+import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import { ReactNode } from "react";
 
@@ -11,6 +12,7 @@ export default function CollectionLayout({
       <div className="w-full max-w-[1216px]">
         <Header />
         {children}
+        <Footer/>
       </div>
     </div>
   );

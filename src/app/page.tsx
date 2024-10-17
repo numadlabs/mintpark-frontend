@@ -1,4 +1,5 @@
 "use client";
+import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
 import Layout from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
@@ -57,6 +58,7 @@ export default function Home() {
             />
           </div>
         </section>
+        {/* <Footer/> */}
       </Layout>
     </>
   );
