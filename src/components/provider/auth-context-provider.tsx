@@ -121,6 +121,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const storedAuth = localStorage.getItem("authToken");
           const userProfile = localStorage.getItem("userProfile");
           const storedLayerId = localStorage.getItem("layerId");
+          const logoutTime = localStorage.getItem("logoutTime");
+          const now = moment();
+
+          if (logoutTime && now.isBefore(moment(logoutTime))) {
+            // If the current time is before the stored logout time, stay logged out
+            handleLogout();
+            return;
+          }
 
           if (storedAuth && userProfile && storedLayerId) {
             const authData = JSON.parse(storedAuth);
@@ -173,9 +181,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem("userProfile");
     localStorage.removeItem("authToken");
     localStorage.removeItem("layerId");
+
+    const logoutTime = moment().add(7, "days").toISOString();
+    localStorage.setItem("logoutTime", logoutTime);
     router.push("/");
     clearToken();
-    toast.success("Successfully logged out");
   };
 
   useEffect(() => {

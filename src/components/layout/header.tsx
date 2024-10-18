@@ -54,10 +54,12 @@ export default function Header() {
   const { data: layers = [] } = useQuery({
     queryKey: ["layerData"],
     queryFn: () => getAllLayers(),
+    staleTime: Infinity,
+    gcTime: Infinity,
   });
 
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData"],
+  const { data: currentLayer = null } = useQuery({
+    queryKey: ["currentLayerData", id],
     queryFn: () => getLayerById(id as string),
     enabled: !!id,
   });
@@ -65,8 +67,13 @@ export default function Header() {
   useEffect(() => {
     if (currentLayer) {
       setDefaultLayer(`${currentLayer.layer}-${currentLayer.network}`);
+    } else if (layers.length > 0 && !defaultLayer) {
+      // Set a default layer if none is selected
+      const firstLayer = layers[0];
+      setDefaultLayer(`${firstLayer.layer}-${firstLayer.network}`);
+      setSelectedLayerId(firstLayer.id);
     }
-  }, [currentLayer]);
+  }, [currentLayer, layers, defaultLayer, setSelectedLayerId]);
 
   const routesData = [
     { title: "Create", pageUrl: "/create" },
@@ -106,6 +113,13 @@ export default function Header() {
       (l: LayerType) => l.layer === layer && l.network === network,
     );
     if (selectedLayer) {
+      if (authState.authenticated) {
+        // If user is authenticated, log them out before changing the layer
+        onLogout();
+        toast.info(
+          "Logged out due to layer change. Please reconnect your wallet.",
+        );
+      }
       setSelectedLayerId(selectedLayer.id);
       setDefaultLayer(value);
     }
@@ -116,6 +130,13 @@ export default function Header() {
       connect();
     } else {
       toast.error("Please select a layer before connecting");
+    }
+  };
+
+  const handleLogOut = () => {
+    if (authState.authenticated) {
+      onLogout();
+      toast.info("Logged out successfully");
     }
   };
 
@@ -225,7 +246,7 @@ export default function Header() {
                     </Link>
                     <DropdownMenuItem
                       className="text-neutral50 text-md font-medium flex flex-row gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
-                      onClick={onLogout}
+                      onClick={handleLogOut}
                     >
                       <span>
                         <Logout size={24} color="#D7D8D8" />
@@ -235,7 +256,12 @@ export default function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button variant={"outline"} size={"lg"} onClick={handleConnect}>
+                <Button
+                  variant={"secondary"}
+                  size={"lg"}
+                  onClick={handleConnect}
+                  className="w-[170px]"
+                >
                   Connect Wallet
                 </Button>
               )}
