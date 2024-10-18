@@ -159,3 +159,10 @@ export type InscribeOrderData = {
   networkFee: number;
   serviceFee: number;
 };
+
+export type LayerType = {
+  id: string;
+  name: string;
+  layer: string;
+  network: string;
+};

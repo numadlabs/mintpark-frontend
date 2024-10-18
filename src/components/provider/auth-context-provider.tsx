@@ -17,10 +17,13 @@ interface AuthProps {
     loading: boolean;
     userId: string | null;
     address: string | null;
+    layerId: string | null;
   };
   onLogin: () => Promise<void>;
   onLogout: () => void;
   connect: () => Promise<void>;
+  selectedLayerId: string | null;
+  setSelectedLayerId: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 declare global {
@@ -55,6 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [walletAddress, setWalletAddress] = useState<string>("");
   const [loginParams, setLoginParams] = useState<LoginParams | null>(null);
+  const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
   const { setConnectedAddress, setConnected } = useWalletStore();
 
   const [authState, setAuthState] = useState<AuthProps["authState"]>({
@@ -63,6 +67,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loading: true,
     userId: null,
     address: null,
+    layerId: null,
   });
 
   const generateMessageMutation = useMutation({
@@ -90,12 +95,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           userId: data.data.user.id,
         };
         localStorage.setItem("authToken", JSON.stringify(authData));
+
+        // Store layerId separately
+        localStorage.setItem("layerId", data.data.user.layerId);
+
         setAuthState((prev) => ({
           ...prev,
           token: data.data.auth.accessToken,
           authenticated: true,
           userId: data.data.user.id,
           address: data.data.user.address,
+          layerId: data.data.user.layerId,
         }));
         toast.success("Successfully logged in");
       }
@@ -110,8 +120,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
           const storedAuth = localStorage.getItem("authToken");
           const userProfile = localStorage.getItem("userProfile");
+          const storedLayerId = localStorage.getItem("layerId");
 
-          if (storedAuth && userProfile) {
+          if (storedAuth && userProfile && storedLayerId) {
             const authData = JSON.parse(storedAuth);
             const profileData = JSON.parse(userProfile);
 
@@ -129,6 +140,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               authenticated: true,
               loading: false,
               userId: authData.userId,
+              layerId: storedLayerId,
             }));
 
             setConnectedAddress(accounts[0]);
@@ -156,9 +168,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       loading: false,
       userId: null,
       address: null,
+      layerId: null,
     });
     localStorage.removeItem("userProfile");
     localStorage.removeItem("authToken");
+    localStorage.removeItem("layerId");
     router.push("/");
     clearToken();
     toast.success("Successfully logged out");
@@ -169,49 +183,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       handleLogin();
     }
   }, [loginParams]);
-
-  const handleLogin = async () => {
-    if (!loginParams) return;
-
-    const { address, message } = loginParams;
-    console.log(message);
-
-    try {
-      if (!window.unisat) {
-        throw new Error("Unisat wallet not found");
-      }
-
-      const signResponse = await window.unisat.signMessage(message);
-
-      if (signResponse) {
-        const loginResponse = await loginMutation.mutateAsync({
-          address,
-          signedMessage: signResponse,
-        });
-
-        if (loginResponse.success) {
-          setWalletAddress(address);
-          const item = {
-            address,
-            signature: signResponse,
-            expiry: moment().add(7, "days").format(),
-          };
-          setConnectedAddress(address);
-          setConnected(true);
-          localStorage.setItem("userProfile", JSON.stringify(item));
-        } else {
-          throw new Error("Login failed");
-        }
-      } else {
-        throw new Error("Failed to sign message");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      toast.error("Error during login process");
-    } finally {
-      setLoginParams(null);
-    }
-  };
 
   const connect = async () => {
     try {
@@ -251,6 +222,56 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const handleLogin = async () => {
+    if (!loginParams || !selectedLayerId) {
+      toast.error("Please select a layer before logging in");
+      return;
+    }
+
+    const { address, message } = loginParams;
+    console.log(message);
+
+    try {
+      if (!window.unisat) {
+        throw new Error("Unisat wallet not found");
+      }
+
+      const signedMessage = await window.unisat.signMessage(message);
+
+      if (signedMessage) {
+        const loginResponse = await loginMutation.mutateAsync({
+          address,
+          signedMessage,
+          layerId: selectedLayerId,
+        });
+
+        if (loginResponse.success) {
+          setWalletAddress(address);
+          const item = {
+            address,
+            signature: signedMessage,
+            expiry: moment().add(7, "days").format(),
+          };
+          setConnectedAddress(address);
+          setConnected(true);
+          localStorage.setItem("userProfile", JSON.stringify(item));
+
+          // Store layerId separately
+          localStorage.setItem("layerId", loginResponse.data.user.layerId);
+        } else {
+          throw new Error("Login failed");
+        }
+      } else {
+        throw new Error("Failed to sign message");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Error during login process");
+    } finally {
+      setLoginParams(null);
+    }
+  };
+
   useEffect(() => {
     try {
       window.unisat.on("accountsChanged", () => {
@@ -258,12 +279,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setConnected(false);
         window.localStorage.removeItem("userProfile");
         window.localStorage.removeItem("authToken");
+        window.localStorage.removeItem("layerId");
         setAuthState((prev) => ({
           ...prev,
           token: null,
           authenticated: false,
           userId: null,
           address: null,
+          layerId: null,
         }));
         router.push("/");
       });
@@ -281,6 +304,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         connect,
         isConnecting,
         walletAddress,
+        selectedLayerId,
+        setSelectedLayerId,
       }}
     >
       {children}
@@ -295,4 +320,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
