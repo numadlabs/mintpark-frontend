@@ -1,32 +1,36 @@
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import { ScrollArea } from "../ui/scroll-area";
-import { getOrderById } from "@/lib/service/queryHelper";
+import { getOrderById, getAllOrders } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight2 } from "iconsax-react";
 import OrderDetailModal from "../modal/order-detail-modal";
 import { Input } from "../ui/input";
+import { useAuth } from "../provider/auth-context-provider";
 
 interface Order {
-  orderId: string;
+  id: string;
   quantity: number;
-  status: string;
+  orderStatus: string;
   createdAt: string;
 }
 
 const OrderDetail = () => {
+  const { authState } = useAuth();
   const [orderModal, setOrderModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const id = authState?.userId;
 
   const { data: orders = [] } = useQuery({
     queryKey: ["orderData"],
-    queryFn: () => getOrderById(),
+    queryFn: () => getAllOrders(id as string),
+    enabled: !!id,
   });
 
   const filteredOrders = useMemo(() => {
     return orders.filter((order: Order) =>
-      order.orderId.toLowerCase().includes(searchTerm.toLowerCase()),
+      order.id.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [orders, searchTerm]);
 
@@ -106,20 +110,20 @@ const OrderDetail = () => {
             {filteredOrders.map((item: Order) => (
               <button
                 className="bg-gray50 rounded-2xl p-5 relative flex items-center"
-                key={item.orderId}
+                key={item.id}
                 onClick={() => toggleOrderModal(item)}
               >
                 <div className="grid grid-cols-4 w-full h-[18px]">
                   <p className="font-medium text-md w-[160px] text-neutral200 truncate">
-                    {item.orderId}
+                    {item.id}
                   </p>
                   <p className="pl-2 font-medium text-md text-neutral200">
                     {item.quantity}
                   </p>
                   <p
-                    className={`pl-3 font-medium text-md ${getStatusColor(item.status)} capitalize truncate`}
+                    className={`pl-3 font-medium text-md ${getStatusColor(item.orderStatus)} capitalize truncate`}
                   >
-                    {capitalizeFirstLetter(item.status)}
+                    {capitalizeFirstLetter(item.orderStatus)}
                   </p>
                   <p className="pl-4 font-medium text-md text-neutral200">
                     {formatDateTime(item.createdAt)}
@@ -137,8 +141,8 @@ const OrderDetail = () => {
         <OrderDetailModal
           open={orderModal}
           onClose={() => toggleOrderModal(null)}
-          orderId={selectedOrder.orderId}
-          status={selectedOrder.status}
+          orderId={selectedOrder.id}
+          status={selectedOrder.orderStatus}
           quantity={selectedOrder.quantity}
         />
       )}

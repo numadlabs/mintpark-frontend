@@ -11,8 +11,18 @@ export async function getUserById(id: string) {
     }
   });
 }
-export async function getOrderById() {
-  return axiosClient.get(`/api/v1/orders/BITCOIN_TESTNET`).then((response) => {
+
+export async function getAllOrders(id: string) {
+  return axiosClient.get(`/api/v1/orders/user/${id}`).then((response) => {
+    if (response.data.success) {
+      return response.data.data;
+    } else {
+      throw new Error(response.data.error);
+    }
+  });
+}
+export async function getOrderById(id: string) {
+  return axiosClient.get(`/api/v1/orders/${id}`).then((response) => {
     if (response.data.success) {
       return response.data.data;
     } else {
