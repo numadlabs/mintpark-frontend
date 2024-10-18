@@ -47,15 +47,17 @@ export async function createMintCollection({ id }: { id: string}) {
 export async function loginHandler({
   address,
   signedMessage,
+  layerId
 }: {
   address: string;
   signedMessage: string;
+  layerId: string
 }) {
   console.log("🚀 ~ loginHandler ~ walletData:", address);
   return axiosClient
     .post(
       `/api/v1/users/login`,
-      JSON.stringify({ address, signedMessage }),
+      JSON.stringify({ address, signedMessage, layerId }),
     )
     .then((response) => {
       return response.data;

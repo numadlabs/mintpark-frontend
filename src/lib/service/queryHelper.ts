@@ -2,8 +2,8 @@ import axios from "axios";
 import axiosClient from "../axios";
 import { CollectionType } from "../types";
 
-export async function getUserById(address: string) {
-  return axiosClient.get(`/api/v1/users/${address}`).then((response) => {
+export async function getUserById(id: string) {
+  return axiosClient.get(`/api/v1/users/${id}`).then((response) => {
     if (response.data.success) {
       return response.data.data;
     } else {
@@ -21,18 +21,6 @@ export async function getOrderById() {
   });
 }
 
-// export async function getCollection() {
-//   return axiosClient
-//     .get(`/api/v1/orders/BITCOIN_TESTNET`)
-//     .then((response) => {
-//       if (response.data.success) {
-//         return response.data.data;
-//       } else {
-//         throw new Error(response.data.error);
-//       }
-//     });
-// }
-
 export async function fetchLaunchs(): Promise<CollectionType[]> {
   return axiosClient
     .get(`/api/v1/collections?layerType=BITCOIN_TESTNET`)
@@ -48,20 +36,41 @@ export async function fetchLaunchs(): Promise<CollectionType[]> {
 export async function fetcCollectionByCollectionId(
   id: string,
 ): Promise<CollectionType[]> {
+  return axiosClient.get(`/api/v1/collections/${id}`).then((response) => {
+    if (response.data.success) {
+      return response?.data.data;
+    } else {
+      throw new Error(response.data.error);
+    }
+  });
+}
+
+export async function getFeeRatesByLayer() {
   return axiosClient
-    .get(`/api/v1/collections/${id}`)
+    .get(`/api/v1/orders/fee-rates/BITCOIN_TESTNET`)
     .then((response) => {
       if (response.data.success) {
-        return response?.data.data;
+        return response.data.data;
+      } else {
+        throw new Error(response.data.error);
+      }
+    });
+}
+export async function getAllLayers() {
+  return axiosClient
+    .get(`/api/v1/layers/`)
+    .then((response) => {
+      if (response.data.success) {
+        return response.data.data;
       } else {
         throw new Error(response.data.error);
       }
     });
 }
 
-export async function getFeeRatesByLayer() {
+export async function getLayerById(id: string) {
   return axiosClient
-    .get(`/api/v1/orders/fee-rates/BITCOIN_TESTNET`)
+    .get(`/api/v1/layers/${id}`)
     .then((response) => {
       if (response.data.success) {
         return response.data.data;

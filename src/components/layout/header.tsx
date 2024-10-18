@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,16 +17,20 @@ import {
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import ConnectWalletModal from "../modal/connect-wallet-modal";
 import { Wallet2, I3Dcube, Logout, ArrowRight2 } from "iconsax-react";
-import { Avatar, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
-import { getUserById } from "@/lib/service/queryHelper";
+import {
+  getUserById,
+  getAllLayers,
+  getLayerById,
+} from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
+import { LayerType } from "@/lib/types";
+import { toast } from "sonner";
 
 declare global {
   interface Window {
@@ -37,14 +41,32 @@ declare global {
 export default function Header() {
   const router = useRouter();
   const [walletModal, setWalletModal] = useState(false);
-  const { connect, authState, onLogout } = useAuth();
-  const address = authState.address;
+  const [defaultLayer, setDefaultLayer] = useState<string>("");
+  const { connect, authState, onLogout, selectedLayerId, setSelectedLayerId } =
+    useAuth();
+  const id = authState?.layerId;
 
   const { data: user = [] } = useQuery({
     queryKey: ["userData"],
-    queryFn: () => getUserById(authState?.address as string),
-    enabled: !!authState?.address,
+    queryFn: () => getUserById(authState?.userId as string),
+    enabled: !!authState?.userId,
   });
+  const { data: layers = [] } = useQuery({
+    queryKey: ["layerData"],
+    queryFn: () => getAllLayers(),
+  });
+
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData"],
+    queryFn: () => getLayerById(id as string),
+    enabled: !!id,
+  });
+
+  useEffect(() => {
+    if (currentLayer) {
+      setDefaultLayer(`${currentLayer.layer}-${currentLayer.network}`);
+    }
+  }, [currentLayer]);
 
   const routesData = [
     { title: "Create", pageUrl: "/create" },
@@ -59,6 +81,42 @@ export default function Header() {
   const truncateAddress = (address: string) => {
     if (address.length <= 10) return address;
     return `${address.slice(0, 4)}...${address.slice(-4)}`;
+  };
+
+  const getLayerImage = (layer: string) => {
+    switch (layer) {
+      case "BITCOIN":
+        return "/wallets/Bitcoin.png";
+      case "FRACTAL":
+        return "/wallets/Fractal.png";
+      case "CITREA":
+        return "/wallets/Citrea.png";
+      default:
+        return "/wallets/Bitcoin.png";
+    }
+  };
+
+  const capitalizeFirstLetter = (string: string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  };
+
+  const handleLayerSelect = (value: string) => {
+    const [layer, network] = value.split("-");
+    const selectedLayer = layers.find(
+      (l: LayerType) => l.layer === layer && l.network === network,
+    );
+    if (selectedLayer) {
+      setSelectedLayerId(selectedLayer.id);
+      setDefaultLayer(value);
+    }
+  };
+
+  const handleConnect = () => {
+    if (selectedLayerId) {
+      connect();
+    } else {
+      toast.error("Please select a layer before connecting");
+    }
   };
 
   return (
@@ -86,114 +144,47 @@ export default function Header() {
               </div>
             </div>
             <div className="flex flex-row overflow-hidden items-center gap-4">
-              <div>
-                <Select defaultValue="bitcoin test">
-                  <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl">
-                    {/* <Avatar><AvatarImage src="/wallets/Bitcoin.png" alt="bitcoin" sizes="100%" width={24} height={24} className="w-6 h-6"/></Avatar>   */}
-                    <SelectValue defaultValue={"bitcoin test"} />
-                  </SelectTrigger>
-                  <SelectContent className="w-full mt-4 flex flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl">
-                    <div className="flex flex-col gap-2">
-                      {/* <SelectItem
-                        value="bitcoin"
-                        className="w-[180px] hover:bg-white8 duration-300 transition-all flex flex-row items-center gap-2"
+              <Select onValueChange={handleLayerSelect} value={defaultLayer}>
+                <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
+                  <SelectValue placeholder="Select layer">
+                    {defaultLayer && (
+                      <div className="flex flex-row gap-2 items-center w-max">
+                        <Image
+                          src={getLayerImage(defaultLayer.split("-")[0])}
+                          alt={defaultLayer.split("-")[0]}
+                          width={24}
+                          height={24}
+                        />
+                        {defaultLayer
+                          .split("-")
+                          .map(capitalizeFirstLetter)
+                          .join(" ")}
+                      </div>
+                    )}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent className="mt-4 flex flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
+                  <SelectGroup className="flex flex-col gap-2">
+                    {layers.map((layer: LayerType) => (
+                      <SelectItem
+                        key={layer.id}
+                        value={`${layer.layer}-${layer.network}`}
+                        className="hover:bg-white8 duration-300 transition-all flex flex-row items-center gap-2 w-[170px] cursor-pointer"
                       >
                         <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
-                          <span>
-                            <Image
-                              src={"/wallets/Bitcoin.png"}
-                              alt="bitcoin"
-                              width={24}
-                              height={24}
-                            />
-                          </span>
-                          Bitcoin
+                          <Image
+                            src={getLayerImage(layer.layer)}
+                            alt={layer.layer}
+                            width={24}
+                            height={24}
+                          />
+                          {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(layer.network)}`}
                         </div>
                       </SelectItem>
-                      <SelectItem
-                        value="citrea"
-                        className="w-full hover:bg-white8 duration-300 transition-all"
-                      >
-                        <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
-                          <span>
-                            <Image
-                              src={"/wallets/Citrea.png"}
-                              alt="citrea"
-                              width={24}
-                              height={24}
-                            />
-                          </span>
-                          Citrea
-                        </div>
-                      </SelectItem> */}
-                      {/* <SelectItem
-                        value="fractal"
-                        className="w-full hover:bg-white8 duration-300 transition-all"
-                      >
-                        <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
-                          <span>
-                            <Image
-                              src={"/wallets/Fractal.png"}
-                              alt="fractal"
-                              width={24}
-                              height={24}
-                            />
-                          </span>
-                          Fractal
-                        </div>
-                      </SelectItem> */}
-                      <SelectItem
-                        value="bitcoin test"
-                        className="w-[144px] hover:bg-white8 duration-300 transition-all flex flex-row items-center gap-2"
-                      >
-                        <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
-                          <span>
-                            <Image
-                              src={"/wallets/Bitcoin.png"}
-                              alt="bitcoin"
-                              width={24}
-                              height={24}
-                            />
-                          </span>
-                          Bitcoin Testnet
-                        </div>
-                      </SelectItem>
-                      <SelectItem
-                        value="citrea test"
-                        className="w-full hover:bg-white8 duration-300 transition-all"
-                      >
-                        <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
-                          <span>
-                            <Image
-                              src={"/wallets/Citrea.png"}
-                              alt="citrea"
-                              width={24}
-                              height={24}
-                            />
-                          </span>
-                          Citrea Testnet
-                        </div>
-                      </SelectItem>
-                      <SelectItem
-                        value="fractal test"
-                        className="w-full hover:bg-white8 duration-300 transition-all"
-                      >
-                        <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
-                          <span>
-                            <Image
-                              src={"/wallets/Fractal.png"}
-                              alt="fractal"
-                              width={24}
-                              height={24}
-                            />
-                          </span>
-                          Fractal Testnet
-                        </div>
-                      </SelectItem>
-                    </div>
-                  </SelectContent>
-                </Select>
-              </div>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
               {authState?.authenticated ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[128px] w-full bg-white8 hover:bg-white16 duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
@@ -244,7 +235,7 @@ export default function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button variant={"outline"} size={"lg"} onClick={connect}>
+                <Button variant={"outline"} size={"lg"} onClick={handleConnect}>
                   Connect Wallet
                 </Button>
               )}
