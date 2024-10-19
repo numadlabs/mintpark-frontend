@@ -222,13 +222,25 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
         </section>
         {/* <CollecBanner detail={true} data={collection} /> */}
         <section className="flex justify-between mb-7 pt-10">
-          <Image
+          {/* <Image
             src={"/collections/sort.png"}
             alt="burger"
             width={20}
             height={20}
             // sizes="100%"
             className="w-12 h-12 rounded-xl bg-neutral500 p-3"
+            onClick={() => setActive(!active)}
+          /> */}
+          <Image
+            src={"/collections/sort.png"}
+            alt="burger"
+            width={20}
+            height={20}
+            className={`w-12 h-12 rounded-xl p-3 ${
+              active
+                ? "bg-neutral500 hover:bg-neutral400 border-transparent"
+                : "bg-neutral600 border border-neutral500 hover:border-neutral400"
+            }`}
             onClick={() => setActive(!active)}
           />
           <div className="flex">
@@ -270,7 +282,7 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
             <TabsList className="text-neutral50 border border-neutral400 w-[92px] h-12">
               <TabsTrigger
                 value="AllCard"
-                className="w-10 h-10 font-semibold text-[15px] rounded-lg p-[10px]"
+                className="w-10 h-10 font-semibold text-[15px] border-hidden rounded-lg p-[10px]"
               >
                 <Image
                   src="/collections/hashtag.png"
@@ -281,7 +293,7 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
               </TabsTrigger>
               <TabsTrigger
                 value="ColCard"
-                className="w-10 h-10 font-semibold text-[15px] rounded-lg p-[10px]"
+                className="w-10 h-10 font-semibold text-[15px] border-hidden rounded-lg p-[10px]"
               >
                 <Image
                   src="/collections/burger.png"

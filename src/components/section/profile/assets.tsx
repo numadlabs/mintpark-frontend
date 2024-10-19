@@ -50,7 +50,7 @@ export default function Assets({
               <div className="flex">
                 <Image
                   src={"/collections/search.png"}
-                  alt="burger"
+                  alt="search"
                   width={20}
                   height={20}
                   // sizes="100%"

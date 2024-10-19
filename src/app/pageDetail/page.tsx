@@ -193,7 +193,7 @@ export default function Page() {
                       <div className="flex justify-between text-neutral100">
                         <h1>Max:</h1>
                         <h2>
-                          <span>1</span> per wallet
+                          <span>1</span> per wallet 
                         </h2>
                       </div>
                     </div>
