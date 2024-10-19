@@ -7,7 +7,7 @@ import { clearToken, getAccessToken, getRefreshToken, saveToken } from "./auth";
 
 export const BACKEND_URL =
   process.env.NODE_ENV === "development"
-    ? "http://localhost:3000" // development api
+    ? "http://127.0.0.1:3000" // development api
     : "https://api.mainnet.araafal.com";
 
 const instance = axios.create({

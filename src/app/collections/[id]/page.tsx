@@ -9,29 +9,47 @@ import { collection } from "@/lib/constants";
 import { Global, Notepad, Profile2User } from "iconsax-react";
 import { CollectionDataType } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { s3ImageUrlBuilder, imageCDN } from "@/lib/utils";
-import { getListedCollectionById } from "@/lib/service/queryHelper";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  getListedCollectionById,
+  getListedCollections,
+} from "@/lib/service/queryHelper";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import ColDetailCard from "@/components/atom/cards/collectionDetailCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ColDetailCards from "@/components/atom/cards/columnDetailCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const CollectionDetailPage = ({detail}: {detail: false}) => {
+const CollectionDetailPage = ({ detail }: { detail: false }) => {
   const params = useParams();
-  const id = params.id
+  const { id } = params;
   const [active, setActive] = useState(false);
 
   const { data: collection = [] } = useQuery({
     queryKey: ["collectionData"],
     queryFn: () => getListedCollectionById(id as string),
-    enabled:!!id,
+    enabled: !!id,
   });
 
-  console.log("asdfasf", collection)
-  const firstData = collection[0] || {};
-  
+  const searchParams = useSearchParams();
+  const [collectionData, setCollectionData] =
+    useState<CollectionDataType | null>(null);
+
+  useEffect(() => {
+    const data = searchParams.get("data");
+    if (data) {
+      const parsedData = JSON.parse(data) as CollectionDataType;
+      setCollectionData(parsedData);
+    }
+  }, [searchParams]);
+
   const links = [
     {
       url: "/collections",
@@ -58,7 +76,9 @@ const CollectionDetailPage = ({detail}: {detail: false}) => {
               <div
                 className="absolute inset-0"
                 style={{
-                  // backgroundImage: `url(${data.logoKey})`,
+                  backgroundImage: collectionData?.logoKey
+                    ? `url(${s3ImageUrlBuilder(collectionData.logoKey)})`
+                    : "url(/path/to/fallback/image.png)",
                   backgroundPosition: "center",
                   backgroundSize: "cover",
                   backgroundRepeat: "no-repeat",
@@ -79,7 +99,11 @@ const CollectionDetailPage = ({detail}: {detail: false}) => {
                 <Image
                   width={208}
                   height={208}
-                  src={imageCDN(firstData.uniqueIdx)}
+                  src={
+                    collectionData?.logoKey
+                      ? s3ImageUrlBuilder(collectionData.logoKey)
+                      : "/path/to/fallback/image.png"
+                  }
                   className="aspect-square rounded-xl"
                   alt="png"
                 />
@@ -88,10 +112,10 @@ const CollectionDetailPage = ({detail}: {detail: false}) => {
                 <div className="flex justify-between">
                   <div>
                     <h3 className="text-3xl font-bold text-neutral50">
-                      {firstData.collectionName}
+                      {collectionData?.name}
                     </h3>
                     <h2 className="text-lg2 font-medium text-neutral100">
-                      by NumadLabs
+                      by {collectionData?.creator}
                     </h2>
                   </div>
                   <div className="flex gap-6 pt-8">
@@ -143,7 +167,7 @@ const CollectionDetailPage = ({detail}: {detail: false}) => {
                       />
                       {/* <Bitcoin color="#f7931a" variant="Bold" className="" /> */}
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>{firstData.floor}</span> BTC
+                        <span>{collectionData?.floor}</span> BTC
                       </p>
                     </div>
                   </div>
@@ -161,7 +185,7 @@ const CollectionDetailPage = ({detail}: {detail: false}) => {
                       />
                       {/* <Bitcoin color="#f7931a" variant="Bold" className="" /> */}
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>{firstData.floor}</span> BTC
+                        <span>{collectionData?.volume}</span> BTC
                       </p>
                     </div>
                   </div>
@@ -172,7 +196,7 @@ const CollectionDetailPage = ({detail}: {detail: false}) => {
                     <div className="flex mt-2">
                       <Profile2User color="#d3f85a" />
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>1258</span>
+                        <span>0</span>
                       </p>
                     </div>
                   </div>
@@ -184,7 +208,7 @@ const CollectionDetailPage = ({detail}: {detail: false}) => {
                       <Notepad color="#d3f85a" />
                       <p className="ml-2 font-bold text-xl text-neutral50">
                         {/* hover button buy now & view*/}
-                        {/* <span>{collection.floor}</span> */}
+                        <span>{collectionData?.supply}</span>
                       </p>
                     </div>
                   </div>
@@ -193,7 +217,7 @@ const CollectionDetailPage = ({detail}: {detail: false}) => {
             </div>
           </div>
           <p className="pl-12 pr-12 text-lg2 font-normal text-neutral100">
-            {firstData.description}
+            {collectionData?.description}
           </p>
         </section>
         {/* <CollecBanner detail={true} data={collection} /> */}
@@ -270,7 +294,6 @@ const CollectionDetailPage = ({detail}: {detail: false}) => {
           </div>
         </section>
         <section className="flex gap-10 w-full pt-7">
-
           <TabsContent value="AllCard">
             <div
               className={`grid w-full gap-10 ${
@@ -280,7 +303,6 @@ const CollectionDetailPage = ({detail}: {detail: false}) => {
               {collection.map((item: any) => (
                 <div key={item.id}>
                   <ColDetailCard data={item} />
-
                 </div>
               ))}
             </div>

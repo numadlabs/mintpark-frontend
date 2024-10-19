@@ -185,4 +185,7 @@ export type CollectionDataType = {
   price: number;
   createdAt: string;
   collectionName: string;
+  fileKey: string;
+  floorDifference: number;
+  ownedBy: string;
 };

@@ -1,6 +1,7 @@
 import HoverCard from "@/components/section/collections/hoverCard";
 import Image from "next/image";
 import { CollectionDataType } from "@/lib/types";
+import { s3ImageUrlBuilder, ordinalsImageCDN } from "@/lib/utils";
 
 type DetailCard = {
   image: string;
@@ -16,7 +17,7 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
         <Image
           width={248}
           height={248}
-          src={data.logoKey}
+          src={data.fileKey ? s3ImageUrlBuilder(data.fileKey) : ordinalsImageCDN(data.uniqueIdx)}
           className="aspect-square rounded-xl"
           alt="png"
         />

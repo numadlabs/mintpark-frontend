@@ -18,3 +18,7 @@ export function s3ImageUrlBuilder(fileKey: string) {
 export function imageCDN(uniqueIdx: string) {
   return `https://static-testnet.unisat.io/content/${uniqueIdx}`;
 }
+
+export function ordinalsImageCDN(uniqueIdx: string) {
+  return `https://ordinals-testnet.fractalbitcoin.io/content/${uniqueIdx}`
+}

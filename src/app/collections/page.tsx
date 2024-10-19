@@ -9,9 +9,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import ColDetailCard from "@/components/atom/cards/collectionDetailCard";
-import ColDetailCards from "@/components/atom/cards/columnDetailCard";
 import Image from "next/image";
 import { useState } from "react";
 import CollectionSideBar from "../../components/section/collections/sideBar";
@@ -19,8 +16,11 @@ import { useQuery } from "@tanstack/react-query";
 import { getListedCollections } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import CollectionCard from "@/components/atom/cards/collectionCard";
+import { CollectionDataType } from "@/lib/types";
+import { useRouter } from "next/navigation";
 
 export default function Collections({ detail = false }: { detail: boolean }) {
+  const router = useRouter();
   const { authState } = useAuth();
   const id = authState?.layerId;
   const tabs = ["1h", "24h", "7d", "30d", "All"];
@@ -29,9 +29,17 @@ export default function Collections({ detail = false }: { detail: boolean }) {
   const { data: collection = [] } = useQuery({
     queryKey: ["collectionData"],
     queryFn: () => getListedCollections(id as string),
-    enabled:!!id,
+    enabled: !!id,
   });
-  
+
+  const handleNavigation = (collectionData: CollectionDataType) => {
+    const queryParams = new URLSearchParams({
+      id: collectionData.id,
+      data: JSON.stringify(collectionData),
+    }).toString();
+    router.push(`/collections/${collectionData.id}?${queryParams}`);
+  };
+
   return (
     <>
       <Tabs defaultValue="All" className="mt-8 mb-10 border-hidden">
@@ -147,20 +155,6 @@ export default function Collections({ detail = false }: { detail: boolean }) {
               <CollectionSideBar />
             </div>
 
-            <TabsContent value="All">
-              <div
-                className={`grid w-full gap-10 ${
-                  active ? "grid-cols-3" : "grid-cols-4"
-                }`}
-              >
-                {collection.map((item: any) => (
-                  <div key={item.id}>
-                    <ColDetailCard data={item} />
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-
             <TabsContent value="ColCard" className="w-full">
               <div className="flex h-[34px] pr-8 pb-4 pl-4">
                 <div className="w-[392px] h-[18px]">
@@ -187,16 +181,6 @@ export default function Collections({ detail = false }: { detail: boolean }) {
                   </div>
                 </div>
               </div>
-              <ScrollArea className="h-[754px] w-full border-t-2 border-neutral500">
-                <div className="flex flex-col w-full pt-4 gap-4">
-                  {collection.map((item: any) => (
-                    <div key={item.id}>
-                      <ColDetailCards data={item} />
-                    </div>
-                    // it is column
-                  ))}
-                </div>
-              </ScrollArea>
             </TabsContent>
           </section>
         )}
@@ -205,7 +189,10 @@ export default function Collections({ detail = false }: { detail: boolean }) {
             <TabsContent value="All" className="grid grid-cols-4 gap-10">
               {collection.map((item: any) => (
                 <div key={item.id}>
-                  <CollectionCard data={item} />
+                  <CollectionCard
+                    data={item}
+                    handleNav={() => handleNavigation(item)}
+                  />
                 </div>
               ))}
             </TabsContent>
@@ -234,7 +221,10 @@ export default function Collections({ detail = false }: { detail: boolean }) {
                 <div className="grid grid-cols-1 pt-4 gap-4">
                   {collection.map((item: any) => (
                     <div key={item.id}>
-                      <ColumColCard data={item} />
+                      <ColumColCard
+                        data={item}
+                        handleNav={() => handleNavigation(item)}
+                      />
                     </div>
                   ))}
                 </div>
