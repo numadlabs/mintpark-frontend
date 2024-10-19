@@ -166,3 +166,23 @@ export type LayerType = {
   layer: string;
   network: string;
 };
+
+export type CollectionDataType = {
+  id: string;
+  creator: string;
+  description: string;
+  floor: number;
+  layerId: string;
+  listedCount: string;
+  logoKey: string;
+  marketCap: number;
+  name: string;
+  soldCount: string;
+  supply: number;
+  type: string;
+  volume: number;
+  uniqueIdx: string;
+  price: number;
+  createdAt: string;
+  collectionName: string;
+};

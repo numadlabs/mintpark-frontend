@@ -11,6 +11,7 @@ const nextConfig = {
     domains: [
       "numadlabs-coordinals-test.s3.eu-central-1.amazonaws.com",
       "images.unsplash.com",
+      "static-testnet.unisat.io",  // Add this line
     ],
   },
 };

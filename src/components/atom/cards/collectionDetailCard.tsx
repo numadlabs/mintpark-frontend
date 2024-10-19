@@ -1,5 +1,6 @@
 import HoverCard from "@/components/section/collections/hoverCard";
 import Image from "next/image";
+import { CollectionDataType } from "@/lib/types";
 
 type DetailCard = {
   image: string;
@@ -8,24 +9,24 @@ type DetailCard = {
   price: number;
 };
 
-export default function ColDetailCard({ data }: { data: DetailCard }) {
+export default function ColDetailCard({ data }: { data: CollectionDataType }) {
   return (
     <>
       <div className="w-[280px] h-[394px] collection backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-gray-700 rounded-xl px-4 pt-4 pb-5 flex flex-col justify-between">
         <Image
           width={248}
           height={248}
-          src={data.image}
+          src={data.logoKey}
           className="aspect-square rounded-xl"
           alt="png"
         />
 
         <div className="pt-1">
           <p className="text-neutral200 font-medium text-md pt-2">
-            {data.title}
+            {data.collectionName}
           </p>
           <p className="py-1 text-lg2 text-neutral50 font-bold pb-4">
-            {data.title}
+            {data.name}
           </p>
           <div className="relative group h-10 w-[248px] hover:border-hidden border-t border-neutral400">
             <div className="flex justify-between py-4 group-hover:hidden">
