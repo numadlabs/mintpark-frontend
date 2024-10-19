@@ -58,7 +58,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [walletAddress, setWalletAddress] = useState<string>("");
   const [loginParams, setLoginParams] = useState<LoginParams | null>(null);
-  const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
+  const [selectedLayerId, setSelectedLayerId] = useState<string | null>(() => {
+    // Initialize selectedLayerId from localStorage
+    return localStorage.getItem("selectedLayerId");
+  });
   const { setConnectedAddress, setConnected } = useWalletStore();
 
   const [authState, setAuthState] = useState<AuthProps["authState"]>({
@@ -266,8 +269,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setConnected(true);
           localStorage.setItem("userProfile", JSON.stringify(item));
 
-          // Store layerId separately
-          localStorage.setItem("layerId", loginResponse.data.user.layerId);
+          // Store selectedLayerId in localStorage
+          localStorage.setItem("selectedLayerId", selectedLayerId);
+
+          // Update authState with the selected layerId
+          setAuthState((prev) => ({
+            ...prev,
+            token: loginResponse.data.auth.accessToken,
+            authenticated: true,
+            userId: loginResponse.data.user.id,
+            address: loginResponse.data.user.address,
+            layerId: selectedLayerId,
+          }));
         } else {
           throw new Error("Login failed");
         }
@@ -281,6 +294,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setLoginParams(null);
     }
   };
+
+  useEffect(() => {
+    if (selectedLayerId) {
+      localStorage.setItem("selectedLayerId", selectedLayerId);
+    }
+  }, [selectedLayerId]);
+
 
   useEffect(() => {
     try {
