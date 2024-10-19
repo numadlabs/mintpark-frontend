@@ -4,22 +4,33 @@ import Image from "next/image";
 import { CardType } from "@/components/atom/cards/collectionCard";
 import DiscordIcon from "@/components/icon/hoverIcon";
 import ThreadIcon from "@/components/icon/thread";
-import { Tabs } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { collection } from "@/lib/constants";
 import { Global, Notepad, Profile2User } from "iconsax-react";
-import CollecBanner from "./collecBanner";
 import { CollectionDataType } from "@/lib/types";
-import { getCollectionById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import { s3ImageUrlBuilder, imageCDN } from "@/lib/utils";
+import { getListedCollectionById } from "@/lib/service/queryHelper";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ColDetailCard from "@/components/atom/cards/collectionDetailCard";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import ColDetailCards from "@/components/atom/cards/columnDetailCard";
+import { useState } from "react";
 
-const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
+const CollectionDetailPage = ({detail}: {detail: false}) => {
+  const params = useParams();
+  const id = params.id
+  const [active, setActive] = useState(false);
+
   const { data: collection = [] } = useQuery({
     queryKey: ["collectionData"],
-    queryFn: () => getCollectionById(data.id),
-    enabled:!!data.id,
+    queryFn: () => getListedCollectionById(id as string),
+    enabled:!!id,
   });
 
-  console.log(collection)
+  console.log("asdfasf", collection)
+  const firstData = collection[0] || {};
   
   const links = [
     {
@@ -47,7 +58,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
               <div
                 className="absolute inset-0"
                 style={{
-                  backgroundImage: `url(${data.logoKey})`,
+                  // backgroundImage: `url(${data.logoKey})`,
                   backgroundPosition: "center",
                   backgroundSize: "cover",
                   backgroundRepeat: "no-repeat",
@@ -68,7 +79,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                 <Image
                   width={208}
                   height={208}
-                  src={data.logoKey}
+                  src={imageCDN(firstData.uniqueIdx)}
                   className="aspect-square rounded-xl"
                   alt="png"
                 />
@@ -77,7 +88,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                 <div className="flex justify-between">
                   <div>
                     <h3 className="text-3xl font-bold text-neutral50">
-                      {data.name}
+                      {firstData.collectionName}
                     </h3>
                     <h2 className="text-lg2 font-medium text-neutral100">
                       by NumadLabs
@@ -132,7 +143,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                       />
                       {/* <Bitcoin color="#f7931a" variant="Bold" className="" /> */}
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>{data.floor}</span> BTC
+                        <span>{firstData.floor}</span> BTC
                       </p>
                     </div>
                   </div>
@@ -150,7 +161,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                       />
                       {/* <Bitcoin color="#f7931a" variant="Bold" className="" /> */}
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>{data.volume}</span> BTC
+                        <span>{firstData.floor}</span> BTC
                       </p>
                     </div>
                   </div>
@@ -173,7 +184,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                       <Notepad color="#d3f85a" />
                       <p className="ml-2 font-bold text-xl text-neutral50">
                         {/* hover button buy now & view*/}
-                        <span>{data.floor}</span>
+                        {/* <span>{collection.floor}</span> */}
                       </p>
                     </div>
                   </div>
@@ -182,16 +193,11 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
             </div>
           </div>
           <p className="pl-12 pr-12 text-lg2 font-normal text-neutral100">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac
-            ornare nisi. Aliquam eget semper risus, sed commodo elit. Curabitur
-            sed congue magna. Donec ultrices dui nec ullamcorper aliquet. Nunc
-            efficitur mauris id mi venenatis imperdiet. Integer mauris lectus,
-            pretium eu nibh molestie, rutrum lobortis tortor. Duis sit amet sem
-            fermentum, consequat est nec, ultricies justo.
+            {firstData.description}
           </p>
         </section>
         {/* <CollecBanner detail={true} data={collection} /> */}
-        {/* <section className="flex justify-between mb-7 pt-10">
+        <section className="flex justify-between mb-7 pt-10">
           <Image
             src={"/collections/sort.png"}
             alt="burger"
@@ -262,12 +268,8 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
               </TabsTrigger>
             </TabsList>
           </div>
-        </section> */}
-        {/* <section className="flex gap-10 w-full pt-7">
-
-          <div className={`flex ${active ? "" : "w-0 hidden"}`}>
-            <CollectionSideBar />
-          </div>
+        </section>
+        <section className="flex gap-10 w-full pt-7">
 
           <TabsContent value="AllCard">
             <div
@@ -275,7 +277,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                 active ? "grid-cols-3" : "grid-cols-4"
               }`}
             >
-              {DetailCard.map((item) => (
+              {collection.map((item: any) => (
                 <div key={item.id}>
                   <ColDetailCard data={item} />
 
@@ -312,19 +314,18 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
             </div>
             <ScrollArea className="h-[754px] w-full border-t-2 border-neutral500">
               <div className="flex flex-col w-full pt-4 gap-4">
-                {ColumnDetailCard.map((item) => (
+                {collection.map((item: any) => (
                   <div key={item.id}>
                     <ColDetailCards data={item} />
                   </div>
-                  // it is column
                 ))}
               </div>
             </ScrollArea>
           </TabsContent>
-        </section> */}
+        </section>
       </Tabs>
     </>
   );
 };
 
-export default CollecDetailBanner;
+export default CollectionDetailPage;

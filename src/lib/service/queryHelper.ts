@@ -67,8 +67,35 @@ export async function getFeeRatesByLayer() {
     });
 }
 export async function getAllLayers() {
+  return axiosClient.get(`/api/v1/layers/`).then((response) => {
+    if (response.data.success) {
+      return response.data.data;
+    } else {
+      throw new Error(response.data.error);
+    }
+  });
+}
+
+export async function getLayerById(id: string) {
+  return axiosClient.get(`/api/v1/layers/${id}`).then((response) => {
+    if (response.data.success) {
+      return response.data.data;
+    } else {
+      throw new Error(response.data.error);
+    }
+  });
+}
+
+export async function getListedCollections(
+  layerId: string,
+  // interval: string,
+  // orderBy: string,
+  // orderDirection: string,
+) {
   return axiosClient
-    .get(`/api/v1/layers/`)
+    .get(
+      `/api/v1/collections/listed?layerId=${layerId}&interval=all&orderBy=volume&orderDirection=highest`,
+    )
     .then((response) => {
       if (response.data.success) {
         return response.data.data;
@@ -78,9 +105,13 @@ export async function getAllLayers() {
     });
 }
 
-export async function getLayerById(id: string) {
+export async function getListedCollectionById(
+  collectionId: string,
+) {
   return axiosClient
-    .get(`/api/v1/layers/${id}`)
+    .get(
+      `/api/v1/collectibles/${collectionId}/collection/listable?traits[]=color:red&traits[]=background:black&orderBy=asdf`,
+    )
     .then((response) => {
       if (response.data.success) {
         return response.data.data;
@@ -89,6 +120,19 @@ export async function getLayerById(id: string) {
       }
     });
 }
-const capitalizeFirstLetter = (string: string) => {
-  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-};
+
+export async function getCollectionById(
+  // id: string
+) {
+  return axiosClient
+    .get(
+      `/api/v1/collectibles/e691bbe6-97df-4345-978d-bab10ff5727f`,
+    )
+    .then((response) => {
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.error);
+      }
+    });
+}

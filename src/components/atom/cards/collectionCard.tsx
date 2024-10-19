@@ -3,25 +3,15 @@ import Image from "next/image";
 import HoverCard from "@/components/section/collections/hoverCard";
 import { Notepad, Profile2User } from "iconsax-react";
 import Link from "next/link";
+import { CollectionDataType } from "@/lib/types";
+import React from "react";
+import { s3ImageUrlBuilder } from "@/lib/utils";
 
 export type CardType = {
-  id: number;
-  image: string;
-  type: string;
-  title: string;
-  price: number;
-  owner: number;
-  item: string;
-  floor: number;
-  day: number;
-  volume: number;
-  items: number;
-  market: number;
-  sales: number;
-  listed?: number;
+  data: CollectionDataType;
 };
 
-export default function CollectionCard({ data }: { data: CardType }) {
+const CollectionCard: React.FC<CardType> = ({ data }) => {
   return (
     <Link
       href={`/collections/${data.id}`}
@@ -30,12 +20,12 @@ export default function CollectionCard({ data }: { data: CardType }) {
       <Image
         width={248}
         height={248}
-        src={data.image}
+        src={s3ImageUrlBuilder(data.logoKey)}
         className="aspect-square rounded-xl"
         alt="png"
       />
       <div className="pt-1 pl-1 ">
-        <p className="py-3 text-xl font-bold text-neutral00">{data.title}</p>
+        <p className="py-3 text-xl font-bold text-neutral00">{data.name}</p>
         <div className="flex justify-around relative right-6 gap-2 py-2">
           <div>
             {" "}
@@ -43,7 +33,7 @@ export default function CollectionCard({ data }: { data: CardType }) {
               Floor price
             </p>
             <p className="pt-2 font-bold text-md text-neutral-50">
-              {data.price}
+              {data.floor}
               <span className="ml-1">BTC</span>
             </p>
           </div>
@@ -51,7 +41,7 @@ export default function CollectionCard({ data }: { data: CardType }) {
             {" "}
             <p className="text-sm font-medium text-neutral200 gap-2">Volume</p>
             <p className="pt-2 font-bold text-md text-neutral-50">
-              {data.price}
+              {data.volume}
               <span className="ml-1">BTC</span>
             </p>
           </div>
@@ -61,13 +51,13 @@ export default function CollectionCard({ data }: { data: CardType }) {
           <div className="flex mt-2">
             <Profile2User color="#d3f85a" className="w-4 h-4" />
             <p className="ml-2 font-medium text-md text-neutral50">
-              <span>{data.owner}</span> owners
+              <span>{data.floor}</span> owners
             </p>
           </div>
           <div className="flex mt-2">
             <Notepad color="#d3f85a" className="w-4 h-4" />
             <p className="ml-2 font-medium text-md text-neutral50">
-              <span>{data.items}k</span> items
+              <span>{data.floor}k</span> items
             </p>
           </div>
         </div>
@@ -75,5 +65,6 @@ export default function CollectionCard({ data }: { data: CardType }) {
       <HoverCard />
     </Link>
   );
-}
-`1`;
+};
+
+export default CollectionCard;

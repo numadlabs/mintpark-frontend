@@ -19,6 +19,7 @@ import ColDetailCards from "@/components/atom/cards/columnDetailCard";
 import Image from "next/image";
 import { useState } from "react";
 import CollectionSideBar from "./sideBar";
+import { collection } from "@/lib/constants";
 
 export default function CollecBanner({
   detail = false,
@@ -31,7 +32,7 @@ export default function CollecBanner({
   const [active, setActive] = useState(false);
   return (
     <>
-      <Tabs defaultValue="All" className="mt-20 mb-10 border-hidden">
+      <Tabs defaultValue="All" className="mt-8 mb-10 border-hidden">
         <section className="flex justify-between mb-7">
           {detail ? (
             <section className="flex justify-between ">
