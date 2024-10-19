@@ -18,6 +18,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { fetcCollectionByCollectionId } from "@/lib/service/queryHelper";
+import PhaseCard from "@/components/atom/cards/phaseCard";
 
 export default function Page({ params }: { params: { launchId: string } }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -84,14 +85,14 @@ export default function Page({ params }: { params: { launchId: string } }) {
       <div
         style={{
           backgroundImage: `url(${s3ImageUrlBuilder(
-            collection ? collection?.logoKey : "/launchpads/bg_1.jpg",
+            collectibles ? collectibles?.logoKey : "/launchpads/bg_1.jpg",
           )})`,
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           backgroundSize: "cover",
         }}
 
-        // className="bg-background"
+        // className="bg-white"
       >
         <DetailLayout>
           <Header />
@@ -226,48 +227,8 @@ export default function Page({ params }: { params: { launchId: string } }) {
             </div>
             <div className="flex flex-col justify-between h-[464px] gap-8">
               <ScrollArea className="flex flex-col">
-                <div className="flex flex-col justify-between">
-                  <div
-                    onClick={() => setActive(true)}
-                    className={`flex flex-col justify-between border  rounded-3xl p-5  gap-4 ${
-                      active ? "border-brand" : "border-neutral400"
-                    }`}
-                  >
-                    <div className="flex justify-between">
-                      <span className="text-brand border bg-neutral400 bg-opacity-[30%] border-transparent text-md rounded-lg pt-2 pr-3 pb-2 pl-3">
-                        Public
-                      </span>
-                      <p className="border bg-neutral400  bg-opacity-[30%] border-transparent text-md rounded-lg pt-2 pr-3 pb-2 pl-3 text-neutral50">
-                        <span className="text-neutral-100">Ends in:</span> 7d
-                        11h 31m
-                      </p>
-                    </div>
-                    <div className="flex">
-                      <Image
-                        width={24}
-                        height={24}
-                        src="/detail_icon/Bitcoin.png"
-                        alt="png"
-                        className="aspect-square"
-                      />
-                      {collection?.price && (
-                        <p className="pl-2 text-neutral50">
-                          <span className="mr-1">
-                            {collection?.price / 10 ** 8}
-                          </span>
-                          BTC
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-md">
-                      <div className="flex justify-between">
-                        <h1 className="text-neutral100">Max:</h1>
-                        <h2 className="text-neutral50">
-                          <span>3</span> per wallet
-                        </h2>
-                      </div>
-                    </div>
-                  </div>
+                <div className="flex flex-col gap-4">
+                  <PhaseCard />
                 </div>
               </ScrollArea>
               <ButtonLg

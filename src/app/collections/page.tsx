@@ -1,4 +1,5 @@
 "use client";
+import React, { useState } from 'react';
 import ColumColCard from "@/components/atom/cards/ColumColCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -10,7 +11,6 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
-import { useState } from "react";
 import CollectionSideBar from "../../components/section/collections/sideBar";
 import { useQuery } from "@tanstack/react-query";
 import { getListedCollections } from "@/lib/service/queryHelper";
@@ -18,6 +18,7 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import CollectionCard from "@/components/atom/cards/collectionCard";
 import { CollectionDataType } from "@/lib/types";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Collections({ detail = false }: { detail: boolean }) {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function Collections({ detail = false }: { detail: boolean }) {
   const id = authState?.layerId;
   const tabs = ["1h", "24h", "7d", "30d", "All"];
   const [active, setActive] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("All");
 
   const { data: collection = [] } = useQuery({
     queryKey: ["collectionData"],
@@ -42,17 +44,17 @@ export default function Collections({ detail = false }: { detail: boolean }) {
 
   return (
     <>
-      <Tabs defaultValue="All" className="mt-8 mb-10 border-hidden">
+      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="mt-8 mb-10 border-hidden">
         <section className="flex justify-between mb-7">
           {detail ? (
             <section className="flex justify-between ">
               <Image
                 src={"/collections/sort.png"}
-                alt="burger"
+                alt="sort"
                 width={20}
                 height={20}
                 className={`w-12 h-12 rounded-xl p-3 ${
-                  active
+                  !active
                     ? "bg-neutral500 hover:bg-neutral400 border-transparent"
                     : "bg-neutral600 border border-neutral500 hover:border-neutral400"
                 }`}
@@ -61,10 +63,9 @@ export default function Collections({ detail = false }: { detail: boolean }) {
               <div className="flex">
                 <Image
                   src={"/collections/search.png"}
-                  alt="burger"
+                  alt="search"
                   width={20}
                   height={20}
-                  // sizes="100%"
                   className="w-[17.08px] h-[17.08px] relative left-8 top-4"
                 />
                 <input
@@ -184,54 +185,64 @@ export default function Collections({ detail = false }: { detail: boolean }) {
             </TabsContent>
           </section>
         )}
-        {!detail && (
-          <>
-            <TabsContent value="All" className="grid grid-cols-4 gap-10">
-              {collection.map((item: any) => (
-                <div key={item.id}>
-                  <CollectionCard
-                    data={item}
-                    handleNav={() => handleNavigation(item)}
-                  />
-                </div>
-              ))}
-            </TabsContent>
-
-            <TabsContent value="ColCard">
-              <div className="flex h-[34px] pr-8 pb-4 pl-4">
-                <div className="w-[376px] h-[18px]">
-                  <p className="font-medium text-md text-neutral200">Name</p>
-                </div>
-                <div className="w-[468px] h-[18px] flex justify-around">
-                  <p className="font-medium text-md text-neutral200">
-                    Floor price
-                  </p>
-                  <p className="font-medium text-md text-neutral200">Volume</p>
-                  <p className="font-medium text-md text-neutral200">
-                    Market cap
-                  </p>
-                </div>
-                <div className="w-[324px] h-[18px] flex justify-around">
-                  <p className="font-medium text-md text-neutral200">Sales</p>
-                  <p className="font-medium text-md text-neutral200">Listed</p>
-                  <p className="font-medium text-md text-neutral200">Owners</p>
-                </div>
-              </div>
-              <ScrollArea className="h-[754px] border-t-2 border-neutral500">
-                <div className="grid grid-cols-1 pt-4 gap-4">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.3 }}
+          >
+            {!detail && (
+              <>
+                <TabsContent value="All" className="grid grid-cols-4 gap-10">
                   {collection.map((item: any) => (
                     <div key={item.id}>
-                      <ColumColCard
+                      <CollectionCard
                         data={item}
                         handleNav={() => handleNavigation(item)}
                       />
                     </div>
                   ))}
-                </div>
-              </ScrollArea>
-            </TabsContent>
-          </>
-        )}
+                </TabsContent>
+
+                <TabsContent value="ColCard">
+                  <div className="flex h-[34px] pr-8 pb-4 pl-4">
+                    <div className="w-[376px] h-[18px]">
+                      <p className="font-medium text-md text-neutral200">Name</p>
+                    </div>
+                    <div className="w-[468px] h-[18px] flex justify-around">
+                      <p className="font-medium text-md text-neutral200">
+                        Floor price
+                      </p>
+                      <p className="font-medium text-md text-neutral200">Volume</p>
+                      <p className="font-medium text-md text-neutral200">
+                        Market cap
+                      </p>
+                    </div>
+                    <div className="w-[324px] h-[18px] flex justify-around">
+                      <p className="font-medium text-md text-neutral200">Sales</p>
+                      <p className="font-medium text-md text-neutral200">Listed</p>
+                      <p className="font-medium text-md text-neutral200">Owners</p>
+                    </div>
+                  </div>
+                  <ScrollArea className="h-[754px] border-t-2 border-neutral500">
+                    <div className="grid grid-cols-1 pt-4 gap-4">
+                      {collection.map((item: any) => (
+                        <div key={item.id}>
+                          <ColumColCard
+                            data={item}
+                            handleNav={() => handleNavigation(item)}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+              </>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </Tabs>
     </>
   );
