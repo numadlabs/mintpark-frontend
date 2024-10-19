@@ -4,15 +4,20 @@ const nextConfig = {
   publicRuntimeConfig: {
     apiUrl:
       process.env.NODE_ENV === "development"
-        ? "http://localhost:3002" // development api
+        ? "http://127.0.0.1:3000" // development api
         : "https://api.mainnet.araafal.com", // production api
   },
   images: {
     domains: [
       "numadlabs-coordinals-test.s3.eu-central-1.amazonaws.com",
       "images.unsplash.com",
-      "static-testnet.unisat.io",  // Add this line
+      "static-testnet.unisat.io",
+      "ordinals-testnet.fractalbitcoin.io"  // Add this line
     ],
+  },
+  i18n: {
+    locales: ["en", "it"],
+    defaultLocale: "en",
   },
 };
 

@@ -9,12 +9,13 @@ import { s3ImageUrlBuilder } from "@/lib/utils";
 
 export type CardType = {
   data: CollectionDataType;
+  handleNav: () => void;
 };
 
-const CollectionCard: React.FC<CardType> = ({ data }) => {
+const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
   return (
-    <Link
-      href={`/collections/${data.id}`}
+    <button
+      onClick={handleNav}
       className="backdrop-blur-sm bg-gradient-to-br collection mt-4 from-gradientStart to-transparent border border-neutral400 rounded-xl pl-4 pr-4 pt-4 pb-5 flex flex-col justify-between"
     >
       <Image
@@ -47,23 +48,23 @@ const CollectionCard: React.FC<CardType> = ({ data }) => {
           </div>
         </div>
         <div className="border border-neutral400 mb-4 mt-4"></div>
-        <div className="flex justify-around relative right-[12px]">
-          <div className="flex mt-2">
+        <div className="flex flex-row gap-5 items-center justify-around relative right-[12px]">
+          <div className="flex mt-2 items-center">
             <Profile2User color="#d3f85a" className="w-4 h-4" />
             <p className="ml-2 font-medium text-md text-neutral50">
               <span>{data.floor}</span> owners
             </p>
           </div>
-          <div className="flex mt-2">
+          <div className="flex mt-2 items-center">
             <Notepad color="#d3f85a" className="w-4 h-4" />
             <p className="ml-2 font-medium text-md text-neutral50">
-              <span>{data.floor}k</span> items
+              <span>{data.supply}</span> items
             </p>
           </div>
         </div>
       </div>
       <HoverCard />
-    </Link>
+    </button>
   );
 };
 

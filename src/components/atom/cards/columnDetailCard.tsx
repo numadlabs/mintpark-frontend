@@ -1,15 +1,6 @@
 import Image from "next/image";
-import { CardType } from "./collectionCard";
 import { CollectionDataType } from "@/lib/types";
-
-// type ColumnDetailCard = {
-//   image: string;
-//   title: string;
-//   price: number;
-//   floor: number;
-//   owner: string;
-//   day: number;
-// };
+import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 
 export default function ColDetailCards({ data }: { data: CollectionDataType }) {
   return (
@@ -19,7 +10,7 @@ export default function ColDetailCards({ data }: { data: CollectionDataType }) {
           <Image
             width={64}
             height={64}
-            src={data.logoKey}
+            src={data.fileKey ? s3ImageUrlBuilder(data.fileKey) : ordinalsImageCDN(data.uniqueIdx)}
             className="aspect-square rounded-lg"
             alt="png"
           />
@@ -36,11 +27,11 @@ export default function ColDetailCards({ data }: { data: CollectionDataType }) {
           </div>
           <div className="w-full max-w-[200px] h-[18px]">
             <p className="font-medium text-lg2 text-neutral700">
-              +{data.floor}%
+              {(data.floorDifference ?? 0) >= 0 ? '+' : ''}{data.floorDifference ?? 0}%
             </p>
           </div>
           <div className="w-full max-w-[200px] h-[18px]">
-            {/* <p className="font-medium text-lg2 text-neutral50">{data.owner}</p> */}
+            <p className="font-medium text-lg2 text-neutral50">{data.ownedBy === null ? "-" : data.ownedBy}</p>
           </div>
           <div className="w-full max-w-[200px] h-[18px] group">
             <span className="font-medium text-lg2 text-neutral50 relative">
