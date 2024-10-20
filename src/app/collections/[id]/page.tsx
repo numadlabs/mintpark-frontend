@@ -1,20 +1,10 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { CardType } from "@/components/atom/cards/collectionCard";
-import DiscordIcon from "@/components/icon/hoverIcon";
-import ThreadIcon from "@/components/icon/thread";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { collection } from "@/lib/constants";
-import { Global, Notepad, Profile2User } from "iconsax-react";
-import { CollectionDataType } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
-import { s3ImageUrlBuilder, imageCDN } from "@/lib/utils";
-import {
-  getListedCollectionById,
-  getListedCollections,
-} from "@/lib/service/queryHelper";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -22,25 +12,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import ColDetailCard from "@/components/atom/cards/collectionDetailCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Global, Notepad, Profile2User } from "iconsax-react";
+import DiscordIcon from "@/components/icon/hoverIcon";
+import ThreadIcon from "@/components/icon/thread";
+import ColDetailCard from "@/components/atom/cards/collectionDetailCard";
 import ColDetailCards from "@/components/atom/cards/columnDetailCard";
-import { useEffect, useState } from "react";
+import { getListedCollectionById } from "@/lib/service/queryHelper";
+import { s3ImageUrlBuilder } from "@/lib/utils";
+import { CollectionDataType } from "@/lib/types";
+import CollectionSideBar from "@/components/section/collections/sideBar";
 
-const CollectionDetailPage = ({ detail }: { detail: false }) => {
+const CollectionDetailPage = () => {
   const params = useParams();
   const { id } = params;
   const [active, setActive] = useState(false);
+  const searchParams = useSearchParams();
+  const [collectionData, setCollectionData] =
+    useState<CollectionDataType | null>(null);
 
   const { data: collection = [] } = useQuery({
     queryKey: ["collectionData"],
     queryFn: () => getListedCollectionById(id as string),
     enabled: !!id,
   });
-
-  const searchParams = useSearchParams();
-  const [collectionData, setCollectionData] =
-    useState<CollectionDataType | null>(null);
 
   useEffect(() => {
     const data = searchParams.get("data");
@@ -49,6 +44,13 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
       setCollectionData(parsedData);
     }
   }, [searchParams]);
+  useEffect(() => {
+    console.log("Sidebar active state:", active);
+  }, [active]);
+
+  const handleSortClick = () => {
+    setActive(!active);
+  };
 
   const links = [
     {
@@ -67,10 +69,12 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
       icon: <ThreadIcon size={34} className={`iconHover`} />,
     },
   ];
+
   return (
     <>
-      <Tabs defaultValue="All" className="mt-[43.5px] mb-10">
+      <Tabs defaultValue="AllCard" className="mt-[43.5px] mb-10">
         <section>
+          {/* Banner Section */}
           <div className="w-full relative h-[320px] mt-10 ">
             <div className="relative h-[200px] w-full rounded-3xl overflow-hidden">
               <div
@@ -93,9 +97,9 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
               <div className="h-[190px]" />
             </div>
 
+            {/* Collection Info */}
             <div className="flex absolute top-24 pl-12 pr-12 w-full z-50">
               <div>
-                {" "}
                 <Image
                   width={208}
                   height={208}
@@ -132,24 +136,6 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
                         {link.icon}
                       </button>
                     ))}
-                    {/* <span>
-                      <Image
-                        width={32}
-                        height={32}
-                        src="/detail_icon/icon_2.png"
-                        className="aspect-square rounded-3xl"
-                        alt="png"
-                      />
-                    </span>
-                    <span>
-                      <Image
-                        width={32}
-                        height={32}
-                        src="/detail_icon/icon_3.png"
-                        className="aspect-square rounded-3xl"
-                        alt="png"
-                      />
-                    </span> */}
                   </div>
                 </div>
                 <div className="flex justify-around relative right-14 top-9">
@@ -165,7 +151,6 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
                         alt="png"
                         className="aspect-square"
                       />
-                      {/* <Bitcoin color="#f7931a" variant="Bold" className="" /> */}
                       <p className="ml-2 font-bold text-xl text-neutral50">
                         <span>{collectionData?.floor}</span> BTC
                       </p>
@@ -183,7 +168,6 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
                         alt="png"
                         className="aspect-square"
                       />
-                      {/* <Bitcoin color="#f7931a" variant="Bold" className="" /> */}
                       <p className="ml-2 font-bold text-xl text-neutral50">
                         <span>{collectionData?.volume}</span> BTC
                       </p>
@@ -207,7 +191,6 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
                     <div className="flex mt-2">
                       <Notepad color="#d3f85a" />
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        {/* hover button buy now & view*/}
                         <span>{collectionData?.supply}</span>
                       </p>
                     </div>
@@ -220,17 +203,9 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
             {collectionData?.description}
           </p>
         </section>
-        {/* <CollecBanner detail={true} data={collection} /> */}
+
+        {/* Search and Filter Section */}
         <section className="flex justify-between mb-7 pt-10">
-          {/* <Image
-            src={"/collections/sort.png"}
-            alt="burger"
-            width={20}
-            height={20}
-            // sizes="100%"
-            className="w-12 h-12 rounded-xl bg-neutral500 p-3"
-            onClick={() => setActive(!active)}
-          /> */}
           <Image
             src={"/collections/sort.png"}
             alt="burger"
@@ -241,7 +216,7 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
                 ? "bg-neutral500 hover:bg-neutral400 border-transparent"
                 : "bg-neutral600 border border-neutral500 hover:border-neutral400"
             }`}
-            onClick={() => setActive(!active)}
+            onClick={handleSortClick}
           />
           <div className="flex">
             <Image
@@ -249,7 +224,6 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
               alt="burger"
               width={20}
               height={20}
-              // sizes="100%"
               className="w-[17.08px] h-[17.08px] relative left-8 top-4"
             />
             <input
@@ -264,8 +238,13 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
                 <SelectTrigger className="w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50 pt-2 pr-4 pb-2 pl-5">
                   <SelectValue placeholder="Volume" />
                 </SelectTrigger>
-                <SelectContent className="w-60 h-40 rounded-xl bg-neutral600 bg-opacity-[70%] border-neutral400">
-                  <div className="text-center p-5">
+                <SelectContent
+                  className="w-60 h-40 rounded-xl bg-neutral600 bg-opacity-[70%] border-neutral400"
+                  style={{
+                    backdropFilter: "blur(30px)",
+                  }}
+                >
+                  <div className="text-center">
                     <SelectItem value="highest">Highest volume</SelectItem>
                     <SelectItem value="lowest">Lowest volume</SelectItem>
                     <SelectItem value="highestFloor">
@@ -279,7 +258,7 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
               </Select>
             </div>
 
-            <TabsList className="text-neutral50 border border-neutral400 w-[92px] h-12">
+            <TabsList className="text-neutral50 border border-neutral400 rounded-lg w-[92px] h-12">
               <TabsTrigger
                 value="AllCard"
                 className="w-10 h-10 font-semibold text-[15px] border-hidden rounded-lg p-[10px]"
@@ -305,57 +284,73 @@ const CollectionDetailPage = ({ detail }: { detail: false }) => {
             </TabsList>
           </div>
         </section>
-        <section className="flex gap-10 w-full pt-7">
-          <TabsContent value="AllCard">
-            <div
-              className={`grid w-full gap-10 ${
-                active ? "grid-cols-3" : "grid-cols-4"
-              }`}
-            >
-              {collection.map((item: any) => (
-                <div key={item.id}>
-                  <ColDetailCard data={item} />
-                </div>
-              ))}
-            </div>
-          </TabsContent>
 
-          <TabsContent value="ColCard" className="w-full">
-            <div className="flex h-[34px] pr-8 pb-4 pl-4">
-              <div className="w-[392px] h-[18px]">
-                <p className="font-medium text-md text-neutral200">Item</p>
-              </div>
-              <div className="grid grid-cols-4 w-full text-center">
-                <div className="max-w-[200px] h-[18px]">
-                  <p className="font-medium text-md text-neutral200 pr-7">
-                    Price
-                  </p>
-                </div>
-                <div className="max-w-[200px] h-[18px]">
-                  <p className="font-medium text-md text-neutral200">
-                    Floor defference
-                  </p>
-                </div>
-                <div className="max-w-[200px] h-[18px]">
-                  <p className="font-medium text-md text-neutral200">Owner</p>
-                </div>
-                <div className="max-w-[200px] h-[18px]">
-                  <p className="font-medium text-md text-neutral200 pl-10">
-                    Listed time
-                  </p>
-                </div>
-              </div>
-            </div>
-            <ScrollArea className="h-[754px] w-full border-t-2 border-neutral500">
-              <div className="flex flex-col w-full pt-4 gap-4">
+        {/* Main Content Section */}
+        <section
+          className={`flex w-full  pt-7  ${active ? "gap-10" : "gap-0"}`}
+        >
+          {/* Sidebar */}
+          <div
+            className={`flex ${
+              active ? "opacity-100 w-[280px]" : "opacity-0 w-0"
+            } transition-all`}
+          >
+            <CollectionSideBar />
+          </div>
+          <div
+            className={`flex-grow ${active ? "w-[calc(100%-280px)]" : "w-full"}`}
+          >
+            <TabsContent value="AllCard">
+              <div
+                className={`grid w-full gap-10 ${
+                  active ? "grid-cols-3" : "grid-cols-4"
+                }`}
+              >
                 {collection.map((item: any) => (
                   <div key={item.id}>
-                    <ColDetailCards data={item} />
+                    <ColDetailCard data={item} />
                   </div>
                 ))}
               </div>
-            </ScrollArea>
-          </TabsContent>
+            </TabsContent>
+
+            <TabsContent value="ColCard" className="w-full">
+              <div className="flex h-[34px] pr-8 pb-4 pl-4">
+                <div className="w-[392px] h-[18px]">
+                  <p className="font-medium text-md text-neutral200">Item</p>
+                </div>
+                <div className="grid grid-cols-4 pl-5 w-full text-center">
+                  <div className="max-w-[200px] h-[18px]">
+                    <p className="font-medium text-md text-neutral200 pr-7">
+                      Price
+                    </p>
+                  </div>
+                  <div className="max-w-[200px] h-[18px]">
+                    <p className="font-medium text-md text-neutral200">
+                      Floor difference
+                    </p>
+                  </div>
+                  <div className="max-w-[200px] h-[18px]">
+                    <p className="font-medium text-md text-neutral200">Owner</p>
+                  </div>
+                  <div className="max-w-[200px] h-[18px]">
+                    <p className="font-medium text-md text-neutral200 pl-10">
+                      Listed time
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <ScrollArea className="h-[754px] w-full border-t-2 border-neutral500">
+                <div className="flex flex-col w-full pt-4 gap-4">
+                  {collection.map((item: any) => (
+                    <div key={item.id}>
+                      <ColDetailCards data={item} />
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </TabsContent>
+          </div>
         </section>
       </Tabs>
     </>

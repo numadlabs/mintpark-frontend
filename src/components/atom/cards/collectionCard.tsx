@@ -47,7 +47,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
             </p>
           </div>
         </div>
-        <div className="border border-neutral400 mb-4 mt-4"></div>
+        <div className="border border-neutral400 w-full mb-4 mt-4"></div>
         <div className="flex flex-row gap-5 items-center justify-around relative right-[12px]">
           <div className="flex mt-2 items-center">
             <Profile2User color="#d3f85a" className="w-4 h-4" />
@@ -58,7 +58,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
           <div className="flex mt-2 items-center">
             <Notepad color="#d3f85a" className="w-4 h-4" />
             <p className="ml-2 font-medium text-md text-neutral50">
-              <span>{data.supply}</span> items
+              <span>{data.supply}</span> items 
             </p>
           </div>
         </div>
