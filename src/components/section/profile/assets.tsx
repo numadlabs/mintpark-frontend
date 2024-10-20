@@ -27,7 +27,7 @@ export default function Assets({
   detail: boolean;
   data: CardType[];
 }) {
-  const tabs = ["1h", "24h", "7d", "30d", "All"];
+  // const tabs = ["1h", "24h", "7d", "30d", "All"];
   const [active, setActive] = useState(false);
   return (
     <>
@@ -67,7 +67,7 @@ export default function Assets({
             </section>
           ) : (
             <div>
-              <TabsList className="h-12 text-neutral50 p-1 border border-neutral400 rounded-xl gap-1">
+              {/* <TabsList className="h-12 text-neutral50 p-1 border border-neutral400 rounded-xl gap-1">
                 {tabs.map((tab) => (
                   <TabsTrigger
                     key={tab}
@@ -77,7 +77,7 @@ export default function Assets({
                     {tab}
                   </TabsTrigger>
                 ))}
-              </TabsList>
+              </TabsList> */}
             </div>
           )}
           <div className="flex justify-between text-center items-center w-[330px] h-[48px] gap-4">
@@ -194,7 +194,7 @@ export default function Assets({
         )}
         {!detail && (
           <>
-            {tabs.map((tab) => (
+            {/* {tabs.map((tab) => (
               <TabsContent
                 key={tab}
                 value={tab}
@@ -210,7 +210,7 @@ export default function Assets({
                     );
                   })}
               </TabsContent>
-            ))}
+            ))} */}
 
             <TabsContent value="All" className="grid grid-cols-4 gap-10">
               {data.map((item) => (
