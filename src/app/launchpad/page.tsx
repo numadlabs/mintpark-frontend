@@ -6,24 +6,15 @@ import LaunchpadBanner from "@/components/section/launchpadBanner";
 import LaunchBanner from "@/components/section/launchpads/launchBanner";
 import { fetchLaunchs } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 const Launchpad = () => {
-  const {
-    isLoading,
-    isError,
-    isFetching,
-    data: launchData,
-    error,
-  } = useQuery({
-    queryKey: ["launchData"],
-    queryFn: () => {
-      // if (typeof slug === "string") {
-      return fetchLaunchs();
-      // }
-    },
-    // enabled: !!slug,
+  const {authState} = useAuth()
+  const { data: launchData = [] } = useQuery({
+    queryKey: ["collectionData"],
+    queryFn: () => fetchLaunchs(authState?.layerId as string),
+    enabled: !!authState?.layerId,
   });
-  console.log("🚀 ~ Collections ~ raffleDetail:", launchData);
   return (
     <Layout>
       <Header />

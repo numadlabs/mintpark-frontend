@@ -210,3 +210,12 @@ export type MintCollectibleDataType = {
   creator: string;
   description: string;
 }
+
+export type LaunchCollectionData = {
+  POStartsAt: number;
+  POEndsAt: number;
+  POMintPrice: number;
+  POMaxMintPerWallet: number;
+  files: File[];
+  isWhiteListed: boolean;
+}
