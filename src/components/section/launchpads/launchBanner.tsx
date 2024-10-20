@@ -14,10 +14,6 @@ export default function LaunchBanner({
 }: {
   collections: any;
 }) {
-  const { data: launchs = [] } = useQuery({
-    queryKey: ["launchData"],
-    queryFn: () => fetchLaunchs(),
-  });
   return (
     <>
       {/* <launchpadCard/> */}
@@ -52,11 +48,6 @@ export default function LaunchBanner({
               </div>
             );
           })}
-          {collections?.map((collection:any) => (
-            <div key={collection.id}>
-              <LaunchpadCard key={collection.id} collection={collection} />
-            </div>
-          ))}
         </TabsContent>
         <TabsContent value="live" className="grid grid-cols-4 gap-10">
           {collections.map((item:any) => {

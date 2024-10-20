@@ -12,18 +12,22 @@ import Layout from "@/components/layout/layout";
 import UploadCardFill from "@/components/atom/cards/uploadCardFill";
 import Image from "next/image";
 import CollectiblePreviewCard from "@/components/atom/cards/collectiblePreviewCard";
-import { ImageFile, CollectionData } from "@/lib/types";
+import { ImageFile, CollectionData, LaunchCollectionData } from "@/lib/types";
 import TextArea from "@/components/ui/textArea";
-import { createCollection } from "@/lib/service/postRequest";
+import { createCollection, launchCollection } from "@/lib/service/postRequest";
 import useCreateFormState from "@/lib/store/createFormStore";
 import { useMutation } from "@tanstack/react-query";
 import CollectionUploadFile from "@/components/section/collectionUploadFile";
 import Toggle from "@/components/ui/toggle";
 import { Calendar2, Clock, Bitcoin } from "iconsax-react";
 import OrderPayModal from "@/components/modal/order-pay-modal";
+import { useAuth } from "@/components/provider/auth-context-provider";
+import moment from "moment";
+import SuccessModal from "@/components/modal/success-modal";
 
 const CollectionDetail = () => {
   const router = useRouter();
+  const { authState } = useAuth();
   const {
     imageFile,
     setImageFile,
@@ -33,7 +37,19 @@ const CollectionDetail = () => {
     setDescription,
     creator,
     setCreator,
-    reset
+    POStartsAtDate,
+    setPOStartsAtDate,
+    POStartsAtTime,
+    setPOStartsAtTime,
+    POEndsAtDate,
+    setPOEndsAtDate,
+    POEndsAtTime,
+    setPOEndsAtTime,
+    POMintPrice,
+    setPOMintPrice,
+    POMaxMintPerWallet,
+    setPOMaxMintPerWallet,
+    reset,
   } = useCreateFormState();
   const [step, setStep] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -47,9 +63,14 @@ const CollectionDetail = () => {
   const stepperData = ["Details", "Upload", "Launch", "Confirm"];
   const [totalFileSize, setTotalFileSize] = useState<number>(0);
   const [fileTypeSizes, setFileTypeSizes] = useState<number[]>([]);
+  const [successModal, setSuccessModal] = useState(false);
 
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
+  });
+
+  const { mutateAsync: launchCollectionMutation } = useMutation({
+    mutationFn: launchCollection,
   });
 
   const updateFileInfo = (files: File[]) => {
@@ -130,7 +151,7 @@ const CollectionDetail = () => {
   };
 
   const handleBack = () => {
-    if (step > 0 || step > 3 ) {
+    if (step > 0 || step > 3) {
       setStep(step - 1);
       reset(); // Reset form data when going back
     } else {
@@ -138,7 +159,71 @@ const CollectionDetail = () => {
     }
   };
 
+  const handleCreate = () => {
+    reset();
+    router.push("/create");
+  };
+
+  const toggleSuccessModal = () => {
+    setSuccessModal(!successModal);
+  };
+
   const files = imageFiles.map((image) => image.file);
+
+  const calculateSecondsUntilDate = (
+    dateString: string,
+    timeString: string,
+  ): number => {
+    // Combine the date and time strings
+    const targetDateTimeString = `${dateString} ${timeString}`;
+
+    // Parse the target date and time
+    const targetDateTime = moment(targetDateTimeString, "YYYY-MM-DD HH:mm");
+
+    // Check if the parsed date is valid
+    if (!targetDateTime.isValid()) {
+      console.error("Invalid date/time input:", targetDateTimeString);
+      return 0; // Return 0 or some default value
+    }
+
+    // Get the current date and time
+    const now = moment();
+
+    // Calculate the difference in seconds
+    const secondsUntil = targetDateTime.diff(now, "seconds");
+
+    return secondsUntil > 0 ? secondsUntil : 0; // Ensure we don't return negative values
+  };
+
+  const handleCreateLaunch = async () => {
+    const POStartsAt = calculateSecondsUntilDate(
+      POStartsAtDate,
+      POStartsAtTime,
+    );
+    const POEndsAt = calculateSecondsUntilDate(POEndsAtDate, POEndsAtTime);
+    try {
+      const params: LaunchCollectionData = {
+        files: files,
+        POStartsAt: POStartsAt,
+        POEndsAt: POEndsAt,
+        POMintPrice: POMintPrice,
+        POMaxMintPerWallet: POMaxMintPerWallet,
+        isWhiteListed: false,
+      };
+      if (params && collectionId) {
+        const response = await launchCollectionMutation({
+          data: params,
+          collectionId: collectionId,
+        });
+        if (response && response.success) {
+          console.log("create launch success", response);
+          toggleSuccessModal();
+        }
+      }
+    } catch (error) {
+      console.error("Error creating launch:", error);
+    }
+  };
 
   return (
     <Layout>
@@ -194,10 +279,7 @@ const CollectionDetail = () => {
                 )}
               </div>
               <div className="flex flex-row justify-between w-full gap-8">
-                <ButtonOutline
-                  title="Back"
-                  onClick={handleBack}
-                />
+                <ButtonOutline title="Back" onClick={handleBack} />
                 <ButtonLg
                   title="Continue"
                   isSelected={true}
@@ -341,6 +423,8 @@ const CollectionDetail = () => {
                             type="birthdaytime"
                             placeholder="YYYY - MM - DD"
                             className="pl-10 w-[184px]"
+                            value={POStartsAtDate}
+                            onChange={(e) => setPOStartsAtDate(e.target.value)}
                           />
                           <div className="absolute left-4">
                             <Calendar2 size={20} color="#D7D8D8" />
@@ -350,6 +434,8 @@ const CollectionDetail = () => {
                           <Input
                             placeholder="HH : MM"
                             className="pl-10 w-[184px]"
+                            value={POStartsAtTime}
+                            onChange={(e) => setPOStartsAtTime(e.target.value)}
                           />
                           <div className="absolute left-4">
                             <Clock size={20} color="#D7D8D8" />
@@ -367,6 +453,8 @@ const CollectionDetail = () => {
                             type="birthdaytime"
                             placeholder="YYYY - MM - DD"
                             className="pl-10 w-[184px]"
+                            value={POEndsAtDate}
+                            onChange={(e) => setPOEndsAtDate(e.target.value)}
                           />
                           <div className="absolute left-4">
                             <Calendar2 size={20} color="#D7D8D8" />
@@ -376,6 +464,8 @@ const CollectionDetail = () => {
                           <Input
                             placeholder="HH : MM"
                             className="pl-10 w-[184px]"
+                            value={POEndsAtTime}
+                            onChange={(e) => setPOEndsAtTime(e.target.value)}
                           />
                           <div className="absolute left-4">
                             <Clock size={20} color="#D7D8D8" />
@@ -389,7 +479,12 @@ const CollectionDetail = () => {
                       Public mint price
                     </p>
                     <div className="relative flex items-center">
-                      <Input placeholder="Amount" className="w-full pl-10" />
+                      <Input
+                        placeholder="Amount"
+                        className="w-full pl-10"
+                        value={POMintPrice}
+                        onChange={(e) => setPOMintPrice(Number(e.target.value))}
+                      />
                       <div className="absolute left-4">
                         <Bitcoin size={20} color="#D7D8D8" />
                       </div>
@@ -407,7 +502,13 @@ const CollectionDetail = () => {
                     <p className="text-lg text-neutral50 font-medium">
                       Max mint per wallet dsd
                     </p>
-                    <Input placeholder="0" />
+                    <Input
+                      placeholder="0"
+                      value={POMaxMintPerWallet}
+                      onChange={(e) =>
+                        setPOMaxMintPerWallet(Number(e.target.value))
+                      }
+                    />
                   </div>
                 </div>
               ) : (
@@ -417,7 +518,7 @@ const CollectionDetail = () => {
                 <ButtonOutline title="Back" onClick={handleBack} />
                 <ButtonLg
                   isSelected={true}
-                  onClick={handleNextStep}
+                  onClick={() => setStep(3)}
                   isLoading={isLoading}
                 >
                   {isLoading ? "...loading" : "Continue"}
@@ -464,9 +565,49 @@ const CollectionDetail = () => {
                   </div>
                 )}
               </div>
+              {isChecked && (
+                <div className="flex flex-col gap-8 w-full">
+                  <p className="text-[28px] leading-9 text-neutral50 font-bold">
+                    Public phase
+                  </p>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral200 text-lg">Start date</p>
+                      <p className="text-neutral50 text-lg font-bold">
+                        {POStartsAtDate},{POStartsAtTime}
+                      </p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral200 text-lg">End date</p>
+                      <p className="text-neutral50 text-lg font-bold">
+                        {POEndsAtDate},{POEndsAtTime}
+                      </p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral200 text-lg">
+                        Public mint price
+                      </p>
+                      <p className="text-neutral50 text-lg font-bold">
+                        {POMintPrice}
+                      </p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral200 text-lg">
+                        Max mint per wallet
+                      </p>
+                      <p className="text-neutral50 text-lg font-bold">
+                        {POMaxMintPerWallet}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="flex flex-row gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
-                <ButtonLg isSelected={true} onClick={togglePayModal}>
+                <ButtonLg
+                  isSelected={true}
+                  onClick={isChecked ? handleCreateLaunch : togglePayModal}
+                >
                   Confirm
                 </ButtonLg>
               </div>
@@ -481,6 +622,11 @@ const CollectionDetail = () => {
         id={collectionId}
         fileSizes={fileSizes}
         files={files}
+      />
+      <SuccessModal
+        open={successModal}
+        onClose={toggleSuccessModal}
+        handleCreate={handleCreate}
       />
     </Layout>
   );

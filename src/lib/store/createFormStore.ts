@@ -13,13 +13,24 @@ interface FormState {
   setMintLayerType: (mintLayerType: string) => void;
   feeRate: number;
   setFeeRate: (feeRate: number) => void;
+  POStartsAtDate: string;
+  setPOStartsAtDate: (POStartsAtDate: string) => void;
+  POStartsAtTime: string;
+  setPOStartsAtTime: (POStartsAtTime: string) => void;
+  POEndsAtDate: string;
+  setPOEndsAtDate: (POEndsAtDate: string) => void;
+  POEndsAtTime: string;
+  setPOEndsAtTime: (POEndsAtTime: string) => void;
+  POMintPrice: number;
+  setPOMintPrice: (POMintPrice: number) => void;
+  POMaxMintPerWallet: number;
+  setPOMaxMintPerWallet: (POMaxMintPerWallet: number) => void;
   reset: () => void;
 }
 
 const useCreateFormState = create<FormState>((set) => ({
   imageFile: [],
   setImageFile: (files: File[]) => set((state) => ({ imageFile: [...state.imageFile, ...files] })),
-
   name: "",
   setName: (name: string) => set({ name }),
   creator: "",
@@ -30,6 +41,18 @@ const useCreateFormState = create<FormState>((set) => ({
   setMintLayerType: (mintLayerType: string) => set({ mintLayerType }),
   feeRate: 0,
   setFeeRate: (feeRate: number) => set({ feeRate }),
+  POStartsAtDate: "",
+  setPOStartsAtDate: (POStartsAtDate: string) => set({ POStartsAtDate }),
+  POStartsAtTime: "",
+  setPOStartsAtTime: (POStartsAtTime: string) => set({ POStartsAtTime }),
+  POEndsAtDate: "",
+  setPOEndsAtDate: (POEndsAtDate: string) => set({ POEndsAtDate }),
+  POEndsAtTime: "",
+  setPOEndsAtTime: (POEndsAtTime: string) => set({ POEndsAtTime }),
+  POMintPrice: 0,
+  setPOMintPrice: (POMintPrice: number) => set({ POMintPrice }),
+  POMaxMintPerWallet: 0,
+  setPOMaxMintPerWallet: (POMaxMintPerWallet: number) => set({ POMaxMintPerWallet }),
 
   reset: () =>
     set({
@@ -39,6 +62,12 @@ const useCreateFormState = create<FormState>((set) => ({
       description: "",
       mintLayerType: "",
       feeRate: 0,
+      POStartsAtDate: "",
+      POStartsAtTime: "",
+      POEndsAtDate: "",
+      POEndsAtTime: "",
+      POMintPrice: 0,
+      POMaxMintPerWallet: 0,
     }),
 }));
 

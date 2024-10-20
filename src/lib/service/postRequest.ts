@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 import axiosClient from "../axios";
 import {
   CreateCollectionType,
+  LaunchCollectionData,
   MintCollectibleDataType,
   MintCollectiblePayload,
   MintCollectibleResponse,
@@ -194,6 +195,50 @@ export async function createCollectiblesToCollection({ data }: { data: MintDataT
     return response.data;
   } catch (error) {
     console.error('Error in createCollectiblesToCollection:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Server error response:', error.response.data);
+    }
+    throw error;
+  }
+}
+
+export async function launchCollection({ data, collectionId }: { data: LaunchCollectionData, collectionId: string}) {
+  const formData = new FormData();
+  
+  // Append files
+  data.files.forEach((file, index) => {
+    formData.append(`files`, file);
+    console.log(`Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`);
+  });
+
+  // Append other data
+  formData.append('POStartsAt', data.POStartsAt.toString());
+  formData.append('POEndsAt', data.POEndsAt.toString());
+  formData.append('POMintPrice', data.POMintPrice.toString());
+  formData.append('POMaxMintPerWallet', data.POMaxMintPerWallet.toString());
+  formData.append('isWhiteListed', data.isWhiteListed.toString());
+
+  console.log('FormData contents:');
+  // Use Array.from() to convert the iterator to an array
+  Array.from(formData.keys()).forEach(key => {
+    console.log(key, formData.get(key));
+  });
+
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/collections/${collectionId}/launch`,
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  };
+
+  try {
+    const response = await axiosClient.request(config);
+    console.log('Server response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error in launch:', error);
     if (axios.isAxiosError(error) && error.response) {
       console.error('Server error response:', error.response.data);
     }

@@ -31,9 +31,9 @@ export async function getOrderById(id: string) {
   });
 }
 
-export async function fetchLaunchs(): Promise<CollectionType[]> {
+export async function fetchLaunchs(layerId: string) {
   return axiosClient
-    .get(`/api/v1/collections?layerType=BITCOIN_TESTNET`)
+    .get(`/api/v1/launchpad?layerId=${layerId}&interval=all`)
     .then((response) => {
       if (response.data.success) {
         return response?.data.data;
@@ -43,10 +43,8 @@ export async function fetchLaunchs(): Promise<CollectionType[]> {
     });
 }
 
-export async function fetcCollectionByCollectionId(
-  id: string,
-): Promise<CollectionType[]> {
-  return axiosClient.get(`/api/v1/collections/${id}`).then((response) => {
+export async function getLaunchByCollectionId(id: string){
+  return axiosClient.get(`/api/v1/launchpad/collections/${id}`).then((response) => {
     if (response.data.success) {
       return response?.data.data;
     } else {
