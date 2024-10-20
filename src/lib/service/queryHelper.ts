@@ -66,6 +66,19 @@ export async function getFeeRatesByLayer() {
       }
     });
 }
+
+export async function getFeeRates(layerId: string) {
+  return axiosClient
+    .get(`/api/v1/layers/${layerId}/fee-rates`)
+    .then((response) => {
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.error);
+      }
+    });
+}
+
 export async function getAllLayers() {
   return axiosClient.get(`/api/v1/layers/`).then((response) => {
     if (response.data.success) {

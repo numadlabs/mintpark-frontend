@@ -2,12 +2,13 @@ import axios, { AxiosError, AxiosResponse, AxiosRequestConfig } from "axios";
 import axiosClient from "../axios";
 import {
   CreateCollectionType,
+  MintCollectibleDataType,
   MintCollectiblePayload,
   MintCollectibleResponse,
   User,
 } from "../types";
 import { getAccessToken } from "../auth";
-import { CreateCollectibleType, CollectibleDataType, FeeRateAmount, CollectionData } from "../types";
+import { CreateCollectibleType, CollectibleDataType, FeeRateAmount, CollectionData, MintDataType } from "../types";
 import { collectibleFormData, collectiontFormData } from "./formHelper";
 
 export async function generateMessageHandler({ address }: { address: string }) {
@@ -35,7 +36,7 @@ export async function createOrder({ id, feeRate }: { id: string, feeRate: number
 export async function createMintCollection({ id }: { id: string}) {
   try {
     return axiosClient
-      .post(`/api/v1/collections/${id}/mint`)
+      .post(`/api/v1/orders/`)
       .then((response) => {
         return response.data;
       });
@@ -79,13 +80,13 @@ export async function feeAmount({ data }: { data: FeeRateAmount }) {
   const formData = collectiontFormData(data);
   const config: AxiosRequestConfig = {
     method: "post",
-    url: `/api/v1/orders/estimated-fee`,
+    url: `/api/v1/layers/estimate-fee/`,
     
     data,
   };
 
   const response = await axiosClient.request(config);
-  return response.data.data;
+  return response.data;
 }
 
 export async function createCollectible({ data }: { data: CollectibleDataType }) {
@@ -114,20 +115,73 @@ export async function createCollection({ data }: { data: CollectionData }) {
   return response.data;
 }
 
-export async function createCollectiblesToCollection({ images, id }: { images: File[], id: string }) {
+export async function createMintCollectible({ data }: { data: MintCollectibleDataType }) {
   const formData = new FormData();
   
-  images.forEach((file, index) => {
-    formData.append(`images`, file);
+  // Append files
+  data.files.forEach((file, index) => {
+    formData.append(`files`, file);
     console.log(`Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`);
   });
 
+  // Append other data
+  formData.append('orderType', data.orderType);
+  formData.append('feeRate', data.feeRate.toString());
+  formData.append('name', data.name);
+  formData.append('creator', data.creator);
+  formData.append('description', data.description);
+
   console.log('FormData contents:');
-  console.log('images:', formData.getAll('images'));
+  // Use Array.from() to convert the iterator to an array
+  Array.from(formData.keys()).forEach(key => {
+    console.log(key, formData.get(key));
+  });
 
   const config: AxiosRequestConfig = {
     method: "post",
-    url: `/api/v1/collections/${id}/collectibles`,
+    url: `/api/v1/orders/`,
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  };
+
+  try {
+    const response = await axiosClient.request(config);
+    console.log('Server response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error in createCollectiblesToCollection:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error('Server error response:', error.response.data);
+    }
+    throw error;
+  }
+}
+
+export async function createCollectiblesToCollection({ data }: { data: MintDataType }) {
+  const formData = new FormData();
+  
+  // Append files
+  data.files.forEach((file, index) => {
+    formData.append(`files`, file);
+    console.log(`Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`);
+  });
+
+  // Append other data
+  formData.append('orderType', data.orderType);
+  formData.append('collectionId', data.collectionId);
+  formData.append('feeRate', data.feeRate.toString());
+
+  console.log('FormData contents:');
+  // Use Array.from() to convert the iterator to an array
+  Array.from(formData.keys()).forEach(key => {
+    console.log(key, formData.get(key));
+  });
+
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/orders/`,
     data: formData,
     headers: {
       'Content-Type': 'multipart/form-data'

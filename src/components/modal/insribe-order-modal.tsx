@@ -14,14 +14,12 @@ interface modalProps {
   open: boolean;
   onClose: () => void;
   data: InscribeOrderData;
-  orderStatus: string;
 }
 
 const InscribeOrderModal: React.FC<modalProps> = ({
   open,
   onClose,
   data,
-  orderStatus,
 }) => {
   const router = useRouter();
   const totalFee = data?.networkFee + data?.serviceFee;
@@ -40,7 +38,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         <div className="h-[1px] w-full bg-white8" />
         <div className="flex flex-col gap-3 border border-white8 rounded-2xl w-full px-5 pt-4 pb-5">
           <p className="text-neutral200 text-md font-medium">Order ID:</p>
-          <p className="text-lg2 text-neutral50 font-medium">{data?.orderId}</p>
+          <p className="text-lg2 text-neutral50 font-medium">{data?.id}</p>
         </div>
         <div className="grid grid-cols-2 gap-4 items-center w-full">
           <div className="border border-white8 rounded-2xl w-full px-5 pt-4 pb-5 flex flex-col gap-3">
@@ -52,7 +50,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
           <div className="border border-white8 rounded-2xl w-full px-5 pt-4 pb-5 flex flex-col gap-3">
             <p className="text-md text-neutral200 font-medium">Status:</p>
             <p className="text-lg text-neutal50 font-medium">
-              {orderStatus ? orderStatus : data?.status}
+              {data?.orderStatus}
             </p>
           </div>
         </div>
@@ -85,7 +83,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
               <p className="text-neutral50 text-lg font-bold">Payment</p>
             </div>
             <p className="text-neutral50 text-lg font-medium">
-              {orderStatus ? "Paid" : data?.status}
+              {data.orderStatus}
             </p>
           </div>
           <div className="flex flex-row items-center justify-between w-full bg-white4 p-4 rounded-2xl">
@@ -96,9 +94,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
               <p className="text-neutral50 text-lg font-bold">Inscribe</p>
             </div>
             <p className="text-neutral50 text-md font-medium">
-              {orderStatus
-                ? "Inscribed"
-                : "Inscribing will start after payment is recieved"}
+              {data.orderStatus}
             </p>
           </div>
         </div>

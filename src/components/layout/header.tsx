@@ -59,9 +59,9 @@ export default function Header() {
   });
 
   const { data: currentLayer = null } = useQuery({
-    queryKey: ["currentLayerData", selectedLayerId],
-    queryFn: () => getLayerById(selectedLayerId as string),
-    enabled: !!selectedLayerId,
+    queryKey: ["currentLayerData", id],
+    queryFn: () => getLayerById(id as string),
+    enabled: !!id,
   });
 
   useEffect(() => {
