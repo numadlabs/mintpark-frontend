@@ -301,7 +301,7 @@ const CollectionDetail = () => {
                     title="Name"
                     text="Collection name"
                     value={headline}
-                    onChange={(e) => setHeadline(e.target.value)}
+                    onChange={(e: any) => setHeadline(e.target.value)}
                   />
                   {/* setHeadline */}
                   {/* <Input
@@ -315,7 +315,7 @@ const CollectionDetail = () => {
                     title="Description"
                     text="Collection description"
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
+                    onChange={(e: any) => setDescription(e.target.value)}
                   />
                 </div>
               </div>
@@ -368,7 +368,6 @@ const CollectionDetail = () => {
                           image={item.base64}
                           key={index}
                           title={item.fileName}
-                          onDelete={() => console.log("asdas")}
                         />
                       </div>
                     ))}
@@ -377,7 +376,6 @@ const CollectionDetail = () => {
                   <UploadFile
                     text="Accepted file types: WEBP (recommended), JPEG, PNG, SVG, and GIF."
                     handleImageUpload={handleCollectionImageUpload}
-                    multiple
                   />
                 )}
               </div>
@@ -409,7 +407,6 @@ const CollectionDetail = () => {
                     <UploadFile
                       text="Accepted file types: .JSON"
                       handleImageUpload={handleJsonUpload}
-                      acceptedFileTypes=".json"
                     />
                   )}
                 </div>
@@ -492,7 +489,6 @@ const CollectionDetail = () => {
                           <UploadFile
                             text="Accepted file types: .JSON"
                             handleImageUpload={handleJsonUpload}
-                            acceptedFileTypes=".json"
                           />
                         )}
                       </div>
@@ -651,7 +647,6 @@ const CollectionDetail = () => {
                       image={item.base64}
                       key={index}
                       title={item.fileName}
-                      onDelete={() => console.log("")}
                     />
                   </div>
                 ))}

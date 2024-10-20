@@ -5,58 +5,62 @@ import Header from "@/components/layout/header";
 import Banner from "@/components/section/banner";
 import ButtonLg from "@/components/ui/buttonLg";
 import UploadFile from "@/components/section/uploadFile";
-import {Input} from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import ButtonOutline from "@/components/ui/buttonOutline";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-// import { mintToken, stringtoHex } from "@/utils/mint";
-import { stringtoHex } from "@/lib/utils";
 import UploadCardFit from "@/components/atom/cards/uploadCardFit";
 import Layout from "@/components/layout/layout";
-import { ASSETTYPE } from "@/lib/constants";
-import useFormState from "@/lib/store/useFormStore";
-import { toast } from "sonner";
-import { mintCollectibleHandler, createCollectible } from "@/lib/service/postRequest";
-import { MintCollectiblePayload } from "@/lib/types";
 import { useConnector } from "anduro-wallet-connector-react";
 import TextArea from "@/components/ui/textArea";
 import useCreateFormState from "@/lib/store/createFormStore";
-import { CollectibleDataType } from "@/lib/types";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import SubmitPayModal from "@/components/modal/submit-pay-modal";
-import InscribeOrderModal from "@/components/modal/insribe-order-modal";
+import { ImageFile } from "@/lib/types";
 
 const stepperData = ["Upload", "Confirm"];
 
 const SingleCollectible = () => {
-  const queryClient = useQueryClient();
   const router = useRouter();
   const { signTransaction, sendTransaction, signAndSendTransaction } =
     React.useContext<any>(useConnector);
-    const {
-      imageFile,
-      setImageFile,
-      name,
-      setName,
-      creator,
-      setCreator,
-      description,
-      setDescription,
-      reset
-    } = useCreateFormState();
+  const {
+    imageFile,
+    setImageFile,
+    name,
+    setName,
+    creator,
+    setCreator,
+    description,
+    setDescription,
+    reset,
+  } = useCreateFormState();
 
   const [error, setError] = useState<string>("");
   const [step, setStep] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [rawHex, setRawHex] = useState<string>("");
   const [submitModal, setSubmitModal] = useState(false);
+  const [fileSizes, setFileSizes] = useState<number[]>([]);
+  const [totalFileSize, setTotalFileSize] = useState<number>(0);
+  const [fileTypeSizes, setFileTypeSizes] = useState<number[]>([]);
+  const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
+  const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
 
-  const { mutateAsync: createCollectibleMutation } = useMutation({
-    mutationFn: createCollectible,
-    onSuccess: () => {
-      toast.success("collectible successfully created");
-    },
-  });
+  const updateFileInfo = (files: File[]) => {
+    const newSizes = files.map((file) => file.size);
+    setFileSizes((prevSizes) => [...prevSizes, ...newSizes]);
+
+    const newTotalSize = newSizes.reduce((acc, size) => acc + size, 0);
+    setTotalFileSize((prevTotal) => prevTotal + newTotalSize);
+
+    const newTypes = files.map((file) => file.type.length);
+    setFileTypeSizes((prevTypes) => [...prevTypes, ...newTypes]);
+
+    setFileTypes((prevTypes) => {
+      const updatedTypes = new Set(prevTypes);
+      files.forEach((file) => updatedTypes.add(file.type));
+      return updatedTypes;
+    });
+  };
 
   // const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
   //   const file = event.target.files?.[0];
@@ -80,28 +84,40 @@ const SingleCollectible = () => {
 
   const toggleSubmitModal = () => {
     setSubmitModal(!submitModal);
-  }
+  };
 
-  const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    if(file){
-      console.log("Image file", file)
-      setImageFile([file]);
+const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+
+    if (files) {
+      const newImageFiles: ImageFile[] = Array.from(files).map((file) => ({
+        file,
+        preview: URL.createObjectURL(file),
+      }));
+      setImageFiles((prevFiles) => [...prevFiles, ...newImageFiles]);
+      setImageFile(Array.from(files));
+
+      // Calculate file sizes and types
+      const newFileSizes = Array.from(files).map(file => file.size);
+      const newFileTypeSizes = Array.from(files).map(file => file.type.length);
+      const newFileTypes = new Set(Array.from(files).map(file => file.type));
+
+      setFileSizes(prevSizes => [...prevSizes, ...newFileSizes]);
+      setFileTypeSizes(prevSizes => [...prevSizes, ...newFileTypeSizes]);
+      setTotalFileSize(prevSize => prevSize + newFileSizes.reduce((a, b) => a + b, 0));
     }
   };
 
-
-
   const handleNextStep = () => {
-    setStep(1)
-  }
+    setStep(1);
+  };
 
   // const handleSubmit = async () => {
   //   try {
   //     if (!imageFile) {
   //       throw new Error("Image file is required");
   //     }
-  
+
   //     const collectibleData: CollectibleDataType = {
   //       name,
   //       creator,
@@ -110,7 +126,7 @@ const SingleCollectible = () => {
   //       feeRate,
   //       imageFile,
   //     };
-  
+
   //     setIsLoading(true);
   //     const result = await createCollectibleMutation({ data: collectibleData });
   //     if (result.success) {
@@ -255,13 +271,10 @@ const SingleCollectible = () => {
 
   const handleDelete = () => {
     setImageFile([]);
+    setImageFiles([]);
   };
 
-  const triggerRefresh = () => {
-    reset();
-    router.push("/create/collectible");
-  };
-  
+  const files = imageFiles.map((image) => image.file);
 
   return (
     <Layout>
@@ -280,20 +293,25 @@ const SingleCollectible = () => {
             >
               <div className="w-[592px] items-start flex flex-col gap-16">
                 <div className="w-full gap-8 flex flex-col">
-                <div className="flex flex-col gap-4">
-                <p className="text-profileTitle text-neutral50 font-bold">
-                    Upload your Collectible
-                  </p>
-                  <p className="text-neutral200 text-lg2">
-                  The NFT you wish to spawn into existence.
-                  </p>
-                </div>
-                  {imageFile && imageFile[0] ?(
-                    
-                    <UploadCardFit
-                      image={URL.createObjectURL(imageFile[0])}
-                      onDelete={handleDelete}
-                    />
+                  <div className="flex flex-col gap-4">
+                    <p className="text-profileTitle text-neutral50 font-bold">
+                      Upload your Collectible
+                    </p>
+                    <p className="text-neutral200 text-lg2">
+                      The NFT you wish to spawn into existence.
+                    </p>
+                  </div>
+
+                  {imageFiles.length !== 0 ? (
+                    <div className="flex flex-row w-full h-full gap-8 overflow-x-auto">
+                      {imageFiles.map((item, index) => (
+                        <UploadCardFit
+                          key={index}
+                          image={item.preview}
+                          onDelete={handleDelete}
+                        />
+                      ))}
+                    </div>
                   ) : (
                     <UploadFile
                       text="Accepted file types: WEBP (recommended), JPEG, PNG, SVG, and GIF."
@@ -316,7 +334,12 @@ const SingleCollectible = () => {
                       value={creator}
                       onChange={(e) => setCreator(e.target.value)}
                     />
-                    <TextArea title="Description" text="Collectible description" value={description} onChange={(e) => setDescription(e.target.value)}/>
+                    <TextArea
+                      title="Description"
+                      text="Collectible description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                    />
                   </div>
                 </div>
                 <div className="w-full flex flex-row gap-8">
@@ -341,21 +364,19 @@ const SingleCollectible = () => {
           {step == 1 && (
             <div className="w-[800px] flex flex-col gap-16">
               <div className="w-full flex flex-row items-center gap-8 justify-start">
-                {imageFile[0] &&
-                <Image
-                  src={URL.createObjectURL(imageFile[0])}
-                  alt="background"
-                  width={0}
-                  height={160}
-                  sizes="100%"
-                  className="w-[280px] h-[280px] object-cover rounded-3xl"
-                />
-                }
+                {imageFile && imageFile[0] && (
+                  <Image
+                    src={URL.createObjectURL(imageFile[0])}
+                    alt="background"
+                    width={0}
+                    height={160}
+                    sizes="100%"
+                    className="w-[280px] h-[280px] object-cover rounded-3xl"
+                  />
+                )}
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col gap-3">
-                    <p className="text-3xl text-neutral50 font-bold">
-                      {name}
-                    </p>
+                    <p className="text-3xl text-neutral50 font-bold">{name}</p>
                     <p className="text-xl text-neutral100 font-medium">
                       By {creator}
                     </p>
@@ -432,7 +453,16 @@ const SingleCollectible = () => {
           )} */}
         </div>
       </div>
-      <SubmitPayModal open={submitModal} onClose={toggleSubmitModal} file={imageFile} name={name} creator={creator} description={description}/>
+      <SubmitPayModal
+        open={submitModal}
+        onClose={toggleSubmitModal}
+        files={files}
+        name={name}
+        creator={creator}
+        description={description}
+        fileSizes={fileSizes}
+        fileTypeSizes={fileTypeSizes}
+      />
     </Layout>
   );
 };

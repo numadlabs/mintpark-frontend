@@ -14,17 +14,13 @@ import Image from "next/image";
 import CollectiblePreviewCard from "@/components/atom/cards/collectiblePreviewCard";
 import { ImageFile, CollectionData } from "@/lib/types";
 import TextArea from "@/components/ui/textArea";
-import {
-  createCollection,
-  createCollectiblesToCollection,
-} from "@/lib/service/postRequest";
+import { createCollection } from "@/lib/service/postRequest";
 import useCreateFormState from "@/lib/store/createFormStore";
 import { useMutation } from "@tanstack/react-query";
 import CollectionUploadFile from "@/components/section/collectionUploadFile";
 import Toggle from "@/components/ui/toggle";
 import { Calendar2, Clock, Bitcoin } from "iconsax-react";
 import OrderPayModal from "@/components/modal/order-pay-modal";
-
 
 const CollectionDetail = () => {
   const router = useRouter();
@@ -37,40 +33,38 @@ const CollectionDetail = () => {
     setDescription,
     creator,
     setCreator,
+    reset
   } = useCreateFormState();
   const [step, setStep] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [collectionId, setCollectionId] = useState<string>("");
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [payModal, setPayModal] = useState(false);
-  const [totalSize, setTotalSize] = useState<number>(0);
   const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
+  const [fileSizes, setFileSizes] = useState<number[]>([]);
   const [logoImage, setImageLogo] = useState<ImageFile | null>(null);
   const stepperData = ["Details", "Upload", "Launch", "Confirm"];
+  const [totalFileSize, setTotalFileSize] = useState<number>(0);
+  const [fileTypeSizes, setFileTypeSizes] = useState<number[]>([]);
 
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
   });
 
-  const { mutateAsync: createCollectiblesMutation } = useMutation({
-    mutationFn: createCollectiblesToCollection,
-  });
-
-  const formatFileTypes = (types: Set<string>): string => {
-    return Array.from(types)
-      .map(type => type.split('/')[1].toUpperCase())
-      .join(', ');
-  };
-
   const updateFileInfo = (files: File[]) => {
-    const newSize = files.reduce((acc, file) => acc + file.size, 0);
-    const newTypes = files.map(file => file.type);
+    const newSizes = files.map((file) => file.size);
+    setFileSizes((prevSizes) => [...prevSizes, ...newSizes]);
 
-    setTotalSize(prevSize => prevSize + newSize);
-    setFileTypes(prevTypes => {
+    const newTotalSize = newSizes.reduce((acc, size) => acc + size, 0);
+    setTotalFileSize((prevTotal) => prevTotal + newTotalSize);
+
+    const newTypes = files.map((file) => file.type.length);
+    setFileTypeSizes((prevTypes) => [...prevTypes, ...newTypes]);
+
+    setFileTypes((prevTypes) => {
       const updatedTypes = new Set(prevTypes);
-      newTypes.forEach(type => updatedTypes.add(type));
+      files.forEach((file) => updatedTypes.add(file.type));
       return updatedTypes;
     });
   };
@@ -82,8 +76,6 @@ const CollectionDetail = () => {
         name: name,
         creator: creator,
         description: description,
-        layerType: "BITCOIN_TESTNET",
-        feeRate: 1,
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
@@ -99,25 +91,6 @@ const CollectionDetail = () => {
     }
   };
 
-  const handleCreateCollectibles = async () => {
-    const images = imageFiles.map((image) => image.file);
-    try {
-      if (images.length > 0 && collectionId) {
-        const response = await createCollectiblesMutation({
-          id: collectionId,
-          images: images,
-        });
-        if (response && response.success) {
-          console.log("create collectibles success", response);
-          setStep(2);
-        }
-      }
-    } catch (error) {
-      console.error("Error creating collectibles:", error);
-      // You might want to show an error message to the user here
-    }
-  };
-
   const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
     if (file) {
@@ -127,16 +100,16 @@ const CollectionDetail = () => {
   };
 
   const handleUploadChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const images = event.target.files;
+    const files = event.target.files;
 
-    if (images) {
-      const newImageFiles: ImageFile[] = Array.from(images).map((file) => ({
+    if (files) {
+      const newImageFiles: ImageFile[] = Array.from(files).map((file) => ({
         file,
         preview: URL.createObjectURL(file),
       }));
       // setImageLogo(newImageFiles);
       setImageFiles((prevFiles) => [...prevFiles, ...newImageFiles]);
-      updateFileInfo(Array.from(images));
+      updateFileInfo(Array.from(files));
     }
   };
 
@@ -155,6 +128,17 @@ const CollectionDetail = () => {
   const handleNextStep = () => {
     setStep(3);
   };
+
+  const handleBack = () => {
+    if (step > 0 || step > 3 ) {
+      setStep(step - 1);
+      reset(); // Reset form data when going back
+    } else {
+      router.push("/create");
+    }
+  };
+
+  const files = imageFiles.map((image) => image.file);
 
   return (
     <Layout>
@@ -212,7 +196,7 @@ const CollectionDetail = () => {
               <div className="flex flex-row justify-between w-full gap-8">
                 <ButtonOutline
                   title="Back"
-                  onClick={() => router.push("/create")}
+                  onClick={handleBack}
                 />
                 <ButtonLg
                   title="Continue"
@@ -296,11 +280,11 @@ const CollectionDetail = () => {
               )} */}
               {/* <div className="text-red-500">{error}</div> */}
               <div className="flex flex-row w-full gap-8">
-                <ButtonOutline title="Back" onClick={() => setStep(step - 1)} />
+                <ButtonOutline title="Back" onClick={handleBack} />
                 <ButtonLg
                   // type="submit"
                   isSelected={true}
-                  onClick={handleCreateCollectibles}
+                  onClick={() => setStep(2)}
                   isLoading={isLoading}
                   // disabled={isLoading}
                 >
@@ -430,7 +414,7 @@ const CollectionDetail = () => {
                 ""
               )}
               <div className="flex flex-row w-full gap-8">
-                <ButtonOutline title="Back" onClick={() => setStep(step - 1)} />
+                <ButtonOutline title="Back" onClick={handleBack} />
                 <ButtonLg
                   isSelected={true}
                   onClick={handleNextStep}
@@ -481,7 +465,7 @@ const CollectionDetail = () => {
                 )}
               </div>
               <div className="flex flex-row gap-8">
-                <ButtonOutline title="Back" onClick={() => router.push("/")} />
+                <ButtonOutline title="Back" onClick={handleBack} />
                 <ButtonLg isSelected={true} onClick={togglePayModal}>
                   Confirm
                 </ButtonLg>
@@ -490,7 +474,14 @@ const CollectionDetail = () => {
           )}
         </div>
       </div>
-      <OrderPayModal open={payModal} onClose={togglePayModal} fileSize={totalSize} fileType={formatFileTypes(fileTypes)} id={collectionId}/>
+      <OrderPayModal
+        open={payModal}
+        onClose={togglePayModal}
+        fileTypeSizes={fileTypeSizes}
+        id={collectionId}
+        fileSizes={fileSizes}
+        files={files}
+      />
     </Layout>
   );
 };

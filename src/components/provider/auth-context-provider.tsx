@@ -58,10 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [walletAddress, setWalletAddress] = useState<string>("");
   const [loginParams, setLoginParams] = useState<LoginParams | null>(null);
-  const [selectedLayerId, setSelectedLayerId] = useState<string | null>(() => {
-    // Initialize selectedLayerId from localStorage
-    return localStorage.getItem("selectedLayerId");
-  });
+  const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
   const { setConnectedAddress, setConnected } = useWalletStore();
 
   const [authState, setAuthState] = useState<AuthProps["authState"]>({
@@ -127,8 +124,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const logoutTime = localStorage.getItem("logoutTime");
           const now = moment();
 
-          if (logoutTime && now.isBefore(moment(logoutTime))) {
-            // If the current time is before the stored logout time, stay logged out
+          if (logoutTime && now.isAfter(moment(logoutTime))) {
             handleLogout();
             return;
           }
@@ -137,8 +133,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const authData = JSON.parse(storedAuth);
             const profileData = JSON.parse(userProfile);
 
-            const now = moment();
-            if (now.isAfter(profileData.expiry) || accounts.length === 0) {
+            if (now.isAfter(moment(profileData.expiry))) {
               handleLogout();
               return;
             }
@@ -153,9 +148,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               userId: authData.userId,
               layerId: storedLayerId,
             }));
+            setSelectedLayerId(storedLayerId);
 
-            setConnectedAddress(accounts[0]);
-            setConnected(true);
+            if (accounts.length > 0 && accounts[0] === profileData.address) {
+              setConnectedAddress(accounts[0]);
+              setConnected(true);
+            } else {
+              // If the connected account doesn't match the stored profile, clear the stored data
+              handleLogout();
+            }
           } else {
             setAuthState((prev) => ({ ...prev, loading: false }));
           }
@@ -168,6 +169,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     connectWalletOnLoad();
   }, []);
+
 
   const handleLogout = () => {
     setConnectedAddress("");
@@ -184,9 +186,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem("userProfile");
     localStorage.removeItem("authToken");
     localStorage.removeItem("layerId");
-
-    const logoutTime = moment().add(7, "days").toISOString();
-    localStorage.setItem("logoutTime", logoutTime);
+    localStorage.removeItem("logoutTime");
     router.push("/");
     clearToken();
   };
@@ -264,13 +264,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             address,
             signature: signedMessage,
             expiry: moment().add(7, "days").format(),
-          };
+           };
           setConnectedAddress(address);
           setConnected(true);
           localStorage.setItem("userProfile", JSON.stringify(item));
 
-          // Store selectedLayerId in localStorage
-          localStorage.setItem("selectedLayerId", selectedLayerId);
+          // Store layerId in localStorage
+          localStorage.setItem("layerId", selectedLayerId);
 
           // Update authState with the selected layerId
           setAuthState((prev) => ({
@@ -298,27 +298,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     if (selectedLayerId) {
       localStorage.setItem("selectedLayerId", selectedLayerId);
+      // Update authState whenever selectedLayerId changes
+      setAuthState((prev) => ({
+        ...prev,
+        layerId: selectedLayerId,
+      }));
     }
   }, [selectedLayerId]);
 
-
   useEffect(() => {
     try {
-      window.unisat.on("accountsChanged", () => {
-        setConnectedAddress("");
-        setConnected(false);
-        window.localStorage.removeItem("userProfile");
-        window.localStorage.removeItem("authToken");
-        window.localStorage.removeItem("layerId");
-        setAuthState((prev) => ({
-          ...prev,
-          token: null,
-          authenticated: false,
-          userId: null,
-          address: null,
-          layerId: null,
-        }));
-        router.push("/");
+      window.unisat.on("accountsChanged", (accounts: string[]) => {
+        const storedProfile = localStorage.getItem("userProfile");
+        if (storedProfile) {
+          const profileData = JSON.parse(storedProfile);
+          if (accounts.length === 0 || accounts[0] !== profileData.address) {
+            handleLogout();
+          }
+        }
       });
     } catch (error) {
       console.log(error);

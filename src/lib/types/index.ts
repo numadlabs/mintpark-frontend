@@ -123,17 +123,14 @@ export type CollectibleDataType = {
 
 export type CollectionData = {
   logo: File;
-  name: string;
   creator: string;
   description: string;
-  layerType: string;
-  feeRate: number;
+  name: string;
 };
 
 export type FeeRateAmount = {
-  fileSize: number;
-  layerType: string;
-  fileType: string;
+  fileSizes: number[];
+  fileTypeSizes: number[];
   feeRate: number;
 };
 
@@ -153,7 +150,15 @@ export type LaunchpadItemType = {
 };
 
 export type InscribeOrderData = {
-  orderId: string;
+  id: string;
+  quantity: number;
+  orderStatus: string;
+  networkFee: number;
+  serviceFee: number;
+};
+
+export type InscribeOrderDataType = {
+  id: string;
   quantity: number;
   status: string;
   networkFee: number;
@@ -189,3 +194,19 @@ export type CollectionDataType = {
   floorDifference: number;
   ownedBy: string;
 };
+
+export type MintDataType = {
+  orderType: string;
+  files: File[];
+  collectionId: string;
+  feeRate: number;
+}
+
+export type MintCollectibleDataType = {
+  orderType: string;
+  files: File[];
+  feeRate: number;
+  name: string;
+  creator: string;
+  description: string;
+}
