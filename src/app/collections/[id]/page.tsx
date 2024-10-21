@@ -152,7 +152,8 @@ const CollectionDetailPage = () => {
                         className="aspect-square"
                       />
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>{collectionData?.floor}</span> BTC
+                        {/* <span>{(collectionData?.floor / 10 ** 8).toFixed(5)}</span> BTC */}
+                        <span>{(collectionData?.floor)}</span> BTC
                       </p>
                     </div>
                   </div>

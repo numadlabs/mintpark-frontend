@@ -25,10 +25,10 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
         className="aspect-square rounded-xl"
         alt="png"
       />
-      <div className="pt-1 pl-1 ">
-        <p className="py-3 text-xl font-bold text-neutral00">{data.name}</p>
-        <div className="flex justify-around relative right-6 gap-2 py-2">
-          <div>
+      <div className="pt-4 pl-1 grid gap-4 w-full">
+        <p className="text-xl font-bold text-start text-neutral00">{data.name}</p>
+        <div className="flex justify-around relative right-6 gap-2">
+          <div className="text-start">
             {" "}
             <p className="text-sm font-medium text-neutral200 gap-2">
               Floor price
@@ -38,7 +38,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
               <span className="ml-1">BTC</span>
             </p>
           </div>
-          <div>
+          <div className="text-start">
             {" "}
             <p className="text-sm font-medium text-neutral200 gap-2">Volume</p>
             <p className="pt-2 font-bold text-md text-neutral-50">
@@ -47,8 +47,8 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
             </p>
           </div>
         </div>
-        <div className="border border-neutral400 w-full mb-4 mt-4"></div>
-        <div className="flex flex-row gap-5 items-center justify-around relative right-[12px]">
+        <div className="border border-neutral400 w-full"></div>
+        <div className="flex flex-row gap-2 items-center justify-around relative right-[12px]">
           <div className="flex mt-2 items-center">
             <Profile2User color="#d3f85a" className="w-4 h-4" />
             <p className="ml-2 font-medium text-md text-neutral50">

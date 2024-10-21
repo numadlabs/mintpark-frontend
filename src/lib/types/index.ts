@@ -119,6 +119,7 @@ export type CollectibleDataType = {
   description: string;
   mintLayerType: string;
   feeRate: number;
+  value:string
 };
 
 export type CollectionData = {
@@ -193,7 +194,9 @@ export type CollectionDataType = {
   fileKey: string;
   floorDifference: number;
   ownedBy: string;
+  collectionId: string;
 };
+
 
 export type MintDataType = {
   orderType: string;
