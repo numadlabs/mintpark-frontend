@@ -43,6 +43,18 @@ export async function fetchLaunchs(layerId: string) {
     });
 }
 
+export async function getLaunchById(collectionId: string) {
+  return axiosClient
+    .get(`/api/v1/launchpad/collections/${collectionId}`)
+    .then((response) => {
+      if (response.data.success) {
+        return response?.data.data;
+      } else {
+        throw new Error(response.data.error);
+      }
+    });
+}
+
 export async function getLaunchByCollectionId(id: string){
   return axiosClient.get(`/api/v1/launchpad/collections/${id}`).then((response) => {
     if (response.data.success) {

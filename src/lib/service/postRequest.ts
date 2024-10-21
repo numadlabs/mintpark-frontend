@@ -9,7 +9,13 @@ import {
   User,
 } from "../types";
 import { getAccessToken } from "../auth";
-import { CreateCollectibleType, CollectibleDataType, FeeRateAmount, CollectionData, MintDataType } from "../types";
+import {
+  CreateCollectibleType,
+  CollectibleDataType,
+  FeeRateAmount,
+  CollectionData,
+  MintDataType,
+} from "../types";
 import { collectibleFormData, collectiontFormData } from "./formHelper";
 
 export async function generateMessageHandler({ address }: { address: string }) {
@@ -22,7 +28,13 @@ export async function generateMessageHandler({ address }: { address: string }) {
     });
 }
 
-export async function createOrder({ id, feeRate }: { id: string, feeRate: number }) {
+export async function createOrder({
+  id,
+  feeRate,
+}: {
+  id: string;
+  feeRate: number;
+}) {
   try {
     return axiosClient
       .post(`/api/v1/collections/${id}/create-order`, { feeRate })
@@ -34,13 +46,11 @@ export async function createOrder({ id, feeRate }: { id: string, feeRate: number
   }
 }
 
-export async function createMintCollection({ id }: { id: string}) {
+export async function createMintCollection({ id }: { id: string }) {
   try {
-    return axiosClient
-      .post(`/api/v1/orders/`)
-      .then((response) => {
-        return response.data;
-      });
+    return axiosClient.post(`/api/v1/orders/`).then((response) => {
+      return response.data;
+    });
   } catch (error) {
     console.log("Error:", error);
   }
@@ -49,11 +59,11 @@ export async function createMintCollection({ id }: { id: string}) {
 export async function loginHandler({
   address,
   signedMessage,
-  layerId
+  layerId,
 }: {
   address: string;
   signedMessage: string;
-  layerId: string
+  layerId: string;
 }) {
   console.log("🚀 ~ loginHandler ~ walletData:", address);
   return axiosClient
@@ -82,7 +92,7 @@ export async function feeAmount({ data }: { data: FeeRateAmount }) {
   const config: AxiosRequestConfig = {
     method: "post",
     url: `/api/v1/layers/estimate-fee/`,
-    
+
     data,
   };
 
@@ -90,7 +100,11 @@ export async function feeAmount({ data }: { data: FeeRateAmount }) {
   return response.data;
 }
 
-export async function createCollectible({ data }: { data: CollectibleDataType }) {
+export async function createCollectible({
+  data,
+}: {
+  data: CollectibleDataType;
+}) {
   const formData = collectibleFormData(data);
   const config: AxiosRequestConfig = {
     method: "post",
@@ -116,25 +130,31 @@ export async function createCollection({ data }: { data: CollectionData }) {
   return response.data;
 }
 
-export async function createMintCollectible({ data }: { data: MintCollectibleDataType }) {
+export async function createMintCollectible({
+  data,
+}: {
+  data: MintCollectibleDataType;
+}) {
   const formData = new FormData();
-  
+
   // Append files
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
-    console.log(`Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`);
+    console.log(
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+    );
   });
 
   // Append other data
-  formData.append('orderType', data.orderType);
-  formData.append('feeRate', data.feeRate.toString());
-  formData.append('name', data.name);
-  formData.append('creator', data.creator);
-  formData.append('description', data.description);
+  formData.append("orderType", data.orderType);
+  formData.append("feeRate", data.feeRate.toString());
+  formData.append("name", data.name);
+  formData.append("creator", data.creator);
+  formData.append("description", data.description);
 
-  console.log('FormData contents:');
+  console.log("FormData contents:");
   // Use Array.from() to convert the iterator to an array
-  Array.from(formData.keys()).forEach(key => {
+  Array.from(formData.keys()).forEach((key) => {
     console.log(key, formData.get(key));
   });
 
@@ -143,40 +163,46 @@ export async function createMintCollectible({ data }: { data: MintCollectibleDat
     url: `/api/v1/orders/`,
     data: formData,
     headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+      "Content-Type": "multipart/form-data",
+    },
   };
 
   try {
     const response = await axiosClient.request(config);
-    console.log('Server response:', response.data);
+    console.log("Server response:", response.data);
     return response.data;
   } catch (error) {
-    console.error('Error in createCollectiblesToCollection:', error);
+    console.error("Error in createCollectiblesToCollection:", error);
     if (axios.isAxiosError(error) && error.response) {
-      console.error('Server error response:', error.response.data);
+      console.error("Server error response:", error.response.data);
     }
     throw error;
   }
 }
 
-export async function createCollectiblesToCollection({ data }: { data: MintDataType }) {
+export async function createCollectiblesToCollection({
+  data,
+}: {
+  data: MintDataType;
+}) {
   const formData = new FormData();
-  
+
   // Append files
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
-    console.log(`Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`);
+    console.log(
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+    );
   });
 
   // Append other data
-  formData.append('orderType', data.orderType);
-  formData.append('collectionId', data.collectionId);
-  formData.append('feeRate', data.feeRate.toString());
+  formData.append("orderType", data.orderType);
+  formData.append("collectionId", data.collectionId);
+  formData.append("feeRate", data.feeRate.toString());
 
-  console.log('FormData contents:');
+  console.log("FormData contents:");
   // Use Array.from() to convert the iterator to an array
-  Array.from(formData.keys()).forEach(key => {
+  Array.from(formData.keys()).forEach((key) => {
     console.log(key, formData.get(key));
   });
 
@@ -185,42 +211,50 @@ export async function createCollectiblesToCollection({ data }: { data: MintDataT
     url: `/api/v1/orders/`,
     data: formData,
     headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+      "Content-Type": "multipart/form-data",
+    },
   };
 
   try {
     const response = await axiosClient.request(config);
-    console.log('Server response:', response.data);
+    console.log("Server response:", response.data);
     return response.data;
   } catch (error) {
-    console.error('Error in createCollectiblesToCollection:', error);
+    console.error("Error in createCollectiblesToCollection:", error);
     if (axios.isAxiosError(error) && error.response) {
-      console.error('Server error response:', error.response.data);
+      console.error("Server error response:", error.response.data);
     }
     throw error;
   }
 }
 
-export async function launchCollection({ data, collectionId }: { data: LaunchCollectionData, collectionId: string}) {
+export async function launchCollection({
+  data,
+  collectionId,
+}: {
+  data: LaunchCollectionData;
+  collectionId: string;
+}) {
   const formData = new FormData();
-  
+
   // Append files
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
-    console.log(`Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`);
+    console.log(
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+    );
   });
 
   // Append other data
-  formData.append('POStartsAt', data.POStartsAt.toString());
-  formData.append('POEndsAt', data.POEndsAt.toString());
-  formData.append('POMintPrice', data.POMintPrice.toString());
-  formData.append('POMaxMintPerWallet', data.POMaxMintPerWallet.toString());
-  formData.append('isWhiteListed', data.isWhiteListed.toString());
+  formData.append("POStartsAt", data.POStartsAt.toString());
+  formData.append("POEndsAt", data.POEndsAt.toString());
+  formData.append("POMintPrice", data.POMintPrice.toString());
+  formData.append("POMaxMintPerWallet", data.POMaxMintPerWallet.toString());
+  formData.append("isWhiteListed", data.isWhiteListed.toString());
 
-  console.log('FormData contents:');
+  console.log("FormData contents:");
   // Use Array.from() to convert the iterator to an array
-  Array.from(formData.keys()).forEach(key => {
+  Array.from(formData.keys()).forEach((key) => {
     console.log(key, formData.get(key));
   });
 
@@ -229,27 +263,64 @@ export async function launchCollection({ data, collectionId }: { data: LaunchCol
     url: `/api/v1/collections/${collectionId}/launch`,
     data: formData,
     headers: {
-      'Content-Type': 'multipart/form-data'
-    }
+      "Content-Type": "multipart/form-data",
+    },
   };
 
   try {
     const response = await axiosClient.request(config);
-    console.log('Server response:', response.data);
+    console.log("Server response:", response.data);
     return response.data;
   } catch (error) {
-    console.error('Error in launch:', error);
+    console.error("Error in launch:", error);
     if (axios.isAxiosError(error) && error.response) {
-      console.error('Server error response:', error.response.data);
+      console.error("Server error response:", error.response.data);
     }
     throw error;
   }
 }
 
-export async function createCollectibleMint(orderId:string) {
+export async function createCollectibleMint(orderId: string) {
   try {
     return axiosClient
-      .post(`/api/v1/collectibles/mint`, {orderId})
+      .post(`/api/v1/collectibles/mint`, { orderId })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function createOrderToMint({
+  collectionId,
+  feeRate,
+  launchOfferType,
+}: {
+  collectionId: string;
+  feeRate: number;
+  launchOfferType: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/collections/${collectionId}/create-order`, {
+        feeRate,
+        launchOfferType,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function confirmOrder({ orderId }: { orderId: string }) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/invoke-order`, {
+        orderId,
+      })
       .then((response) => {
         return response.data;
       });

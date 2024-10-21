@@ -222,3 +222,25 @@ export type LaunchCollectionData = {
   files: File[];
   isWhiteListed: boolean;
 }
+
+export type LaunchDataType = {
+    id: string;
+    name: string;
+    creator: string;
+    description: string;
+    supply: number;
+    type: string;
+    logoKey: string;
+    layerId: string;
+    launchId: string;
+    wlStartsAt: string;
+    wlEndsAt: string;
+    wlMintPrice: number;
+    wlMaxMintPerWallet: number;
+    poStartsAt: string;
+    poEndsAt: string;
+    poMintPrice: number;
+    poMaxMintPerWallet: number;
+    isWhitelisted: boolean;
+    mintedAmount: number;
+}

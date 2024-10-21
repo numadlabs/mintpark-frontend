@@ -90,6 +90,7 @@ module.exports = {
         gradientEnd: "#343A40",
         neutral500Rgb: "rgba(52, 58, 64, 0.7)",
         success:"#2CB59E",
+        success20:"rgba(44, 181, 158, 0.2)",
         errorMsg:"#ff5c69",
         infoMsg:"#6db5e5"
 
