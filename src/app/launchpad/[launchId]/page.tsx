@@ -5,80 +5,144 @@ import ButtonLg from "@/components/ui/buttonLg";
 import { Carousel } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-// import { collection } from "@/lib/constants";
-// import {
-//   fetcCollectionByCollectionId,
-//   fetchLaunchById,
-// } from "@/lib/service/fetcher";
 import { CollectionType } from "@/lib/types";
-import { generateHex } from "@/lib/service/postRequest";
+import { confirmOrder, generateHex } from "@/lib/service/postRequest";
 import { s3ImageUrlBuilder } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { fetcCollectionByCollectionId } from "@/lib/service/queryHelper";
+import {
+  getFeeRates,
+  getLaunchByCollectionId,
+} from "@/lib/service/queryHelper";
 import PhaseCard from "@/components/atom/cards/phaseCard";
+import { useParams, useRouter } from "next/navigation";
+import WhiteListPhaseCard from "@/components/atom/cards/white-list-phase-card";
+import { useAuth } from "@/components/provider/auth-context-provider";
+import { createOrderToMint } from "@/lib/service/postRequest";
+import moment from "moment";
 
-export default function Page({ params }: { params: { launchId: string } }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [currentCollectible, setCurrentCollectible] =
-    useState<null | CollectionType>(null);
+const Page = () => {
+  const router = useRouter();
+  const { authState } = useAuth();
+  const params = useParams();
+  const id = params.launchId as string;
   const [isLoading, setIsLoading] = useState(false);
+  const [activePhase, setActivePhase] = useState(null);
 
-  const [active, setActive] = useState(false);
-  // console.log(current);
-
-  const {
-    // isLoading,
-    isError,
-    isFetching,
-    data: collection,
-    error,
-  } = useQuery({
-    queryKey: ["collection", params.launchId],
-    queryFn: () => {
-      // if (typeof slug === "string") {
-      return fetchLaunchById(params.launchId);
-      // }
-    },
-    enabled: !!params.launchId,
+  const { mutateAsync: createOrderToMintMutation } = useMutation({
+    mutationFn: createOrderToMint,
   });
 
-  // console.log("colDetail", collection);
-
-  const { isLoading: isCollectibleLoading, data: collectibles } = useQuery({
-    queryKey: ["collectiblesByCollections", params.launchId],
-    queryFn: () => {
-      // if (typeof slug === "string") {
-      return fetcCollectionByCollectionId(params.launchId);
-      // }
-    },
-    enabled: !!params.launchId,
+  const { mutateAsync: confirmOrderMutation } = useMutation({
+    mutationFn: confirmOrder,
   });
-  console.log("colDetail", collectibles);
 
-  useEffect(() => {
-    if (collectibles && collectibles?.length !== 0) {
-      setCurrentCollectible(collectibles[currentIndex]);
-    }
-  }, [currentIndex, collectibles]);
+  const { data: collectibles = [] } = useQuery({
+    queryKey: ["collectiblesByCollections", id],
+    queryFn: () => getLaunchByCollectionId(id as string),
+    enabled: !!id,
+  });
 
-  const triggerMint = async () => {
-    setIsLoading(true);
+  const { data: feeRates = [] } = useQuery({
+    queryKey: ["feeRateData"],
+    queryFn: () => getFeeRates(authState?.layerId as string),
+    enabled: !!authState?.layerId,
+  });
+
+  console.log("first", feeRates.fastestFee);
+  const launchOfferType =
+    activePhase === "public"
+      ? "public"
+      : activePhase === "guaranteed"
+        ? "guaranteed"
+        : "";
+
+  const handleConfirm = async () => {
     try {
-      const data = await generateHex(params.launchId);
-      if (data && data.success) {
-        toast.success("Successfully minted, please check your address.");
-      } else {
-        toast.error(data.error);
+      const response = await createOrderToMintMutation({
+        collectionId: id,
+        feeRate: feeRates.fastestFee,
+        launchOfferType: launchOfferType,
+      });
+      if (response && response.success) {
+        const orderId = response.data.order.id;
+        const txid = await window.unisat.sendBitcoin(
+          response.data.order.fundingAddress,
+          response.data.order.fundingAmount,
+        );
+        if (txid && orderId) {
+          router.push("/launchpad");
+          await new Promise((resolve) => setTimeout(resolve, 10000));
+          await confirmOrderMutation({ orderId: orderId });
+        }
       }
-      setIsLoading(false);
     } catch (error) {
-      toast.error("We faced error on minting");
-      setIsLoading(false);
+      console.error(error);
+      toast.error("Failed to create order");
     }
   };
+
+  const handlePhaseClick = (phaseType: any) => {
+    setActivePhase(phaseType);
+  };
+
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
+  const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const now = moment();
+      const startTime = moment(collectibles.poStartsAt);
+      const endTime = moment(collectibles.poEndsAt);
+
+      if (now.isBefore(startTime)) {
+        setStatus("Upcoming");
+        return moment.duration(startTime.diff(now));
+      } else if (now.isBefore(endTime)) {
+        setStatus("Live");
+        return moment.duration(endTime.diff(now));
+      } else {
+        setStatus("Ended");
+        return moment.duration(0);
+      }
+    };
+
+    const updateCountdown = () => {
+      const difference = calculateTimeLeft();
+
+      setTimeLeft({
+        days: difference.days(),
+        hours: difference.hours(),
+        minutes: difference.minutes(),
+      });
+
+      // Update status based on conditions
+      if (moment().isSameOrAfter(collectibles.poStartsAt)) {
+        setStatus("Live");
+      }
+      if (moment().isSameOrAfter(collectibles.poEndsAt)) {
+        setStatus("Ended");
+      }
+      if (moment().isBefore(collectibles.poStartsAt)) {
+        setStatus("Upcoming");
+      }
+      if (!collectibles.poEndsAt) {
+        setStatus("Indefinite");
+      }
+    };
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, [collectibles.poStartsAt, collectibles.poEndsAt]);
+
+  const navigateCollection = () => {
+    router.push(`/collections`);
+  };
+
   return (
     <>
       {/* todo enddate yahu, total minted, max mintable amount*/}
@@ -202,15 +266,17 @@ export default function Page({ params }: { params: { launchId: string } }) {
 
               <div className="flex h-3 border rounded-lg border-1 mt-4 border-neutral400">
                 <Progress
-                  value={3}
-                  className="bg-brand shadow-shadowBrands h-full w-[100]"
+                  value={
+                    (collectibles?.mintedAmount / collectibles?.supply) * 100
+                  }
+                  className={`w-full h-full ${collectibles?.mintedAmount === 0 ? "" : "shadow-shadowBrands"}`}
                 />
               </div>
               <div className="flex justify-between py-1 text-neutral100">
                 <span>Total minted</span>
                 <h2>
                   <span className="text-neutral50">
-                    {collectibles?.mintedCount}
+                    {collectibles?.mintedAmount}
                   </span>
                   <span
                     className="text-brand"
@@ -221,32 +287,62 @@ export default function Page({ params }: { params: { launchId: string } }) {
                     {" "}
                     /{/* <span className="h-2"></span> */}
                   </span>{" "}
-                  {collectibles?.totalCount}
+                  {collectibles?.poMaxMintPerWallet}
                 </h2>
               </div>
             </div>
             <div className="flex flex-col justify-between h-[464px] gap-8">
               <ScrollArea className="flex flex-col">
-                <div className="flex flex-col gap-4">
-                  <PhaseCard />
+                <div className="flex flex-col gap-4 w-full">
+                  <PhaseCard
+                    key={collectibles.id}
+                    maxMintPerWallet={collectibles.poMaxMintPerWallet}
+                    mintPrice={collectibles.poMintPrice}
+                    endsAt={collectibles.poEndsAt}
+                    startsAt={collectibles.poStartsAt}
+                    isActive={activePhase === "public"}
+                    onClick={() => handlePhaseClick("public")}
+                  />
+                  <WhiteListPhaseCard
+                    key={collectibles.id}
+                    maxMintPerWallet={collectibles.wlMaxMintPerWallet}
+                    mintPrice={collectibles.wlMintPrice}
+                    endsAt={collectibles.wlEndsAt}
+                    startsAt={collectibles.wlStartsAt}
+                    isActive={activePhase === "guaranteed"}
+                    onClick={() => handlePhaseClick("guaranteed")}
+                  />
                 </div>
               </ScrollArea>
-              <ButtonLg
-                type="submit"
-                isSelected={true}
-                className="w-full py-3 text-lg font-semibold bg-brand rounded-xl text-neutral600"
-                onClick={() => triggerMint()}
-                disabled={isLoading}
-              >
-                {isLoading ? "Loading..." : "Mint"}
-              </ButtonLg>
+              {status === "Ended" ? (
+                <ButtonLg
+                  type="submit"
+                  isSelected={true}
+                  className="w-full py-3 text-lg font-semibold bg-brand rounded-xl text-neutral600"
+                  disabled={isLoading}
+                  onClick={navigateCollection}
+                >
+                  Go to collection
+                </ButtonLg>
+              ) : status === "Live" || status === "Indefinite" ? (
+                <ButtonLg
+                  type="submit"
+                  isSelected={true}
+                  className="w-full py-3 text-lg font-semibold bg-brand rounded-xl text-neutral600"
+                  disabled={isLoading}
+                  onClick={handleConfirm}
+                >
+                  {isLoading ? "Loading..." : "Mint"}
+                </ButtonLg>
+              ) : status === "Upcoming" ? (
+                ""
+              ) : null}
             </div>
           </section>
         </DetailLayout>
       </div>
     </>
   );
-}
-function fetchLaunchById(launchId: string): any {
-  throw new Error("Function not implemented.");
-}
+};
+
+export default Page;

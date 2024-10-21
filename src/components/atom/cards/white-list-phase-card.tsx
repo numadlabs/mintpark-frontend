@@ -12,13 +12,13 @@ interface PhaseCardItemProps {
   onClick: () => void;
 }
 
-const PhaseCard: React.FC<PhaseCardItemProps> = ({
+const WhiteListPhaseCard: React.FC<PhaseCardItemProps> = ({
   maxMintPerWallet,
   mintPrice,
   endsAt,
   startsAt,
   isActive,
-  onClick
+  onClick,
 }) => {
   const [timeDisplay, setTimeDisplay] = useState("");
   const [status, setStatus] = useState("");
@@ -62,7 +62,7 @@ const PhaseCard: React.FC<PhaseCardItemProps> = ({
     >
       <div className="flex justify-between w-full">
         <div className="flex flex-row gap-2 items-center bg-white8 px-3 rounded-lg">
-          <p className={`${isActive ? "text-brand" :  "text-neutral50"}`}>Public</p>
+          <p className={`${isActive ? "text-brand" :  "text-neutral50"}`}>Guaranteed</p>
           {status === "Ended" || status === "Starts in:" ? (
             <Lock1 size={16} color="#D7D8D8" />
           ) : (
@@ -70,7 +70,7 @@ const PhaseCard: React.FC<PhaseCardItemProps> = ({
           )}
         </div>
         <div className="flex flex-row items-center gap-2 border bg-white8 border-transparent text-md rounded-lg pt-2 pr-3 pb-2 pl-3 text-neutral50">
-          <span className="text-neutral-100">{status}</span> 
+          <span className="text-neutral-100">{status}</span>
           <span className="text-neutral-100">{timeDisplay}</span>
         </div>
       </div>
@@ -105,4 +105,4 @@ const PhaseCard: React.FC<PhaseCardItemProps> = ({
   );
 };
 
-export default PhaseCard;
+export default WhiteListPhaseCard;
