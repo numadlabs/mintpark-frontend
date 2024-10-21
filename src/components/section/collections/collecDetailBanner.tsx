@@ -77,7 +77,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                 <div className="flex justify-between">
                   <div>
                     <h3 className="text-3xl font-bold text-neutral50">
-                      {data.name}
+                      {data.name} dcd
                     </h3>
                     <h2 className="text-lg2 font-medium text-neutral100">
                       by NumadLabs

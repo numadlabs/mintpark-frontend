@@ -121,7 +121,23 @@ export async function getListedCollectionById(
 ) {
   return axiosClient
     .get(
-      `/api/v1/collectibles/${collectionId}/collection/listable?traits[]=color:red&traits[]=background:black&orderBy=asdf`,
+      `/api/v1/collectibles/${collectionId}/collection/listable`,
+    )
+    .then((response) => {
+      if (response.data.success) {
+        return response.data.data.collectibles;
+      } else {
+        throw new Error(response.data.error);
+      }
+    });
+}
+
+export async function getCollectionById(
+  id: string
+) {
+  return axiosClient
+    .get(
+      `/api/v1/collectibles/${id}`,
     )
     .then((response) => {
       if (response.data.success) {
@@ -132,12 +148,12 @@ export async function getListedCollectionById(
     });
 }
 
-export async function getCollectionById(
-  // id: string
+export async function getCollectibleById(
+  id: string
 ) {
   return axiosClient
     .get(
-      `/api/v1/collectibles/e691bbe6-97df-4345-978d-bab10ff5727f`,
+      `/api/v1/collectible-traits/${id}/collectible`,
     )
     .then((response) => {
       if (response.data.success) {
@@ -146,4 +162,4 @@ export async function getCollectionById(
         throw new Error(response.data.error);
       }
     });
-}
+  }
