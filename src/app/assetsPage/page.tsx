@@ -10,18 +10,16 @@ import { getListableById } from "@/lib/service/queryHelper";
 
 const Assets = () => {
   const { authState } = useAuth();
-  const { data: collection = [] } = useQuery({
+  const { data: collectiblelist = [] } = useQuery({
     queryKey: ["getListableById", authState.userId],
     queryFn: () => getListableById(authState?.userId as string),
     enabled: !!authState?.userId,
   });
-  console.log("hello",collection)
+  console.log("hello",collectiblelist)
   return (
     <Layout>
       <Header />
-
-      <ProfileBanner data={collection} />
-
+      <ProfileBanner data={collectiblelist} />
       <ProfileDetail />
     </Layout>
   );

@@ -32,7 +32,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
   const [active, setActive] = useState(false);
 
   const { authState } = useAuth();
-  const { data: collection = [] } = useQuery({
+  const { data: collectiblelist = [] } = useQuery({
     queryKey: ["getListableById", authState.userId],
     queryFn: () => getListableById(authState?.userId as string),
     enabled: !!authState?.userId,
@@ -158,7 +158,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                   active ? "grid-cols-3" : "grid-cols-4"
                 }`}
               >
-                {collection.data?.collectibles?.map((item: Collectible) => (
+                {collectiblelist.data?.collectibles?.map((item: Collectible) => (
                   <div key={item.id}>
                     <AssetsCard data={item} />
                   </div>
@@ -194,7 +194,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
               </div>
               <ScrollArea className="h-[754px] w-full border-t-2 border-neutral500">
                 <div className="flex flex-col w-full pt-4 gap-4">
-                  {collection.data?.collectibles?.map((item: Collectible) => (
+                  {collectiblelist.data?.collectibles?.map((item: Collectible) => (
                     <div key={item.id}>
                       <ColAssetsCards data={item} />
                     </div>

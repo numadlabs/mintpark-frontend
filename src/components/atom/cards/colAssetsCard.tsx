@@ -2,11 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
-import { Collectible, CollectionDataType } from "@/lib/types";
-import router from "next/router";
-import { useQuery } from "@tanstack/react-query";
-import { getListedCollections } from "@/lib/service/queryHelper";
-import { useAuth } from "@/components/provider/auth-context-provider";
+import { Collectible } from "@/lib/types";
 
 const TruncatedAddress = ({ address }: { address: string | null }) => {
   if (!address) return <span>-</span>;
@@ -41,7 +37,11 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
           <Image
             width={64}
             height={64}
-            src={s3ImageUrlBuilder(data?.logoKey)}
+            src={
+              data.fileKey
+                ? s3ImageUrlBuilder(data.fileKey)
+                : ordinalsImageCDN(data.uniqueIdx)
+            }
             className="aspect-square rounded-lg"
             alt={`${data.name} image`}
           />
@@ -83,11 +83,11 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
           >
             <span className="font-medium text-lg2 flex justify-center text-neutral50">
               <span className={data.price > 0 ? "group-hover:hidden" : ""}>
-                {/* {daysAgo} days ago */}
+                {daysAgo} days ago
               </span>
               {data.price > 0 && (
                 <span className="hidden group-hover:block lg:absolute lg:-top-2 Lg:left-12 text-white bg-white bg-opacity-25 py-2 px-5 rounded-lg cursor-pointer transition-all duration-300 ease-in-out">
-                  Buy now
+                  List
                 </span>
               )}
             </span>

@@ -2,6 +2,7 @@ import HoverCard from "@/components/section/collections/hoverCard";
 import Image from "next/image";
 import { s3ImageUrlBuilder, ordinalsImageCDN } from "@/lib/utils";
 import { Collectible, CollectibleList } from "@/lib/types";
+import Link from "next/link";
 
 interface cardProps {
   data: Collectible;
@@ -12,8 +13,8 @@ const AssetsCard: React.FC<cardProps> = ({ data }) => {
   return (
     <>
       {" "}
-      <div
-        // href={`/assetDetail/${collection.id}`}
+      <Link
+        href={`/assetDetail/${data.id}`}
         className="w-[280px] h-[394px] collection backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-gray-700 rounded-xl px-4 pt-4 pb-5 flex flex-col justify-between"
       >
         <Image
@@ -51,10 +52,14 @@ const AssetsCard: React.FC<cardProps> = ({ data }) => {
                 <p className="text-neutral200 font-medium text-md">Unlisted</p>
               )}
             </div>
+            {isListed && (
+              <div className="group-hover:block hidden text-center cursor-pointer absolute inset-0 opacity-0 hover:opacity-100 transition-all duration-300 ease-in-out w-[248px] h-10 top-0 left-0 text-white bg-white4 pt-2 pr-5 pb-2 pl-5 rounded-lg">
+                View
+              </div>
+            )}
           </div>
         </div>
-        {/* <HoverCard /> */}
-      </div>
+      </Link>
     </>
   );
 };
