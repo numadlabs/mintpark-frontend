@@ -31,7 +31,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
     <>
       <Link
         className="flex w-full justify-between items-center gap-24 bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-4"
-        href={`/assetDetail/${data.id}`}
+        href={`/myAssetDetail/${data.id}`}
       >
         <div className="flex w-[392px] h-16 gap-5">
           <Image

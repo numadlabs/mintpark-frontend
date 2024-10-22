@@ -39,6 +39,7 @@ const Copy = () => {
     setPrice, //add
     collectionId,
     setCollectionId,
+    reset
   } = useFormState();
   const [step, setStep] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -86,7 +87,6 @@ const Copy = () => {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-
     // const testCollectionId = "764  c7e32-a9fb-425d-be5b-6967cd1d907f";
     /* const testData = [
       {
@@ -188,6 +188,7 @@ const Copy = () => {
 
   const handleDeleteLogo = () => {
     setImageLogo(null);
+    reset();
   };
 
   return (
