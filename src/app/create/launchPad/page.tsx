@@ -148,6 +148,8 @@ const CollectionDetail = () => {
 
   const handleNextStep = () => {
     setStep(3);
+    reset();
+
   };
 
   const handleBack = () => {
@@ -160,8 +162,8 @@ const CollectionDetail = () => {
   };
 
   const handleCreate = () => {
-    reset();
     router.push("/create");
+    reset();
   };
 
   const toggleSuccessModal = () => {

@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import Banner from "@/components/section/banner";
 import Header from "@/components/layout/header";
-import Input from "@/components/ui/input";
 import UploadFile from "@/components/section/uploadFile";
 import ButtonLg from "@/components/ui/buttonLg";
 import { useRouter } from "next/navigation";
@@ -28,6 +27,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { JsonDataItem, MergedObject } from "@/types";
+import { Input } from "@/components/ui/input";
 
 const stepperData = ["Details", "Upload", "Launch", "Confirm"];
 
@@ -263,16 +263,19 @@ const CollectionDetail = () => {
   // dood taliin code bol error handler
   const handleSubmit = async () => {
     setStep(2);
+    reset();
   };
   const triggerRefresh = () => {
     setStep(0);
-    reset();
     router.push("/create");
+    reset();
   };
 
   const handleSelect = (day: Date | undefined) => {
     if (day) {
       setStart(day);
+      reset();
+
     }
   };
   return (
