@@ -26,7 +26,9 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
         alt="png"
       />
       <div className="pt-4 pl-1 grid gap-4 w-full">
-        <p className="text-xl font-bold text-start text-neutral00">{data.name}</p>
+        <p className="text-xl font-bold text-start text-neutral00">
+          {data.name}
+        </p>
         <div className="flex justify-around relative right-6 gap-2">
           <div className="text-start">
             {" "}
@@ -34,7 +36,9 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
               Floor price
             </p>
             <p className="pt-2 font-bold text-md text-neutral-50">
-              {data.floor}
+              {data.floor === 0
+                ? data.floor
+                : (data.floor / 10 ** 8).toFixed(5)}
               <span className="ml-1">BTC</span>
             </p>
           </div>
@@ -52,13 +56,13 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
           <div className="flex mt-2 items-center">
             <Profile2User color="#d3f85a" className="w-4 h-4" />
             <p className="ml-2 font-medium text-md text-neutral50">
-              <span>{data.floor}</span> owners
+              <span>0</span> owners
             </p>
           </div>
           <div className="flex mt-2 items-center">
             <Notepad color="#d3f85a" className="w-4 h-4" />
             <p className="ml-2 font-medium text-md text-neutral50">
-              <span>{data.supply}</span> items 
+              <span>{data.supply}</span> items
             </p>
           </div>
         </div>

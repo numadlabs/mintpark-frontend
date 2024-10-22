@@ -6,10 +6,8 @@ import Link from "next/link";
 import { collection } from "@/lib/constants";
 
 type DetailCard = {
-  image: string;
-  title: string;
-  item: string;
-  price: number;
+  data: CollectionDataType;
+  handleNav: () => void;
 };
 
 export default function ColDetailCard({ data }: { data: CollectionDataType }) {
@@ -60,7 +58,7 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
                     Unlisted
                   </p>
                   <div className="group-hover:block hidden  text-center  cursor-pointer  w-[248px] h-10 absolute inset-0 opacity-0 hover:opacity-100 transition-all duration-300 ease-in-out -top-4 left-0 text-white bg-white4 pt-2 pr-5 pb-2 pl-5 rounded-lg">
-                    List
+                    View
                   </div>
                 </div>
               )}
@@ -68,7 +66,7 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
 
             {isListed && (
               <div className="group-hover:block hidden text-center cursor-pointer absolute inset-0 opacity-0 hover:opacity-100 transition-all duration-300 ease-in-out w-[248px] h-10 top-0 left-0 text-white bg-white4 pt-2 pr-5 pb-2 pl-5 rounded-lg">
-                Buy now
+                View
               </div>
             )}
           </div>
