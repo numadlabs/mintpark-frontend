@@ -9,7 +9,7 @@ const Assets = () => {
   return (
     <Layout>
       <Header />
-      <ProfileBanner />
+      <ProfileBanner/>
       <ProfileDetail />
     </Layout>
   );

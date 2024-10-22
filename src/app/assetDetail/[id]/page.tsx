@@ -200,7 +200,7 @@ export default function Page({ params }: PageProps) {
                       Listed time
                     </h1>
                     <p className="font-medium text-md text-neutral50">
-                    {formatDaysAgo(collection.createdAt)}
+                     {formatDaysAgo(collection.createdAt)}
                     </p>
                   </div>
                 </AccordionContent>

@@ -13,22 +13,33 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import ColDetailCard from "@/components/atom/cards/collectionDetailCard";
-import ColDetailCards from "@/components/atom/cards/columnDetailCard";
 import Image from "next/image";
 import { useState } from "react";
 import CollectionSideBar from "../collections/sideBar";
+import AssetsCard from "@/components/atom/cards/assetsCard";
+import ColAssetsCards from "@/components/atom/cards/colAssetsCard";
+import { CollectibleList } from "@/lib/types";
+import { collection } from "@/lib/constants";
+import { getListedCollections } from "@/lib/service/queryHelper";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 export default function Assets({
   detail = false,
   data,
 }: {
   detail: boolean;
-  data: CardType[];
+  data: CollectibleList[];
 }) {
   // const tabs = ["1h", "24h", "7d", "30d", "All"];
   const [active, setActive] = useState(false);
+
+  const { authState } = useAuth();
+  const { data: collection = [] } = useQuery({
+    queryKey: ["collectionData"],
+    queryFn: () => getListedCollections(authState?.layerId as string),
+    enabled: !!authState?.layerId,
+  });
   return (
     <>
       <Tabs defaultValue="All" className="mt-20 mb-10 border-hidden">
@@ -144,10 +155,9 @@ export default function Assets({
                   active ? "grid-cols-3" : "grid-cols-4"
                 }`}
               >
-                {data.map((item) => (
+                {collection.map((item: CollectibleList) => (
                   <div key={item.id}>
-                    <ColDetailCard data={item} />
-                    {/* <CollectionCard data={item} /> */}
+                    <AssetsCard data={item} />
                   </div>
                 ))}
               </div>
@@ -181,9 +191,9 @@ export default function Assets({
               </div>
               <ScrollArea className="h-[754px] w-full border-t-2 border-neutral500">
                 <div className="flex flex-col w-full pt-4 gap-4">
-                  {data.map((item) => (
+                  {collection.map((item: CollectibleList) => (
                     <div key={item.id}>
-                      <ColDetailCards data={item} />
+                      <ColAssetsCards data={item} />
                     </div>
                     // it is column
                   ))}
@@ -213,11 +223,11 @@ export default function Assets({
             ))} */}
 
             <TabsContent value="All" className="grid grid-cols-4 gap-10">
-              {data.map((item) => (
+              {/* {data.map((item) => (
                 <div key={item.id}>
                   <CollectionCard data={item} />
                 </div>
-              ))}
+              ))} */}
             </TabsContent>
 
             <TabsContent value="ColCard">
@@ -242,11 +252,11 @@ export default function Assets({
               </div>
               <ScrollArea className="h-[754px] border-t-2 border-neutral500">
                 <div className="grid grid-cols-1 pt-4 gap-4">
-                  {data.map((item) => (
+                  {/* {data.map((item) => (
                     <div key={item.id}>
                       <ColumColCard data={item} />
                     </div>
-                  ))}
+                  ))} */}
                 </div>
               </ScrollArea>
             </TabsContent>

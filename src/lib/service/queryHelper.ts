@@ -175,3 +175,19 @@ export async function getCollectibleById(
       }
     });
   }
+
+  export async function getListableById(
+    id: string
+  ) {
+    return axiosClient
+      .get(
+        `/api/v1/collectibles/${id}/listable?orderBy=recent`,
+      )
+      .then((response) => {
+        if (response.data.success) {
+          return response.data;
+        } else {
+          throw new Error(response.data.error);
+        }
+      });
+    }
