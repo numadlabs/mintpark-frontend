@@ -191,3 +191,19 @@ export async function getCollectibleById(
         }
       });
     }
+
+    export async function checkOrderStatus(
+      id: string
+    ) {
+      return axiosClient
+        .get(
+          `/api/v1/orders/${id}/payment-status?txid=lsdjgijdsgdfjiogjoidj`,
+        )
+        .then((response) => {
+          if (response.data.success) {
+            return response.data.data;
+          } else {
+            throw new Error(response.data.error);
+          }
+        });
+      }

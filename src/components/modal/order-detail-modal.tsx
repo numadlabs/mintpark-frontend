@@ -22,41 +22,49 @@ const OrderDetailModal: React.FC<modalProps> = ({
   const [serviceFee, setServiceFee] = useState(0.00053);
   const totalFee = networkFee + serviceFee;
 
-  const getPaymentStatus = (status: string) => {
-    switch (status) {
-      case "Pending":
-        return "Pending...";
-      case "Iscribed":
-        return "Paid";
-      default:
-        return status;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Pending":
-        return "text-[#D7D8D8]";
-      case "Inscribed":
-        return "text-[#2CB59E]";
-      default:
-        return "text-[#D7D8D8]";
-    }
-  };
-
-  const getInscribeStatus = (status: string) => {
-    switch (status) {
-      case "Pending":
+  const getInscribeStatus = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "PENDING":
         return "Inscribing will start after payment is received";
-      case "Inscribed":
+      case "IN_QUEUE":
+        return "The inscription is in queue";
+      case "DONE":
         return "Inscribed";
+      case "EXPIRED":
+        return "Payment timeout, order closed";
       default:
-        return status;
+        return "Unknown status";
     }
   };
 
-  const capitalizeFirstLetter = (string: string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  const getPaymentStatus = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "PENDING":
+        return "Pending...";
+      case "IN_QUEUE":
+        return "Paid";
+      case "DONE":
+        return "Inscribed";
+      case "EXPIRED":
+        return "Closed";
+      default:
+        return "Unknown status";
+    }
+  };
+
+  const getStatus = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "PENDING":
+        return "Pending";
+      case "IN_QUEUE":
+        return "In queue";
+      case "DONE":
+        return "Inscribed";
+      case "EXPIRED":
+        return "Closed";
+      default:
+        return "Unknown status";
+    }
   };
 
   return (
@@ -80,7 +88,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
           <div className="border border-white8 rounded-2xl w-full px-5 pt-4 pb-5 flex flex-col gap-3">
             <p className="text-md text-neutral200 font-medium">Status:</p>
             <p className="text-lg text-neutal50 font-medium">
-              {capitalizeFirstLetter(status)}
+              {getStatus(status)}
             </p>
           </div>
         </div>
@@ -126,7 +134,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
                   </div>
                   <p className="text-neutral50 text-lg font-bold">Payment</p>
                 </div>
-                <p className={`text-lg font-medium ${getStatusColor(status)}`}>
+                <p className={`text-lg font-medium`}>
                   {getPaymentStatus(status)}
                 </p>
               </div>
@@ -137,17 +145,13 @@ const OrderDetailModal: React.FC<modalProps> = ({
                   </div>
                   <p className="text-neutral50 text-lg font-bold">Inscribe</p>
                 </div>
-                <p className={`text-lg font-medium ${getStatusColor(status)}`}>
+                <p className={`text-lg font-medium`}>
                   {getInscribeStatus(status)}
                 </p>
               </div>
             </>
           )}
         </div>
-        <div className="h-[1px] w-full bg-white8" />
-        <p className="text-neutral200 text-md font-medium text-start w-full">
-          You can see the process of inscribing in Inscribe Order.
-        </p>
         <button
           className="w-12 h-12 absolute top-3 right-3 flex justify-center items-center"
           onClick={onClose}

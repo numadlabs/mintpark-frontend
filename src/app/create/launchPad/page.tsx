@@ -101,7 +101,7 @@ const CollectionDetail = () => {
       if (params) {
         const response = await createCollectionMutation({ data: params });
         if (response && response.success) {
-          const { id } = response.data;
+          const { id } = response.data.collection;
           setCollectionId(id);
           console.log("create collection success", response);
           setStep(1);
@@ -195,6 +195,8 @@ const CollectionDetail = () => {
     return secondsUntil > 0 ? secondsUntil : 0; // Ensure we don't return negative values
   };
 
+  console.log("first", collectionId)
+
   const handleCreateLaunch = async () => {
     const POStartsAt = calculateSecondsUntilDate(
       POStartsAtDate,
@@ -224,6 +226,16 @@ const CollectionDetail = () => {
       console.error("Error creating launch:", error);
     }
   };
+
+  const handleNavigateToOrder = () => {
+    router.push(`/orders`);
+    reset();
+  }
+
+  const handleNavigateToCreate = () => {
+    router.push(`/create`);
+    reset();
+  }
 
   return (
     <Layout>
@@ -622,6 +634,8 @@ const CollectionDetail = () => {
         id={collectionId}
         fileSizes={fileSizes}
         files={files}
+        navigateOrders={handleNavigateToOrder}
+        navigateToCreate={handleNavigateToCreate}
       />
       <SuccessModal
         open={successModal}

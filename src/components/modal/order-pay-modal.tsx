@@ -31,6 +31,8 @@ interface ModalProps {
   fileSizes: number[];
   id: string;
   files: File[];
+  navigateOrders: () => void;
+  navigateToCreate: () => void;
 }
 
 interface EstimatedFee {
@@ -46,10 +48,12 @@ const OrderPayModal: React.FC<ModalProps> = ({
   fileTypeSizes,
   id,
   files,
+  navigateOrders,
+  navigateToCreate
 }) => {
   const { authState } = useAuth();
   const [feeRate, setFeeRate] = useState<number>(1);
-  const [data, setData] = useState<InscribeOrderData | null>(null);
+  const [data, setData] = useState<string>("");
   const [inscribeModal, setInscribeModal] = useState(false);
   const [selectedTab, setSelectedTab] = useState<"Slow" | "Fast" | "Custom">(
     "Custom",
@@ -132,9 +136,7 @@ const OrderPayModal: React.FC<ModalProps> = ({
           response.data.order.fundingAmount,
         );
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        const { id, serviceFee, networkFee, orderStatus, quantity } =
-          response.data.order;
-        setData({ id, serviceFee, networkFee, quantity, orderStatus });
+        setData(response.data.order.id);
         onClose();
         setInscribeModal(true);
       }
@@ -292,7 +294,9 @@ const OrderPayModal: React.FC<ModalProps> = ({
         <InscribeOrderModal
           open={inscribeModal}
           onClose={() => setInscribeModal(false)}
-          data={data}
+          id={data}
+          navigateOrders={navigateOrders}
+          navigateToCreate={navigateToCreate}
         />
       )}
     </>

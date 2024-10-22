@@ -276,6 +276,16 @@ const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
 
   const files = imageFiles.map((image) => image.file);
 
+  const handleNavigateToOrder = () => {
+    router.push(`/orders`);
+    reset();
+  }
+
+  const handleNavigateToCreate = () => {
+    router.push(`/create`);
+    reset();
+  }
+
   return (
     <Layout>
       <div className="flex flex-col w-full h-full bg-background items-center pb-[148px]">
@@ -462,6 +472,8 @@ const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
         description={description}
         fileSizes={fileSizes}
         fileTypeSizes={fileTypeSizes}
+        navigateOrders={handleNavigateToOrder}
+        navigateToCreate={handleNavigateToCreate}
       />
     </Layout>
   );

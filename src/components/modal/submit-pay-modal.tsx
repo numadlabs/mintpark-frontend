@@ -24,6 +24,7 @@ import {
 import { toast } from "sonner";
 import InscribeOrderModal from "./insribe-order-modal";
 import { getFeeRates } from "@/lib/service/queryHelper";
+import { useRouter } from "next/navigation";
 
 interface ModalProps {
   open: boolean;
@@ -34,6 +35,8 @@ interface ModalProps {
   name: string;
   creator: string;
   description: string;
+  navigateOrders: () => void;
+  navigateToCreate: () => void;
 }
 
 interface EstimatedFee {
@@ -51,10 +54,13 @@ const SubmitPayModal: React.FC<ModalProps> = ({
   name,
   creator,
   description,
+  navigateOrders,
+  navigateToCreate,
 }) => {
+  const router = useRouter();
   const { authState } = useAuth();
   const [feeRate, setFeeRate] = useState<number>(1);
-  const [data, setData] = useState<InscribeOrderData | null>(null);
+  const [data, setData] = useState<string>("");
   const [inscribeModal, setInscribeModal] = useState(false);
   const [selectedTab, setSelectedTab] = useState<"Slow" | "Fast" | "Custom">(
     "Custom",
@@ -139,9 +145,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
           response.data.order.fundingAmount,
         );
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        const { id, serviceFee, networkFee, orderStatus, quantity } =
-          response.data.order;
-        setData({ id, serviceFee, networkFee, quantity, orderStatus });
+        setData( response.data.order.id );
         onClose();
         setInscribeModal(true);
       }
@@ -171,7 +175,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
     if (fileSizes.length > 0 && fileTypeSizes) {
       calculateFeeRate();
     }
-  }, [calculateFeeRate, feeRate, fileSizes, fileTypeSizes]);
+  }, [calculateFeeRate, feeRate, fileSizes, fileTypeSizes]); 
 
   return (
     <>
@@ -299,7 +303,9 @@ const SubmitPayModal: React.FC<ModalProps> = ({
         <InscribeOrderModal
           open={inscribeModal}
           onClose={() => setInscribeModal(false)}
-          data={data}
+          id={data}
+          navigateOrders={navigateOrders}
+          navigateToCreate={navigateToCreate}
         />
       )}
     </>

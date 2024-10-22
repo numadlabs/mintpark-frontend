@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,24 +7,94 @@ import {
 } from "../ui/dialog";
 import { X } from "lucide-react";
 import { Button } from "../ui/button";
-import { InscribeOrderData } from "@/lib/types";
-import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { checkOrderStatus, getOrderById } from "@/lib/service/queryHelper";
 
 interface modalProps {
   open: boolean;
   onClose: () => void;
-  data: InscribeOrderData;
+  id: string;
+  navigateOrders: () => void;
+  navigateToCreate: () => void;
 }
 
 const InscribeOrderModal: React.FC<modalProps> = ({
   open,
   onClose,
-  data,
+  id,
+  navigateOrders,
+  navigateToCreate,
 }) => {
-  const router = useRouter();
-  const totalFee = data?.networkFee + data?.serviceFee;
+  const { data: orders = [] } = useQuery({
+    queryKey: ["orderData"],
+    queryFn: () => getOrderById(id as string),
+    enabled: !!id,
+    refetchInterval: 5000,
+  });
+  const { data: status = [] } = useQuery({
+    queryKey: ["statusData"],
+    queryFn: () => checkOrderStatus(id),
+    enabled: !!id,
+    refetchInterval: 5000,
+  });
+
+  console.log("status", status);
+  const totalFee = orders?.networkFee + orders?.serviceFee;
+  console.log("oasdfkid", orders);
+
+  const createOrder = () => {
+    onClose();
+    navigateOrders();
+  };
+
   const handleNavigation = () => {
-    router.push("/orders");
+    onClose();
+    navigateToCreate();
+  };
+
+  const getInscribeStatus = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "PENDING":
+        return "Inscribing will start after payment is received";
+      case "IN_QUEUE":
+        return "The inscription is in queue";
+      case "DONE":
+        return "Inscribed";
+      case "EXPIRED":
+        return "Payment timeout, order closed";
+      default:
+        return "Unknown status";
+    }
+  };
+
+  const getPaymentStatus = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "PENDING":
+        return "Pending...";
+      case "IN_QUEUE":
+        return "Paid";
+      case "DONE":
+        return "Inscribed";
+      case "EXPIRED":
+        return "Closed";
+      default:
+        return "Unknown status";
+    }
+  };
+
+  const getStatus = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "PENDING":
+        return "Pending";
+      case "IN_QUEUE":
+        return "In queue";
+      case "DONE":
+        return "Inscribed";
+      case "EXPIRED":
+        return "Closed";
+      default:
+        return "Unknown status";
+    }
   };
 
   return (
@@ -38,19 +108,19 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         <div className="h-[1px] w-full bg-white8" />
         <div className="flex flex-col gap-3 border border-white8 rounded-2xl w-full px-5 pt-4 pb-5">
           <p className="text-neutral200 text-md font-medium">Order ID:</p>
-          <p className="text-lg2 text-neutral50 font-medium">{data?.id}</p>
+          <p className="text-lg2 text-neutral50 font-medium">{orders?.id}</p>
         </div>
         <div className="grid grid-cols-2 gap-4 items-center w-full">
           <div className="border border-white8 rounded-2xl w-full px-5 pt-4 pb-5 flex flex-col gap-3">
             <p className="text-md text-neutral200 font-medium">Quantity:</p>
             <p className="text-lg text-neutal50 font-medium">
-              {data?.quantity}
+              {orders?.quantity}
             </p>
           </div>
           <div className="border border-white8 rounded-2xl w-full px-5 pt-4 pb-5 flex flex-col gap-3">
             <p className="text-md text-neutral200 font-medium">Status:</p>
             <p className="text-lg text-neutal50 font-medium">
-              {data?.orderStatus}
+              {getStatus(orders?.orderStatus)}
             </p>
           </div>
         </div>
@@ -59,13 +129,13 @@ const InscribeOrderModal: React.FC<modalProps> = ({
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Network Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {data?.networkFee} Sats
+              {orders?.networkFee} Sats
             </p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Service Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {data?.serviceFee} Sats
+              {orders?.serviceFee} Sats
             </p>
           </div>
         </div>
@@ -83,7 +153,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
               <p className="text-neutral50 text-lg font-bold">Payment</p>
             </div>
             <p className="text-neutral50 text-lg font-medium">
-              {data.orderStatus}
+              {getPaymentStatus(orders.orderStatus)}
             </p>
           </div>
           <div className="flex flex-row items-center justify-between w-full bg-white4 p-4 rounded-2xl">
@@ -93,20 +163,20 @@ const InscribeOrderModal: React.FC<modalProps> = ({
               </div>
               <p className="text-neutral50 text-lg font-bold">Inscribe</p>
             </div>
-            <p className="text-neutral50 text-md font-medium">
-              {data.orderStatus}
+            <p className="text-neutral50 text-lg font-medium">
+              {getInscribeStatus(orders?.orderStatus)}
             </p>
           </div>
         </div>
         <div className="h-[1px] w-full bg-white8" />
-        <p className="text-neutral200 text-md font-medium text-start w-full">
+        <p className="text-neutral200 text-lg font-medium text-start w-full">
           You can see the process of inscribing in Inscribe Order.
         </p>
         <DialogFooter className="grid grid-cols-2 gap-2 w-full">
           <Button
             variant={"secondary"}
             className="bg-white8 w-full"
-            onClick={() => router.push("/create/collectible")}
+            onClick={createOrder}
           >
             Create again
           </Button>
@@ -124,4 +194,3 @@ const InscribeOrderModal: React.FC<modalProps> = ({
 };
 
 export default InscribeOrderModal;
-

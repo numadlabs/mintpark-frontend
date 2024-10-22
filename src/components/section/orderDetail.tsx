@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import { ScrollArea } from "../ui/scroll-area";
-import { getOrderById, getAllOrders } from "@/lib/service/queryHelper";
+import { checkOrderStatus, getAllOrders } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight2 } from "iconsax-react";
 import OrderDetailModal from "../modal/order-detail-modal";
@@ -20,17 +20,22 @@ const OrderDetail = () => {
   const [orderModal, setOrderModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [orderId, setOrderId] = useState<string>("");
   const id = authState?.userId;
 
-  const { data: orders = [] } = useQuery({
-    queryKey: ["orderData"],
+  const { data: ordersData = [] } = useQuery({
+    queryKey: ["orderDataD"],
     queryFn: () => getAllOrders(id as string),
     enabled: !!id,
   });
 
+  const orders = Array.isArray(ordersData) ? ordersData : [];
+
   const filteredOrders = useMemo(() => {
+    if (!orders.length) return [];
+
     return orders.filter((order: Order) =>
-      order.id.toLowerCase().includes(searchTerm.toLowerCase()),
+      order?.id?.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [orders, searchTerm]);
 
@@ -57,6 +62,21 @@ const OrderDetail = () => {
     }
   };
 
+  const getStatus = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "PENDING":
+        return "Pending";
+      case "IN_QUEUE":
+        return "In queue";
+      case "DONE":
+        return "Inscribed";
+      case "EXPIRED":
+        return "Closed";
+      default:
+        return "Unknown status";
+    }
+  };
+
   const capitalizeFirstLetter = (string: string) => {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   };
@@ -64,6 +84,7 @@ const OrderDetail = () => {
   const toggleOrderModal = (order: any) => {
     setSelectedOrder(order);
     setOrderModal(!orderModal);
+    setOrderId(order?.id);
   };
 
   return (
@@ -123,7 +144,7 @@ const OrderDetail = () => {
                   <p
                     className={`pl-3 font-medium text-md ${getStatusColor(item.orderStatus)} capitalize truncate`}
                   >
-                    {capitalizeFirstLetter(item.orderStatus)}
+                    {getStatus(item.orderStatus)}
                   </p>
                   <p className="pl-4 font-medium text-md text-neutral200">
                     {formatDateTime(item.createdAt)}
