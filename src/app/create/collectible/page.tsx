@@ -107,7 +107,16 @@ const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
       setTotalFileSize(prevSize => prevSize + newFileSizes.reduce((a, b) => a + b, 0));
     }
   };
-
+  const handleBack = () => {
+    reset(); // Reset form state
+    setImageFiles([]); // Reset image files
+    setFileSizes([]); // Reset file sizes
+    setTotalFileSize(0); // Reset total file size
+    setFileTypeSizes([]); // Reset file type sizes
+    setFileTypes(new Set()); // Reset file types
+    setError(""); // Reset error message
+    router.push("/"); // Navigate back
+  };
   const handleNextStep = () => {
     setStep(1);
     reset();
@@ -357,7 +366,8 @@ const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
                 <div className="w-full flex flex-row gap-8">
                   <ButtonOutline
                     title="Back"
-                    onClick={() => router.push("/")}
+                    // onClick={() => router.push("/")}
+                    onClick={handleBack}
                   />
                   <ButtonLg
                     onClick={handleNextStep}
