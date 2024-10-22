@@ -223,6 +223,7 @@ export type LaunchCollectionData = {
   isWhiteListed: boolean;
 }
 
+
 export type CollectibleList = {
   id:string;
   collectibles: Collectible[];
@@ -254,3 +255,24 @@ type Collection = {
   iconUrl: string;
   collectibleCount: string;
 };
+export type LaunchDataType = {
+    id: string;
+    name: string;
+    creator: string;
+    description: string;
+    supply: number;
+    type: string;
+    logoKey: string;
+    layerId: string;
+    launchId: string;
+    wlStartsAt: string;
+    wlEndsAt: string;
+    wlMintPrice: number;
+    wlMaxMintPerWallet: number;
+    poStartsAt: string;
+    poEndsAt: string;
+    poMintPrice: number;
+    poMaxMintPerWallet: number;
+    isWhitelisted: boolean;
+    mintedAmount: number;
+}

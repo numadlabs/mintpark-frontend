@@ -1,19 +1,21 @@
 import LaunchpadCard from "@/components/atom/cards/launchpadCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import { launchpad } from "@/lib/constants";
-import { fetchLaunchs } from "@/lib/service/queryHelper";
-import { CollectionType } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
-// import { CollectionType } from "@/lib/service/fetcher";
-// import { Toggle } from "@/components/ui/toggle";
+import { useRouter } from "next/navigation";
 
-// import launchpadCard from '@/components/atom/cards/launchpadCard'
 
 export default function LaunchBanner({
   collections,
 }: {
   collections: any;
 }) {
+  const router = useRouter();
+  const handleNavigation = (collectionData: any) => {
+    const queryParams = new URLSearchParams({
+      id: collectionData.id,
+    }).toString();
+    router.push(`/launchpad/${collectionData.id}?${queryParams}`);
+  };
+
   return (
     <>
       {/* <launchpadCard/> */}
@@ -44,34 +46,8 @@ export default function LaunchBanner({
           {collections.map((item:any) => {
             return (
               <div key={item.id}>
-                <LaunchpadCard key={item.id} collection={item} />
+                <LaunchpadCard key={item.id} collection={item} handleNavigation={() => handleNavigation(item)}/>
               </div>
-            );
-          })}
-        </TabsContent>
-        <TabsContent value="live" className="grid grid-cols-4 gap-10">
-          {collections.map((item:any) => {
-            return (
-              <>
-                {item.type === "live" && (
-                  <div key={item.id}>
-                    <LaunchpadCard collection={item} />
-                  </div>
-                )}
-              </>
-            );
-          })}
-        </TabsContent>
-        <TabsContent value="past" className="grid grid-cols-4 gap-10">
-          {collections.map((item:any) => {
-            return (
-              <>
-                {item.type === "ended" && (
-                  <div key={item.id}>
-                    <LaunchpadCard collection={item} />{" "}
-                  </div>
-                )}
-              </>
             );
           })}
         </TabsContent>
