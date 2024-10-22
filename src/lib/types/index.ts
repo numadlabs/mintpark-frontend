@@ -222,3 +222,35 @@ export type LaunchCollectionData = {
   files: File[];
   isWhiteListed: boolean;
 }
+
+export type CollectibleList = {
+  id:string;
+  collectibles: Collectible[];
+  totalCount: number;
+  listCount: number;
+  collections: Collection[];
+};
+
+export type Collectible = {
+  id: string;
+  name: string;
+  uniqueIdx: string;
+  createdAt: string;
+  fileKey: string | null;
+  collectionId: string;
+  collectionName: string;
+  listedAt: string | null;
+  listId: string | null;
+  price: number | null;
+  floor: number;
+  logoKey: string;
+};
+
+type Collection = {
+  id: string;
+  name: string;
+  logoKey: string;
+  inscriptionIcon: string;
+  iconUrl: string;
+  collectibleCount: string;
+};

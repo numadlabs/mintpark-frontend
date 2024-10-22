@@ -1,7 +1,20 @@
 import React from "react";
 import Image from "next/image";
+import { getListableById, getListedCollections } from "@/lib/service/queryHelper";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../provider/auth-context-provider";
+
 
 const ProfileBanner = () => {
+  const {authState} = useAuth()
+  const { data: collection = [] } = useQuery({
+    queryKey: ["collectionData"],
+    queryFn: () => getListedCollections(authState?.layerId as string),
+    enabled: !!authState?.layerId ,
+  });
+
+  console.log("first", collection.collectibles)
+
   return (
     <>
       <section className="mt-[43.5px]">
@@ -36,6 +49,7 @@ const ProfileBanner = () => {
               <div className="flex gap-4 items-center">
                 <h3 className="text-profileTitle font-bold text-neutral50">
                   bc1p...79t2
+
                 </h3>
                 <Image
                   src={"/profile/copy.png"}
@@ -66,13 +80,13 @@ const ProfileBanner = () => {
                     <p className="text-neutral100 text-md font-medium">
                       Total items:
                     </p>
-                    10,000
+                    {collection?.totalCount}
                   </span>
                   <span className="pt-3 pr-4 pb-3 pl-4 flex gap-3 rounded-xl text-neutral50 bg-white4 items-center">
                     <p className="text-neutral100 text-md font-medium">
                       Listed items:
                     </p>
-                    32
+                    {collection?.listCount}
                   </span>
                 </div>
               </div>
