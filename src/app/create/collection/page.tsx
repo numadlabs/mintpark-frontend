@@ -278,6 +278,26 @@ const CollectionDetail = () => {
 
     }
   };
+  const handleBack = (resetType: 'create' | 'step') => {
+
+    reset();
+    setFiles([]);
+    setJsonData([]);
+    setJsonMetaData(null);
+    setError("");
+    setProgress({ value: 0, total: 0, message: "" });
+    setIsChecked(false);
+    setSecondChecked(false);
+    setDate(undefined);
+    setStart(new Date());
+    setEnd(new Date());
+
+    if (resetType === 'create') {
+      router.push("/create");
+    } else {
+      setStep(Math.max(0, step - 1));
+    }
+  };
   return (
     <Layout>
       <div className="flex flex-col w-full h-max bg-background pb-[148px]">
@@ -338,7 +358,8 @@ const CollectionDetail = () => {
               <div className="flex flex-row justify-between w-full gap-8">
                 <ButtonOutline
                   title="Back"
-                  onClick={() => router.push("/create")}
+                  // onClick={() => router.push("/create")}
+                  onClick={() => handleBack('create')}
                 />
                 <ButtonLg
                   title="Continue"
@@ -425,7 +446,8 @@ const CollectionDetail = () => {
               <div className="flex flex-row w-full gap-8">
                 <ButtonOutline
                   title="Back"
-                  onClick={() => router.push("/create")}
+                  // onClick={() => router.push("/create")}
+                  onClick={() => handleBack('step')}
                 />
                 <ButtonLg
                   // type="submit"
@@ -597,7 +619,8 @@ const CollectionDetail = () => {
               <div className="flex flex-row w-full gap-8">
                 <ButtonOutline
                   title="Back"
-                  onClick={() => router.push("/create")}
+                  // onClick={() => router.push("/create")}
+                  onClick={() => handleBack('step')}
                 />
                 <ButtonLg
                   // type="submit"
@@ -659,7 +682,8 @@ const CollectionDetail = () => {
               <div className="flex flex-row gap-8">
                 <ButtonOutline
                   title="Go home"
-                  onClick={() => router.push("/")}
+                  // onClick={() => router.push("/")}
+                  onClick={() => handleBack('create')}
                 />
                 <ButtonLg isSelected={true} onClick={() => triggerRefresh()}>
                   Create Again

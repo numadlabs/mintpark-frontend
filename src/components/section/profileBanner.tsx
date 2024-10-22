@@ -12,6 +12,8 @@ const ProfileBanner: React.FC<cardProps> = ({ data }) => {
     btc: 0,
     usd: 0,
   });
+  const [rawAddress, setRawAddress] = useState<string>("");
+  const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
   const getBalance = async () => {
     try {
@@ -26,6 +28,7 @@ const ProfileBanner: React.FC<cardProps> = ({ data }) => {
       setBalance({ btc: 0, usd: 0 });
     }
   };
+
   const displayBalance = (value: number) => {
     return isNaN(value) ? "0.00" : value.toFixed(2);
   };
@@ -38,6 +41,7 @@ const ProfileBanner: React.FC<cardProps> = ({ data }) => {
     try {
       let res = await window.unisat.getAccounts();
       if (res && res[0]) {
+        setRawAddress(res[0]); // Store the full address
         const formatted = `${res[0].slice(0, 4)}...${res[0].slice(-4)}`;
         setWalletAddress(formatted);
         // Get balance after successful wallet connection
@@ -47,6 +51,22 @@ const ProfileBanner: React.FC<cardProps> = ({ data }) => {
     } catch (e) {
       console.log(e);
       setWalletAddress("Connect Wallet");
+      setRawAddress("");
+    }
+  };
+
+  const handleCopy = async () => {
+    if (rawAddress) {
+      try {
+        await navigator.clipboard.writeText(rawAddress);
+        setCopySuccess(true);
+        // Reset copy success message after 2 seconds
+        setTimeout(() => {
+          setCopySuccess(false);
+        }, 2000);
+      } catch (err) {
+        console.error('Failed to copy address:', err);
+      }
     }
   };
 
@@ -84,20 +104,28 @@ const ProfileBanner: React.FC<cardProps> = ({ data }) => {
               />
             </div>
             <div className="w-full flex flex-col justify-between gap-5 pl-6 pr-6 pt-4 pb-4">
-              <div className="flex gap-4 items-center">
+              <div className="flex gap-4 items-center relative">
                 <h3 
                   className="text-profileTitle font-bold text-neutral50 cursor-pointer"
                   onClick={connectWallet}
                 >
                   {walletAddress}
                 </h3>
-                <Image
-                  src={"/profile/copy.png"}
-                  alt="copy"
-                  width={24}
-                  height={24}
-                  className="w-6 h-6 cursor-pointer"
-                />
+                <div className="relative">
+                  <Image
+                    src={"/profile/copy.png"}
+                    alt="copy"
+                    width={24}
+                    height={24}
+                    className="w-6 h-6 cursor-pointer"
+                    onClick={handleCopy}
+                  />
+                  {copySuccess && (
+                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-sm py-1 px-2 rounded">
+                      Copied!
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="flex justify-between w-full">
                 <div className="flex flex-col justify-end">
@@ -110,19 +138,19 @@ const ProfileBanner: React.FC<cardProps> = ({ data }) => {
                       className="h-6 w-6"
                     />
                     <p className="flex items-center font-bold text-xl text-white">
-                      {balance.btc.toFixed(2)} BTC
+                      {displayBalance(balance.btc)}BTC
                     </p>
                     <p className="border-l border-l-white16 pl-4 h-5 text-neutral100 text-md flex items-center">
-                      ${balance.usd.toFixed(2)}
+                      ${displayUsd(balance.usd)}
                     </p>
                   </h2>
                 </div>
                 <div className="flex gap-4 items-end">
                   <span className="pt-3 pr-4 pb-3 pl-4 flex gap-3 rounded-xl text-neutral50 bg-white4 items-center">
                     <p className="text-neutral100 text-md font-medium">
-                    ${displayUsd(balance.usd)}
+                      Total items:
                     </p>
-                    {displayBalance(balance.btc)} BTC
+                    {data.totalCount}
                   </span>
                   <span className="pt-3 pr-4 pb-3 pl-4 flex gap-3 rounded-xl text-neutral50 bg-white4 items-center">
                     <p className="text-neutral100 text-md font-medium">
