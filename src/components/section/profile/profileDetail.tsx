@@ -8,7 +8,7 @@ import { Global, Notepad, Profile2User } from "iconsax-react";
 import CollecBanner from "../collections/collecBanner";
 import Assets from "./assets";
 import Activity from "./activity";
-import { getListedCollections } from "@/lib/service/queryHelper";
+import { getListableById, getListedCollections } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { useQuery } from "@tanstack/react-query";
 import { CollectibleList } from "@/lib/types";
@@ -17,11 +17,7 @@ import { useState } from "react";
 
 const ProfileDetail = () => {
   const { authState } = useAuth();
-  const { data: collection = [] } = useQuery({
-    queryKey: ["collectionData"],
-    queryFn: () => getListedCollections(authState?.layerId as string),
-    enabled: !!authState?.layerId,
-  });
+  
   const [active, setActive] = useState(false);
   return (
     <div className="mt-8 flex flex-col gap-8">
@@ -38,13 +34,10 @@ const ProfileDetail = () => {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="Assets">
-          {/* {collection.map((item: CollectibleList) => (
-            <Assets data={item} />
-          ))} */}
-          <Assets detail data={collection} />
+          <Assets detail/>
         </TabsContent>
         <TabsContent value="Activity">
-          <Activity detail data={collection}/>
+          <Activity/>
         </TabsContent>
       </Tabs>
     </div>

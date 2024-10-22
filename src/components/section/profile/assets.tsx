@@ -18,27 +18,24 @@ import { useState } from "react";
 import CollectionSideBar from "../collections/sideBar";
 import AssetsCard from "@/components/atom/cards/assetsCard";
 import ColAssetsCards from "@/components/atom/cards/colAssetsCard";
-import { CollectibleList } from "@/lib/types";
+import { Collectible, CollectibleList } from "@/lib/types";
 import { collection } from "@/lib/constants";
-import { getListedCollections } from "@/lib/service/queryHelper";
+import {
+  getListableById,
+  getListedCollections,
+} from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/provider/auth-context-provider";
 
-export default function Assets({
-  detail = false,
-  data,
-}: {
-  detail: boolean;
-  data: CollectibleList[];
-}) {
+export default function Assets({ detail = false }: { detail: boolean }) {
   // const tabs = ["1h", "24h", "7d", "30d", "All"];
   const [active, setActive] = useState(false);
 
   const { authState } = useAuth();
   const { data: collection = [] } = useQuery({
-    queryKey: ["collectionData"],
-    queryFn: () => getListedCollections(authState?.layerId as string),
-    enabled: !!authState?.layerId,
+    queryKey: ["getListableById", authState.userId],
+    queryFn: () => getListableById(authState?.userId as string),
+    enabled: !!authState?.userId,
   });
   return (
     <>
@@ -102,12 +99,18 @@ export default function Assets({
                   backdropFilter: "blur(30px)",
                 }}
               >
-                <SelectItem value="highest" className="pl-10">Highest volume</SelectItem>
-                <SelectItem value="low" className="pl-10">Lowest volume</SelectItem>
+                <SelectItem value="highest" className="pl-10">
+                  Highest volume
+                </SelectItem>
+                <SelectItem value="low" className="pl-10">
+                  Lowest volume
+                </SelectItem>
                 <SelectItem value="highestFloor" className="pl-10">
                   Highest floor price
                 </SelectItem>
-                <SelectItem value="lowest" className="pl-10">Lowest floor price</SelectItem>
+                <SelectItem value="lowest" className="pl-10">
+                  Lowest floor price
+                </SelectItem>
               </SelectContent>
             </Select>
             <TabsList className="text-neutral50 border border-neutral400 rounded-xl w-[92px] h-12">
@@ -155,7 +158,7 @@ export default function Assets({
                   active ? "grid-cols-3" : "grid-cols-4"
                 }`}
               >
-                {collection.map((item: CollectibleList) => (
+                {collection.data?.collectibles?.map((item: Collectible) => (
                   <div key={item.id}>
                     <AssetsCard data={item} />
                   </div>
@@ -191,7 +194,7 @@ export default function Assets({
               </div>
               <ScrollArea className="h-[754px] w-full border-t-2 border-neutral500">
                 <div className="flex flex-col w-full pt-4 gap-4">
-                  {collection.map((item: CollectibleList) => (
+                  {collection.data?.collectibles?.map((item: Collectible) => (
                     <div key={item.id}>
                       <ColAssetsCards data={item} />
                     </div>
