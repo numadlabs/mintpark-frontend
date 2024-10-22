@@ -24,9 +24,9 @@ const OrderDetailModal: React.FC<modalProps> = ({
 
   const getPaymentStatus = (status: string) => {
     switch (status) {
-      case "PENDING":
+      case "Pending":
         return "Pending...";
-      case "INSCRIBED":
+      case "Iscribed":
         return "Paid";
       default:
         return status;
@@ -35,9 +35,9 @@ const OrderDetailModal: React.FC<modalProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "PENDING":
+      case "Pending":
         return "text-[#D7D8D8]";
-      case "INSCRIBED":
+      case "Inscribed":
         return "text-[#2CB59E]";
       default:
         return "text-[#D7D8D8]";
@@ -46,9 +46,9 @@ const OrderDetailModal: React.FC<modalProps> = ({
 
   const getInscribeStatus = (status: string) => {
     switch (status) {
-      case "PENDING":
+      case "Pending":
         return "Inscribing will start after payment is received";
-      case "INSCRIBED":
+      case "Inscribed":
         return "Inscribed";
       default:
         return status;

@@ -201,7 +201,7 @@ const OrderPayModal: React.FC<ModalProps> = ({
                     <TabsTrigger
                       key={tab}
                       value={tab}
-                      className="max-w-[176px] w-screen flex flex-col p-4 gap-2 border-0 data-[state=active]:border-brand data-[state=active]:border bg-white4"
+                      className="w-[176px] h-[84px] flex flex-col p-4 gap-2 border-0 data-[state=active]:border-brand data-[state=active]:border bg-white4"
                     >
                       <p className="text-neutral100 text-lg font-medium">
                         {tab}
@@ -231,7 +231,7 @@ const OrderPayModal: React.FC<ModalProps> = ({
                         min="1"
                       />
                       <div className="absolute right-3.5 top-[25px]">
-                        <p className="text-md text-neutral200 font-medium">
+                        <p className="text-md pr-6 text-neutral200 font-medium">
                           Sats/vB
                         </p>
                       </div>
