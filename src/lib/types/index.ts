@@ -242,7 +242,7 @@ export type Collectible = {
   collectionName: string;
   listedAt: string | null;
   listId: string | null;
-  price: number | null;
+  price: number;
   floor: number;
   logoKey: string;
 };

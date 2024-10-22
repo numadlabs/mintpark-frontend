@@ -26,7 +26,6 @@ const getDaysAgo = (createdAt: string) => {
 };
 interface cardProps {
   data: Collectible;
-  dataAdd: CollectionDataType;
 }
 
 const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
@@ -80,17 +79,17 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
             </p>
           </div>
           <div
-            className={`w-full max-w-[200px] h-[18px] ${data.floor > 0 ? "group" : ""} relative`}
+            className={`w-full max-w-[200px] h-[18px] ${data.price > 0 ? "group" : ""} relative`}
           >
             <span className="font-medium text-lg2 flex justify-center text-neutral50">
-              <span className={data.floor > 0 ? "group-hover:hidden" : ""}>
+              <span className={data.price > 0 ? "group-hover:hidden" : ""}>
                 {/* {daysAgo} days ago */}
               </span>
-              {/* {data.floor > 0 && (
+              {data.price > 0 && (
                 <span className="hidden group-hover:block lg:absolute lg:-top-2 Lg:left-12 text-white bg-white bg-opacity-25 py-2 px-5 rounded-lg cursor-pointer transition-all duration-300 ease-in-out">
                   Buy now
                 </span>
-              )} */}
+              )}
             </span>
           </div>
         </div>

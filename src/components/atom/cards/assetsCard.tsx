@@ -1,14 +1,14 @@
 import HoverCard from "@/components/section/collections/hoverCard";
 import Image from "next/image";
 import { s3ImageUrlBuilder, ordinalsImageCDN } from "@/lib/utils";
-import { Collectible } from "@/lib/types";
+import { Collectible, CollectibleList } from "@/lib/types";
 
 interface cardProps {
-    data: Collectible;
+  data: Collectible;
 }
 
-const AssetsCard:React.FC<cardProps> = ({ data }) => {
-  const isListed =data?.floor > 0;
+const AssetsCard: React.FC<cardProps> = ({ data }) => {
+  const isListed = data?.price > 0;
   return (
     <>
       {" "}
@@ -20,7 +20,9 @@ const AssetsCard:React.FC<cardProps> = ({ data }) => {
           width={248}
           height={248}
           src={
-              s3ImageUrlBuilder(data?.logoKey)
+            data.fileKey
+              ? s3ImageUrlBuilder(data.fileKey)
+              : ordinalsImageCDN(data.uniqueIdx)
           }
           className="aspect-square rounded-xl"
           alt="png"
@@ -33,26 +35,28 @@ const AssetsCard:React.FC<cardProps> = ({ data }) => {
           <p className="py-1 text-lg2 text-neutral50 font-bold pb-4">
             {data?.name}
           </p>
-          <div className={`relative ${isListed ? 'group' : ''} h-10 w-[248px] ${isListed ? '' : ''} border-t border-neutral400`}>
-          <div className={`flex justify-between py-4 ${isListed ? '' : ''}`}>
-            {isListed ? (
-              <>
-                <p className="text-neutral200 font-medium text-md">Price</p>
-                <p className="text-neutral50">
-                  {(data?.floor / 10 ** 8).toFixed(5)}
-                  <span className="ml-1">BTC</span>
-                </p>
-              </>
-            ) : (
-              <p className="text-neutral200 font-medium text-md">Unlisted</p>
-            )}
+          <div
+            className={`relative ${isListed ? "group" : ""} h-10 w-[248px] ${isListed ? "" : ""} border-t border-neutral400`}
+          >
+            <div className={`flex justify-between py-4 ${isListed ? "" : ""}`}>
+              {isListed ? (
+                <>
+                  <p className="text-neutral200 font-medium text-md">Price</p>
+                  <p className="text-neutral50">
+                    {(data?.price / 10 ** 8).toFixed(5)}
+                    <span className="ml-1">BTC</span>
+                  </p>
+                </>
+              ) : (
+                <p className="text-neutral200 font-medium text-md">Unlisted</p>
+              )}
+            </div>
           </div>
-        </div>
         </div>
         {/* <HoverCard /> */}
       </div>
     </>
   );
-}
+};
 
-export default AssetsCard
+export default AssetsCard;
