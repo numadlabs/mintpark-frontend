@@ -251,11 +251,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       const signedMessage = await window.unisat.signMessage(message);
 
+      const pubkey = await window.unisat.getPublicKey()
+      console.log(pubkey)
+
       if (signedMessage) {
         const loginResponse = await loginMutation.mutateAsync({
           address,
           signedMessage,
           layerId: selectedLayerId,
+          pubkey
         });
 
         if (loginResponse.success) {

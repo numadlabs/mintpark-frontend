@@ -14,23 +14,31 @@ import {
 import {
   getCollectibleById,
   getCollectionById,
+  getEstimateFee,
 } from "@/lib/service/queryHelper";
 import { CollectibleDataType, CollectionDataType } from "@/lib/types";
 import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import BuyAssetModal from "@/components/modal/buy-asset-modal";
 
 interface PageProps {
   params: { id: string };
 }
 
-export default function Page({ params }: PageProps) {
+export default function AssetDetail() {
+  const params = useParams();
+  const { id } = params;
+  const [isVisible, setIsVisible] = useState(false);
+
   const {
     data: collectionData,
     isLoading: isCollectionLoading,
     error: collectionError,
   } = useQuery<CollectionDataType[]>({
-    queryKey: ["collectionData", params.id],
-    queryFn: () => getCollectionById(params.id),
-    enabled: !!params.id,
+    queryKey: ["collectionData", id],
+    queryFn: () => getCollectionById(id as string),
+    enabled: !!id,
   });
 
   const {
@@ -39,8 +47,14 @@ export default function Page({ params }: PageProps) {
     error: collectibleError,
   } = useQuery<CollectibleDataType[]>({
     queryKey: ["collectibleData", params.id],
-    queryFn: () => getCollectibleById(params.id),
+    queryFn: () => getCollectibleById(id as string),
     enabled: !!params.id,
+  });
+
+  const { data: estimateFee = [] } = useQuery({
+    queryKey: ["feeData"],
+    queryFn: () => getEstimateFee(collectionData?.[0]?.listId ?? ""),
+    enabled: !!collectionData?.[0]?.listId,
   });
 
   if (isCollectionLoading || isCollectibleLoading) {
@@ -74,12 +88,15 @@ export default function Page({ params }: PageProps) {
 
   const collection = collectionData[0];
   const collectible = collectibleData[0];
+
+  console.log(estimateFee);
+
   const formatDaysAgo = (dateString: string) => {
     const createdDate = new Date(dateString);
     const currentDate = new Date();
     const diffTime = Math.abs(currentDate.getTime() - createdDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) {
       return "Today";
     } else if (diffDays === 1) {
@@ -87,6 +104,10 @@ export default function Page({ params }: PageProps) {
     } else {
       return `${diffDays} days ago`;
     }
+  };
+
+  const toggleModal = () => {
+    setIsVisible(!isVisible);
   };
 
   return (
@@ -117,32 +138,73 @@ export default function Page({ params }: PageProps) {
           </div>
           <div className="w-[592px] h-[1px] bg-neutral500" />
           <div className="flex flex-col justify-center gap-6">
-            <div className="flex justify-between w-full">
-              <span className="font-medium pt-3 text-end text-lg text-neutral200">
-                <p>List price</p>
-              </span>
-              <span className="font-bold text-neutral50 text-lg">
-                <h1>{(collection.price / 10 ** 8).toFixed(4)} BTC</h1>
-              </span>
-            </div>
-            <div className="flex justify-between w-full">
-              <span className="font-medium pt-3 text-end text-lg2 text-neutral200">
-                <p>Total price</p>
-              </span>
-              <span className="font-bold text-brand500 text-xl">
-                <h1>{(collection.price / 10 ** 8).toFixed(4)} BTC</h1>
-              </span>
-            </div>
+            {collection.price > 0 ? (
+              <div className="flex flex-col gap-6">
+                <div className="flex justify-between w-full">
+                  <span className="font-medium pt-3 text-end text-lg text-neutral200">
+                    <p>List price</p>
+                  </span>
+                  <span className="font-bold text-neutral50 text-lg">
+                    <h1>
+                      {(estimateFee?.estimation?.price / 10 ** 8).toFixed(6)}{" "}
+                      BTC
+                    </h1>
+                  </span>
+                </div>
+                <div className="flex justify-between w-full">
+                  <span className="font-medium pt-3 text-end text-lg2 text-neutral200">
+                    <p>Network fee</p>
+                  </span>
+                  <span className="font-bold text-neutral50 text-lg">
+                    <h1>
+                      {(estimateFee?.estimation?.networkFee / 10 ** 8).toFixed(
+                        6,
+                      )}{" "}
+                      BTC
+                    </h1>
+                  </span>
+                </div>
+                <div className="flex justify-between w-full">
+                  <span className="font-medium pt-3 text-end text-lg2 text-neutral200">
+                    <p>Service fee</p>
+                  </span>
+                  <span className="font-bold text-neutral50 text-lg">
+                    <h1>
+                      {(estimateFee?.estimation?.serviceFee / 10 ** 8).toFixed(
+                        6,
+                      )}{" "}
+                      BTC
+                    </h1>
+                  </span>
+                </div>
+                <div className="flex justify-between w-full">
+                  <span className="font-medium pt-3 text-end text-lg2 text-neutral200">
+                    <p>Total price</p>
+                  </span>
+                  <span className="font-bold text-brand500 text-xl">
+                    <h1>
+                      {(estimateFee?.estimation?.total / 10 ** 8).toFixed(6)}{" "}
+                      BTC
+                    </h1>
+                  </span>
+                </div>
+              </div>
+            ) : (
+              ""
+            )}
             <div className="flex gap-4">
-              {collection.price > 0 && (
-                <Button variant={"default"} className="w-60 h-12 bg-brand500">
+              {collection.price > 0 ? (
+                <Button
+                  variant={"default"}
+                  className="w-60 h-12 bg-brand500"
+                  onClick={toggleModal}
+                >
                   Buy now
                 </Button>
-              )}
-              {collectibleData && collectibleData.length > 0 && (
-                <Button variant={"default"} className="w-60 h-12 border-brand500">
-                  List
-                </Button>
+              ) : (
+                <p className="text-xl text-neutral50 font-medium">
+                  This asset is not listed
+                </p>
               )}
             </div>
           </div>
@@ -189,7 +251,7 @@ export default function Page({ params }: PageProps) {
                       Listed time
                     </h1>
                     <p className="font-medium text-md text-neutral50">
-                     {formatDaysAgo(collection.createdAt)}
+                      {formatDaysAgo(collection.createdAt)}
                     </p>
                   </div>
                 </AccordionContent>
@@ -208,13 +270,22 @@ export default function Page({ params }: PageProps) {
           </div>
         </div>
       </div>
+      <BuyAssetModal
+        open={isVisible}
+        onClose={toggleModal}
+        fileKey={collection.fileKey}
+        uniqueIdx={collection.uniqueIdx}
+        name={collection.name}
+        collectionName={collection.collectionName}
+        price={estimateFee?.estimation?.price}
+        serviceFee={estimateFee?.estimation?.serviceFee}
+        networkFee={estimateFee?.estimation?.networkFee}
+        total={estimateFee?.estimation?.total}
+        listId={collectionData?.[0]?.listId}
+      />
     </Layout>
   );
 }
-
-
-
-
 
 // "use client";
 
@@ -297,7 +368,7 @@ export default function Page({ params }: PageProps) {
 //     const currentDate = new Date();
 //     const diffTime = Math.abs(currentDate.getTime() - createdDate.getTime());
 //     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
 //     if (diffDays === 0) {
 //       return "Today";
 //     } else if (diffDays === 1) {

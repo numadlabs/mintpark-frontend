@@ -77,15 +77,15 @@ const AssetsCard: React.FC<cardProps> = ({ data }) => {
                   <p className="text-neutral200 hover:hidden font-medium text-md group-hover:opacity-0 transition-opacity">
                     Unlisted
                   </p>
-                  <div className="group-hover:block hidden  text-center  cursor-pointer  w-[248px] h-10 absolute inset-0 opacity-0 hover:opacity-100 transition-all duration-300 ease-in-out -top-4 left-0 text-white bg-white4 pt-2 pr-5 pb-2 pl-5 rounded-lg">
-                    List
+                  <div className={`group-hover:block hidden  text-center  cursor-pointer  w-[248px] h-10 absolute inset-0 opacity-0 hover:opacity-100 transition-all duration-300 ease-in-out -top-4 left-0 text-white bg-white4 pt-2 pr-5 pb-2 pl-5 rounded-lg`}>
+                    View
                   </div>
                 </div>
               )}
             </div>
             {isListed && (
               <div className="group-hover:block hidden text-center cursor-pointer absolute inset-0 opacity-0 hover:opacity-100 transition-all duration-300 ease-in-out w-[248px] h-10 top-0 left-0 text-white bg-white4 pt-2 pr-5 pb-2 pl-5 rounded-lg">
-                List
+                View
               </div>
             )}
           </div>

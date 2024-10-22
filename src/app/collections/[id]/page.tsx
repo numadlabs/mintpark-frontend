@@ -37,6 +37,8 @@ const CollectionDetailPage = () => {
     enabled: !!id,
   });
 
+  console.log(collection)
+
   useEffect(() => {
     const data = searchParams.get("data");
     if (data) {
@@ -51,6 +53,7 @@ const CollectionDetailPage = () => {
   const handleSortClick = () => {
     setActive(!active);
   };
+
 
   const links = [
     {
@@ -153,7 +156,12 @@ const CollectionDetailPage = () => {
                       />
                       <p className="ml-2 font-bold text-xl text-neutral50">
                         {/* <span>{(collectionData?.floor / 10 ** 8).toFixed(5)}</span> BTC */}
-                        <span>{(collectionData?.floor)}</span> BTC
+                        <span>
+                          {collectionData?.floor
+                            ? (collectionData.floor / 10 ** 8).toFixed(5)
+                            : "0.00000"}
+                        </span>{" "}
+                        BTC
                       </p>
                     </div>
                   </div>

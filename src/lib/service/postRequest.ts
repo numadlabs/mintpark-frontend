@@ -60,10 +60,12 @@ export async function loginHandler({
   address,
   signedMessage,
   layerId,
+  pubkey
 }: {
   address: string;
   signedMessage: string;
   layerId: string;
+  pubkey: string;
 }) {
   console.log("🚀 ~ loginHandler ~ walletData:", address);
   return axiosClient
@@ -551,3 +553,91 @@ export const mintCollectibleHandler = async (
     throw error;
   }
 };
+
+export async function listCollectibleConfirm({
+  collectibleId,
+  price,
+}: {
+  collectibleId: string;
+  price: number;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists`, {
+        collectibleId,
+        price,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function confirmPendingList({
+  id,
+  txid,
+  vout,
+  inscribedAmount,
+}: {
+  id: string;
+  txid: string;
+  vout: number;
+  inscribedAmount: number;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists/${id}/confirm`, {
+        txid,
+        vout,
+        inscribedAmount,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+
+export async function generateBuyHex({
+  id,
+  feeRate,
+}: {
+  id: string;
+  feeRate: number;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists/${id}/generate-hex`, {
+        feeRate,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function buyListedCollectible({
+  id,
+  hex,
+}: {
+  id: string;
+  hex: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists/${id}/buy`, {
+        hex,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}

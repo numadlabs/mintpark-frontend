@@ -55,14 +55,16 @@ export async function getLaunchById(collectionId: string) {
     });
 }
 
-export async function getLaunchByCollectionId(id: string){
-  return axiosClient.get(`/api/v1/launchpad/collections/${id}`).then((response) => {
-    if (response.data.success) {
-      return response?.data.data;
-    } else {
-      throw new Error(response.data.error);
-    }
-  });
+export async function getLaunchByCollectionId(id: string) {
+  return axiosClient
+    .get(`/api/v1/launchpad/collections/${id}`)
+    .then((response) => {
+      if (response.data.success) {
+        return response?.data.data;
+      } else {
+        throw new Error(response.data.error);
+      }
+    });
 }
 
 export async function getFeeRatesByLayer() {
@@ -128,13 +130,9 @@ export async function getListedCollections(
     });
 }
 
-export async function getListedCollectionById(
-  collectionId: string,
-) {
+export async function getListedCollectionById(collectionId: string) {
   return axiosClient
-    .get(
-      `/api/v1/collectibles/${collectionId}/collection/listable`,
-    )
+    .get(`/api/v1/collectibles/${collectionId}/collection/listable`)
     .then((response) => {
       if (response.data.success) {
         return response.data.data.collectibles;
@@ -144,13 +142,19 @@ export async function getListedCollectionById(
     });
 }
 
-export async function getCollectionById(
-  id: string
-) {
+export async function getCollectionById(id: string) {
+  return axiosClient.get(`/api/v1/collectibles/${id}`).then((response) => {
+    if (response.data.success) {
+      return response.data.data;
+    } else {
+      throw new Error(response.data.error);
+    }
+  });
+}
+
+export async function getCollectibleById(id: string) {
   return axiosClient
-    .get(
-      `/api/v1/collectibles/${id}`,
-    )
+    .get(`/api/v1/collectible-traits/${id}/collectible`)
     .then((response) => {
       if (response.data.success) {
         return response.data.data;
@@ -160,13 +164,21 @@ export async function getCollectionById(
     });
 }
 
-export async function getCollectibleById(
-  id: string
-) {
+export async function getListableById(id: string) {
   return axiosClient
-    .get(
-      `/api/v1/collectible-traits/${id}/collectible`,
-    )
+    .get(`/api/v1/collectibles/${id}/listable?orderBy=recent`)
+    .then((response) => {
+      if (response.data.success) {
+        return response.data;
+      } else {
+        throw new Error(response.data.error);
+      }
+    });
+}
+
+export async function checkOrderStatus(id: string) {
+  return axiosClient
+    .get(`/api/v1/orders/${id}/payment-status?txid=lsdjgijdsgdfjiogjoidj`)
     .then((response) => {
       if (response.data.success) {
         return response.data.data;
@@ -174,36 +186,16 @@ export async function getCollectibleById(
         throw new Error(response.data.error);
       }
     });
-  }
+}
 
-  export async function getListableById(
-    id: string
-  ) {
-    return axiosClient
-      .get(
-        `/api/v1/collectibles/${id}/listable?orderBy=recent`,
-      )
-      .then((response) => {
-        if (response.data.success) {
-          return response.data;
-        } else {
-          throw new Error(response.data.error);
-        }
-      });
-    }
-
-    export async function checkOrderStatus(
-      id: string
-    ) {
-      return axiosClient
-        .get(
-          `/api/v1/orders/${id}/payment-status?txid=lsdjgijdsgdfjiogjoidj`,
-        )
-        .then((response) => {
-          if (response.data.success) {
-            return response.data.data;
-          } else {
-            throw new Error(response.data.error);
-          }
-        });
+export async function getEstimateFee(id: string) {
+  return axiosClient
+    .get(`/api/v1/lists/${id}/estimate-fee`)
+    .then((response) => {
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.error);
       }
+    });
+}
