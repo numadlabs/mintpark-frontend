@@ -99,7 +99,7 @@ export default function Page({ params }: PageProps) {
             height={560}
             src={
               collection.fileKey
-                ? s3ImageUrlBuilder(collection.logoKey)
+                ? s3ImageUrlBuilder(collection.fileKey)
                 : ordinalsImageCDN(collection.uniqueIdx)
             }
             className="aspect-square rounded-xl"
