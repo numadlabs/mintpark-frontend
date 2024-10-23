@@ -127,6 +127,7 @@ export type CollectionData = {
   creator: string;
   description: string;
   name: string;
+  priceForLaunchpad: number;
 };
 
 export type FeeRateAmount = {

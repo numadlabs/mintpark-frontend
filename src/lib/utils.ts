@@ -22,3 +22,27 @@ export function imageCDN(uniqueIdx: string) {
 export function ordinalsImageCDN(uniqueIdx: string) {
   return `https://ordinals-testnet.fractalbitcoin.io/content/${uniqueIdx}`
 }
+
+
+import { ethers } from "ethers";
+
+interface WalletConnection {
+  // provider: ethers.BrowserProvider | null;
+  signer: ethers.Signer | null;
+}
+export async function getSigner(): Promise<WalletConnection> {
+  if (typeof window.ethereum !== "undefined") {
+    try {
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const account = await signer.getAddress();
+      return {signer}
+    } catch (error) {
+      console.error("Failed to connect wallet:", error);
+    }
+  } else {
+    console.log("Please install MetaMask!");
+  }
+  return {  signer: null};
+}

@@ -65,13 +65,13 @@ export async function loginHandler({
   address: string;
   signedMessage: string;
   layerId: string;
-  pubkey: string;
+  pubkey?: string;
 }) {
   console.log("🚀 ~ loginHandler ~ walletData:", address);
   return axiosClient
     .post(
       `/api/v1/users/login`,
-      JSON.stringify({ address, signedMessage, layerId }),
+      JSON.stringify({ address, signedMessage, layerId, pubkey }),
     )
     .then((response) => {
       return response.data;

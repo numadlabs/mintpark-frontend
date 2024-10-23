@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   generateMessageHandler,
   loginHandler,
@@ -9,6 +9,15 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useWalletStore } from "@/lib/store/walletStore";
 import moment from "moment";
+import { getLayerById } from "@/lib/service/queryHelper";
+
+// Add MetaMask types
+declare global {
+  interface Window {
+    unisat: any;
+    ethereum: any;
+  }
+}
 
 interface AuthProps {
   authState: {
@@ -18,6 +27,7 @@ interface AuthProps {
     userId: string | null;
     address: string | null;
     layerId: string | null;
+    walletType: "unisat" | "metamask" | null;
   };
   onLogin: () => Promise<void>;
   onLogout: () => void;
@@ -26,16 +36,17 @@ interface AuthProps {
   setSelectedLayerId: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
-declare global {
-  interface Window {
-    unisat: any;
-  }
-}
-
 interface AuthContextType extends AuthProps {
   isConnecting: boolean;
   walletAddress: string;
 }
+
+const CITREA_CHAIN_CONFIG = {
+  chainId: "0x13FB", // 5115 in hex
+  chainName: "Citrea Testnet",
+  rpcUrls: ["https://rpc.testnet.citrea.xyz"],
+  blockExplorerUrls: ["https://explorer.testnet.citrea.xyz"],
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -46,6 +57,7 @@ interface AuthProviderProps {
 type LoginParams = {
   address: string;
   message: string;
+  walletType: "unisat" | "metamask";
 };
 
 const generateFallbackMessage = (address: string) => {
@@ -58,6 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [walletAddress, setWalletAddress] = useState<string>("");
   const [loginParams, setLoginParams] = useState<LoginParams | null>(null);
+  console.log(loginParams)
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
   const { setConnectedAddress, setConnected } = useWalletStore();
 
@@ -68,15 +81,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     userId: null,
     address: null,
     layerId: null,
+    walletType: null,
+  });
+
+  const { data: currentLayer } = useQuery({
+    queryKey: ["currentLayerData", selectedLayerId],
+    queryFn: () => getLayerById(selectedLayerId as string),
+    enabled: !!selectedLayerId,
   });
 
   const generateMessageMutation = useMutation({
     mutationFn: generateMessageHandler,
     onError: (error) => {
       console.error("Generate message error:", error);
-      toast.error(
-        "Failed to generate message from server. Using fallback message.",
-      );
+      toast.error("Failed to generate message from server. Using fallback message.");
     },
   });
 
@@ -87,16 +105,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       toast.error("Failed to login");
     },
     onSuccess: (data) => {
-      console.log("Login response:", data);
       if (data.success) {
         saveToken(data.data.auth);
         const authData = {
           accessToken: data.data.auth.accessToken,
           userId: data.data.user.id,
+          walletType: loginParams?.walletType,
         };
         localStorage.setItem("authToken", JSON.stringify(authData));
-
-        // Store layerId separately
         localStorage.setItem("layerId", data.data.user.layerId);
 
         setAuthState((prev) => ({
@@ -106,70 +122,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           userId: data.data.user.id,
           address: data.data.user.address,
           layerId: data.data.user.layerId,
+          walletType: loginParams?.walletType || null,
         }));
         toast.success("Successfully logged in");
       }
     },
   });
-
-  useEffect(() => {
-    const connectWalletOnLoad = async () => {
-      try {
-        if (window.unisat) {
-          const accounts = await window.unisat.getAccounts();
-
-          const storedAuth = localStorage.getItem("authToken");
-          const userProfile = localStorage.getItem("userProfile");
-          const storedLayerId = localStorage.getItem("layerId");
-          const logoutTime = localStorage.getItem("logoutTime");
-          const now = moment();
-
-          if (logoutTime && now.isAfter(moment(logoutTime))) {
-            handleLogout();
-            return;
-          }
-
-          if (storedAuth && userProfile && storedLayerId) {
-            const authData = JSON.parse(storedAuth);
-            const profileData = JSON.parse(userProfile);
-
-            if (now.isAfter(moment(profileData.expiry))) {
-              handleLogout();
-              return;
-            }
-
-            setWalletAddress(profileData.address);
-            setAuthState((prev) => ({
-              ...prev,
-              token: authData.accessToken,
-              address: profileData.address,
-              authenticated: true,
-              loading: false,
-              userId: authData.userId,
-              layerId: storedLayerId,
-            }));
-            setSelectedLayerId(storedLayerId);
-
-            if (accounts.length > 0 && accounts[0] === profileData.address) {
-              setConnectedAddress(accounts[0]);
-              setConnected(true);
-            } else {
-              // If the connected account doesn't match the stored profile, clear the stored data
-              handleLogout();
-            }
-          } else {
-            setAuthState((prev) => ({ ...prev, loading: false }));
-          }
-        }
-      } catch (error) {
-        console.log(error);
-        setAuthState((prev) => ({ ...prev, loading: false }));
-      }
-    };
-
-    connectWalletOnLoad();
-  }, []);
-
 
   const handleLogout = () => {
     setConnectedAddress("");
@@ -182,6 +140,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       userId: null,
       address: null,
       layerId: null,
+      walletType: null,
     });
     localStorage.removeItem("userProfile");
     localStorage.removeItem("authToken");
@@ -191,45 +150,155 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     clearToken();
   };
 
-  useEffect(() => {
-    if (loginParams) {
-      handleLogin();
+  const setupMetaMaskListeners = () => {
+    if (window.ethereum) {
+      window.ethereum.on("accountsChanged", (accounts: string[]) => {
+        const storedProfile = localStorage.getItem("userProfile");
+        if (storedProfile) {
+          const profileData = JSON.parse(storedProfile);
+          if (accounts.length === 0 || accounts[0].toLowerCase() !== profileData.address.toLowerCase()) {
+            handleLogout();
+          }
+        }
+      });
+
+      window.ethereum.on("chainChanged", () => {
+        // Reload the page when the chain changes
+        window.location.reload();
+      });
     }
-  }, [loginParams]);
+  };
+
+  const setupUnisatListeners = () => {
+    if (window.unisat) {
+      window.unisat.on("accountsChanged", (accounts: string[]) => {
+        const storedProfile = localStorage.getItem("userProfile");
+        if (storedProfile) {
+          const profileData = JSON.parse(storedProfile);
+          if (accounts.length === 0 || accounts[0] !== profileData.address) {
+            handleLogout();
+          }
+        }
+      });
+    }
+  };
+
+  const connectMetaMask = async () => {
+    if (!window.ethereum) {
+      toast.error("MetaMask not found. Please install MetaMask.");
+      throw new Error("MetaMask not found");
+    }
+
+    try {
+      // Request account access
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+      
+      // Add Citrea network if not already added
+      try {
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [CITREA_CHAIN_CONFIG],
+        });
+      } catch (error) {
+        console.log("Chain may already be added or user rejected");
+      }
+
+      // Switch to Citrea network
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: CITREA_CHAIN_CONFIG.chainId }],
+        });
+      } catch (error) {
+        console.error("Failed to switch network:", error);
+        toast.error("Please switch to Citrea Testnet network");
+        throw error;
+      }
+
+      if (accounts && accounts.length > 0) {
+        const address = accounts[0];
+        let message: string;
+        
+        try {
+          const messageData = await generateMessageMutation.mutateAsync({ address });
+          message = messageData.data.message;
+        } catch (error) {
+          message = generateFallbackMessage(address);
+        }
+
+        return { address, message };
+      }
+    } catch (error) {
+      console.error("MetaMask connection error:", error);
+      toast.error("Failed to connect to MetaMask");
+      throw error;
+    }
+  };
+
+  const connectUnisat = async () => {
+    if (!window.unisat) {
+      toast.error("Unisat wallet not found. Please install Unisat.");
+      throw new Error("Unisat wallet not found");
+    }
+
+    try {
+      const accounts = await window.unisat.requestAccounts();
+      
+      if (accounts && accounts.length > 0) {
+        const address = accounts[0];
+        let message: string;
+        
+        try {
+          const messageData = await generateMessageMutation.mutateAsync({ address });
+          message = messageData.data.message;
+        } catch (error) {
+          message = generateFallbackMessage(address);
+        }
+
+        return { address, message };
+      }
+    } catch (error) {
+      console.error("Unisat connection error:", error);
+      toast.error("Failed to connect to Unisat");
+      throw error;
+    }
+  };
 
   const connect = async () => {
     try {
       setIsConnecting(true);
-      if (!window.unisat) {
-        throw new Error("Unisat wallet not found");
+
+      console.log('pizda',currentLayer)
+
+      if (!currentLayer) {
+        toast.error("Please select a layer first");
+        return;
       }
 
-      const accounts = await window.unisat.requestAccounts();
+      const layerType = currentLayer.layer;
+      let connectionResult;
+      let walletType: "unisat" | "metamask";
 
-      if (accounts && accounts.length > 0) {
-        const address = accounts[0];
-
-        let message: string;
-        try {
-          const messageData = await generateMessageMutation.mutateAsync({
-            address,
-          });
-          message = messageData.data.message;
-        } catch (error) {
-          console.error("Failed to generate message from server:", error);
-          message = generateFallbackMessage(address);
-        }
-
-        setLoginParams({
-          address: address,
-          message: message,
-        });
+      if (layerType === "FRACTAL") {
+        connectionResult = await connectUnisat();
+        walletType = "unisat";
+      } else if (layerType === "CITREA") {
+        connectionResult = await connectMetaMask();
+        walletType = "metamask";
       } else {
-        throw new Error("No accounts found");
+        throw new Error("Unsupported layer type");
+      }
+
+      if (connectionResult) {
+        setLoginParams({
+          address: connectionResult.address,
+          message: connectionResult.message,
+          walletType,
+        });
       }
     } catch (error) {
       console.error("Connection error:", error);
-      toast.error("Error when connecting wallet");
+      // toast.error(`Failed to connect wallet: ${error.message}`);
     } finally {
       setIsConnecting(false);
     }
@@ -241,25 +310,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return;
     }
 
-    const { address, message } = loginParams;
-    console.log(message);
+    const { address, message, walletType } = loginParams;
 
     try {
-      if (!window.unisat) {
-        throw new Error("Unisat wallet not found");
+      let signedMessage: string;
+      let pubkey: string | undefined;
+
+      if (walletType === "unisat") {
+        signedMessage = await window.unisat.signMessage(message);
+        pubkey = await window.unisat.getPublicKey();
+      } else {
+        signedMessage = await window.ethereum.request({
+          method: "personal_sign",
+          params: [message, address],
+        });
       }
 
-      const signedMessage = await window.unisat.signMessage(message);
-
-      const pubkey = await window.unisat.getPublicKey()
-      console.log(pubkey)
-
-      if (signedMessage) {
+      if (signedMessage){ 
         const loginResponse = await loginMutation.mutateAsync({
           address,
           signedMessage,
           layerId: selectedLayerId,
-          pubkey
+          pubkey,
+          // {...walletType},
         });
 
         if (loginResponse.success) {
@@ -268,28 +341,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             address,
             signature: signedMessage,
             expiry: moment().add(7, "days").format(),
-           };
+            walletType,
+          };
           setConnectedAddress(address);
           setConnected(true);
           localStorage.setItem("userProfile", JSON.stringify(item));
-
-          // Store layerId in localStorage
-          localStorage.setItem("layerId", selectedLayerId);
-
-          // Update authState with the selected layerId
-          setAuthState((prev) => ({
-            ...prev,
-            token: loginResponse.data.auth.accessToken,
-            authenticated: true,
-            userId: loginResponse.data.user.id,
-            address: loginResponse.data.user.address,
-            layerId: selectedLayerId,
-          }));
         } else {
           throw new Error("Login failed");
         }
-      } else {
-        throw new Error("Failed to sign message");
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -300,31 +359,80 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
+    setupMetaMaskListeners();
+    setupUnisatListeners();
+    
+    // Load stored auth state
+    const connectWalletOnLoad = async () => {
+      try {
+        const storedAuth = localStorage.getItem("authToken");
+        const userProfile = localStorage.getItem("userProfile");
+        const storedLayerId = localStorage.getItem("layerId");
+        
+        if (storedAuth && userProfile && storedLayerId) {
+          const authData = JSON.parse(storedAuth);
+          const profileData = JSON.parse(userProfile);
+          
+          if (moment().isAfter(moment(profileData.expiry))) {
+            handleLogout();
+            return;
+          }
+
+          // Verify correct wallet is connected
+          if (profileData.walletType === "unisat" && window.unisat) {
+            const accounts = await window.unisat.getAccounts();
+            if (!accounts.includes(profileData.address)) {
+              handleLogout();
+              return;
+            }
+          } else if (profileData.walletType === "metamask" && window.ethereum) {
+            const accounts = await window.ethereum.request({ method: "eth_accounts" });
+            if (!accounts.includes(profileData.address.toLowerCase())) {
+              handleLogout();
+              return;
+            }
+          }
+
+          setWalletAddress(profileData.address);
+          setAuthState({
+            token: authData.accessToken,
+            authenticated: true,
+            loading: false,
+            userId: authData.userId,
+            address: profileData.address,
+            layerId: storedLayerId,
+            walletType: profileData.walletType,
+          });
+          setSelectedLayerId(storedLayerId);
+          setConnectedAddress(profileData.address);
+          setConnected(true);
+        } else {
+          setAuthState(prev => ({ ...prev, loading: false }));
+        }
+      } catch (error) {
+        console.error("Error loading wallet:", error);
+        setAuthState(prev => ({ ...prev, loading: false }));
+      }
+    };
+
+    connectWalletOnLoad();
+  }, []);
+
+  useEffect(() => {
+    if (loginParams) {
+      handleLogin();
+    }
+  }, [loginParams]);
+
+  useEffect(() => {
     if (selectedLayerId) {
       localStorage.setItem("selectedLayerId", selectedLayerId);
-      // Update authState whenever selectedLayerId changes
-      setAuthState((prev) => ({
+      setAuthState(prev => ({
         ...prev,
         layerId: selectedLayerId,
       }));
     }
   }, [selectedLayerId]);
-
-  useEffect(() => {
-    try {
-      window.unisat.on("accountsChanged", (accounts: string[]) => {
-        const storedProfile = localStorage.getItem("userProfile");
-        if (storedProfile) {
-          const profileData = JSON.parse(storedProfile);
-          if (accounts.length === 0 || accounts[0] !== profileData.address) {
-            handleLogout();
-          }
-        }
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
 
   return (
     <AuthContext.Provider
