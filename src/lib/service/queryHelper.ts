@@ -176,9 +176,9 @@ export async function getListableById(id: string) {
     });
 }
 
-export async function checkOrderStatus(id: string) {
+export async function checkOrderStatus(id: string, txid?: string) {
   return axiosClient
-    .get(`/api/v1/orders/${id}/payment-status?txid=lsdjgijdsgdfjiogjoidj`)
+    .get(`/api/v1/orders/${id}/payment-status?txid=${txid}`)
     .then((response) => {
       if (response.data.success) {
         return response.data.data;

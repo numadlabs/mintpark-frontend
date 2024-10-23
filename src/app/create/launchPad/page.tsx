@@ -57,6 +57,7 @@ const CollectionDetail = () => {
   const [step, setStep] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [collectionId, setCollectionId] = useState<string>("");
+  const [hash, setHash] = useState<string>("");
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [payModal, setPayModal] = useState(false);
   const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
@@ -99,8 +100,6 @@ const CollectionDetail = () => {
     enabled: !!authState.layerId,
   });
 
-  console.log("first", currentLayer);
-
   const handleCreateCollection = async () => {
     try {
       const params: CollectionData = {
@@ -123,7 +122,7 @@ const CollectionDetail = () => {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
             await signedTx?.wait();
-            console.log(deployContractTxHex);
+            if(signedTx?.hash) setHash(signedTx?.hash)
           }
 
           setStep(1);
@@ -226,6 +225,7 @@ const CollectionDetail = () => {
       POStartsAtTime,
     );
     const POEndsAt = calculateSecondsUntilDate(POEndsAtDate, POEndsAtTime);
+    const txid = hash
     try {
       const params: LaunchCollectionData = {
         files: files,
@@ -234,6 +234,7 @@ const CollectionDetail = () => {
         POMintPrice: POMintPrice,
         POMaxMintPerWallet: POMaxMintPerWallet,
         isWhiteListed: false,
+        txid: txid
       };
       if (params && collectionId) {
         const response = await launchCollectionMutation({
@@ -659,6 +660,7 @@ const CollectionDetail = () => {
         files={files}
         navigateOrders={handleNavigateToOrder}
         navigateToCreate={handleNavigateToCreate}
+        hash={hash}
       />
       <SuccessModal
         open={successModal}

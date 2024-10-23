@@ -205,6 +205,7 @@ export type MintDataType = {
   files: File[];
   collectionId: string;
   feeRate: number;
+  txid?: string;
 }
 
 export type MintCollectibleDataType = {
@@ -223,6 +224,7 @@ export type LaunchCollectionData = {
   POMaxMintPerWallet: number;
   files: File[];
   isWhiteListed: boolean;
+  txid?: string;
 }
 
 
