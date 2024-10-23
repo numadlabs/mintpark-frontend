@@ -143,8 +143,10 @@ const SubmitPayModal: React.FC<ModalProps> = ({
         description: description,
         priceForLaunchpad: 0,
       };
-      if(collectionParams){
-        let collectionResponse = await createCollectionMutation({ data: collectionParams });
+      if (collectionParams) {
+        let collectionResponse = await createCollectionMutation({
+          data: collectionParams,
+        });
         if (collectionResponse && collectionResponse.success) {
           const { id } = collectionResponse.data.collection;
           const { deployContractTxHex } = collectionResponse.data;
@@ -155,48 +157,49 @@ const SubmitPayModal: React.FC<ModalProps> = ({
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
             await signedTx?.wait();
-            if(signedTx?.hash) setCollectionTxid(signedTx?.hash)
+            if (signedTx?.hash) setCollectionTxid(signedTx?.hash);
+            console.log(signedTx);
           }
-      }
-      const params: MintCollectibleDataType = {
-        orderType: "COLLECTIBLE",
-        files: files,
-        // description: description,
-        // name: name,
-        // creator: creator,
-        feeRate:
-          selectedTab === "Slow"
-            ? feeRates?.economyFee
-            : selectedTab === "Fast"
-              ? feeRates?.fastestFee
-              : feeRate,
-        txid: collectionTxid
-      };
-
-      const response = await createCollectiblesMutation({ data: params });
-      if (response && response.success) {
-        if(currentLayer.layer === 'CITREA'){
-          const {batchMintTxHex} = response;
-          const { signer } = await getSigner();
-          const signedTx = await signer?.sendTransaction(batchMintTxHex);
-          await signedTx?.wait();
-          if(signedTx?.hash) setHash(signedTx?.hash)
-        } else if (currentLayer.layer === 'FRACTAL'){
-          console.log(
-            response.data.order.fundingAddress,
-            response.data.order.fundingAmount,
-          );
-          await window.unisat.sendBitcoin(
-            response.data.order.fundingAddress,
-            response.data.order.fundingAmount,
-          );
         }
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setData( response.data.order.id );
-        onClose();
-        setInscribeModal(true);
+        const params: MintCollectibleDataType = {
+          orderType: "COLLECTIBLE",
+          files: files,
+          // description: description,
+          // name: name,
+          // creator: creator,
+          feeRate:
+            selectedTab === "Slow"
+              ? feeRates?.economyFee
+              : selectedTab === "Fast"
+                ? feeRates?.fastestFee
+                : feeRate,
+          txid: collectionTxid,
+        };
+
+        const response = await createCollectiblesMutation({ data: params });
+        if (response && response.success) {
+          if (currentLayer.layer === "CITREA") {
+            const { batchMintTxHex } = response;
+            const { signer } = await getSigner();
+            const signedTx = await signer?.sendTransaction(batchMintTxHex);
+            await signedTx?.wait();
+            if (signedTx?.hash) setHash(signedTx?.hash);
+          } else if (currentLayer.layer === "FRACTAL") {
+            console.log(
+              response.data.order.fundingAddress,
+              response.data.order.fundingAmount,
+            );
+            await window.unisat.sendBitcoin(
+              response.data.order.fundingAddress,
+              response.data.order.fundingAmount,
+            );
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          setData(response.data.order.id);
+          onClose();
+          setInscribeModal(true);
+        }
       }
-    }
     } catch (error) {
       console.error(error);
       toast.error("Failed to create order");
@@ -223,7 +226,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
     if (fileSizes.length > 0 && fileTypeSizes) {
       calculateFeeRate();
     }
-  }, [calculateFeeRate, feeRate, fileSizes, fileTypeSizes]); 
+  }, [calculateFeeRate, feeRate, fileSizes, fileTypeSizes]);
 
   return (
     <>

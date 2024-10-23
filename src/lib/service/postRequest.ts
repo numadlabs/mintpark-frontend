@@ -60,7 +60,7 @@ export async function loginHandler({
   address,
   signedMessage,
   layerId,
-  pubkey
+  pubkey,
 }: {
   address: string;
   signedMessage: string;
@@ -149,10 +149,11 @@ export async function createMintCollectible({
 
   // Append other data
   formData.append("orderType", data.orderType);
-  formData.append("feeRate", data.feeRate.toString());
-  formData.append("name", data.name);
-  formData.append("creator", data.creator);
-  formData.append("description", data.description);
+  formData.append("txid", data.txid || "");
+  formData.append("feeRate", data.feeRate?.toString() || "1");
+  // formData.append("name", data.name);
+  // formData.append("creator", data.creator);
+  // formData.append("description", data.description);
 
   console.log("FormData contents:");
   // Use Array.from() to convert the iterator to an array
@@ -602,7 +603,6 @@ export async function confirmPendingList({
     console.log("Error:", error);
   }
 }
-
 
 export async function generateBuyHex({
   id,
