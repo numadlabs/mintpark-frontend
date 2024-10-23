@@ -19,7 +19,7 @@ const Assets = () => {
   return (
     <Layout>
       <Header />
-      <ProfileBanner data={collectiblelist} />
+      <ProfileBanner params={collectiblelist} />
       <ProfileDetail />
     </Layout>
   );
