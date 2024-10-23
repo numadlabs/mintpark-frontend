@@ -320,16 +320,18 @@ export async function createOrderToMint({
   collectionId,
   feeRate,
   launchOfferType,
+  txid
 }: {
   collectionId: string;
   feeRate: number;
   launchOfferType: string;
+  txid?:string
 }) {
   try {
     return axiosClient
       .post(`/api/v1/launchpad/collections/${collectionId}/create-order`, {
         feeRate,
-        launchOfferType,
+        launchOfferType,txid
       })
       .then((response) => {
         return response.data;
@@ -655,6 +657,48 @@ export async function buyListedCollectible({
     return axiosClient
       .post(`/api/v1/lists/${id}/buy`, {
         hex,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function mintFeeOfCitrea({
+  ownerAddress,
+  collectionAddress,
+  mintFee,
+}: {
+  ownerAddress: string;
+  collectionAddress: string;
+  mintFee: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/change-mintfee-transaction`, {
+        ownerAddress,
+        collectionAddress,
+        mintFee,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function generateBuyHexCitrea({
+  id
+}: {
+  id: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/${id}/generate-citrea-buy`, {
+        id
       })
       .then((response) => {
         return response.data;

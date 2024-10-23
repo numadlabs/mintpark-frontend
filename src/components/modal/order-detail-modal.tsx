@@ -9,6 +9,8 @@ interface modalProps {
   status: string;
   orderId: string;
   quantity: number;
+  networkFee: number;
+  serviceFee: number
 }
 
 const OrderDetailModal: React.FC<modalProps> = ({
@@ -17,9 +19,9 @@ const OrderDetailModal: React.FC<modalProps> = ({
   status,
   quantity,
   orderId,
+  networkFee,
+  serviceFee,
 }) => {
-  const [networkFee, setNetworkFee] = useState(0.00023);
-  const [serviceFee, setServiceFee] = useState(0.00053);
   const totalFee = networkFee + serviceFee;
 
   const getInscribeStatus = (paymentStatus: string) => {
