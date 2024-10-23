@@ -137,20 +137,39 @@ export async function createMintCollectible({
 }: {
   data: MintCollectibleDataType;
 }) {
+  console.log("Creating mint collectible with data:", data);
   const formData = new FormData();
 
-  // Append files
+  // // Input validation
+  // if (!data.files || !Array.isArray(data.files) || data.files.length === 0) {
+  //   throw new Error("Files are required");
+  // }
+  // Append files with explicit type checking
   data.files.forEach((file, index) => {
-    formData.append(`files`, file);
-    console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
-    );
+    if (file instanceof File) {
+      formData.append(`files`, file);
+      console.log(
+        `Appending file ${index}: ${file.name}, size: ${file.size}, type: ${file.type}`,
+      );
+    } else {
+      console.error(`Invalid file at index ${index}:`, file);
+      throw new Error(`Invalid file object at index ${index}`);
+    }
   });
 
-  // Append other data
-  formData.append("orderType", data.orderType);
-  formData.append("txid", data.txid || "");
-  formData.append("feeRate", data.feeRate?.toString() || "1");
+  // Append other data with null checking and type conversion
+  formData.append("orderType", data.orderType || "COLLECTIBLE");
+  // Handle txid specifically
+  if (data.txid) {
+    console.log("Appending txid:", data.txid);
+    formData.append("txid", data.txid);
+  } else {
+    console.log("No txid provided");
+    formData.append("txid", ""); // Ensure empty string is sent if no txid
+  }
+  // Handle feeRate with type conversion
+  const feeRate = data.feeRate?.toString() || "1";
+  formData.append("feeRate", feeRate);
   // formData.append("name", data.name);
   // formData.append("creator", data.creator);
   // formData.append("description", data.description);
