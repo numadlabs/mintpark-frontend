@@ -260,7 +260,7 @@ export default function Header() {
                   variant={"secondary"}
                   size={"lg"}
                   onClick={handleConnect}
-                  className="w-[170px]"
+                  className="min-w-[170px]"
                 >
                   Connect Wallet
                 </Button>
