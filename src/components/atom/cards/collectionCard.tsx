@@ -38,7 +38,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
             <p className="pt-2 font-bold text-md text-neutral-50">
               {data.floor === 0
                 ? data.floor
-                : (data.floor / 10 ** 8).toFixed(5)}
+                : (data.floor / 10 ** 8).toFixed(4)}
               <span className="ml-1">BTC</span>
             </p>
           </div>
@@ -46,7 +46,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
             {" "}
             <p className="text-sm font-medium text-neutral200 gap-2">Volume</p>
             <p className="pt-2 font-bold text-md text-neutral-50">
-              {data.volume}
+              {(data.volume / 10 ** 8).toFixed(4)}
               <span className="ml-1">BTC</span>
             </p>
           </div>
