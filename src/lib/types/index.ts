@@ -211,10 +211,11 @@ export type MintDataType = {
 export type MintCollectibleDataType = {
   orderType: string;
   files: File[];
-  feeRate: number;
-  name: string;
-  creator: string;
-  description: string;
+  feeRate?: number | undefined;
+  name?: string;
+  creator?: string;
+  description?: string;
+  txid?: string;
 }
 
 export type LaunchCollectionData = {
