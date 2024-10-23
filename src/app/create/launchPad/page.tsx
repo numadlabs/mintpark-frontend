@@ -16,7 +16,7 @@ import { ImageFile, CollectionData, LaunchCollectionData } from "@/lib/types";
 import TextArea from "@/components/ui/textArea";
 import { createCollection, launchCollection } from "@/lib/service/postRequest";
 import useCreateFormState from "@/lib/store/createFormStore";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import CollectionUploadFile from "@/components/section/collectionUploadFile";
 import Toggle from "@/components/ui/toggle";
 import { Calendar2, Clock, Bitcoin } from "iconsax-react";
@@ -24,6 +24,10 @@ import OrderPayModal from "@/components/modal/order-pay-modal";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
+import { getLayerById } from "@/lib/service/queryHelper";
+import {ethers} from 'ethers';
+import { getSigner } from "@/lib/utils";
+
 
 const CollectionDetail = () => {
   const router = useRouter();
@@ -90,6 +94,14 @@ const CollectionDetail = () => {
     });
   };
 
+  const { data: currentLayer } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
+  });
+
+  console.log("first", currentLayer)
+
   const handleCreateCollection = async () => {
     try {
       const params: CollectionData = {
@@ -97,13 +109,23 @@ const CollectionDetail = () => {
         name: name,
         creator: creator,
         description: description,
+        priceForLaunchpad: 0.001
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
         if (response && response.success) {
           const { id } = response.data.collection;
+          const {deployContractTxHex} = response
           setCollectionId(id);
           console.log("create collection success", response);
+
+          if(currentLayer.layer === 'CITREA'){
+            const {signer} = await getSigner()
+            const signedTx = await signer?.sendTransaction(deployContractTxHex)
+            await signedTx?.wait()
+            console.log(deployContractTxHex)
+          }
+
           setStep(1);
         }
       }
