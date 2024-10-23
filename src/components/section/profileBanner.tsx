@@ -3,13 +3,12 @@ import Image from "next/image";
 import { CollectibleList } from "@/lib/types";
 
 interface cardProps {
-  params:{
+  params: {
     data: CollectibleList;
   }
 }
 
 const ProfileBanner: React.FC<cardProps> = ({ params }) => {
-  // console.log('params',data)
   const [walletAddress, setWalletAddress] = useState<string>("Connect Wallet");
   const [balance, setBalance] = useState<{ btc: number; usd: number }>({
     btc: 0,
@@ -18,41 +17,51 @@ const ProfileBanner: React.FC<cardProps> = ({ params }) => {
   const [rawAddress, setRawAddress] = useState<string>("");
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
 
+  const formatBalance = (value: number): string => {
+    if (typeof value !== 'number' || isNaN(value)) return "0.00";
+    return value.toFixed(4); 
+  };
+
+  const formatUSD = (value: number): string => {
+    if (typeof value !== 'number' || isNaN(value)) return "0.00";
+    return value.toFixed(2); 
+  };
+
   const getBalance = async () => {
     try {
       let res = await window.unisat.getBalance();
-      console.log(res);
+      
 
-      const btcAmount = res / 10 ** 8;
+      if (typeof res !== 'number' || isNaN(res)) {
+        throw new Error('Invalid balance received');
+      }
+
+
+      const btcAmount = (Number(res) / 10 ** 8);
       const usdAmount = btcAmount * 65000;
+
+      if (isNaN(btcAmount) || isNaN(usdAmount)) {
+        throw new Error('Error calculating balance');
+      }
+
       setBalance({ btc: btcAmount, usd: usdAmount });
     } catch (e) {
-      console.log(e);
+      console.error('Balance fetch error:', e);
       setBalance({ btc: 0, usd: 0 });
     }
   };
 
-  // const displayBalance = (value: number) => {
-  //   return isNaN(value) ? "0.00" : value.toFixed(2);
-  // };
-
-  // const displayUsd = (value: number) => {
-  //   return isNaN(value) ? "0.00" : value.toFixed(2);
-  // };
-  
   const connectWallet = async () => {
     try {
       let res = await window.unisat.getAccounts();
       if (res && res[0]) {
-        setRawAddress(res[0]); // Store the full address
+        setRawAddress(res[0]);
         const formatted = `${res[0].slice(0, 4)}...${res[0].slice(-4)}`;
         setWalletAddress(formatted);
-        // Get balance after successful wallet connection
         await getBalance();
       }
-      console.log(res);
     } catch (e) {
-      console.log(e);
+      console.error('Wallet connection error:', e);
       setWalletAddress("Connect Wallet");
       setRawAddress("");
     }
@@ -63,7 +72,6 @@ const ProfileBanner: React.FC<cardProps> = ({ params }) => {
       try {
         await navigator.clipboard.writeText(rawAddress);
         setCopySuccess(true);
-        // Reset copy success message after 2 seconds
         setTimeout(() => {
           setCopySuccess(false);
         }, 2000);
@@ -141,14 +149,10 @@ const ProfileBanner: React.FC<cardProps> = ({ params }) => {
                       className="h-6 w-6"
                     />
                     <p className="flex items-center font-bold text-xl text-white">
-                      {/* {displayBalance(balance.btc)}BTC */}
-                      {balance.btc}BTC
-
+                      {formatBalance(balance.btc)} BTC
                     </p>
                     <p className="border-l border-l-white16 pl-4 h-5 text-neutral100 text-md flex items-center">
-                      {/* ${displayUsd(balance.usd)} */}
-                      ${balance.usd}
-
+                      ${formatUSD(balance.usd)}
                     </p>
                   </h2>
                 </div>
