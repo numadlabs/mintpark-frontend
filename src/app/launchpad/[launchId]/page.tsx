@@ -303,6 +303,7 @@ const Page = () => {
                     isActive={activePhase === "public"}
                     onClick={() => handlePhaseClick("public")}
                   />
+                  {collectibles.isWhiteListed &&
                   <WhiteListPhaseCard
                     key={collectibles.id}
                     maxMintPerWallet={collectibles.wlMaxMintPerWallet}
@@ -311,7 +312,7 @@ const Page = () => {
                     startsAt={collectibles.wlStartsAt}
                     isActive={activePhase === "guaranteed"}
                     onClick={() => handlePhaseClick("guaranteed")}
-                  />
+                  />}
                 </div>
               </ScrollArea>
               {status === "Ended" ? (
