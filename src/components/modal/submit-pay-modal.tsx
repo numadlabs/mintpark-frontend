@@ -13,9 +13,11 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   feeAmount,
   createMintCollectible,
+  createCollection,
 } from "@/lib/service/postRequest";
 import { useAuth } from "../provider/auth-context-provider";
 import {
+  CollectionData,
   FeeRateAmount,
   InscribeOrderData,
   MintCollectibleDataType,
@@ -23,8 +25,9 @@ import {
 } from "@/lib/types";
 import { toast } from "sonner";
 import InscribeOrderModal from "./insribe-order-modal";
-import { getFeeRates } from "@/lib/service/queryHelper";
+import { getFeeRates, getLayerById } from "@/lib/service/queryHelper";
 import { useRouter } from "next/navigation";
+import { getSigner } from "@/lib/utils";
 
 interface ModalProps {
   open: boolean;
@@ -62,6 +65,9 @@ const SubmitPayModal: React.FC<ModalProps> = ({
   const [feeRate, setFeeRate] = useState<number>(1);
   const [data, setData] = useState<string>("");
   const [inscribeModal, setInscribeModal] = useState(false);
+  const [hash, setHash] = useState<string>("");
+  const [collectionTxid, setCollectionTxid] = useState<string>("");
+  const [collectionId, setCollectionId] = useState<string>("");
   const [selectedTab, setSelectedTab] = useState<"Slow" | "Fast" | "Custom">(
     "Custom",
   );
@@ -69,6 +75,10 @@ const SubmitPayModal: React.FC<ModalProps> = ({
     networkFee: 0,
     serviceFee: 0,
     totalFee: 0,
+  });
+
+  const { mutateAsync: createCollectionMutation } = useMutation({
+    mutationFn: createCollection,
   });
 
   const { mutateAsync: feeAmountMutation } = useMutation({
@@ -83,6 +93,12 @@ const SubmitPayModal: React.FC<ModalProps> = ({
     queryKey: ["feeRateData"],
     queryFn: () => getFeeRates(authState?.layerId as string),
     enabled: !!authState?.layerId,
+  });
+
+  const { data: currentLayer } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
   });
 
   const handleFeeRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -120,35 +136,67 @@ const SubmitPayModal: React.FC<ModalProps> = ({
 
   const handlePay = async () => {
     try {
+      const collectionParams: CollectionData = {
+        logo: files[0],
+        name: name,
+        creator: creator,
+        description: description,
+        priceForLaunchpad: 0,
+      };
+      if(collectionParams){
+        let collectionResponse = await createCollectionMutation({ data: collectionParams });
+        if (collectionResponse && collectionResponse.success) {
+          const { id } = collectionResponse.data.collection;
+          const { deployContractTxHex } = collectionResponse.data;
+          setCollectionId(id);
+          console.log("create collection success", collectionResponse);
+
+          if (currentLayer.layer === "CITREA") {
+            const { signer } = await getSigner();
+            const signedTx = await signer?.sendTransaction(deployContractTxHex);
+            await signedTx?.wait();
+            if(signedTx?.hash) setCollectionTxid(signedTx?.hash)
+          }
+      }
       const params: MintCollectibleDataType = {
         orderType: "COLLECTIBLE",
         files: files,
-        description: description,
-        name: name,
-        creator: creator,
+        // description: description,
+        // name: name,
+        // creator: creator,
         feeRate:
           selectedTab === "Slow"
             ? feeRates?.economyFee
             : selectedTab === "Fast"
               ? feeRates?.fastestFee
               : feeRate,
+        txid: collectionTxid
       };
 
       const response = await createCollectiblesMutation({ data: params });
       if (response && response.success) {
-        console.log(
-          response.data.order.fundingAddress,
-          response.data.order.fundingAmount,
-        );
-        await window.unisat.sendBitcoin(
-          response.data.order.fundingAddress,
-          response.data.order.fundingAmount,
-        );
+        if(currentLayer.layer === 'CITREA'){
+          const {batchMintTxHex} = response;
+          const { signer } = await getSigner();
+          const signedTx = await signer?.sendTransaction(batchMintTxHex);
+          await signedTx?.wait();
+          if(signedTx?.hash) setHash(signedTx?.hash)
+        } else if (currentLayer.layer === 'FRACTAL'){
+          console.log(
+            response.data.order.fundingAddress,
+            response.data.order.fundingAmount,
+          );
+          await window.unisat.sendBitcoin(
+            response.data.order.fundingAddress,
+            response.data.order.fundingAmount,
+          );
+        }
         await new Promise((resolve) => setTimeout(resolve, 1000));
         setData( response.data.order.id );
         onClose();
         setInscribeModal(true);
       }
+    }
     } catch (error) {
       console.error(error);
       toast.error("Failed to create order");
@@ -306,6 +354,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
           id={data}
           navigateOrders={navigateOrders}
           navigateToCreate={navigateToCreate}
+          txid={hash}
         />
       )}
     </>
