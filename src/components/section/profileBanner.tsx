@@ -3,10 +3,13 @@ import Image from "next/image";
 import { CollectibleList } from "@/lib/types";
 
 interface cardProps {
-  data: CollectibleList;
+  params:{
+    data: CollectibleList;
+  }
 }
 
-const ProfileBanner: React.FC<cardProps> = ({ data }) => {
+const ProfileBanner: React.FC<cardProps> = ({ params }) => {
+  // console.log('params',data)
   const [walletAddress, setWalletAddress] = useState<string>("Connect Wallet");
   const [balance, setBalance] = useState<{ btc: number; usd: number }>({
     btc: 0,
@@ -150,13 +153,13 @@ const ProfileBanner: React.FC<cardProps> = ({ data }) => {
                     <p className="text-neutral100 text-md font-medium">
                       Total items:
                     </p>
-                    {data.totalCount}
+                    {params.data?.totalCount}
                   </span>
                   <span className="pt-3 pr-4 pb-3 pl-4 flex gap-3 rounded-xl text-neutral50 bg-white4 items-center">
                     <p className="text-neutral100 text-md font-medium">
                       Listed items:
                     </p>
-                    {data?.listCount}
+                    {params.data?.listCount}
                   </span>
                 </div>
               </div>
