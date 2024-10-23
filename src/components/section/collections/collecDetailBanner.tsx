@@ -161,7 +161,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                     <div className="flex mt-2">
                       <Profile2User color="#d3f85a" />
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>1258</span>
+                        <span>0</span>
                       </p>
                     </div>
                   </div>
