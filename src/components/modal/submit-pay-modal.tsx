@@ -144,6 +144,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
         priceForLaunchpad: 0,
       };
       if (collectionParams) {
+        let collectionTxid;
         let collectionResponse = await createCollectionMutation({
           data: collectionParams,
         });
@@ -157,7 +158,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
             await signedTx?.wait();
-            if (signedTx?.hash) setCollectionTxid(signedTx?.hash);
+            if (signedTx?.hash) collectionTxid = signedTx?.hash;
             console.log(signedTx);
           }
         }
@@ -177,9 +178,10 @@ const SubmitPayModal: React.FC<ModalProps> = ({
         };
 
         const response = await createCollectiblesMutation({ data: params });
+        console.log("🚀 ~ handlePay ~ response:", response);
         if (response && response.success) {
           if (currentLayer.layer === "CITREA") {
-            const { batchMintTxHex } = response;
+            const { batchMintTxHex } = response.data;
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(batchMintTxHex);
             await signedTx?.wait();
