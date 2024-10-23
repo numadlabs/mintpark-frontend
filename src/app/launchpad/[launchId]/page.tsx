@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CollectionType } from "@/lib/types";
 import { confirmOrder, generateHex } from "@/lib/service/postRequest";
-import { s3ImageUrlBuilder } from "@/lib/utils";
+import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import {
   getFeeRates,
   getLaunchByCollectionId,
+  getLayerById,
 } from "@/lib/service/queryHelper";
 import PhaseCard from "@/components/atom/cards/phaseCard";
 import { useParams, useRouter } from "next/navigation";
@@ -28,6 +29,7 @@ const Page = () => {
   const { authState } = useAuth();
   const params = useParams();
   const id = params.launchId as string;
+  const [hash, setHash] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [activePhase, setActivePhase] = useState(null);
 
@@ -51,6 +53,12 @@ const Page = () => {
     enabled: !!authState?.layerId,
   });
 
+  const { data: currentLayer } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
+  });
+
   console.log("first", feeRates.fastestFee);
   const launchOfferType =
     activePhase === "public"
@@ -68,14 +76,26 @@ const Page = () => {
       });
       if (response && response.success) {
         const orderId = response.data.order.id;
-        const txid = await window.unisat.sendBitcoin(
-          response.data.order.fundingAddress,
-          response.data.order.fundingAmount,
-        );
-        if (txid && orderId) {
+        const { singleMintTxHex } = response.data;
+
+        if (currentLayer.layer === "CITREA") {
+          const { signer } = await getSigner();
+          console.log(singleMintTxHex)
+          const signedTx = await signer?.sendTransaction(singleMintTxHex);
+          await signedTx?.wait();
+          if (signedTx?.hash) setHash(signedTx?.hash);
+          console.log(signedTx?.hash)
+        } else if (currentLayer.layer === "FRACTAL") {
+          await window.unisat.sendBitcoin(
+            response.data.order.fundingAddress,
+            response.data.order.fundingAmount,
+          );
+        }
+        if (orderId) {
+          const txid = hash;
           router.push("/launchpad");
-          await new Promise((resolve) => setTimeout(resolve, 10000));
-          await confirmOrderMutation({ orderId: orderId });
+          await new Promise((resolve) => setTimeout(resolve, 5000));
+          await confirmOrderMutation({ orderId: orderId, txid: txid });
         }
       }
     } catch (error) {
@@ -303,16 +323,17 @@ const Page = () => {
                     isActive={activePhase === "public"}
                     onClick={() => handlePhaseClick("public")}
                   />
-                  {collectibles.isWhiteListed &&
-                  <WhiteListPhaseCard
-                    key={collectibles.id}
-                    maxMintPerWallet={collectibles.wlMaxMintPerWallet}
-                    mintPrice={collectibles.wlMintPrice}
-                    endsAt={collectibles.wlEndsAt}
-                    startsAt={collectibles.wlStartsAt}
-                    isActive={activePhase === "guaranteed"}
-                    onClick={() => handlePhaseClick("guaranteed")}
-                  />}
+                  {collectibles.isWhiteListed && (
+                    <WhiteListPhaseCard
+                      key={collectibles.id}
+                      maxMintPerWallet={collectibles.wlMaxMintPerWallet}
+                      mintPrice={collectibles.wlMintPrice}
+                      endsAt={collectibles.wlEndsAt}
+                      startsAt={collectibles.wlStartsAt}
+                      isActive={activePhase === "guaranteed"}
+                      onClick={() => handlePhaseClick("guaranteed")}
+                    />
+                  )}
                 </div>
               </ScrollArea>
               {status === "Ended" ? (

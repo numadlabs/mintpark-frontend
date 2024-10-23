@@ -211,8 +211,10 @@ const CollectionDetail = () => {
     // Get the current date and time
     const now = moment();
 
+    console.log(now)
+
     // Calculate the difference in seconds
-    const secondsUntil = targetDateTime.diff(now, "seconds");
+    const secondsUntil = targetDateTime.diff(now, 'milliseconds');
 
     return secondsUntil > 0 ? secondsUntil : 0; // Ensure we don't return negative values
   };
@@ -220,6 +222,7 @@ const CollectionDetail = () => {
   console.log("first", collectionId);
 
   const handleCreateLaunch = async () => {
+    console.log("handleCreateLaunch", POEndsAtDate, POEndsAtTime)
     const POStartsAt = calculateSecondsUntilDate(
       POStartsAtDate,
       POStartsAtTime,
