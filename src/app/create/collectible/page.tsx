@@ -119,7 +119,6 @@ const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
   };
   const handleNextStep = () => {
     setStep(1);
-    reset();
 
   };
 
