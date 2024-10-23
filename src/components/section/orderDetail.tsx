@@ -13,6 +13,8 @@ interface Order {
   quantity: number;
   orderStatus: string;
   createdAt: string;
+  networkFee: number;
+  serviceFee: number;
 }
 
 const OrderDetail = () => {
@@ -24,7 +26,7 @@ const OrderDetail = () => {
   const id = authState?.userId;
 
   const { data: ordersData = [] } = useQuery({
-    queryKey: ["orderDataD"],
+    queryKey: ["orderDataType"],
     queryFn: () => getAllOrders(id as string),
     enabled: !!id,
   });
@@ -165,6 +167,8 @@ const OrderDetail = () => {
           orderId={selectedOrder.id}
           status={selectedOrder.orderStatus}
           quantity={selectedOrder.quantity}
+          networkFee={selectedOrder.networkFee}
+          serviceFee={selectedOrder.serviceFee}
         />
       )}
     </div>

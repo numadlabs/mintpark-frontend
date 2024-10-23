@@ -67,13 +67,8 @@ export default function Header() {
   useEffect(() => {
     if (currentLayer) {
       setDefaultLayer(`${currentLayer.layer}-${currentLayer.network}`);
-    } else if (layers.length > 0 && !defaultLayer) {
-      // Set a default layer if none is selected
-      const firstLayer = layers[0];
-      setDefaultLayer(`${firstLayer.layer}-${firstLayer.network}`);
-      setSelectedLayerId(firstLayer.id);
     }
-  }, [currentLayer, layers, defaultLayer, setSelectedLayerId]);
+  }, [currentLayer]);
 
   const routesData = [
     { title: "Create", pageUrl: "/create" },
@@ -110,15 +105,13 @@ export default function Header() {
   const handleLayerSelect = (value: string) => {
     const [layer, network] = value.split("-");
     const selectedLayer = layers.find(
-      (l: LayerType) => l.layer === layer && l.network === network,
+      (l: LayerType) => l.layer === layer && l.network === network
     );
+    
     if (selectedLayer) {
       if (authState.authenticated) {
-        // If user is authenticated, log them out before changing the layer
         onLogout();
-        toast.info(
-          "Logged out due to layer change. Please reconnect your wallet.",
-        );
+        toast.info("Logged out due to layer change. Please reconnect your wallet.");
       }
       setSelectedLayerId(selectedLayer.id);
       setDefaultLayer(value);

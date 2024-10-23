@@ -6,7 +6,11 @@ import { Carousel } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CollectionType } from "@/lib/types";
-import { confirmOrder, generateHex } from "@/lib/service/postRequest";
+import {
+  confirmOrder,
+  mintFeeOfCitrea,
+  generateBuyHexCitrea,
+} from "@/lib/service/postRequest";
 import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Image from "next/image";
@@ -41,6 +45,14 @@ const Page = () => {
     mutationFn: confirmOrder,
   });
 
+  const { mutateAsync: mintFeeOfCitreaMutation } = useMutation({
+    mutationFn: mintFeeOfCitrea,
+  });
+
+  const { mutateAsync: generateBuyHexCitreaMutation } = useMutation({
+    mutationFn: generateBuyHexCitrea,
+  });
+
   const { data: collectibles = [] } = useQuery({
     queryKey: ["collectiblesByCollections", id],
     queryFn: () => getLaunchByCollectionId(id as string),
@@ -70,26 +82,51 @@ const Page = () => {
   const handleConfirm = async () => {
     try {
       let txid
-      const response = await createOrderToMintMutation({
+      if (!authState.address) return toast.error("address not found");
+      if (currentLayer.layer === "CITREA") {
+        const mintFeeRes = await mintFeeOfCitrea({
+          ownerAddress: authState?.address,
+          collectionAddress: "",
+          mintFee: "0.001",
+        });
+
+        if (!mintFeeRes.success) {
+          return toast.error(mintFeeRes.message || "Mint fee failed to send");
+        }
+        const { signer } = await getSigner();
+        const signedTx = await signer?.sendTransaction(
+          mintFeeRes.data.singleMintTxHex,
+        );
+        await signedTx?.wait();
+        if (signedTx?.hash) txid=signedTx?.hash;
+      }
+
+      const createOrderRes = await createOrderToMintMutation({
         collectionId: id,
         feeRate: feeRates.fastestFee,
         launchOfferType: launchOfferType,
+       txid
+
       });
-      if (response && response.success) {
-        const orderId = response.data.order.id;
-        const { singleMintTxHex } = response.data;
+      if (!createOrderRes ||!createOrderRes.success) {
+        return toast.error(createOrderRes.data.message || "Mint fee failed to send");
+      }
+
+        const orderId = createOrderRes.data.order.id;
+        const { singleMintTxHex } = createOrderRes.data;
 
         if (currentLayer.layer === "CITREA") {
           const { signer } = await getSigner();
-          console.log(singleMintTxHex)
+  
+          console.log(singleMintTxHex);
           const signedTx = await signer?.sendTransaction(singleMintTxHex);
           await signedTx?.wait();
-          if (signedTx?.hash) txid =signedTx?.hash;
-          console.log(signedTx?.hash)
+          if (signedTx?.hash) txid=signedTx?.hash;
+
         } else if (currentLayer.layer === "FRACTAL") {
           await window.unisat.sendBitcoin(
-            response.data.order.fundingAddress,
-            response.data.order.fundingAmount,
+            createOrderRes.data.order.fundingAddress,
+            createOrderRes.data.order.fundingAmount,
           );
         }
         if (orderId) {
@@ -97,7 +134,6 @@ const Page = () => {
           await new Promise((resolve) => setTimeout(resolve, 5000));
           await confirmOrderMutation({ orderId: orderId, txid: txid });
         }
-      }
     } catch (error) {
       console.error(error);
       toast.error("Failed to create order");
@@ -162,8 +198,6 @@ const Page = () => {
   const navigateCollection = () => {
     router.push(`/collections`);
   };
-
-  console.log("first", collectibles)
 
   return (
     <>
@@ -309,7 +343,7 @@ const Page = () => {
                     {" "}
                     /{/* <span className="h-2"></span> */}
                   </span>{" "}
-                  {collectibles?.supply}
+                  {collectibles?.poMaxMintPerWallet}
                 </h2>
               </div>
             </div>
