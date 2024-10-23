@@ -536,7 +536,7 @@ const CollectionDetail = () => {
                   </div>
                   <div className="flex flex-col gap-3">
                     <p className="text-lg text-neutral50 font-medium">
-                      Max mint per wallet dsd
+                      Max mint per wallet
                     </p>
                     <Input
                       placeholder="0"
