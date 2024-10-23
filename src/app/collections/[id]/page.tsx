@@ -158,7 +158,7 @@ const CollectionDetailPage = () => {
                         {/* <span>{(collectionData?.floor / 10 ** 8).toFixed(5)}</span> BTC */}
                         <span>
                           {collectionData?.floor
-                            ? (collectionData.floor / 10 ** 8).toFixed(5)
+                            ? (collectionData.floor / 10 ** 8).toFixed(4)
                             : "0.00000"}
                         </span>{" "}
                         BTC
@@ -167,8 +167,8 @@ const CollectionDetailPage = () => {
                   </div>
                   <div className="border-l border-l-neutral300 pl-7">
                     <h2 className="font-medium text-lg2 text-neutral100">
-                      Total volume
-                    </h2>
+                      Total volume  
+                     </h2>
                     <div className="flex mt-2">
                       <Image
                         width={24}
@@ -178,7 +178,8 @@ const CollectionDetailPage = () => {
                         className="aspect-square"
                       />
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>{collectionData?.volume}</span> BTC
+                        <span>{collectionData?.volume   ? (collectionData.volume/ 10 ** 8).toFixed(4)
+                            : "0.00000"}</span> BTC
                       </p>
                     </div>
                   </div>
