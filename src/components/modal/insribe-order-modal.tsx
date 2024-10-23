@@ -16,6 +16,7 @@ interface modalProps {
   id: string;
   navigateOrders: () => void;
   navigateToCreate: () => void;
+  txid: string | undefined;
 }
 
 const InscribeOrderModal: React.FC<modalProps> = ({
@@ -24,6 +25,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
   id,
   navigateOrders,
   navigateToCreate,
+  txid
 }) => {
   const { data: orders = [] } = useQuery({
     queryKey: ["orderData"],
@@ -33,7 +35,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
   });
   const { data: status = [] } = useQuery({
     queryKey: ["statusData"],
-    queryFn: () => checkOrderStatus(id),
+    queryFn: () => checkOrderStatus(id, txid),
     enabled: !!id,
     refetchInterval: 5000,
   });

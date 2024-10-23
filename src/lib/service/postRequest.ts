@@ -201,6 +201,7 @@ export async function createCollectiblesToCollection({
   formData.append("orderType", data.orderType);
   formData.append("collectionId", data.collectionId);
   formData.append("feeRate", data.feeRate.toString());
+  formData.append("txid", data.txid || "");
 
   console.log("FormData contents:");
   // Use Array.from() to convert the iterator to an array
@@ -253,6 +254,7 @@ export async function launchCollection({
   formData.append("POMintPrice", data.POMintPrice.toString());
   formData.append("POMaxMintPerWallet", data.POMaxMintPerWallet.toString());
   formData.append("isWhiteListed", data.isWhiteListed.toString());
+  formData.append("txid", data.txid || "");
 
   console.log("FormData contents:");
   // Use Array.from() to convert the iterator to an array
