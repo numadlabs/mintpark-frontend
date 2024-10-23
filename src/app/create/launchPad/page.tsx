@@ -25,9 +25,8 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
 import { getLayerById } from "@/lib/service/queryHelper";
-import {ethers} from 'ethers';
+import { ethers } from "ethers";
 import { getSigner } from "@/lib/utils";
-
 
 const CollectionDetail = () => {
   const router = useRouter();
@@ -100,7 +99,7 @@ const CollectionDetail = () => {
     enabled: !!authState.layerId,
   });
 
-  console.log("first", currentLayer)
+  console.log("first", currentLayer);
 
   const handleCreateCollection = async () => {
     try {
@@ -109,21 +108,22 @@ const CollectionDetail = () => {
         name: name,
         creator: creator,
         description: description,
-        priceForLaunchpad: 0.001
+        priceForLaunchpad: 0.001,
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
+        console.log("🚀 ~ handleCreateCollection ~ response:", response);
         if (response && response.success) {
           const { id } = response.data.collection;
-          const {deployContractTxHex} = response
+          const { deployContractTxHex } = response.data;
           setCollectionId(id);
           console.log("create collection success", response);
 
-          if(currentLayer.layer === 'CITREA'){
-            const {signer} = await getSigner()
-            const signedTx = await signer?.sendTransaction(deployContractTxHex)
-            await signedTx?.wait()
-            console.log(deployContractTxHex)
+          if (currentLayer.layer === "CITREA") {
+            const { signer } = await getSigner();
+            const signedTx = await signer?.sendTransaction(deployContractTxHex);
+            await signedTx?.wait();
+            console.log(deployContractTxHex);
           }
 
           setStep(1);
@@ -171,7 +171,6 @@ const CollectionDetail = () => {
   const handleNextStep = () => {
     setStep(3);
     reset();
-
   };
 
   const handleBack = () => {
@@ -219,7 +218,7 @@ const CollectionDetail = () => {
     return secondsUntil > 0 ? secondsUntil : 0; // Ensure we don't return negative values
   };
 
-  console.log("first", collectionId)
+  console.log("first", collectionId);
 
   const handleCreateLaunch = async () => {
     const POStartsAt = calculateSecondsUntilDate(
@@ -254,12 +253,12 @@ const CollectionDetail = () => {
   const handleNavigateToOrder = () => {
     router.push(`/orders`);
     reset();
-  }
+  };
 
   const handleNavigateToCreate = () => {
     router.push(`/create`);
     reset();
-  }
+  };
 
   return (
     <Layout>
