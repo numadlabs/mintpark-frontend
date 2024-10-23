@@ -32,13 +32,13 @@ const ProfileBanner: React.FC<cardProps> = ({ params }) => {
     }
   };
 
-  const displayBalance = (value: number) => {
-    return isNaN(value) ? "0.00" : value.toFixed(2);
-  };
+  // const displayBalance = (value: number) => {
+  //   return isNaN(value) ? "0.00" : value.toFixed(2);
+  // };
 
-  const displayUsd = (value: number) => {
-    return isNaN(value) ? "0.00" : value.toFixed(2);
-  };
+  // const displayUsd = (value: number) => {
+  //   return isNaN(value) ? "0.00" : value.toFixed(2);
+  // };
   
   const connectWallet = async () => {
     try {
@@ -141,10 +141,14 @@ const ProfileBanner: React.FC<cardProps> = ({ params }) => {
                       className="h-6 w-6"
                     />
                     <p className="flex items-center font-bold text-xl text-white">
-                      {displayBalance(balance.btc)}BTC
+                      {/* {displayBalance(balance.btc)}BTC */}
+                      {balance.btc}BTC
+
                     </p>
                     <p className="border-l border-l-white16 pl-4 h-5 text-neutral100 text-md flex items-center">
-                      ${displayUsd(balance.usd)}
+                      {/* ${displayUsd(balance.usd)} */}
+                      ${balance.usd}
+
                     </p>
                   </h2>
                 </div>

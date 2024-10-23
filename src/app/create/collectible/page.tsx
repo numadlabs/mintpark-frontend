@@ -323,7 +323,7 @@ const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
                   </div>
 
                   {imageFiles.length !== 0 ? (
-                    <div className="flex flex-row w-full h-full gap-8 overflow-x-auto">
+                    <div className="flex flex-row w-full h-full gap-8 overflow-x-auto pt-3 relative">
                       {imageFiles.map((item, index) => (
                         <UploadCardFit
                           key={index}
