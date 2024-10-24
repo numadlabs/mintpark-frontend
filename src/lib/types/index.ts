@@ -85,6 +85,8 @@ export interface CollectionType {
   ownerAddress: string;
   isLaunched: boolean;
   status: string;
+  poEndsAt: number;
+  poStartsAt: number;
 }
 
 export type CollectibleType = {
@@ -218,6 +220,11 @@ export type MintCollectibleDataType = {
   txid?: string;
 }
 
+export type MintFeeType = {
+  collectionTxid: string;
+  mintFee: string;
+}
+
 export type LaunchCollectionData = {
   POStartsAt: number;
   POEndsAt: number;
@@ -274,10 +281,11 @@ export type LaunchDataType = {
     wlEndsAt: string;
     wlMintPrice: number;
     wlMaxMintPerWallet: number;
-    poStartsAt: string;
-    poEndsAt: string;
+    poStartsAt: number;
+    poEndsAt: number;
     poMintPrice: number;
     poMaxMintPerWallet: number;
     isWhitelisted: boolean;
     mintedAmount: number;
+    createdAt: string;
 }

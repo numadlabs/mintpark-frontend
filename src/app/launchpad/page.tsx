@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Header from "@/components/layout/header";
 import Layout from "@/components/layout/layout";
 import LaunchpadBanner from "@/components/section/launchpadBanner";
@@ -7,23 +8,32 @@ import { fetchLaunchs } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useRouter } from "next/navigation";
 import LaunchpadCard from "@/components/atom/cards/launchpadCard";
 import { LaunchDataType } from "@/lib/types";
 
 const Launchpad = () => {
   const { authState } = useAuth();
-  const { data: launchData = [] } = useQuery({
-    queryKey: ["collectionData"],
-    queryFn: () => fetchLaunchs(authState?.layerId as string),
+  const [interval, setInterval] = useState<string>("all");
+
+  const { data: launch = [] } = useQuery({
+    queryKey: ["launchData", interval],
+    queryFn: () => fetchLaunchs(authState?.layerId as string, interval),
     enabled: !!authState?.layerId,
   });
+
+  const handleIntervalChange = (value: string) => {
+    setInterval(value);
+  };
 
   return (
     <Layout>
       <Header />
       <LaunchpadBanner />
-      <Tabs defaultValue="all" className="text-neutral50 mt-20">
+      <Tabs
+        className="text-neutral50 mt-20"
+        defaultValue="all"
+        onValueChange={handleIntervalChange}
+      >
         <TabsList className="mb-8 font-semibold text-[15px] border border-neutral400 p-1 rounded-xl">
           <TabsTrigger
             value="all"
@@ -46,15 +56,19 @@ const Launchpad = () => {
         </TabsList>
 
         <TabsContent value="all" className="grid grid-cols-4 gap-10">
-          {launchData.map((item: LaunchDataType) => {
-            return (
-              <LaunchpadCard
-                id={item.id}
-                key={item.id}
-                data={item}
-              />
-            );
-          })}
+          {launch.map((item: LaunchDataType) => (
+            <LaunchpadCard id={item.id} key={item.id} data={item} />
+          ))}
+        </TabsContent>
+        <TabsContent value="live" className="grid grid-cols-4 gap-10">
+          {launch.map((item: LaunchDataType) => (
+            <LaunchpadCard id={item.id} key={item.id} data={item} />
+          ))}
+        </TabsContent>
+        <TabsContent value="past" className="grid grid-cols-4 gap-10">
+          {launch.map((item: LaunchDataType) => (
+            <LaunchpadCard id={item.id} key={item.id} data={item} />
+          ))}
         </TabsContent>
       </Tabs>
     </Layout>
