@@ -66,6 +66,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
   const [data, setData] = useState<string>("");
   const [inscribeModal, setInscribeModal] = useState(false);
   const [hash, setHash] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
   const [collectionTxid, setCollectionTxid] = useState<string>("");
   const [collectionId, setCollectionId] = useState<string>("");
   const [selectedTab, setSelectedTab] = useState<"Slow" | "Fast" | "Custom">(
@@ -130,11 +131,12 @@ const SubmitPayModal: React.FC<ModalProps> = ({
       }
     } catch (error) {
       console.error("Error calculating fee rate:", error);
-      toast.error("Failed to calculate fee rate");
+      // toast.error("Failed to calculate fee rate");
     }
   }, [feeAmountMutation, feeRate, fileSizes, fileTypeSizes]);
 
   const handlePay = async () => {
+    setIsLoading(true);
     try {
       const collectionParams: CollectionData = {
         logo: files[0],
@@ -205,6 +207,8 @@ const SubmitPayModal: React.FC<ModalProps> = ({
     } catch (error) {
       console.error(error);
       toast.error("Failed to create order");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -342,7 +346,10 @@ const SubmitPayModal: React.FC<ModalProps> = ({
             >
               Cancel
             </Button>
-            <Button onClick={handlePay}>Pay</Button>
+            <Button onClick={handlePay} disabled={isLoading}>
+            {isLoading ? "Loading..." : "Pay"}
+
+            </Button>
           </DialogFooter>
           <button
             className="w-12 h-12 absolute top-3 right-3 flex justify-center items-center"

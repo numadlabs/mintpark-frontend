@@ -14,10 +14,13 @@ import { useRouter } from "next/navigation";
 const Create = () => {
   const router = useRouter();
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const handleOptionClick = (id: number) => {
     setSelectedOption((prevSelectedOption) => {
       if (prevSelectedOption === id) {
+        setIsLoading(false);
         return null;
       } else {
         return id;
@@ -29,6 +32,7 @@ const Create = () => {
     if (selectedOption !== null) {
       const selectedData = data.find((item) => item.id === selectedOption);
       if (selectedData) {
+        setIsLoading(true);
         router.push(selectedData.pageUrl);
       }
     }
@@ -103,8 +107,8 @@ const Create = () => {
               />
             ))}
           </div>
-          <ButtonLg isSelected={selectedOption !== null} onClick={handleNav}>
-            Continue
+          <ButtonLg isSelected={selectedOption !== null} onClick={handleNav}  disabled={isLoading}>
+              {isLoading ? "Loading..." : "continue"}
           </ButtonLg>
         </div>
       </div>

@@ -9,7 +9,7 @@ import { X } from "lucide-react";
 import { Button } from "../ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { checkOrderStatus, getOrderById } from "@/lib/service/queryHelper";
-import router from "next/router";
+import { useRouter } from "next/navigation";  // Note: from 'navigation' instead of 'router'
 
 interface modalProps {
   open: boolean;
@@ -44,16 +44,16 @@ const InscribeOrderModal: React.FC<modalProps> = ({
   console.log("status", status);
   const totalFee = orders?.networkFee + orders?.serviceFee;
   console.log("oasdfkid", orders);
-
+  const router = useRouter(); 
   const createOrder = () => {
     onClose();
     navigateOrders();
   };
 
   const handleNavigation = () => {
-    onClose();
-    navigateToCreate();
-    router.push('/orders');
+    router.push(`/orders`);
+    // onClose();
+    // navigateToCreate();
   };
 
   const getInscribeStatus = (paymentStatus: string) => {
@@ -67,7 +67,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
       case "EXPIRED":
         return "Payment timeout, order closed";
       default:
-        return "Unknown status";
+        return "Inscribing will start after payment is recieved";
     }
   };
 
@@ -82,7 +82,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
       case "EXPIRED":
         return "Closed";
       default:
-        return "Unknown status";
+        return "Inscribing will start after payment is recieved";
     }
   };
 
@@ -97,7 +97,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
       case "EXPIRED":
         return "Closed";
       default:
-        return "Unknown status";
+        return "Inscribing will start after payment is recieved";
     }
   };
 
