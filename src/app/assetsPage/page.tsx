@@ -6,7 +6,7 @@ import ProfileBanner from "@/components/section/profileBanner";
 import ProfileDetail from "@/components/section/profile/profileDetail";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/provider/auth-context-provider";
-import { getListableById } from "@/lib/service/queryHelper";
+import { getLayerById, getListableById } from "@/lib/service/queryHelper";
 
 const Assets = () => {
   const { authState } = useAuth();
@@ -16,10 +16,17 @@ const Assets = () => {
     enabled: !!authState?.userId,
   });
   console.log("hello",collectiblelist)
+
+  // const { data: currentLayer } = useQuery({
+  //   queryKey: ["currentLayerData", authState.layerId],
+  //   queryFn: () => getLayerById(authState.layerId as string),
+  //   enabled: !!authState.layerId,
+  // });
+
   return (
     <Layout>
       <Header />
-      <ProfileBanner params={collectiblelist} />
+      <ProfileBanner  params={collectiblelist} />
       <ProfileDetail />
     </Layout>
   );

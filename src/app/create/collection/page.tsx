@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/popover";
 import { JsonDataItem, MergedObject } from "@/types";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 const stepperData = ["Details", "Upload", "Launch", "Confirm"];
 
@@ -205,6 +206,7 @@ const CollectionDetail = () => {
   const validateJsonInput = (isChecked: boolean): string | null => {
     if (isChecked) {
       if (!(jsonData && files && jsonData.length === files.length)) {
+        toast.error("Images or JSON upload count doesn't match")
         return "Images or JSON upload count doesn't match";
       }
       if (mergedArray.length === 0) {
@@ -214,10 +216,12 @@ const CollectionDetail = () => {
       // Validate JSON structure
       const jsonValidationError = validateJsonStructure(jsonData);
       if (jsonValidationError) {
+        // toast.error(jsonValidationError)
         return jsonValidationError;
       }
     } else {
       if (files.length === 0) {
+        // toast.error("No files uploaded");
         return "No files uploaded";
       }
     }
@@ -236,6 +240,7 @@ const CollectionDetail = () => {
             const jsonData = JSON.parse(e.target.result);
             setJsonData(jsonData); // Assuming setJsonData is a state setter function
           } catch (error) {
+            toast.error("Error parsing JSON:")
             console.error("Error parsing JSON:", error);
           }
         }
