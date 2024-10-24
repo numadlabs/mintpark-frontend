@@ -16,6 +16,9 @@ export default function Footer() {
   const handleTwitter = () => {
     router.push("/");
   };
+  const handleLogoClick = () => {
+    router.push("/");
+  };
 
   const handleCreate = () => {
     router.push("/create");
@@ -30,7 +33,9 @@ export default function Footer() {
   return (
     <div className="h-314px pt-16 pr-48 pl-28 pb-16 mt-40 flex justify-between bg-background relative border-t border-t-neutral500">
       <div className="flex flex-col justify-between h-[186px]">
-        <TextLogo />
+        <div className="cursor-pointer" onClick={handleLogoClick}>
+          <TextLogo />
+        </div>{" "}
         <p className="font-medium text-md text-neutral200">
           ©2024 Mint Park. All rights reserved.
         </p>

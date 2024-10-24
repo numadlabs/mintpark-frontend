@@ -41,7 +41,7 @@ declare global {
 export default function Header() {
   const router = useRouter();
   const [walletModal, setWalletModal] = useState(false);
-  const [defaultLayer, setDefaultLayer] = useState<string>("");
+  const [defaultLayer, setDefaultLayer] = useState<string>("CITREA-mainnet");
   const { connect, authState, onLogout, selectedLayerId, setSelectedLayerId } =
     useAuth();
   const id = authState?.layerId;
