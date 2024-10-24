@@ -71,7 +71,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
 
   return (
     <Link href={`/launchpad/${id}`}>
-      <div className="relative h-[412px] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-gray-700 rounded-[20px] px-4 pt-4 flex flex-col text-neutral00">
+      <div className="relative h-[412px] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-[20px] px-4 pt-4 flex flex-col text-neutral00">
         <Image
           width={248}
           height={248}
@@ -95,7 +95,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
               <span className="ml-1">BTC</span>
             </p>
           </div>
-          <div className="flex h-2 mt-1 border border-gray-400 rounded-lg border-1">
+          <div className="flex h-2 mt-1 border border-white8 rounded-lg border-1">
             <Progress
               value={data?.supply > 0 ? (data?.mintedAmount / data?.supply) * 100 : 0}
               className={`w-full h-full ${data?.mintedAmount > 0 ? "shadow-shadowBrands" : ""}`}
