@@ -141,7 +141,6 @@ const OrderPayModal: React.FC<ModalProps> = ({
       if (response && response.success) {
         if(currentLayer.layer ==='CITREA'){
           console.log(response)
-          console.log(`Dalai zl, ${response.data.batchMintTxHex}`)
 
           const {signer} = await getSigner()
           const signedTx = await signer?.sendTransaction(response.data.batchMintTxHex);

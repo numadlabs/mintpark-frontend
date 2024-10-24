@@ -12,9 +12,18 @@ import Layout from "@/components/layout/layout";
 import UploadCardFill from "@/components/atom/cards/uploadCardFill";
 import Image from "next/image";
 import CollectiblePreviewCard from "@/components/atom/cards/collectiblePreviewCard";
-import { ImageFile, CollectionData, LaunchCollectionData } from "@/lib/types";
+import {
+  ImageFile,
+  CollectionData,
+  LaunchCollectionData,
+  MintFeeType,
+} from "@/lib/types";
 import TextArea from "@/components/ui/textArea";
-import { createCollection, launchCollection } from "@/lib/service/postRequest";
+import {
+  createCollection,
+  launchCollection,
+  mintFeeOfCitrea,
+} from "@/lib/service/postRequest";
 import useCreateFormState from "@/lib/store/createFormStore";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import CollectionUploadFile from "@/components/section/collectionUploadFile";
@@ -52,12 +61,13 @@ const CollectionDetail = () => {
     setPOMintPrice,
     POMaxMintPerWallet,
     setPOMaxMintPerWallet,
+    txid,
+    setTxid,
     reset,
   } = useCreateFormState();
   const [step, setStep] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [collectionId, setCollectionId] = useState<string>("");
-  const [hash, setHash] = useState<string>("");
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [payModal, setPayModal] = useState(false);
   const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
@@ -75,6 +85,10 @@ const CollectionDetail = () => {
 
   const { mutateAsync: launchCollectionMutation } = useMutation({
     mutationFn: launchCollection,
+  });
+
+  const { mutateAsync: mintFeeOfCitreaMutation } = useMutation({
+    mutationFn: mintFeeOfCitrea,
   });
 
   const updateFileInfo = (files: File[]) => {
@@ -100,6 +114,37 @@ const CollectionDetail = () => {
     enabled: !!authState.layerId,
   });
 
+  const calculateTimeUntilDate = (dateString: string, timeString: string): number => {
+    try {
+      // Input validation
+      if (!dateString || !timeString) {
+        console.error("Missing date or time input");
+        return 0;
+      }
+  
+      // Normalize the time string to ensure proper format (HH:mm)
+      const normalizedTime = timeString.replace(' ', ':');
+      
+      // Combine date and time
+      const dateTimeString = `${dateString} ${normalizedTime}`;
+      
+      // Parse using moment with explicit format
+      const momentDate = moment(dateTimeString, 'YYYY-MM-DD HH:mm');
+      
+      // Validate the parsed date
+      if (!momentDate.isValid()) {
+        console.error("Invalid date/time combination:", dateTimeString);
+        return 0;
+      }
+  
+      // Get Unix timestamp in seconds
+      return momentDate.unix();
+    } catch (error) {
+      console.error("Error calculating timestamp:", error);
+      return 0;
+    }
+  };
+
   const handleCreateCollection = async () => {
     try {
       const params: CollectionData = {
@@ -122,7 +167,7 @@ const CollectionDetail = () => {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
             await signedTx?.wait();
-            if(signedTx?.hash) setHash(signedTx?.hash)
+            if (signedTx?.hash) setTxid(signedTx?.hash);
           }
 
           setStep(1);
@@ -167,11 +212,6 @@ const CollectionDetail = () => {
     setImageLogo(null);
   };
 
-  const handleNextStep = () => {
-    setStep(3);
-    reset();
-  };
-
   const handleBack = () => {
     if (step > 0 || step > 3) {
       setStep(step - 1);
@@ -192,38 +232,36 @@ const CollectionDetail = () => {
 
   const files = imageFiles.map((image) => image.file);
 
-  const calculateSecondsUntilDate = (
-    dateString: string,
-    timeString: string,
-  ): number => {
-    // Combine the date and time strings
-    const targetDateTimeString = `${dateString} ${timeString}`;
+  const handleMintfeeChange = async () => {
+    try {
+      const params: MintFeeType = {
+        collectionTxid: txid,
+        mintFee: POMintPrice.toString(),
+      };
+      const response = await mintFeeOfCitreaMutation({ data: params });
+      if (response && response.success) {
+        const { singleMintTxHex } = response.data;
+          console.log("create collection success", response);
 
-    // Parse the target date and time
-    const targetDateTime = moment(targetDateTimeString, "YYYY-MM-DD HH:mm");
-
-    // Check if the parsed date is valid
-    if (!targetDateTime.isValid()) {
-      console.error("Invalid date/time input:", targetDateTimeString);
-      return 0; // Return 0 or some default value
+          if (currentLayer.layer === "CITREA") {
+            const { signer } = await getSigner();
+            const signedTx = await signer?.sendTransaction(singleMintTxHex);
+            await signedTx?.wait();
+          }
+        setStep(3);
+      }
+    } catch (error) {
+      console.error("Error creating launch: ", error);
     }
-
-    // Get the current date and time
-    const now = moment();
-
-    // Calculate the difference in seconds
-    const secondsUntil = targetDateTime.diff(now, 'milliseconds');
-
-    return secondsUntil > 0 ? secondsUntil : 0; // Ensure we don't return negative values
   };
 
   const handleCreateLaunch = async () => {
-    const POStartsAt = calculateSecondsUntilDate(
+    const POStartsAt = calculateTimeUntilDate(
       POStartsAtDate,
       POStartsAtTime,
     );
-    const POEndsAt = calculateSecondsUntilDate(POEndsAtDate, POEndsAtTime);
-    const txid = hash
+    const POEndsAt = calculateTimeUntilDate(POEndsAtDate, POEndsAtTime);
+
     try {
       const params: LaunchCollectionData = {
         files: files,
@@ -232,7 +270,7 @@ const CollectionDetail = () => {
         POMintPrice: POMintPrice,
         POMaxMintPerWallet: POMaxMintPerWallet,
         isWhiteListed: false,
-        txid: txid
+        txid: txid,
       };
       if (params && collectionId) {
         const response = await launchCollectionMutation({
@@ -277,28 +315,30 @@ const CollectionDetail = () => {
                   Details
                 </p>
                 <div className="flex flex-col w-full gap-6">
-                <div className="grid gap-3">
-                <p className="font-medium text-lg text-neutral50">Name</p>
-                  <Input
-                    title="Name"
-                    placeholder="Collection name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </div>
                   <div className="grid gap-3">
-                  <p className="font-medium text-lg text-neutral50">Creater (optional)</p>
-                  <Input
-                  name="Creater optional"
-                    title="Description"
-                    placeholder="Collection creator name"
-                    value={creator}
-                    onChange={(e) => setCreator(e.target.value)}
-                  />
+                    <p className="font-medium text-lg text-neutral50">Name</p>
+                    <Input
+                      title="Name"
+                      placeholder="Collection name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                    />
                   </div>
-                
+                  <div className="grid gap-3">
+                    <p className="font-medium text-lg text-neutral50">
+                      Creater (optional)
+                    </p>
+                    <Input
+                      name="Creater optional"
+                      title="Description"
+                      placeholder="Collection creator name"
+                      value={creator}
+                      onChange={(e) => setCreator(e.target.value)}
+                    />
+                  </div>
+
                   <TextArea
-                  title="Description"
+                    title="Description"
                     text="Description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -561,7 +601,7 @@ const CollectionDetail = () => {
                 <ButtonOutline title="Back" onClick={handleBack} />
                 <ButtonLg
                   isSelected={true}
-                  onClick={() => setStep(3)}
+                  onClick={isChecked ? handleMintfeeChange : () => setStep(3)}
                   isLoading={isLoading}
                 >
                   {isLoading ? "...loading" : "Continue"}
@@ -667,7 +707,7 @@ const CollectionDetail = () => {
         files={files}
         navigateOrders={handleNavigateToOrder}
         navigateToCreate={handleNavigateToCreate}
-        hash={hash}
+        hash={txid}
       />
       <SuccessModal
         open={successModal}

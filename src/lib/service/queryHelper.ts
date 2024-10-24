@@ -31,9 +31,9 @@ export async function getOrderById(id: string) {
   });
 }
 
-export async function fetchLaunchs(layerId: string) {
+export async function fetchLaunchs(layerId: string, interval: string) {
   return axiosClient
-    .get(`/api/v1/launchpad?layerId=${layerId}&interval=all`)
+    .get(`/api/v1/launchpad?layerId=${layerId}&interval=${interval}`)
     .then((response) => {
       if (response.data.success) {
         return response?.data.data;

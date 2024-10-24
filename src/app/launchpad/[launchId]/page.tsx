@@ -32,6 +32,8 @@ const Page = () => {
   const [hash, setHash] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [activePhase, setActivePhase] = useState(null);
+  const [timeDisplay, setTimeDisplay] = useState("");
+  const [status, setStatus] = useState("");
 
   const { mutateAsync: createOrderToMintMutation } = useMutation({
     mutationFn: createOrderToMint,
@@ -69,7 +71,7 @@ const Page = () => {
 
   const handleConfirm = async () => {
     try {
-      let txid
+      let txid;
       const response = await createOrderToMintMutation({
         collectionId: id,
         feeRate: feeRates.fastestFee,
@@ -81,11 +83,11 @@ const Page = () => {
 
         if (currentLayer.layer === "CITREA") {
           const { signer } = await getSigner();
-          console.log(singleMintTxHex)
+          console.log(singleMintTxHex);
           const signedTx = await signer?.sendTransaction(singleMintTxHex);
           await signedTx?.wait();
-          if (signedTx?.hash) txid =signedTx?.hash;
-          console.log(signedTx?.hash)
+          if (signedTx?.hash) txid = signedTx?.hash;
+          console.log(signedTx?.hash);
         } else if (currentLayer.layer === "FRACTAL") {
           await window.unisat.sendBitcoin(
             response.data.order.fundingAddress,
@@ -108,62 +110,64 @@ const Page = () => {
     setActivePhase(phaseType);
   };
 
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0 });
-  const [status, setStatus] = useState("");
-
   useEffect(() => {
-    const calculateTimeLeft = () => {
+    const updateTime = () => {
+      if (!collectibles) return;
+
       const now = moment();
-      const startTime = moment(collectibles.poStartsAt);
-      const endTime = moment(collectibles.poEndsAt);
 
-      if (now.isBefore(startTime)) {
-        setStatus("Upcoming");
-        return moment.duration(startTime.diff(now));
-      } else if (now.isBefore(endTime)) {
-        setStatus("Live");
-        return moment.duration(endTime.diff(now));
-      } else {
+      const convertToSeconds = (timestamp: number | undefined) => {
+        if (!timestamp) return 0;
+        return timestamp.toString().length === 13
+          ? Math.floor(timestamp / 1000)
+          : timestamp;
+      };
+
+      const startTime = convertToSeconds(collectibles.poStartsAt);
+      const endTime = convertToSeconds(collectibles.enddate);
+
+      if (!startTime || !endTime) {
+        setStatus("Invalid date");
+        setTimeDisplay("");
+        return;
+      }
+
+      const startMoment = moment.unix(startTime);
+      const endMoment = moment.unix(endTime);
+      const createMoment = moment(collectibles.createdAt);
+
+      if (now.isAfter(endMoment)) {
         setStatus("Ended");
-        return moment.duration(0);
+        setTimeDisplay("");
+        return;
+      }
+
+      if (now.isBetween(startMoment, endMoment)) {
+        setStatus("Ends in:");
+        const duration = moment.duration(endMoment.diff(now));
+        setTimeDisplay(
+          `${Math.floor(duration.asDays())}d ${duration.hours().toString().padStart(2, "0")}h ${duration.minutes().toString().padStart(2, "0")}m`,
+        );
+        return;
+      }
+
+      if (now.isBefore(startMoment)) {
+        setStatus("Starts in:");
+        const duration = moment.duration(startMoment.diff(now));
+        setTimeDisplay(
+          `${Math.floor(duration.asDays())}d ${duration.hours().toString().padStart(2, "0")}h ${duration.minutes().toString().padStart(2, "0")}m`,
+        );
       }
     };
 
-    const updateCountdown = () => {
-      const difference = calculateTimeLeft();
-
-      setTimeLeft({
-        days: difference.days(),
-        hours: difference.hours(),
-        minutes: difference.minutes(),
-      });
-
-      // Update status based on conditions
-      if (moment().isSameOrAfter(collectibles.poStartsAt)) {
-        setStatus("Live");
-      }
-      if (moment().isSameOrAfter(collectibles.poEndsAt)) {
-        setStatus("Ended");
-      }
-      if (moment().isBefore(collectibles.poStartsAt)) {
-        setStatus("Upcoming");
-      }
-      if (!collectibles.poEndsAt) {
-        setStatus("Indefinite");
-      }
-    };
-
-    updateCountdown();
-    const timer = setInterval(updateCountdown, 60000); // Update every minute
-
-    return () => clearInterval(timer);
-  }, [collectibles.poStartsAt, collectibles.poEndsAt]);
+    updateTime();
+    const interval = setInterval(updateTime, 60000);
+    return () => clearInterval(interval);
+  }, [collectibles]);
 
   const navigateCollection = () => {
     router.push(`/collections`);
   };
-
-  console.log("first", collectibles)
 
   return (
     <>
@@ -324,6 +328,7 @@ const Page = () => {
                     startsAt={collectibles.poStartsAt}
                     isActive={activePhase === "public"}
                     onClick={() => handlePhaseClick("public")}
+                    createdAt={collectibles.createdAt}
                   />
                   {collectibles.isWhiteListed && (
                     <WhiteListPhaseCard

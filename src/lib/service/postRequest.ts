@@ -6,6 +6,7 @@ import {
   MintCollectibleDataType,
   MintCollectiblePayload,
   MintCollectibleResponse,
+  MintFeeType,
   User,
 } from "../types";
 import { getAccessToken } from "../auth";
@@ -667,20 +668,14 @@ export async function buyListedCollectible({
 }
 
 export async function mintFeeOfCitrea({
-  ownerAddress,
-  collectionAddress,
-  mintFee,
+  data
 }: {
-  ownerAddress: string;
-  collectionAddress: string;
-  mintFee: string;
+  data: MintFeeType
 }) {
   try {
     return axiosClient
       .post(`/api/v1/launchpad/change-mintfee-transaction`, {
-        ownerAddress,
-        collectionAddress,
-        mintFee,
+        data
       })
       .then((response) => {
         return response.data;
