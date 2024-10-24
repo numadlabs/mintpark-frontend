@@ -64,11 +64,23 @@ export default function Header() {
     enabled: !!id,
   });
 
+  // useEffect(() => {
+  //   if (currentLayer) {
+  //     setDefaultLayer(`${currentLayer.layer}-${currentLayer.network}`);
+  //   }
+  // }, [currentLayer]);
   useEffect(() => {
-    if (currentLayer) {
+    // Set CITREA as default if there's no currentLayer
+    if (!currentLayer) {
+      const citreaLayer = layers.find((l: LayerType) => l.layer === "CITREA");
+      if (citreaLayer) {
+        setDefaultLayer(`${citreaLayer.layer}-${citreaLayer.network}`);
+        setSelectedLayerId(citreaLayer.id);
+      }
+    } else {
       setDefaultLayer(`${currentLayer.layer}-${currentLayer.network}`);
     }
-  }, [currentLayer]);
+  }, [currentLayer, layers, setSelectedLayerId]);
 
   const routesData = [
     { title: "Create", pageUrl: "/create" },
@@ -94,7 +106,7 @@ export default function Header() {
       case "CITREA":
         return "/wallets/Citrea.png";
       default:
-        return "/wallets/Bitcoin.png";
+        return "/wallets/Citrea.png";
     }
   };
 
@@ -105,13 +117,15 @@ export default function Header() {
   const handleLayerSelect = (value: string) => {
     const [layer, network] = value.split("-");
     const selectedLayer = layers.find(
-      (l: LayerType) => l.layer === layer && l.network === network
+      (l: LayerType) => l.layer === layer && l.network === network,
     );
-    
+
     if (selectedLayer) {
       if (authState.authenticated) {
         onLogout();
-        toast.info("Logged out due to layer change. Please reconnect your wallet.");
+        toast.info(
+          "Logged out due to layer change. Please reconnect your wallet.",
+        );
       }
       setSelectedLayerId(selectedLayer.id);
       setDefaultLayer(value);
@@ -160,7 +174,10 @@ export default function Header() {
             <div className="flex flex-row overflow-hidden items-center gap-4">
               <Select onValueChange={handleLayerSelect} value={defaultLayer}>
                 <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
-                  <SelectValue placeholder="Select layer">
+                  <SelectValue
+                    placeholder="Select layer"
+                    defaultValue={defaultLayer}
+                  >
                     {defaultLayer && (
                       <div className="flex flex-row gap-2 items-center w-max">
                         <Image
@@ -201,7 +218,7 @@ export default function Header() {
               </Select>
               {authState?.authenticated ? (
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[128px] w-full bg-white8 hover:bg-white16 duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
+                  <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[128px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
                     <Image
                       src={"/Avatar.png"}
                       alt="image"
