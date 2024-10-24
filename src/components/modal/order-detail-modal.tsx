@@ -27,7 +27,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
   const getInscribeStatus = (paymentStatus: string) => {
     switch (paymentStatus) {
       case "PENDING":
-        return "Inscribing will start after payment is received";
+        return "Pending...";
       case "IN_QUEUE":
         return "The inscription is in queue";
       case "DONE":
@@ -35,7 +35,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
       case "EXPIRED":
         return "Payment timeout, order closed";
       default:
-        return "Inscribing will start after payment is recieved";
+        return "Pending...";
     }
   };
 
@@ -50,7 +50,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
       case "EXPIRED":
         return "Closed";
       default:
-        return "Inscribing will start after payment is recieved";
+        return "Pending...";
     }
   };
 
@@ -65,7 +65,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
       case "EXPIRED":
         return "Closed";
       default:
-        return "Inscribing will start after payment is recieved";
+        return "Pending...";
     }
   };
 

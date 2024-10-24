@@ -87,7 +87,7 @@ const OrderDetail = () => {
       case "EXPIRED":
         return "Closed";
       default:
-        return "Inscribing will start after payment is recieved";
+        return "Pending...";
     }
   };
 
