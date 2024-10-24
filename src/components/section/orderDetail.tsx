@@ -41,13 +41,25 @@ const OrderDetail = () => {
     );
   }, [orders, searchTerm]);
 
+  // const formatDateTime = (dateString: any) => {
+  //   const date = new Date(dateString);
+  //   const year = date.getFullYear();
+  //   const month = String(date.getMonth() + 1).padStart(2, "0");
+  //   const day = String(date.getDate()).padStart(2, "0");
+  //   const hours = String(date.getHours()).padStart(2, "0");
+  //   const minutes = String(date.getMinutes()).padStart(2, "0");
+  //   return `${year}/${month}/${day}, ${hours}:${minutes}`;
+  // };
   const formatDateTime = (dateString: any) => {
     const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const localDate = new Date(date.toLocaleString());
+    
+    const year = localDate.getFullYear();
+    const month = String(localDate.getMonth() + 1).padStart(2, "0");
+    const day = String(localDate.getDate()).padStart(2, "0");
+    const hours = String(localDate.getHours()).padStart(2, "0");
+    const minutes = String(localDate.getMinutes()).padStart(2, "0");
+    
     return `${year}/${month}/${day}, ${hours}:${minutes}`;
   };
 
@@ -75,7 +87,7 @@ const OrderDetail = () => {
       case "EXPIRED":
         return "Closed";
       default:
-        return "Unknown status";
+        return "Inscribing will start after payment is recieved";
     }
   };
 
@@ -121,7 +133,7 @@ const OrderDetail = () => {
       </div>
 
       <div className="flex flex-col w-full pr-[52px] pl-5 gap-4">
-        <div className="grid grid-cols-4 pl-5 w-full h-[18px]">
+        <div className="grid grid-cols-4 pl-4 w-full h-[18px]">
           {["Order ID", "Quantity", "Status", "Date"].map((header) => (
             <p key={header} className="font-medium text-md text-neutral200">
               {header}
@@ -137,18 +149,18 @@ const OrderDetail = () => {
                 onClick={() => toggleOrderModal(item)}
               >
                 <div className="grid grid-cols-4 w-full h-[18px]">
-                  <p className="font-medium text-md w-[160px] text-neutral200 truncate">
+                  <p className="font-medium text-md text-start w-[160px] text-neutral200 truncate">
                     {item.id}
                   </p>
-                  <p className="pl-2 font-medium text-md text-neutral200">
+                  <p className="font-medium text-md text-start pl-1 text-neutral200">
                     {item.quantity}
                   </p>
                   <p
-                    className={`pl-3 font-medium text-md ${getStatusColor(item.orderStatus)} capitalize truncate`}
+                    className={`font-medium text-md text-start pl-2 ${getStatusColor(item.orderStatus)} capitalize truncate`}
                   >
                     {getStatus(item.orderStatus)}
                   </p>
-                  <p className="pl-4 font-medium text-md text-neutral200">
+                  <p className="font-medium text-start pl-3 text-md text-neutral200">
                     {formatDateTime(item.createdAt)}
                   </p>
                 </div>

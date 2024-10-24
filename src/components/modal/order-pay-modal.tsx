@@ -15,11 +15,7 @@ import {
   createCollectiblesToCollection,
 } from "@/lib/service/postRequest";
 import { useAuth } from "../provider/auth-context-provider";
-import {
-  FeeRateAmount,
-  InscribeOrderData,
-  MintDataType,
-} from "@/lib/types";
+import { FeeRateAmount, InscribeOrderData, MintDataType } from "@/lib/types";
 import { toast } from "sonner";
 import InscribeOrderModal from "./insribe-order-modal";
 import { getFeeRates, getLayerById } from "@/lib/service/queryHelper";
@@ -52,13 +48,14 @@ const OrderPayModal: React.FC<ModalProps> = ({
   files,
   navigateOrders,
   navigateToCreate,
-  hash
+  hash,
 }) => {
   const { authState } = useAuth();
   const [feeRate, setFeeRate] = useState<number>(1);
   const [data, setData] = useState<string>("");
   const [txid, setTxid] = useState<string | undefined>("");
   const [inscribeModal, setInscribeModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState<"Slow" | "Fast" | "Custom">(
     "Custom",
   );
@@ -67,6 +64,7 @@ const OrderPayModal: React.FC<ModalProps> = ({
     serviceFee: 0,
     totalFee: 0,
   });
+  // const [isLoading, setIsLoading] = useState(false);
 
   const { mutateAsync: feeAmountMutation } = useMutation({
     mutationFn: feeAmount,
@@ -117,12 +115,13 @@ const OrderPayModal: React.FC<ModalProps> = ({
       }
     } catch (error) {
       console.error("Error calculating fee rate:", error);
-      toast.error("Failed to calculate fee rate");
+      // toast.error("Failed to calculate fee rate");
     }
   }, [feeAmountMutation, feeRate, fileSizes, fileTypeSizes]);
 
   const handlePay = async () => {
-    console.log(`Handle pay ${hash}`)
+    setIsLoading(true);
+    console.log(`Handle pay ${hash}`);
     try {
       const params: MintDataType = {
         orderType: "COLLECTION",
@@ -134,21 +133,22 @@ const OrderPayModal: React.FC<ModalProps> = ({
             : selectedTab === "Fast"
               ? feeRates?.fastestFee
               : feeRate,
-        txid: hash
+        txid: hash,
       };
 
       const response = await createCollectiblesMutation({ data: params });
       if (response && response.success) {
-        if(currentLayer.layer ==='CITREA'){
-          console.log(response)
+        if (currentLayer.layer === "CITREA") {
+          console.log(response);
 
-          const {signer} = await getSigner()
-          const signedTx = await signer?.sendTransaction(response.data.batchMintTxHex);
-          await signedTx?.wait()
-          console.log(signedTx)
-          setTxid(signedTx?.hash)
-        }
-        else if(currentLayer.layer === 'FRACTAL'){
+          const { signer } = await getSigner();
+          const signedTx = await signer?.sendTransaction(
+            response.data.batchMintTxHex,
+          );
+          await signedTx?.wait();
+          console.log(signedTx);
+          setTxid(signedTx?.hash);
+        } else if (currentLayer.layer === "FRACTAL") {
           console.log(
             response.data.order.fundingAddress,
             response.data.order.fundingAmount,
@@ -166,6 +166,8 @@ const OrderPayModal: React.FC<ModalProps> = ({
     } catch (error) {
       console.error(error);
       toast.error("Failed to create order");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -269,7 +271,7 @@ const OrderPayModal: React.FC<ModalProps> = ({
                         Network Fee
                       </p>
                       <p className="text-lg2 text-neutral50 font-bold">
-                        {(estimatedFee.networkFee/10**8).toFixed(4)} Sats
+                        {(estimatedFee.networkFee / 10 ** 8).toFixed(4)} Sats
                       </p>
                     </div>
                     <div className="flex flex-row justify-between items-center">
@@ -277,7 +279,7 @@ const OrderPayModal: React.FC<ModalProps> = ({
                         Service Fee
                       </p>
                       <p className="text-lg2 text-neutral50 font-bold">
-                        {(estimatedFee.serviceFee/10**8).toFixed(4)} Sats
+                        {(estimatedFee.serviceFee / 10 ** 8).toFixed(4)} Sats
                       </p>
                     </div>
                   </div>
@@ -286,7 +288,7 @@ const OrderPayModal: React.FC<ModalProps> = ({
                       Total Amount
                     </p>
                     <p className="text-lg2 text-brand font-bold">
-                      {(estimatedFee.totalFee/10**8).toFixed(4)} Sats
+                      {(estimatedFee.totalFee / 10 ** 8).toFixed(4)} Sats
                     </p>
                   </div>
                 </div>
@@ -303,7 +305,10 @@ const OrderPayModal: React.FC<ModalProps> = ({
             >
               Cancel
             </Button>
-            <Button onClick={handlePay}>Pay</Button>
+            <Button onClick={handlePay} disabled={isLoading}>
+              {" "}
+              {isLoading ? "Loading..." : "Pay"}
+            </Button>
           </DialogFooter>
           <button
             className="w-12 h-12 absolute top-3 right-3 flex justify-center items-center"

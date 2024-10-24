@@ -146,6 +146,7 @@ const CollectionDetail = () => {
   };
 
   const handleCreateCollection = async () => {
+    setIsLoading(true);
     try {
       const params: CollectionData = {
         logo: imageFile[0],
@@ -175,6 +176,8 @@ const CollectionDetail = () => {
       }
     } catch (error) {
       console.error("Error creating collection:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -233,6 +236,7 @@ const CollectionDetail = () => {
   const files = imageFiles.map((image) => image.file);
 
   const handleMintfeeChange = async () => {
+    setIsLoading(true);
     try {
       const params: MintFeeType = {
         collectionTxid: txid,
@@ -252,10 +256,13 @@ const CollectionDetail = () => {
       }
     } catch (error) {
       console.error("Error creating launch: ", error);
+    }finally{
+        setIsLoading(false);
     }
   };
 
   const handleCreateLaunch = async () => {
+    setIsLoading(true);
     const POStartsAt = calculateTimeUntilDate(
       POStartsAtDate,
       POStartsAtTime,
@@ -284,6 +291,8 @@ const CollectionDetail = () => {
       }
     } catch (error) {
       console.error("Error creating launch:", error);
+    } finally{
+      setIsLoading(false);
     }
   };
 
@@ -367,6 +376,8 @@ const CollectionDetail = () => {
                   title="Continue"
                   isSelected={true}
                   onClick={handleCreateCollection}
+                  // disabled={isLoading}
+                  isLoading={isLoading}
                 >
                   {isLoading ? "Loading..." : "Continue"}
                 </ButtonLg>
@@ -603,6 +614,7 @@ const CollectionDetail = () => {
                   isSelected={true}
                   onClick={isChecked ? handleMintfeeChange : () => setStep(3)}
                   isLoading={isLoading}
+                  // disabled={isLoading}
                 >
                   {isLoading ? "...loading" : "Continue"}
                 </ButtonLg>
@@ -690,8 +702,10 @@ const CollectionDetail = () => {
                 <ButtonLg
                   isSelected={true}
                   onClick={isChecked ? handleCreateLaunch : togglePayModal}
+                  isLoading={isLoading}
                 >
-                  Confirm
+                  {isLoading ? "...loading" : "Confirm"}
+
                 </ButtonLg>
               </div>
             </div>

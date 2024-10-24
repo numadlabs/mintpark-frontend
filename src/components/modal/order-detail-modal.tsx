@@ -10,7 +10,7 @@ interface modalProps {
   orderId: string;
   quantity: number;
   networkFee: number;
-  serviceFee: number
+  serviceFee: number;
 }
 
 const OrderDetailModal: React.FC<modalProps> = ({
@@ -35,7 +35,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
       case "EXPIRED":
         return "Payment timeout, order closed";
       default:
-        return "Unknown status";
+        return "Inscribing will start after payment is recieved";
     }
   };
 
@@ -50,7 +50,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
       case "EXPIRED":
         return "Closed";
       default:
-        return "Unknown status";
+        return "Inscribing will start after payment is recieved";
     }
   };
 
@@ -65,7 +65,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
       case "EXPIRED":
         return "Closed";
       default:
-        return "Unknown status";
+        return "Inscribing will start after payment is recieved";
     }
   };
 
@@ -99,19 +99,21 @@ const OrderDetailModal: React.FC<modalProps> = ({
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Network Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {(networkFee/10**8).toFixed(4)} Sats
+              {(networkFee / 10 ** 8).toFixed(4)} Sats
             </p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Service Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {(serviceFee/10**8).toFixed(4)} Sats
+              {(serviceFee / 10 ** 8).toFixed(4)} Sats
             </p>
           </div>
         </div>
         <div className="flex flex-row justify-between items-center -4 w-full bg-white4 rounded-2xl p-4">
           <p className="text-lg2 text-neutral100 font-medium">Total Amount</p>
-          <p className="text-lg2 text-brand font-bold">{(totalFee/10**8).toFixed(4)} Sats</p>
+          <p className="text-lg2 text-brand font-bold">
+            {(totalFee / 10 ** 8).toFixed(4)} Sats
+          </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />
         <div className="flex flex-col gap-4 w-full">

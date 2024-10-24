@@ -83,6 +83,7 @@ const SingleCollectible = () => {
   // };
 
   const toggleSubmitModal = () => {
+    setIsLoading(true);
     setSubmitModal(!submitModal);
   };
 
