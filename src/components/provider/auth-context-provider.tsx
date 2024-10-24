@@ -147,7 +147,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem("authToken");
     localStorage.removeItem("layerId");
     localStorage.removeItem("logoutTime");
-    router.push("/");
+    // router.push("/");
     clearToken();
   };
 

@@ -9,6 +9,7 @@ import { X } from "lucide-react";
 import { Button } from "../ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { checkOrderStatus, getOrderById } from "@/lib/service/queryHelper";
+import router from "next/router";
 
 interface modalProps {
   open: boolean;
@@ -52,6 +53,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
   const handleNavigation = () => {
     onClose();
     navigateToCreate();
+    router.push('/orders');
   };
 
   const getInscribeStatus = (paymentStatus: string) => {

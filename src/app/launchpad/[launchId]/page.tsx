@@ -99,7 +99,7 @@ const Page = () => {
         }
       }
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       toast.error("Failed to create order");
     }
   };
