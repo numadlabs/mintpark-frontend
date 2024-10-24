@@ -8,6 +8,12 @@ interface cardProps {
   }
 }
 
+interface UnisatBalance {
+  confirmed: number;
+  unconfirmed: number;
+  total: number;
+}
+
 const ProfileBanner: React.FC<cardProps> = ({ params }) => {
   const [walletAddress, setWalletAddress] = useState<string>("Connect Wallet");
   const [balance, setBalance] = useState<{ btc: number; usd: number }>({
@@ -19,7 +25,7 @@ const ProfileBanner: React.FC<cardProps> = ({ params }) => {
 
   const formatBalance = (value: number): string => {
     if (typeof value !== 'number' || isNaN(value)) return "0.00";
-    return value.toFixed(4); 
+    return value.toFixed(8); 
   };
 
   const formatUSD = (value: number): string => {
@@ -29,16 +35,15 @@ const ProfileBanner: React.FC<cardProps> = ({ params }) => {
 
   const getBalance = async () => {
     try {
-      let res = await window.unisat.getBalance();
-      
+      const res: UnisatBalance = await window.unisat.getBalance();
+      console.log('Balance response:', res);
 
-      if (typeof res !== 'number' || isNaN(res)) {
-        throw new Error('Invalid balance received');
+      if (!res || typeof res.total !== 'number') {
+        throw new Error('Invalid balance format received');
       }
 
-
-      const btcAmount = (Number(res) / 10 ** 8);
-      const usdAmount = btcAmount * 65000;
+      const btcAmount = (Number(res.total) / 10 ** 8);
+      const usdAmount = btcAmount * 65000; // Using your existing BTC/USD rate
 
       if (isNaN(btcAmount) || isNaN(usdAmount)) {
         throw new Error('Error calculating balance');
@@ -50,7 +55,6 @@ const ProfileBanner: React.FC<cardProps> = ({ params }) => {
       setBalance({ btc: 0, usd: 0 });
     }
   };
-
   const connectWallet = async () => {
     try {
       let res = await window.unisat.getAccounts();
