@@ -5,7 +5,7 @@ import ButtonLg from "@/components/ui/buttonLg";
 import { Carousel } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CollectionType } from "@/lib/types";
+// import { CollectionType } from "@/lib/types";
 import { confirmOrder, generateHex } from "@/lib/service/postRequest";
 import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
