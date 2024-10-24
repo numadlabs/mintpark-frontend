@@ -272,24 +272,33 @@ const CollectionDetail = () => {
           />
           {step == 0 && (
             <div className="w-[592px] items-start flex flex-col gap-16">
-              <div className="flex flex-col w-full gap-8">
+              <div className="flex flex-col w-full gap-6">
                 <p className="font-bold text-profileTitle text-neutral50">
                   Details
                 </p>
                 <div className="flex flex-col w-full gap-6">
+                <div className="grid gap-3">
+                <p className="font-medium text-lg text-neutral50">Name</p>
                   <Input
                     title="Name"
                     placeholder="Collection name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
+                </div>
+                  <div className="grid gap-3">
+                  <p className="font-medium text-lg text-neutral50">Creater (optional)</p>
                   <Input
+                  name="Creater optional"
                     title="Description"
                     placeholder="Collection creator name"
                     value={creator}
                     onChange={(e) => setCreator(e.target.value)}
                   />
+                  </div>
+                
                   <TextArea
+                  title="Description"
                     text="Description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}

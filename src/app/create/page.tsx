@@ -89,8 +89,8 @@ const Create = () => {
             </div>
           </div>
         </div>
-        <div className="max-w-[592px] mt-12 items-center flex flex-col gap-12">
-          <div className="flex flex-col gap-6">
+        <div className="w-[592px] mt-12 items-center flex flex-col gap-12">
+          <div className="flex flex-col w-[592px] gap-6">
             {data.map((item) => (
               <Options
                 key={item.id}

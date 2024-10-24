@@ -86,7 +86,7 @@ const SingleCollectible = () => {
     setSubmitModal(!submitModal);
   };
 
-const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
 
     if (files) {
@@ -98,13 +98,17 @@ const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
       setImageFile(Array.from(files));
 
       // Calculate file sizes and types
-      const newFileSizes = Array.from(files).map(file => file.size);
-      const newFileTypeSizes = Array.from(files).map(file => file.type.length);
-      const newFileTypes = new Set(Array.from(files).map(file => file.type));
+      const newFileSizes = Array.from(files).map((file) => file.size);
+      const newFileTypeSizes = Array.from(files).map(
+        (file) => file.type.length,
+      );
+      const newFileTypes = new Set(Array.from(files).map((file) => file.type));
 
-      setFileSizes(prevSizes => [...prevSizes, ...newFileSizes]);
-      setFileTypeSizes(prevSizes => [...prevSizes, ...newFileTypeSizes]);
-      setTotalFileSize(prevSize => prevSize + newFileSizes.reduce((a, b) => a + b, 0));
+      setFileSizes((prevSizes) => [...prevSizes, ...newFileSizes]);
+      setFileTypeSizes((prevSizes) => [...prevSizes, ...newFileTypeSizes]);
+      setTotalFileSize(
+        (prevSize) => prevSize + newFileSizes.reduce((a, b) => a + b, 0),
+      );
     }
   };
   const handleBack = () => {
@@ -119,7 +123,6 @@ const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
   };
   const handleNextStep = () => {
     setStep(1);
-
   };
 
   // const handleSubmit = async () => {
@@ -289,12 +292,12 @@ const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
   const handleNavigateToOrder = () => {
     router.push(`/orders`);
     reset();
-  }
+  };
 
   const handleNavigateToCreate = () => {
     router.push(`/create`);
     reset();
-  }
+  };
 
   return (
     <Layout>
@@ -344,16 +347,24 @@ const handleUploadImage = (event: React.ChangeEvent<HTMLInputElement>) => {
                     Details (Optional)
                   </p>
                   <div className="flex flex-col gap-6 w-full">
-                    <Input
-                      placeholder="Collectible name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                    />
-                    <Input
-                      placeholder="Collectible creator name"
-                      value={creator}
-                      onChange={(e) => setCreator(e.target.value)}
-                    />
+                    <div className="flex flex-col gap-3">
+                      <p className="font-medium text-lg text-neutral50">Name</p>
+                      <Input
+                        placeholder="Collectible name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <p className="font-medium text-lg text-neutral50">
+                        Creater (optional)
+                      </p>
+                      <Input
+                        placeholder="Collectible creator name"
+                        value={creator}
+                        onChange={(e) => setCreator(e.target.value)}
+                      />
+                    </div>
                     <TextArea
                       title="Description"
                       text="Collectible description"
