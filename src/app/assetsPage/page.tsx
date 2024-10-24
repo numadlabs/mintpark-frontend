@@ -15,13 +15,7 @@ const Assets = () => {
     queryFn: () => getListableById(authState?.userId as string),
     enabled: !!authState?.userId,
   });
-  console.log("hello",collectiblelist)
-
-  // const { data: currentLayer } = useQuery({
-  //   queryKey: ["currentLayerData", authState.layerId],
-  //   queryFn: () => getLayerById(authState.layerId as string),
-  //   enabled: !!authState.layerId,
-  // });
+  console.log("collectiblelist",collectiblelist)
 
   return (
     <Layout>
