@@ -25,12 +25,12 @@
 
 //   const formatBalance = (value: number): string => {
 //     if (typeof value !== 'number' || isNaN(value)) return "0.00";
-//     return value.toFixed(8); 
+//     return value.toFixed(8);
 //   };
 
 //   const formatUSD = (value: number): string => {
 //     if (typeof value !== 'number' || isNaN(value)) return "0.00";
-//     return value.toFixed(2); 
+//     return value.toFixed(2);
 //   };
 
 //   const getBalance = async () => {
@@ -120,7 +120,7 @@
 //             </div>
 //             <div className="w-full flex flex-col justify-between gap-5 pl-6 pr-6 pt-4 pb-4">
 //               <div className="flex gap-4 items-center relative">
-//                 <h3 
+//                 <h3
 //                   className="text-profileTitle font-bold text-neutral50 cursor-pointer"
 //                   onClick={connectWallet}
 //                 >
@@ -185,15 +185,15 @@
 
 // export default ProfileBanner;
 
-
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { CollectibleList } from "@/lib/types";
+import { useAuth } from "../provider/auth-context-provider";
 
 interface CardProps {
   params: {
     data: CollectibleList;
-  }
+  };
 }
 
 interface WalletBalance {
@@ -217,141 +217,213 @@ declare global {
 }
 
 const ProfileBanner: React.FC<CardProps> = ({ params }) => {
+  const { authState } = useAuth();
   const [walletAddress, setWalletAddress] = useState<string>("Connect Wallet");
   const [balance, setBalance] = useState<WalletBalance>({
     eth: 0,
     btc: 0,
     usdEth: 0,
-    usdBtc: 0
+    usdBtc: 0,
   });
   const [rawAddress, setRawAddress] = useState<string>("");
+
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
-  const [activeWallet, setActiveWallet] = useState<"metamask" | "unisat" | null>(null);
+  const [activeWallet, setActiveWallet] = useState<
+    "metamask" | "unisat" | null
+  >(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const formatBalance = (value: number): string => {
-    if (typeof value !== 'number' || isNaN(value)) return "0.00";
+    if (typeof value !== "number" || isNaN(value)) return "0.00";
     return value.toFixed(8);
   };
 
   const formatUSD = (value: number): string => {
-    if (typeof value !== 'number' || isNaN(value)) return "0.00";
+    if (typeof value !== "number" || isNaN(value)) return "0.00";
     return value.toFixed(2);
   };
 
+  const resetWalletState = () => {
+    setWalletAddress("Connect Wallet");
+    setRawAddress("");
+    setBalance({
+      eth: 0,
+      btc: 0,
+      usdEth: 0,
+      usdBtc: 0,
+    });
+    setError(null);
+  };
+
   const getMetaMaskBalance = async () => {
+    setIsLoading(true);
     try {
       if (!window.ethereum) throw new Error("MetaMask not installed");
-      
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+      // Reset any existing wallet state
+      if (activeWallet === "unisat") {
+        resetWalletState();
+      }
+
+      const accounts = await window.ethereum.request({
+        method: "eth_requestAccounts",
+      });
       if (!accounts[0]) throw new Error("No account found");
 
       const balance = await window.ethereum.request({
-        method: 'eth_getBalance',
-        params: [accounts[0], 'latest']
+        method: "eth_getBalance",
+        params: [accounts[0], "latest"],
       });
 
-      const ethAmount = Number(BigInt(balance)) / 1e18;
-      const usdAmount = ethAmount * 3500; // Example ETH/USD rate - you should use a real price feed
+      setRawAddress(accounts[0]);
+      setWalletAddress(accounts[0].slice(0, 6) + "..." + accounts[0].slice(-4));
 
-      setBalance(prev => ({
+      const ethAmount = Number(BigInt(balance)) / 1e18;
+      const usdAmount = ethAmount * 3500; // Example rate - replace with real price feed
+
+      setBalance((prev) => ({
         ...prev,
         eth: ethAmount,
-        usdEth: usdAmount
+        usdEth: usdAmount,
+        btc: 0,
+        usdBtc: 0,
       }));
+
+      setActiveWallet("metamask");
+      setError(null);
     } catch (e) {
-      console.error('MetaMask balance fetch error:', e);
+      setError(
+        e instanceof Error ? e.message : "Failed to fetch MetaMask balance",
+      );
+      console.error("MetaMask balance fetch error:", e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const getUnisatBalance = async () => {
+    setIsLoading(true);
     try {
-      const res: UnisatBalance = await window.unisat.getBalance();
-      if (!res || typeof res.total !== 'number') {
-        throw new Error('Invalid balance format received');
+      if (!window.unisat) throw new Error("Unisat not installed");
+
+      // Reset any existing wallet state
+      if (activeWallet === "metamask") {
+        resetWalletState();
       }
 
-      const btcAmount = (Number(res.total) / 10 ** 8);
-      const usdAmount = btcAmount * 65000; // Example BTC/USD rate
+      const accounts = await window.unisat.requestAccounts();
+      if (!accounts[0]) throw new Error("No account found");
 
-      setBalance(prev => ({
+      setRawAddress(accounts[0]);
+      setWalletAddress(accounts[0].slice(0, 6) + "..." + accounts[0].slice(-4));
+
+      const res = await window.unisat.getBalance();
+      if (!res || typeof res.total !== "number") {
+        throw new Error("Invalid balance format received");
+      }
+
+      const btcAmount = Number(res.total) / 10 ** 8;
+      const usdAmount = btcAmount * 65000; // Example rate - replace with real price feed
+
+      setBalance((prev) => ({
         ...prev,
         btc: btcAmount,
-        usdBtc: usdAmount
+        usdBtc: usdAmount,
+        eth: 0,
+        usdEth: 0,
       }));
+
+      setActiveWallet("unisat");
+      setError(null);
     } catch (e) {
-      console.error('Unisat balance fetch error:', e);
+      setError(
+        e instanceof Error ? e.message : "Failed to fetch Unisat balance",
+      );
+      console.error("Unisat balance fetch error:", e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const addToMetaMask = async () => {
+  const handleCopyAddress = async () => {
     try {
-      if (!window.ethereum) throw new Error("MetaMask not installed");
-      
-      await window.ethereum.request({
-        method: 'wallet_watchAsset',
-        params: {
-          type: 'ERC20',
-          options: {
-            address: rawAddress, // Contract address of the token
-            symbol: 'YOUR_TOKEN', // Token symbol
-            decimals: 18, // Number of decimals
-            image: 'https://your-token-image.png', // Token logo URL
-          },
-        },
-      });
-    } catch (e) {
-      console.error('Error adding to MetaMask:', e);
+      await navigator.clipboard.writeText(rawAddress);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy address:", err);
     }
   };
 
-  const connectMetaMask = async () => {
-    try {
-      if (!window.ethereum) {
-        alert("Please install MetaMask!");
-        return;
+  // Set up listeners for both wallet types
+  useEffect(() => {
+    const setupMetaMaskListeners = () => {
+      if (!window.ethereum) return;
+      if (authState.walletType == "metamask") {
+        console.log("triggered eth");
+        getMetaMaskBalance();
       }
 
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      if (accounts[0]) {
-        setRawAddress(accounts[0]);
-        setWalletAddress(`${accounts[0].slice(0, 4)}...${accounts[0].slice(-4)}`);
-        setActiveWallet("metamask");
-        await getMetaMaskBalance();
-      }
-    } catch (e) {
-      console.error('MetaMask connection error:', e);
-      setWalletAddress("Connect Wallet");
-      setRawAddress("");
-    }
-  };
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (activeWallet === "metamask") {
+          if (accounts.length === 0) {
+            resetWalletState();
+            setActiveWallet(null);
+          } else {
+            getMetaMaskBalance();
+          }
+        }
+      };
 
-  const connectUnisat = async () => {
-    try {
-      const accounts = await window.unisat.getAccounts();
-      if (accounts[0]) {
-        setRawAddress(accounts[0]);
-        setWalletAddress(`${accounts[0].slice(0, 4)}...${accounts[0].slice(-4)}`);
-        setActiveWallet("unisat");
-        await getUnisatBalance();
-      }
-    } catch (e) {
-      console.error('Unisat connection error:', e);
-      setWalletAddress("Connect Wallet");
-      setRawAddress("");
-    }
-  };
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+      window.ethereum.on("chainChanged", getMetaMaskBalance);
 
-  const handleCopy = async () => {
-    if (rawAddress) {
-      try {
-        await navigator.clipboard.writeText(rawAddress);
-        setCopySuccess(true);
-        setTimeout(() => setCopySuccess(false), 2000);
-      } catch (err) {
-        console.error('Failed to copy address:', err);
+      return () => {
+        window.ethereum.removeListener(
+          "accountsChanged",
+          handleAccountsChanged,
+        );
+        window.ethereum.removeListener("chainChanged", getMetaMaskBalance);
+      };
+    };
+
+    const setupUnisatListeners = () => {
+      if (!window.unisat) return;
+      if (authState.walletType == "unisat") {
+        getUnisatBalance();
       }
-    }
-  };
+
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (activeWallet === "unisat") {
+          if (accounts.length === 0) {
+            resetWalletState();
+            setActiveWallet(null);
+          } else {
+            getUnisatBalance();
+          }
+        }
+      };
+
+      window.unisat.on("accountsChanged", handleAccountsChanged);
+      window.unisat.on("networkChanged", getUnisatBalance);
+
+      return () => {
+        window.unisat.removeListener("accountsChanged", handleAccountsChanged);
+        window.unisat.removeListener("networkChanged", getUnisatBalance);
+      };
+    };
+
+    // Set up listeners for both wallet types
+    const cleanupMetaMask = setupMetaMaskListeners();
+    const cleanupUnisat = setupUnisatListeners();
+
+    // Cleanup function
+    return () => {
+      if (cleanupMetaMask) cleanupMetaMask();
+      if (cleanupUnisat) cleanupUnisat();
+    };
+  }, [activeWallet, authState.walletType]); // Only re-run when activeWallet changes
 
   return (
     <section className="mt-[43.5px]">
@@ -383,28 +455,8 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
           </div>
           <div className="w-full flex flex-col justify-between gap-5 pl-6 pr-6 pt-4 pb-4">
             <div className="flex gap-4 items-center">
-              <div className="flex gap-4">
-                <button 
-                  onClick={connectMetaMask}
-                  className="text-profileTitle font-bold text-neutral50 bg-white4 px-4 py-2 rounded-xl"
-                >
-                  Connect MetaMask
-                </button>
-                <button 
-                  onClick={connectUnisat}
-                  className="text-profileTitle font-bold text-neutral50 bg-white4 px-4 py-2 rounded-xl"
-                >
-                  Connect Unisat
-                </button>
-                {activeWallet === "metamask" && (
-                  <button 
-                    onClick={addToMetaMask}
-                    className="text-profileTitle font-bold text-neutral50 bg-white4 px-4 py-2 rounded-xl"
-                  >
-                    Add to MetaMask
-                  </button>
-                )}
-              </div>
+              {authState.address}
+
               <div className="relative">
                 <Image
                   src={"/profile/copy.png"}
@@ -412,7 +464,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                   width={24}
                   height={24}
                   className="w-6 h-6 cursor-pointer"
-                  onClick={handleCopy}
+                  onClick={handleCopyAddress}
                 />
                 {copySuccess && (
                   <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-sm py-1 px-2 rounded">
