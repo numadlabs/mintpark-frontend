@@ -16,43 +16,46 @@ import {
   getCollectionById,
 } from "@/lib/service/queryHelper";
 import { CollectibleDataType, CollectionDataType } from "@/lib/types";
-import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
-import {
-  confirmPendingList,
-  listCollectibleConfirm,
-} from "@/lib/service/postRequest";
-import { useRouter } from "next/navigation";
+import { getSigner, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import PendingListModal from "@/components/modal/pending-list-modal";
 import moment from "moment";
+import {
+  buyListedCollectible,
+  createApprovalTransaction,
+  listCollectiblesForConfirm,
+} from "@/lib/service/postRequest";
 
-interface PageProps {
-  params: { id: string };
-}
-
-export default function Page({ params }: PageProps) {
+export default function AssetsDetails() {
+  const params = useParams();
+  const id = params.assetsId as string;
   const [isVisible, setIsVisible] = useState(false);
+  const [txid, setTxid] = useState<string>("");
 
-  const collectibleId = params.id;
-  const router = useRouter();
+  const { mutateAsync: createApprovalMutation } = useMutation({
+    mutationFn: createApprovalTransaction,
+  });
+
+  const collectibleId = id;
   const {
     data: collectionData,
     isLoading: isCollectionLoading,
     error: collectionError,
-  } = useQuery<CollectionDataType[]>({
-    queryKey: ["collectionData", params.id],
-    queryFn: () => getCollectionById(params.id),
-    enabled: !!params.id,
+  } = useQuery({
+    queryKey: ["collectionData", id],
+    queryFn: () => getCollectionById(id),
+    enabled: !!params.assetsId,
   });
 
   const {
     data: collectibleData,
     isLoading: isCollectibleLoading,
     error: collectibleError,
-  } = useQuery<CollectibleDataType[]>({
-    queryKey: ["collectibleData", params.id],
-    queryFn: () => getCollectibleById(params.id),
-    enabled: !!params.id,
+  } = useQuery({
+    queryKey: ["collectibleData", id],
+    queryFn: () => getCollectibleById(id),
+    enabled: !!params.assetsId,
   });
 
   if (isCollectionLoading || isCollectibleLoading) {
@@ -67,19 +70,6 @@ export default function Page({ params }: PageProps) {
     return (
       <div className="flex justify-center items-center w-full h-screen">
         Error: {((collectionError || collectibleError) as Error).message}
-      </div>
-    );
-  }
-
-  if (
-    !collectionData ||
-    collectionData.length === 0 ||
-    !collectibleData ||
-    collectibleData.length === 0
-  ) {
-    return (
-      <div className="flex justify-center items-center w-full h-screen">
-        No data available
       </div>
     );
   }
@@ -108,7 +98,25 @@ export default function Page({ params }: PageProps) {
     setIsVisible(!isVisible);
   };
 
-  console.log("first", collection);
+  const HandleList = async () => {
+    try {
+      const collectionId = collection.collectionId;
+      const response = await createApprovalMutation({
+        collectionId: collectionId,
+      });
+      if (response && response.success) {
+        const { transaction } = response.data.approveTxHex;
+        console.log(transaction)
+        const { signer } = await getSigner();
+        const signedTx = await signer?.sendTransaction(transaction);
+        await signedTx?.wait();
+        if (signedTx?.hash) setTxid(signedTx?.hash);
+        toggleModal()
+      }
+    } catch (error) {
+      console.error("Error list:", error);
+    }
+  };
 
   return (
     <Layout>
@@ -119,65 +127,61 @@ export default function Page({ params }: PageProps) {
             width={560}
             height={560}
             src={
-              collection.fileKey
-                ? s3ImageUrlBuilder(collection.fileKey)
-                : ordinalsImageCDN(collection.uniqueIdx)
+              collection?.fileKey
+                ? s3ImageUrlBuilder(collection?.fileKey)
+                : ordinalsImageCDN(collection?.uniqueIdx)
             }
             className="aspect-square rounded-xl"
-            alt={`${collection.name} logo`}
+            alt={`${collection?.name} logo`}
           />
         </div>
         <div className="flex flex-col gap-8">
           <div className="flex flex-col gap-2">
             <p className="font-medium text-xl text-brand">
-              {collection.collectionName}
+              {collection?.collectionName}
             </p>
             <span className="flex text-3xl font-bold text-neutral50">
-              {collection.name}
+              {collection?.name}
             </span>
           </div>
           <div className="w-[592px] h-[1px] bg-neutral500" />
           <div className="flex flex-col justify-center gap-6">
-            <div className="flex justify-between w-full">
-              <span className="font-medium pt-3 text-end text-lg text-neutral200">
-                <p>List price</p>
-              </span>
-              <span className="font-bold text-neutral50 text-lg">
-                <h1>{(collection.price / 10 ** 8)} BTC</h1>
-              </span>
-            </div>
-            {/* commit */}
-            <div className="flex justify-between w-full">
-              <span className="font-medium pt-3 text-end text-lg text-neutral200">
-                <p>Network fee</p>
-              </span>
-              <span className="font-bold text-neutral50 text-lg">
-                <h1>{(collection.price / 10 ** 8)} BTC</h1>
-              </span>
-            </div>
-            {/* commit */}
-            {/* <div className="flex justify-between w-full">
-              <span className="font-medium pt-3 text-end text-lg text-neutral200">
-                <p>Service fee</p>
-              </span>
-              <span className="font-bold text-neutral50 text-lg">
-                <h1>{(collection.price / 10 ** 8).toFixed(4)} BTC</h1>
-              </span>
-            </div> */}
-            <div className="flex justify-between w-full">
-              <span className="font-medium pt-3 text-end text-lg2 text-neutral200">
-                <p>Total price</p>
-              </span>
-              <span className="font-bold text-brand500 text-xl">
-                <h1>{(collection.price / 10 ** 8)} BTC</h1>
-              </span>
-            </div>
-            {collection.price === 0 && (
+            {collection?.price === 0 ? (
+              "This asset is not listed"
+            ) : (
+              <div className="flex flex-col justify-center gap-6">
+                <div className="flex justify-between w-full">
+                  <span className="font-medium pt-3 text-end text-lg text-neutral200">
+                    <p>List price</p>
+                  </span>
+                  <span className="font-bold text-neutral50 text-lg">
+                    <h1>{collection?.price / 10 ** 8} BTC</h1>
+                  </span>
+                </div>
+                <div className="flex justify-between w-full">
+                  <span className="font-medium pt-3 text-end text-lg text-neutral200">
+                    <p>Network fee</p>
+                  </span>
+                  <span className="font-bold text-neutral50 text-lg">
+                    <h1>{collection?.price / 10 ** 8} BTC</h1>
+                  </span>
+                </div>
+                <div className="flex justify-between w-full">
+                  <span className="font-medium pt-3 text-end text-lg2 text-neutral200">
+                    <p>Total price</p>
+                  </span>
+                  <span className="font-bold text-brand500 text-xl">
+                    <h1>{collection?.price / 10 ** 8} BTC</h1>
+                  </span>
+                </div>
+              </div>
+            )}
+            {collection?.price === 0 && (
               <div className="">
                 <Button
                   variant={"default"}
                   className="w-60 h-12 bg-brand500"
-                  onClick={toggleModal}
+                  onClick={HandleList}
                 >
                   List
                 </Button>
@@ -190,10 +194,10 @@ export default function Page({ params }: PageProps) {
             <div className="grid grid-cols-3 gap-2">
               <div className="w-[192px] rounded-xl grid gap-2 border border-neutral500 pt-3 pb-4 pl-4 pr-4">
                 <p className="font-medium text-sm text-neutral200">
-                  {collectible.name}
+                  {collectible?.name}
                 </p>
                 <h1 className="font font-medium text-md text-neutral50">
-                  {collectible.value}
+                  {collectible?.value}
                 </h1>
               </div>
             </div>
@@ -211,7 +215,7 @@ export default function Page({ params }: PageProps) {
                       Owned by
                     </h1>
                     <p className="font-medium text-md text-neutral50">
-                      {collection.ownedBy}
+                      {collection?.ownedBy}
                     </p>
                   </div>
                   <div className="flex justify-between">
@@ -219,7 +223,7 @@ export default function Page({ params }: PageProps) {
                       Floor difference
                     </h1>
                     <p className="font-medium text-md text-success">
-                      {collection.floorDifference}%
+                      {collection?.floorDifference}%
                     </p>
                   </div>
                   <div className="flex justify-between">
@@ -227,18 +231,18 @@ export default function Page({ params }: PageProps) {
                       Listed time
                     </h1>
                     <p className="font-medium text-md text-neutral50">
-                      {formatTimeAgo(collection.createdAt)} ago
+                      {formatTimeAgo(collection?.createdAt)} ago
                     </p>
                   </div>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-2">
                 <AccordionTrigger className="font-medium text-xl text-neutral50">
-                  About {collection.collectionName}
+                  About {collection?.collectionName}
                 </AccordionTrigger>
                 <AccordionContent>
                   <p className="text-neutral200 font-medium text-md">
-                    {collection.description}
+                    {collection?.description}
                   </p>
                 </AccordionContent>
               </AccordionItem>
@@ -249,11 +253,12 @@ export default function Page({ params }: PageProps) {
       <PendingListModal
         open={isVisible}
         onClose={toggleModal}
-        fileKey={collection.fileKey}
-        uniqueIdx={collection.uniqueIdx}
-        name={collection.name}
-        collectionName={collection.collectionName}
-        collectibleId={collectibleId}
+        fileKey={collection?.fileKey}
+        uniqueIdx={collection?.uniqueIdx}
+        name={collection?.name}
+        collectionName={collection?.collectionName}
+        collectibleId={collection.id}
+        txid={txid}
       />
     </Layout>
   );

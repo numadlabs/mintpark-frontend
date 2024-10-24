@@ -601,6 +601,84 @@ export async function listCollectibleConfirm({
   }
 }
 
+export async function mintFeeOfCitrea({
+  data
+}: {
+  data: MintFeeType
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/change-mintfee-transaction`, {
+        data
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function generateBuyHexCitrea({
+  id
+}: {
+  id: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/${id}/generate-citrea-buy`, {
+        id
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function createApprovalTransaction({
+  collectionId
+}: {
+  collectionId: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists/approval`, {
+        collectionId
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function listCollectiblesForConfirm({
+  collectibleId,
+  price,
+  txid
+}: {
+  collectibleId: string;
+  price: number;
+  txid: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists`, {
+        collectibleId,
+        price,
+        txid
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
 export async function confirmPendingList({
   id,
   txid,
@@ -658,42 +736,6 @@ export async function buyListedCollectible({
     return axiosClient
       .post(`/api/v1/lists/${id}/buy`, {
         hex,
-      })
-      .then((response) => {
-        return response.data;
-      });
-  } catch (error) {
-    console.log("Error:", error);
-  }
-}
-
-export async function mintFeeOfCitrea({
-  data
-}: {
-  data: MintFeeType
-}) {
-  try {
-    return axiosClient
-      .post(`/api/v1/launchpad/change-mintfee-transaction`, {
-        data
-      })
-      .then((response) => {
-        return response.data;
-      });
-  } catch (error) {
-    console.log("Error:", error);
-  }
-}
-
-export async function generateBuyHexCitrea({
-  id
-}: {
-  id: string;
-}) {
-  try {
-    return axiosClient
-      .post(`/api/v1/launchpad/${id}/generate-citrea-buy`, {
-        id
       })
       .then((response) => {
         return response.data;

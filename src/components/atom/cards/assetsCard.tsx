@@ -14,7 +14,7 @@ const AssetsCard: React.FC<cardProps> = ({ data }) => {
     <>
       {" "}
       <Link
-        href={`/myAssetDetail/${data.id}`}
+        href={`/assets/${data.id}`}
         className="w-[280px] h-[394px] collection backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-gray-700 rounded-xl px-4 pt-4 pb-5 flex flex-col justify-between"
       >
         <Image

@@ -5,7 +5,6 @@ import ButtonLg from "@/components/ui/buttonLg";
 import { Carousel } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-// import { CollectionType } from "@/lib/types";
 import { confirmOrder, generateHex } from "@/lib/service/postRequest";
 import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -29,11 +28,8 @@ const Page = () => {
   const { authState } = useAuth();
   const params = useParams();
   const id = params.launchId as string;
-  const [hash, setHash] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [activePhase, setActivePhase] = useState(null);
-  const [timeDisplay, setTimeDisplay] = useState("");
-  const [status, setStatus] = useState("");
 
   const { mutateAsync: createOrderToMintMutation } = useMutation({
     mutationFn: createOrderToMint,
@@ -70,6 +66,7 @@ const Page = () => {
         : "";
 
   const handleConfirm = async () => {
+    setIsLoading(true);
     try {
       let txid;
       const response = await createOrderToMintMutation({
@@ -95,78 +92,20 @@ const Page = () => {
           );
         }
         if (orderId) {
-          router.push("/launchpad");
-          await new Promise((resolve) => setTimeout(resolve, 5000));
           await confirmOrderMutation({ orderId: orderId, txid: txid });
+          router.push("/launchpad");
         }
       }
     } catch (error) {
       // console.error(error);
       toast.error("Failed to create order");
+    } finally{
+      setIsLoading(false);
     }
   };
 
   const handlePhaseClick = (phaseType: any) => {
     setActivePhase(phaseType);
-  };
-
-  useEffect(() => {
-    const updateTime = () => {
-      if (!collectibles) return;
-
-      const now = moment();
-
-      const convertToSeconds = (timestamp: number | undefined) => {
-        if (!timestamp) return 0;
-        return timestamp.toString().length === 13
-          ? Math.floor(timestamp / 1000)
-          : timestamp;
-      };
-
-      const startTime = convertToSeconds(collectibles.poStartsAt);
-      const endTime = convertToSeconds(collectibles.enddate);
-
-      if (!startTime || !endTime) {
-        setStatus("Invalid date");
-        setTimeDisplay("");
-        return;
-      }
-
-      const startMoment = moment.unix(startTime);
-      const endMoment = moment.unix(endTime);
-      const createMoment = moment(collectibles.createdAt);
-
-      if (now.isAfter(endMoment)) {
-        setStatus("Ended");
-        setTimeDisplay("");
-        return;
-      }
-
-      if (now.isBetween(startMoment, endMoment)) {
-        setStatus("Ends in:");
-        const duration = moment.duration(endMoment.diff(now));
-        setTimeDisplay(
-          `${Math.floor(duration.asDays())}d ${duration.hours().toString().padStart(2, "0")}h ${duration.minutes().toString().padStart(2, "0")}m`,
-        );
-        return;
-      }
-
-      if (now.isBefore(startMoment)) {
-        setStatus("Starts in:");
-        const duration = moment.duration(startMoment.diff(now));
-        setTimeDisplay(
-          `${Math.floor(duration.asDays())}d ${duration.hours().toString().padStart(2, "0")}h ${duration.minutes().toString().padStart(2, "0")}m`,
-        );
-      }
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 60000);
-    return () => clearInterval(interval);
-  }, [collectibles]);
-
-  const navigateCollection = () => {
-    router.push(`/collections`);
   };
 
   return (
@@ -343,17 +282,6 @@ const Page = () => {
                   )}
                 </div>
               </ScrollArea>
-              {status === "Ended" ? (
-                <ButtonLg
-                  type="submit"
-                  isSelected={true}
-                  className="w-full py-3 text-lg font-semibold bg-brand rounded-xl text-neutral600"
-                  disabled={isLoading}
-                  onClick={navigateCollection}
-                >
-                  Go to collection
-                </ButtonLg>
-              ) : status === "Live" || status === "Indefinite" ? (
                 <ButtonLg
                   type="submit"
                   isSelected={true}
@@ -363,9 +291,6 @@ const Page = () => {
                 >
                   {isLoading ? "Loading..." : "Mint"}
                 </ButtonLg>
-              ) : status === "Upcoming" ? (
-                ""
-              ) : null}
             </div>
           </section>
         </DetailLayout>
