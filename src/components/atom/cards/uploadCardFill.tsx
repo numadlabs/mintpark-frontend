@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { CloseSquare } from "iconsax-react";
+import { X } from "lucide-react";
 
 interface cardProps {
   image: any;
@@ -24,7 +24,7 @@ const UploadCardFill: React.FC<cardProps> = ({ image, onDelete }) => {
         className="rounded-xl bg-neutral400 w-8 h-8 flex items-center justify-center absolute -top-3 -right-3"
         onClick={onDelete}
       >
-        <CloseSquare size={16} color="#F8F9FA" />
+        <X size={16} color="#F8F9FA" />
       </button>
     </div>
   );

@@ -226,6 +226,7 @@ const CollectionDetail = () => {
   };
 
   const handleDeleteLogo = () => {
+    setImageFile([]); // Clear the imageFile array
     setImageLogo(null);
   };
 
@@ -432,7 +433,7 @@ const CollectionDetail = () => {
                   title="Continue"
                   isSelected={true}
                   onClick={handleCreateCollection}
-                  // disabled={isLoading}
+                  disabled={isLoading}
                   isLoading={isLoading}
                 >
                   {isLoading ? "Loading..." : "Continue"}
@@ -519,7 +520,7 @@ const CollectionDetail = () => {
                   isSelected={true}
                   onClick={() => setStep(2)}
                   isLoading={isLoading}
-                  // disabled={isLoading}
+                  disabled={isLoading}
                 >
                   {/* {isLoading ? (
                     <Loader2
@@ -781,14 +782,16 @@ const CollectionDetail = () => {
                   isSelected={true}
                   onClick={isChecked ? handleCreateLaunch : handlePay}
                   isLoading={isLoading}
+                  disabled={isLoading}
                   className="flex justify-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold  w-full items-center"
                 >
                   {isLoading ? (
-                    <Loader2
-                      className="animate-spin"
-                      color="#111315"
-                      size={24}
-                    />
+                    // <Loader2
+                    //   className="animate-spin"
+                    //   color="#111315"
+                    //   size={24}
+                    // />
+                    "Loading"
                   ) : (
                     "Confirm"
                   )}

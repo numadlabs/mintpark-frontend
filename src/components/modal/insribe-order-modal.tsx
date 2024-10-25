@@ -40,10 +40,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
     enabled: !!id,
     refetchInterval: 5000,
   });
-
-  console.log("status", status);
   const totalFee = orders?.networkFee + orders?.serviceFee;
-  console.log("oasdfkid", orders);
   const router = useRouter();
   const createOrder = () => {
     onClose();
