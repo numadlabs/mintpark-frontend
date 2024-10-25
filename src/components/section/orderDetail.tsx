@@ -63,19 +63,6 @@ const OrderDetail = () => {
     return `${year}/${month}/${day}, ${hours}:${minutes}`;
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "inscribed":
-        return "text-[#2cb59e]";
-      case "closed":
-        return "text-[#ff5c69]";
-      case "pending...":
-        return "text-[#B0B0B1]";
-      default:
-        return "text-[#B0B0B1]]";
-    }
-  };
-
   const getStatus = (paymentStatus: string) => {
     switch (paymentStatus) {
       case "PENDING":
@@ -91,8 +78,21 @@ const OrderDetail = () => {
     }
   };
 
-  const capitalizeFirstLetter = (string: string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  const getStatusColor = (status: string) => {
+    // Convert the input status to uppercase to match our case conditions
+    const upperStatus = status.toUpperCase();
+    switch (upperStatus) {
+      case "PENDING":
+        return "text-[#B0B0B1]";
+      case "IN_QUEUE":
+        return "text-[#6DB5E5]";
+      case "DONE":
+        return "text-[#2CB59E]";
+      case "EXPIRED":
+        return "text-[#FF5C69]";
+      default:
+        return "text-[#B0B0B1]";
+    }
   };
 
   const toggleOrderModal = (order: any) => {
