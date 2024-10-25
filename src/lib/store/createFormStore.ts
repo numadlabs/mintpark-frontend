@@ -26,13 +26,13 @@ interface FormState {
   POMaxMintPerWallet: number;
   setPOMaxMintPerWallet: (POMaxMintPerWallet: number) => void;
   txid: string;
-  setTxid: (txid: string) => void,
+  setTxid: (txid: string) => void;
   reset: () => void;
 }
 
 const useCreateFormState = create<FormState>((set) => ({
   imageFile: [],
-  setImageFile: (files: File[]) => set((state) => ({ imageFile: [...state.imageFile, ...files] })),
+  setImageFile: (files: File[]) => set({ imageFile: files }),
   name: "",
   setName: (name: string) => set({ name }),
   creator: "",
@@ -54,7 +54,8 @@ const useCreateFormState = create<FormState>((set) => ({
   POMintPrice: 0,
   setPOMintPrice: (POMintPrice: number) => set({ POMintPrice }),
   POMaxMintPerWallet: 0,
-  setPOMaxMintPerWallet: (POMaxMintPerWallet: number) => set({ POMaxMintPerWallet }),
+  setPOMaxMintPerWallet: (POMaxMintPerWallet: number) =>
+    set({ POMaxMintPerWallet }),
   txid: "",
   setTxid: (txid: string) => set({ txid }),
 
@@ -72,7 +73,7 @@ const useCreateFormState = create<FormState>((set) => ({
       POEndsAtTime: "",
       POMintPrice: 0,
       POMaxMintPerWallet: 0,
-      txid: ""
+      txid: "",
     }),
 }));
 

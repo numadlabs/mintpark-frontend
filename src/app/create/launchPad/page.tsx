@@ -85,7 +85,7 @@ const CollectionDetail = () => {
   const [successModal, setSuccessModal] = useState(false);
   const [inscribeModal, setInscribeModal] = useState(false);
   const [data, setData] = useState<string>("");
-  const [hash, setHash] = useState<string>("")
+  const [hash, setHash] = useState<string>("");
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
   });
@@ -156,6 +156,7 @@ const CollectionDetail = () => {
     } catch (error) {
       console.error("Error calculating timestamp:", error);
       return 0;
+
     }
   };
 
@@ -219,10 +220,12 @@ const CollectionDetail = () => {
 
   const togglePayModal = () => {
     setPayModal(!payModal);
+    // reset();
   };
 
   const handleToggle = () => {
     setIsChecked(!isChecked);
+    // reset();
   };
 
   const handleDeleteLogo = () => {
@@ -236,6 +239,7 @@ const CollectionDetail = () => {
       reset(); // Reset form data when going back
     } else {
       router.push("/create");
+      reset();
     }
   };
 
@@ -326,7 +330,7 @@ const CollectionDetail = () => {
         files: files,
         collectionId: collectionId,
         feeRate: 1,
-        txid: txid
+        txid: txid,
       };
 
       const response = await createCollectiblesMutation({ data: params });
@@ -340,7 +344,7 @@ const CollectionDetail = () => {
           );
           await signedTx?.wait();
           console.log(signedTx);
-          if(signedTx?.hash) setHash(signedTx?.hash);
+          if (signedTx?.hash) setHash(signedTx?.hash);
         } else if (currentLayer.layer === "FRACTAL") {
           console.log(
             response.data.order.fundingAddress,
@@ -384,6 +388,7 @@ const CollectionDetail = () => {
                   <div className="grid gap-3">
                     <p className="font-medium text-lg text-neutral50">Name</p>
                     <Input
+                      onReset={reset}
                       title="Name"
                       placeholder="Collection name"
                       value={name}
@@ -395,6 +400,7 @@ const CollectionDetail = () => {
                       Creater (optional)
                     </p>
                     <Input
+                      onReset={reset}
                       name="Creater optional"
                       title="Description"
                       placeholder="Collection creator name"
@@ -404,6 +410,7 @@ const CollectionDetail = () => {
                   </div>
 
                   <TextArea
+                    // onReset={reset}
                     title="Description"
                     text="Description"
                     value={description}
@@ -642,6 +649,7 @@ const CollectionDetail = () => {
                     </p>
                     <div className="relative flex items-center">
                       <Input
+                        onReset={reset}
                         placeholder="Amount"
                         className="w-full pl-10"
                         type="number"
@@ -666,6 +674,7 @@ const CollectionDetail = () => {
                       Max mint per wallet
                     </p>
                     <Input
+                      onReset={reset}
                       placeholder="0"
                       value={POMaxMintPerWallet}
                       type="number"
@@ -785,16 +794,14 @@ const CollectionDetail = () => {
                   disabled={isLoading}
                   className="flex justify-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold  w-full items-center"
                 >
-                  {isLoading ? (
-                    // <Loader2
-                    //   className="animate-spin"
-                    //   color="#111315"
-                    //   size={24}
-                    // />
-                    "Loading"
-                  ) : (
-                    "Confirm"
-                  )}
+                  {isLoading
+                    ? // <Loader2
+                      //   className="animate-spin"
+                      //   color="#111315"
+                      //   size={24}
+                      // />
+                      "Loading"
+                    : "Confirm"}
                 </ButtonLg>
               </div>
             </div>
@@ -814,13 +821,13 @@ const CollectionDetail = () => {
       />
 
       <InscribeOrderModal
-          open={inscribeModal}
-          onClose={() => setInscribeModal(false)}
-          id={data}
-          navigateOrders={() => router.push('/orders')}
-          navigateToCreate={() => router.push('/create')}
-          txid={txid}
-        />
+        open={inscribeModal}
+        onClose={() => setInscribeModal(false)}
+        id={data}
+        navigateOrders={() => router.push("/orders")}
+        navigateToCreate={() => router.push("/create")}
+        txid={txid}
+      />
       <SuccessModal
         open={successModal}
         onClose={toggleSuccessModal}

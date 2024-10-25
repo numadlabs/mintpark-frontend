@@ -1,8 +1,15 @@
 import React from "react";
 import Image from "next/image";
 import { Button } from "../ui/button";
+import { useRouter } from "next/navigation";
+
 
 const LaunchpadBanner = () => {
+  const router = useRouter();
+
+  const handleMinterClick = () => {
+    router.push("/create"); 
+  };
   return (
     <div className="w-full relative h-[320px] z-50 pt-11">
       <Image
@@ -29,7 +36,7 @@ const LaunchpadBanner = () => {
               <span className="text-neutral00">19d 06h 12m</span>
             </div>
           </div>
-          <Button className="w-[200px]">Go to minter</Button>
+          <Button className="w-[200px] cursor-pointer" onClick={handleMinterClick}>Go to minter</Button>
         </div>
       </div>
     </div>
