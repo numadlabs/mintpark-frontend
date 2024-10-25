@@ -91,7 +91,6 @@ const PendingListModal: React.FC<ModalProps> = ({
         const signedTx = await signer?.sendTransaction(preparedListingTx);
         await signedTx?.wait();
         if (signedTx?.hash) setHash(signedTx?.hash);
-        setSuccess(true);
 
         if (id && hash) {
           console.log("first")
@@ -199,6 +198,7 @@ const PendingListModal: React.FC<ModalProps> = ({
                 <Input
                   placeholder="Enter listing price"
                   className="bg-gray50"
+                  type="number"
                   value={price}
                   onChange={(e) => setPrice(Number(e.target.value))}
                 />

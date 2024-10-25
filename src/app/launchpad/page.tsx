@@ -23,6 +23,7 @@ const Launchpad = () => {
 
   const handleIntervalChange = (value: string) => {
     setInterval(value);
+    console.log("first", value);
   };
 
   return (

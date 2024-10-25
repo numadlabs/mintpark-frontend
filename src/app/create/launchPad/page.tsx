@@ -576,6 +576,7 @@ const CollectionDetail = () => {
                       <Input
                         placeholder="Amount"
                         className="w-full pl-10"
+                        type="number"
                         value={POMintPrice}
                         onChange={(e) => setPOMintPrice(Number(e.target.value))}
                       />
@@ -599,6 +600,7 @@ const CollectionDetail = () => {
                     <Input
                       placeholder="0"
                       value={POMaxMintPerWallet}
+                      type="number"
                       onChange={(e) =>
                         setPOMaxMintPerWallet(Number(e.target.value))
                       }

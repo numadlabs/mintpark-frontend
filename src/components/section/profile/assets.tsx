@@ -22,7 +22,6 @@ import { Collectible, CollectibleList } from "@/lib/types";
 import { collection } from "@/lib/constants";
 import {
   getListableById,
-  getListedCollections,
 } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/provider/auth-context-provider";
