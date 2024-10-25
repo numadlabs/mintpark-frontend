@@ -39,9 +39,6 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   name,
   uniqueIdx,
   price,
-  networkFee,
-  serviceFee,
-  total,
   listId,
 }) => {
   const router = useRouter();
@@ -120,32 +117,6 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                     </p>
                     <p className="text-lg text-neutral50 font-bold">
                       {(price)?.toFixed(6)} Sats
-                    </p>
-                  </div>
-                  <div className="w-full flex flex-row items-center justify-between">
-                    <p className="text-lg text-neutral100 font-medium">
-                      Network Fee
-                    </p>
-                    <p className="text-lg text-neutral50 font-bold">
-                      {(networkFee)?.toFixed(6)}Sats
-                    </p>
-                  </div>
-                  <div className="w-full flex flex-row items-center justify-between">
-                    <p className="text-lg text-neutral100 font-medium">
-                      Service Fee
-                    </p>
-                    <p className="text-lg text-neutral50 font-bold">
-                      {(serviceFee)?.toFixed(6)} Sats
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-5 bg-white4 p-4 rounded-2xl">
-                  <div className="w-full flex flex-row items-center justify-between">
-                    <p className="text-lg text-neutral100 font-medium">
-                      Total Amount
-                    </p>
-                    <p className="text-lg text-neutral50 font-bold">
-                      {(total)?.toFixed(6)} Sats
                     </p>
                   </div>
                 </div>

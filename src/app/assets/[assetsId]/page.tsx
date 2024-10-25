@@ -104,14 +104,14 @@ export default function AssetsDetails() {
       if (response && response.success) {
         const { transaction, isApproved } = response.data.approveTxHex;
         console.log(transaction);
-        if(isApproved === false){
-        const { signer } = await getSigner();
-        const signedTx = await signer?.sendTransaction(transaction);
-        await signedTx?.wait();
-        if (signedTx?.hash) setTxid(signedTx?.hash);
-        toggleModal();
+        if (isApproved === false) {
+          const { signer } = await getSigner();
+          const signedTx = await signer?.sendTransaction(transaction);
+          await signedTx?.wait();
+          if (signedTx?.hash) setTxid(signedTx?.hash);
+          toggleModal();
+        }
       }
-    }
     } catch (error) {
       console.error("Error list:", error);
     } finally {
@@ -156,10 +156,10 @@ export default function AssetsDetails() {
                     <p>List price</p>
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
-                    <h1>{(collection?.price)?.toFixed(6)} BTC</h1>
+                    <h1>{collection?.price?.toFixed(6)} BTC</h1>
                   </span>
                 </div>
-                <div className="flex justify-between w-full">
+                {/* <div className="flex justify-between w-full">
                   <span className="font-medium pt-3 text-end text-lg text-neutral200">
                     <p>Network fee</p>
                   </span>
@@ -172,9 +172,9 @@ export default function AssetsDetails() {
                     <p>Total price</p>
                   </span>
                   <span className="font-bold text-brand500 text-xl">
-                    <h1>{(collection?.price)?.toFixed(6)} BTC</h1>
+                    <h1>{(collection?.price).toFixed(6)} BTC</h1>
                   </span>
-                </div>
+                </div> */}
               </div>
             )}
             {collection?.price === 0 && (
@@ -197,20 +197,28 @@ export default function AssetsDetails() {
               </div>
             )}
           </div>
-          <div className="w-[592px] h-[1px] bg-neutral500" />
-          <div className="flex flex-col gap-6">
-            <h1 className="font-medium text-lg2 text-neutral50">Attribute</h1>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="w-[192px] rounded-xl grid gap-2 border border-neutral500 pt-3 pb-4 pl-4 pr-4">
-                <p className="font-medium text-sm text-neutral200">
-                  {collectible?.name}
-                </p>
-                <h1 className="font font-medium text-md text-neutral50">
-                  {collectible?.value}
+          {/* {collectibleData === "" ? (
+            ""
+          ) : (
+            <div className="flex flex-col gap-16">
+              <div className="w-[592px] h-[1px] bg-neutral500" />
+              <div className="flex flex-col gap-6">
+                <h1 className="font-medium text-lg2 text-neutral50">
+                  Attribute
                 </h1>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="w-[192px] rounded-xl grid gap-2 border border-neutral500 pt-3 pb-4 pl-4 pr-4">
+                    <p className="font-medium text-sm text-neutral200">
+                      {collectible?.name}
+                    </p>
+                    <h1 className="font font-medium text-md text-neutral50">
+                      {collectible?.value}
+                    </h1>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          )} */}
           <div className="w-[592px] h-[1px] bg-neutral500" />
           <div>
             <Accordion type="single" collapsible className="w-[592px]">

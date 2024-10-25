@@ -178,7 +178,7 @@ const CollectionDetailPage = () => {
                         className="aspect-square"
                       />
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>{collectionData?.volume   ? (collectionData.volume)?.toFixed(4)
+                        <span>{collectionData?.volume   ? (collectionData?.volume)?.toFixed(4)
                             : "0.00000"}</span> BTC
                       </p>
                     </div>
@@ -190,7 +190,7 @@ const CollectionDetailPage = () => {
                     <div className="flex mt-2">
                       <Profile2User color="#d3f85a" />
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>0</span>
+                        <span>1</span>
                       </p>
                     </div>
                   </div>
