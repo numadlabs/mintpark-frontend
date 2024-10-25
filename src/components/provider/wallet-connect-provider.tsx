@@ -23,5 +23,5 @@ export default function WalletConnectProvider({
     <UseConnectorProvider>
       <InnerProvider>{children}</InnerProvider>
     </UseConnectorProvider>
-  );
+);
 }
