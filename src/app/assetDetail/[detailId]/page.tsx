@@ -54,6 +54,8 @@ export default function AssetDetail() {
     );
   }
 
+  console.log("first", collectionData[0])
+
   const formatDaysAgo = (dateString: string) => {
     const createdDate = new Date(dateString);
     const currentDate = new Date();
@@ -72,8 +74,6 @@ export default function AssetDetail() {
   const toggleModal = () => {
     setIsVisible(!isVisible);
   };
-
-  console.log("first", estimateFee);
 
   return (
     <Layout>
@@ -110,10 +110,7 @@ export default function AssetDetail() {
                     <p>List price</p>
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
-                    <h1>
-                      {(estimateFee?.estimation?.price).toFixed(6)}{" "}
-                      BTC
-                    </h1>
+                    <h1>{(estimateFee?.estimation?.price).toFixed(6)} BTC</h1>
                   </span>
                 </div>
                 <div className="flex justify-between w-full">
@@ -122,10 +119,7 @@ export default function AssetDetail() {
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
                     <h1>
-                      {(estimateFee?.estimation?.networkFee).toFixed(
-                        6,
-                      )}{" "}
-                      BTC
+                      {(estimateFee?.estimation?.networkFee).toFixed(6)} BTC
                     </h1>
                   </span>
                 </div>
@@ -135,10 +129,7 @@ export default function AssetDetail() {
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
                     <h1>
-                      {(estimateFee?.estimation?.serviceFee).toFixed(
-                        6,
-                      )}{" "}
-                      BTC
+                      {(estimateFee?.estimation?.serviceFee).toFixed(6)} BTC
                     </h1>
                   </span>
                 </div>
@@ -147,10 +138,7 @@ export default function AssetDetail() {
                     <p>Total price</p>
                   </span>
                   <span className="font-bold text-brand500 text-xl">
-                    <h1>
-                      {(estimateFee?.estimation?.total).toFixed(6)}{" "}
-                      BTC
-                    </h1>
+                    <h1>{(estimateFee?.estimation?.total).toFixed(6)} BTC</h1>
                   </span>
                 </div>
               </div>
@@ -158,7 +146,7 @@ export default function AssetDetail() {
               ""
             )}
             <div className="flex gap-4">
-              {collectionData.price > 0 ? (
+              {collectionData[0]?.price > 0 ? (
                 <Button
                   variant={"default"}
                   className="w-60 h-12 bg-brand500"
@@ -173,21 +161,33 @@ export default function AssetDetail() {
               )}
             </div>
           </div>
-          <div className="w-[592px] h-[1px] bg-neutral500" />
-          <div className="flex flex-col gap-6">
-            <h1 className="font-medium text-lg2 text-neutral50">Attribute</h1>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="w-[192px] rounded-xl grid gap-2 border border-neutral500 pt-3 pb-4 pl-4 pr-4">
-                <p className="font-medium text-sm text-neutral200">
-                  {collectibleData[0]?.name}
-                </p>
-                <h1 className="font font-medium text-md text-neutral50">
-                  {collectibleData[0]?.value}
+          {collectibleData ? (
+            ""
+          ) : (
+            <div className="flex flex-col gap-16">
+              <div className="w-[592px] h-[1px] bg-neutral500" />
+              <div className="flex flex-col gap-6">
+                <h1 className="font-medium text-lg2 text-neutral50">
+                  Attribute
                 </h1>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="w-[192px] rounded-xl grid gap-2 border border-neutral500 pt-3 pb-4 pl-4 pr-4">
+                    <p className="font-medium text-sm text-neutral200">
+                      {collectibleData[0]?.name}
+                    </p>
+                    <h1 className="font font-medium text-md text-neutral50">
+                      {collectibleData[0]?.value}
+                    </h1>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="w-[592px] h-[1px] bg-neutral500" />
+          )}
+          {collectibleData ? (
+            <div className="w-[592px] h-[1px] bg-neutral500" />
+          ) : (
+            ""
+          )}
           <div>
             <Accordion type="single" collapsible className="w-[592px]">
               <AccordionItem value="item-1">

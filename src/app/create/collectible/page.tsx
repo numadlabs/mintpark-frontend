@@ -16,6 +16,7 @@ import TextArea from "@/components/ui/textArea";
 import useCreateFormState from "@/lib/store/createFormStore";
 import SubmitPayModal from "@/components/modal/submit-pay-modal";
 import { ImageFile } from "@/lib/types";
+import { Loader2 } from "lucide-react";
 
 const stepperData = ["Upload", "Confirm"];
 
@@ -387,7 +388,15 @@ const SingleCollectible = () => {
                     isLoading={isLoading}
                     disabled={isLoading}
                   >
-                    {isLoading ? "...loading" : "Continue"}
+                    {isLoading ? (
+                      <Loader2
+                        className="animate-spin"
+                        color="#111315"
+                        size={24}
+                      />
+                    ) : (
+                      "Continue"
+                    )}
                   </ButtonLg>
                 </div>
               </div>
@@ -427,8 +436,17 @@ const SingleCollectible = () => {
                   isSelected={true}
                   isLoading={isLoading}
                   onClick={toggleSubmitModal}
+                  className="flex justify-center items-center"
                 >
-                  {isLoading ? "...loading" : "Confirm"}
+                  {isLoading ? (
+                    <Loader2
+                      className="animate-spin"
+                      color="#111315"
+                      size={24}
+                    />
+                  ) : (
+                    "Confirm"
+                  )}
                 </ButtonLg>
               </div>
             </div>

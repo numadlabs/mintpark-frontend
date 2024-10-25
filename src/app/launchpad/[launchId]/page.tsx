@@ -9,7 +9,7 @@ import { confirmOrder, generateHex } from "@/lib/service/postRequest";
 import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import {
   getFeeRates,
@@ -21,7 +21,8 @@ import { useParams, useRouter } from "next/navigation";
 import WhiteListPhaseCard from "@/components/atom/cards/white-list-phase-card";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { createOrderToMint } from "@/lib/service/postRequest";
-import moment from "moment";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Page = () => {
   const router = useRouter();
@@ -282,15 +283,19 @@ const Page = () => {
                   )}
                 </div>
               </ScrollArea>
-              <ButtonLg
+              <Button
+                variant={"default"}
                 type="submit"
-                isSelected={true}
-                className="w-full py-3 text-lg font-semibold bg-brand rounded-xl text-neutral600"
+                className="w-full"
                 disabled={isLoading}
                 onClick={handleConfirm}
               >
-                {isLoading ? "Loading..." : "Mint"}
-              </ButtonLg>
+                {isLoading ? (
+                  <Loader2 className="animate-spin" color="#111315" size={24} />
+                ) : (
+                  "Mint"
+                )}
+              </Button>
             </div>
           </section>
         </DetailLayout>
