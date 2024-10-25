@@ -17,7 +17,7 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
       {" "}
       <Link
         href={`/assetDetail/${data.id}`}
-        className="w-[280px] h-[394px] collection backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-gray-700 rounded-xl px-4 pt-4 pb-5 flex flex-col justify-between"
+        className="w-[280px] h-[394px] collection backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl px-4 pt-4 pb-5 flex flex-col justify-between"
       >
         <Image
           width={248}

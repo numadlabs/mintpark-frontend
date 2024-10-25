@@ -86,7 +86,7 @@ module.exports = {
         neutral500: "#202224",
         neutral600: "#111315",
         neutral700: "#2CB59E",
-        gradientStart: "#343A40",
+        gradientStart: "#202224",
         gradientEnd: "#343A40",
         neutral500Rgb: "rgba(52, 58, 64, 0.7)",
         success:"#2CB59E",
