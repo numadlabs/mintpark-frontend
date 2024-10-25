@@ -311,7 +311,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
                         Network Fee
                       </p>
                       <p className="text-lg2 text-neutral50 font-bold">
-                        {estimatedFee.networkFee.toFixed(4)} Sats
+                        {estimatedFee.networkFee?.toFixed(4)} Sats
                       </p>
                     </div>
                     <div className="flex flex-row justify-between items-center">
@@ -319,7 +319,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
                         Service Fee
                       </p>
                       <p className="text-lg2 text-neutral50 font-bold">
-                        {estimatedFee.serviceFee.toFixed(4)} Sats
+                        {estimatedFee.serviceFee?.toFixed(4)} Sats
                       </p>
                     </div>
                   </div>
@@ -328,7 +328,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
                       Total Amount
                     </p>
                     <p className="text-lg2 text-brand font-bold">
-                      {estimatedFee.totalFee.toFixed(4)} Sats
+                      {estimatedFee.totalFee?.toFixed(4)} Sats
                     </p>
                   </div>
                 </div>

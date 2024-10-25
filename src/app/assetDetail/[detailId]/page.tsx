@@ -110,7 +110,7 @@ export default function AssetDetail() {
                     <p>List price</p>
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
-                    <h1>{(estimateFee?.estimation?.price).toFixed(6)} BTC</h1>
+                    <h1>{(estimateFee?.estimation?.price)?.toFixed(6)} BTC</h1>
                   </span>
                 </div>
                 <div className="flex justify-between w-full">
@@ -119,7 +119,7 @@ export default function AssetDetail() {
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
                     <h1>
-                      {(estimateFee?.estimation?.networkFee).toFixed(6)} BTC
+                      {(estimateFee?.estimation?.networkFee)?.toFixed(6)} BTC
                     </h1>
                   </span>
                 </div>
@@ -129,7 +129,7 @@ export default function AssetDetail() {
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
                     <h1>
-                      {(estimateFee?.estimation?.serviceFee).toFixed(6)} BTC
+                      {(estimateFee?.estimation?.serviceFee)?.toFixed(6)} BTC
                     </h1>
                   </span>
                 </div>
@@ -138,7 +138,7 @@ export default function AssetDetail() {
                     <p>Total price</p>
                   </span>
                   <span className="font-bold text-brand500 text-xl">
-                    <h1>{(estimateFee?.estimation?.total).toFixed(6)} BTC</h1>
+                    <h1>{(estimateFee?.estimation?.total)?.toFixed(6)} BTC</h1>
                   </span>
                 </div>
               </div>
