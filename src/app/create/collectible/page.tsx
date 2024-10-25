@@ -15,12 +15,27 @@ import { useConnector } from "anduro-wallet-connector-react";
 import TextArea from "@/components/ui/textArea";
 import useCreateFormState from "@/lib/store/createFormStore";
 import SubmitPayModal from "@/components/modal/submit-pay-modal";
-import { ImageFile } from "@/lib/types";
+import {
+  CollectionData,
+  ImageFile,
+  MintCollectibleDataType,
+} from "@/lib/types";
 import { Loader2 } from "lucide-react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  createCollection,
+  createMintCollectible,
+} from "@/lib/service/postRequest";
+import { getLayerById } from "@/lib/service/queryHelper";
+import { useAuth } from "@/components/provider/auth-context-provider";
+import { getSigner } from "@/lib/utils";
+import { toast } from "sonner";
+import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 
 const stepperData = ["Upload", "Confirm"];
 
 const SingleCollectible = () => {
+  const { authState } = useAuth();
   const router = useRouter();
   const { signTransaction, sendTransaction, signAndSendTransaction } =
     React.useContext<any>(useConnector);
@@ -45,6 +60,23 @@ const SingleCollectible = () => {
   const [fileTypeSizes, setFileTypeSizes] = useState<number[]>([]);
   const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
+  const [hash, setHash] = useState<string>("");
+  const [inscribeModal, setInscribeModal] = useState(false);
+  const [data, setData] = useState<string>("");
+
+  const { mutateAsync: createCollectionMutation } = useMutation({
+    mutationFn: createCollection,
+  });
+
+  const { mutateAsync: createCollectiblesMutation } = useMutation({
+    mutationFn: createMintCollectible,
+  });
+
+  const { data: currentLayer } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
+  });
 
   const updateFileInfo = (files: File[]) => {
     const newSizes = files.map((file) => file.size);
@@ -301,6 +333,73 @@ const SingleCollectible = () => {
     reset();
   };
 
+  const handlePay = async () => {
+    setIsLoading(true);
+    try {
+      const collectionParams: CollectionData = {
+        logo: files[0],
+        name: name,
+        creator: creator,
+        description: description,
+        priceForLaunchpad: 0,
+      };
+      if (collectionParams) {
+        let collectionTxid;
+        let collectionResponse = await createCollectionMutation({
+          data: collectionParams,
+        });
+        if (collectionResponse && collectionResponse.success) {
+          const { id } = collectionResponse.data.collection;
+          const { deployContractTxHex } = collectionResponse.data;
+          console.log("create collection success", collectionResponse);
+
+          if (currentLayer.layer === "CITREA") {
+            const { signer } = await getSigner();
+            const signedTx = await signer?.sendTransaction(deployContractTxHex);
+            await signedTx?.wait();
+            if (signedTx?.hash) collectionTxid = signedTx?.hash;
+            console.log(signedTx);
+          }
+        }
+        const params: MintCollectibleDataType = {
+          orderType: "COLLECTIBLE",
+          files: files,
+          feeRate: 1,
+          txid: collectionTxid,
+        };
+
+        const response = await createCollectiblesMutation({ data: params });
+        console.log("🚀 ~ handlePay ~ response:", response);
+        if (response && response.success) {
+          if (currentLayer.layer === "CITREA") {
+            const { batchMintTxHex } = response.data;
+            const { signer } = await getSigner();
+            const signedTx = await signer?.sendTransaction(batchMintTxHex);
+            await signedTx?.wait();
+            if (signedTx?.hash) setHash(signedTx?.hash);
+          } else if (currentLayer.layer === "FRACTAL") {
+            console.log(
+              response.data.order.fundingAddress,
+              response.data.order.fundingAmount,
+            );
+            await window.unisat.sendBitcoin(
+              response.data.order.fundingAddress,
+              response.data.order.fundingAmount,
+            );
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          setData(response.data.order.id);
+          setInscribeModal(true);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create order");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <Layout>
       <div className="flex flex-col w-full h-full bg-background items-center pb-[148px]">
@@ -435,7 +534,7 @@ const SingleCollectible = () => {
                   type="button"
                   isSelected={true}
                   isLoading={isLoading}
-                  onClick={toggleSubmitModal}
+                  onClick={handlePay}
                   className="flex w-full justify-center items-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold"
                 >
                   {isLoading ? (
@@ -516,6 +615,17 @@ const SingleCollectible = () => {
         navigateOrders={handleNavigateToOrder}
         navigateToCreate={handleNavigateToCreate}
       />
+
+      {data && (
+        <InscribeOrderModal
+          open={inscribeModal}
+          onClose={() => setInscribeModal(false)}
+          id={data}
+          navigateOrders={() => router.push("/orders")}
+          navigateToCreate={() => router.push("/create")}
+          txid={hash}
+        />
+      )}
     </Layout>
   );
 };

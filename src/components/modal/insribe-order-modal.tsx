@@ -155,13 +155,13 @@ const InscribeOrderModal: React.FC<modalProps> = ({
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Network Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {(orders?.networkFee).toFixed(4)} Sats
+              {(orders?.networkFee)?.toFixed(4)} Sats
             </p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Service Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {(orders?.serviceFee).toFixed(4)} Sats
+              {(orders?.serviceFee)?.toFixed(4)} Sats
             </p>
           </div>
         </div>

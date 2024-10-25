@@ -109,6 +109,31 @@ const Page = () => {
     setActivePhase(phaseType);
   };
 
+// Add this helper function to your utils file (e.g., /lib/utils.ts)
+const unixToISOString = (unixTimestamp: number | null | undefined): string => {
+  try {
+    // Check if timestamp is valid
+    if (!unixTimestamp) return '';
+    
+    // Multiply by 1000 to convert seconds to milliseconds
+    const date = new Date(unixTimestamp * 1000);
+    
+    // Validate the date is within acceptable range
+    if (isNaN(date.getTime())) {
+      return '';
+    }
+    
+    return date.toISOString();
+  } catch (error) {
+    console.error('Error converting timestamp:', error);
+    return '';
+  }
+};
+
+  console.log("first",  unixToISOString(collectibles.poStartsAt))
+  console.log("second", new Date())
+  
+
   return (
     <>
       {/* todo enddate yahu, total minted, max mintable amount*/}
