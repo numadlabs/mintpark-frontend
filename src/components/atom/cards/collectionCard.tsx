@@ -21,7 +21,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
       <Image
         width={248}
         height={248}
-        src={s3ImageUrlBuilder(data.logoKey)}
+        src={s3ImageUrlBuilder(data?.logoKey)}
         className="aspect-square rounded-xl"
         alt="png"
       />
@@ -46,9 +46,9 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
             {" "}
             <p className="text-sm font-medium text-neutral200 gap-2">Volume</p>
             <p className="pt-2 font-bold text-md text-neutral-50">
-            {data.volume === 0
-                ? data.volume
-                : (data.volume)?.toFixed(4)}
+            {data?.volume === 0
+                ? data?.volume
+                : (data?.volume)?.toFixed(4)}
               <span className="ml-1">BTC</span>
             </p>
           </div>
@@ -58,13 +58,13 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
           <div className="flex mt-2 items-center">
             <Profile2User color="#d3f85a" className="w-4 h-4" />
             <p className="ml-2 font-medium text-md text-neutral50">
-              <span>0</span> owners
+              <span>1</span> owners
             </p>
           </div>
           <div className="flex mt-2 items-center">
             <Notepad color="#d3f85a" className="w-4 h-4" />
             <p className="ml-2 font-medium text-md text-neutral50">
-              <span>{data.supply}</span> items
+              <span>{data?.supply}</span> items
             </p>
           </div>
         </div>

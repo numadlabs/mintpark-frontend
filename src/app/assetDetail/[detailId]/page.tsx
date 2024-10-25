@@ -54,8 +54,6 @@ export default function AssetDetail() {
     );
   }
 
-  console.log("first", collectionData[0])
-
   const formatDaysAgo = (dateString: string) => {
     const createdDate = new Date(dateString);
     const currentDate = new Date();
@@ -103,7 +101,7 @@ export default function AssetDetail() {
           </div>
           <div className="w-[592px] h-[1px] bg-neutral500" />
           <div className="flex flex-col justify-center gap-6">
-            {collectionData.price > 0 ? (
+            {collectionData[0]?.price > 0 ? (
               <div className="flex flex-col gap-6">
                 <div className="flex justify-between w-full">
                   <span className="font-medium pt-3 text-end text-lg text-neutral200">
@@ -111,34 +109,6 @@ export default function AssetDetail() {
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
                     <h1>{(estimateFee?.estimation?.price)?.toFixed(6)} BTC</h1>
-                  </span>
-                </div>
-                <div className="flex justify-between w-full">
-                  <span className="font-medium pt-3 text-end text-lg2 text-neutral200">
-                    <p>Network fee</p>
-                  </span>
-                  <span className="font-bold text-neutral50 text-lg">
-                    <h1>
-                      {(estimateFee?.estimation?.networkFee)?.toFixed(6)} BTC
-                    </h1>
-                  </span>
-                </div>
-                <div className="flex justify-between w-full">
-                  <span className="font-medium pt-3 text-end text-lg2 text-neutral200">
-                    <p>Service fee</p>
-                  </span>
-                  <span className="font-bold text-neutral50 text-lg">
-                    <h1>
-                      {(estimateFee?.estimation?.serviceFee)?.toFixed(6)} BTC
-                    </h1>
-                  </span>
-                </div>
-                <div className="flex justify-between w-full">
-                  <span className="font-medium pt-3 text-end text-lg2 text-neutral200">
-                    <p>Total price</p>
-                  </span>
-                  <span className="font-bold text-brand500 text-xl">
-                    <h1>{(estimateFee?.estimation?.total)?.toFixed(6)} BTC</h1>
                   </span>
                 </div>
               </div>
@@ -238,10 +208,10 @@ export default function AssetDetail() {
       <BuyAssetModal
         open={isVisible}
         onClose={toggleModal}
-        fileKey={collectionData.fileKey}
-        uniqueIdx={collectionData.uniqueIdx}
-        name={collectionData.name}
-        collectionName={collectionData.collectionName}
+        fileKey={collectionData[0]?.fileKey}
+        uniqueIdx={collectionData[0]?.uniqueIdx}
+        name={collectionData[0]?.name}
+        collectionName={collectionData[0]?.collectionName}
         price={estimateFee?.estimation?.price}
         serviceFee={estimateFee?.estimation?.serviceFee}
         networkFee={estimateFee?.estimation?.networkFee}
