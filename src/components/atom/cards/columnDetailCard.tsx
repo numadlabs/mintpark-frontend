@@ -64,14 +64,14 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
         <div className="flex justify-end items-center w-full text-start">
           <div className="w-full max-w-[200px] grid gap-1 h-[18px]">
             <p className="font-medium text-lg2 text-neutral50">
-              {(data.price / 10 ** 8).toFixed(2)}
+              {(data.price).toFixed(2)}
               <span className="ml-1">BTC</span>
             </p>
             <p>
               {" "}
               <p className="font-medium text-sm text-neutral200">
                 <span className="mr-1">$</span>
-                {((data.price / 10 ** 8) * 65000).toFixed(2)}
+                {((data.price) * 65000).toFixed(2)}
                 <span className="">k</span>
               </p>
             </p>

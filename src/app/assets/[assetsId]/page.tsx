@@ -102,14 +102,16 @@ export default function AssetsDetails() {
         collectionId: collectionId,
       });
       if (response && response.success) {
-        const { transaction } = response.data.approveTxHex;
+        const { transaction, isApproved } = response.data.approveTxHex;
         console.log(transaction);
+        if(isApproved === false){
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(transaction);
         await signedTx?.wait();
         if (signedTx?.hash) setTxid(signedTx?.hash);
         toggleModal();
       }
+    }
     } catch (error) {
       console.error("Error list:", error);
     } finally {
@@ -154,7 +156,7 @@ export default function AssetsDetails() {
                     <p>List price</p>
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
-                    <h1>{collection?.price / 10 ** 8} BTC</h1>
+                    <h1>{(collection?.price).toFixed(6)} BTC</h1>
                   </span>
                 </div>
                 <div className="flex justify-between w-full">
@@ -162,7 +164,7 @@ export default function AssetsDetails() {
                     <p>Network fee</p>
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
-                    <h1>{collection?.price / 10 ** 8} BTC</h1>
+                    <h1>{(collection?.price.toFixed(6))} BTC</h1>
                   </span>
                 </div>
                 <div className="flex justify-between w-full">
@@ -170,7 +172,7 @@ export default function AssetsDetails() {
                     <p>Total price</p>
                   </span>
                   <span className="font-bold text-brand500 text-xl">
-                    <h1>{collection?.price / 10 ** 8} BTC</h1>
+                    <h1>{(collection?.price).toFixed(6)} BTC</h1>
                   </span>
                 </div>
               </div>

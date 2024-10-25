@@ -52,23 +52,23 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
         <div className="flex justify-end items-center w-full text-start">
           <div className="w-full max-w-[200px] grid gap-1 h-[18px]">
             <p className="font-medium text-lg2 text-neutral50">
-              {(data.floor / 10 ** 8).toFixed(2)}
+              {(data.floor).toFixed(2)}
               <span className="ml-1">BTC</span>
             </p>
             <p>
               {" "}
               <p className="font-medium text-sm text-neutral200">
                 <span className="mr-1">$</span>
-                {((data.floor / 10 ** 8) * 65000).toFixed(2)}
+                {((data.floor) * 65000).toFixed(2)}
                 <span className="">k</span>
               </p>
             </p>
           </div>
           <div className="w-full max-w-[200px] h-[18px]">
             <p
-              className={`font-medium text-lg2 ${(data.floor ?? 0) / 10 ** 8 >= 0 ? "text-green-500" : "text-red-500"}`}
+              className={`font-medium text-lg2 ${(data.floor ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}
             >
-              {(data.floor ?? 0) / 10 ** 8 >= 0 ? "+" : "-"}
+              {(data.floor ?? 0) >= 0 ? "+" : "-"}
               {data.floor ?? 0}%
             </p>
           </div>
