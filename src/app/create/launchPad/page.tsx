@@ -17,9 +17,11 @@ import {
   CollectionData,
   LaunchCollectionData,
   MintFeeType,
+  MintDataType,
 } from "@/lib/types";
 import TextArea from "@/components/ui/textArea";
 import {
+  createCollectiblesToCollection,
   createCollection,
   launchCollection,
   mintFeeOfCitrea,
@@ -37,6 +39,8 @@ import { getLayerById } from "@/lib/service/queryHelper";
 import { ethers } from "ethers";
 import { getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
+import InscribeOrderModal from "@/components/modal/insribe-order-modal";
+import { toast } from "sonner";
 
 const CollectionDetail = () => {
   const router = useRouter();
@@ -79,7 +83,9 @@ const CollectionDetail = () => {
   const [totalFileSize, setTotalFileSize] = useState<number>(0);
   const [fileTypeSizes, setFileTypeSizes] = useState<number[]>([]);
   const [successModal, setSuccessModal] = useState(false);
-
+  const [inscribeModal, setInscribeModal] = useState(false);
+  const [data, setData] = useState<string>("");
+  const [hash, setHash] = useState<string>("")
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
   });
@@ -90,6 +96,10 @@ const CollectionDetail = () => {
 
   const { mutateAsync: mintFeeOfCitreaMutation } = useMutation({
     mutationFn: mintFeeOfCitrea,
+  });
+
+  const { mutateAsync: createCollectiblesMutation } = useMutation({
+    mutationFn: createCollectiblesToCollection,
   });
 
   const updateFileInfo = (files: File[]) => {
@@ -305,6 +315,51 @@ const CollectionDetail = () => {
   const handleNavigateToCreate = () => {
     router.push(`/create`);
     reset();
+  };
+
+  const handlePay = async () => {
+    setIsLoading(true);
+    try {
+      const params: MintDataType = {
+        orderType: "COLLECTION",
+        files: files,
+        collectionId: collectionId,
+        feeRate: 1,
+        txid: txid
+      };
+
+      const response = await createCollectiblesMutation({ data: params });
+      if (response && response.success) {
+        if (currentLayer.layer === "CITREA") {
+          console.log(response);
+
+          const { signer } = await getSigner();
+          const signedTx = await signer?.sendTransaction(
+            response.data.batchMintTxHex,
+          );
+          await signedTx?.wait();
+          console.log(signedTx);
+          if(signedTx?.hash) setHash(signedTx?.hash);
+        } else if (currentLayer.layer === "FRACTAL") {
+          console.log(
+            response.data.order.fundingAddress,
+            response.data.order.fundingAmount,
+          );
+          await window.unisat.sendBitcoin(
+            response.data.order.fundingAddress,
+            response.data.order.fundingAmount,
+          );
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setData(response.data.order.id);
+        setInscribeModal(true);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to create order");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -724,7 +779,7 @@ const CollectionDetail = () => {
                 <ButtonOutline title="Back" onClick={handleBack} />
                 <ButtonLg
                   isSelected={true}
-                  onClick={isChecked ? handleCreateLaunch : togglePayModal}
+                  onClick={isChecked ? handleCreateLaunch : handlePay}
                   isLoading={isLoading}
                   className="flex justify-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold  w-full items-center"
                 >
@@ -754,6 +809,15 @@ const CollectionDetail = () => {
         navigateToCreate={handleNavigateToCreate}
         hash={txid}
       />
+
+      <InscribeOrderModal
+          open={inscribeModal}
+          onClose={() => setInscribeModal(false)}
+          id={data}
+          navigateOrders={() => router.push('/orders')}
+          navigateToCreate={() => router.push('/create')}
+          txid={txid}
+        />
       <SuccessModal
         open={successModal}
         onClose={toggleSuccessModal}
