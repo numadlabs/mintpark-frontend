@@ -459,14 +459,14 @@ const CollectionDetail = () => {
               <div className="flex flex-row w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
                 <ButtonLg
-                  className="flex items-center justify-center"
+                  className="flex w-full border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold items-center justify-center"
                   // type="submit"
                   isSelected={true}
                   onClick={() => setStep(2)}
                   isLoading={isLoading}
-                  disabled={isLoading}
+                  // disabled={isLoading}
                 >
-                  {isLoading ? (
+                  {/* {isLoading ? (
                     <Loader2
                       className="animate-spin"
                       color="#111315"
@@ -474,7 +474,9 @@ const CollectionDetail = () => {
                     />
                   ) : (
                     "Continue"
-                  )}
+                  )} */}
+
+                  {isLoading ? "...loading" : "Continue"}
                 </ButtonLg>
               </div>
             </div>
@@ -627,7 +629,7 @@ const CollectionDetail = () => {
                   onClick={isChecked ? handleMintfeeChange : () => setStep(3)}
                   isLoading={isLoading}
                   disabled={isLoading}
-                  className="flex items-center justify-center"
+                  className="flex items-center   border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold  w-full justify-center"
                 >
                   {isLoading ? (
                     <Loader2
@@ -724,15 +726,17 @@ const CollectionDetail = () => {
                   isSelected={true}
                   onClick={isChecked ? handleCreateLaunch : togglePayModal}
                   isLoading={isLoading}
-                  className="flex justify-center items-center"
+                  className="flex justify-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold  w-full items-center"
                 >
-                  {isLoading ? 
-                  <Loader2
-                  className="animate-spin"
-                  color="#111315"
-                  size={24}
-                />
-                   : "Confirm"}
+                  {isLoading ? (
+                    <Loader2
+                      className="animate-spin"
+                      color="#111315"
+                      size={24}
+                    />
+                  ) : (
+                    "Confirm"
+                  )}
                 </ButtonLg>
               </div>
             </div>
