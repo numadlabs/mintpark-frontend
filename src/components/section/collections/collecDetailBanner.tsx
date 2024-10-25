@@ -7,7 +7,7 @@ import ThreadIcon from "@/components/icon/thread";
 import { Tabs } from "@/components/ui/tabs";
 import { collection } from "@/lib/constants";
 import { Global, Notepad, Profile2User } from "iconsax-react";
-import CollecBanner from "./collecBanner";
+// import CollecBanner from "./collecBanner";
 import { CollectionDataType } from "@/lib/types";
 import { getCollectionById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";

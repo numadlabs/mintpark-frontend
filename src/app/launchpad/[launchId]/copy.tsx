@@ -79,66 +79,66 @@ const Page = () => {
         ? "guaranteed"
         : "";
 
-  const handleConfirm = async () => {
-    try {
-      let txid
-      if (!authState.address) return toast.error("address not found");
-      if (currentLayer.layer === "CITREA") {
-        const mintFeeRes = await mintFeeOfCitrea({
-          ownerAddress: authState?.address,
-          collectionAddress: "",
-          mintFee: "0.001",
-        });
+  // const handleConfirm = async () => {
+  //   try {
+  //     let txid
+  //     if (!authState.address) return toast.error("address not found");
+  //     if (currentLayer.layer === "CITREA") {
+  //       const mintFeeRes = await mintFeeOfCitrea({
+  //         ownerAddress: authState?.address,
+  //         collectionAddress: "",
+  //         mintFee: "0.001",
+  //       });
 
-        if (!mintFeeRes.success) {
-          return toast.error(mintFeeRes.message || "Mint fee failed to send");
-        }
-        const { signer } = await getSigner();
-        const signedTx = await signer?.sendTransaction(
-          mintFeeRes.data.singleMintTxHex,
-        );
-        await signedTx?.wait();
-        if (signedTx?.hash) txid=signedTx?.hash;
-      }
+  //       if (!mintFeeRes.success) {
+  //         return toast.error(mintFeeRes.message || "Mint fee failed to send");
+  //       }
+  //       const { signer } = await getSigner();
+  //       const signedTx = await signer?.sendTransaction(
+  //         mintFeeRes.data.singleMintTxHex,
+  //       );
+  //       await signedTx?.wait();
+  //       if (signedTx?.hash) txid=signedTx?.hash;
+  //     }
 
-      const createOrderRes = await createOrderToMintMutation({
-        collectionId: id,
-        feeRate: feeRates.fastestFee,
-        launchOfferType: launchOfferType,
-       txid
+  //     const createOrderRes = await createOrderToMintMutation({
+  //       collectionId: id,
+  //       feeRate: feeRates.fastestFee,
+  //       launchOfferType: launchOfferType,
+  //      txid
 
-      });
-      if (!createOrderRes ||!createOrderRes.success) {
-        return toast.error(createOrderRes.data.message || "Mint fee failed to send");
-      }
+  //     });
+  //     if (!createOrderRes ||!createOrderRes.success) {
+  //       return toast.error(createOrderRes.data.message || "Mint fee failed to send");
+  //     }
 
-        const orderId = createOrderRes.data.order.id;
-        const { singleMintTxHex } = createOrderRes.data;
+  //       const orderId = createOrderRes.data.order.id;
+  //       const { singleMintTxHex } = createOrderRes.data;
 
-        if (currentLayer.layer === "CITREA") {
-          const { signer } = await getSigner();
+  //       if (currentLayer.layer === "CITREA") {
+  //         const { signer } = await getSigner();
   
-          console.log(singleMintTxHex);
-          const signedTx = await signer?.sendTransaction(singleMintTxHex);
-          await signedTx?.wait();
-          if (signedTx?.hash) txid=signedTx?.hash;
+  //         console.log(singleMintTxHex);
+  //         const signedTx = await signer?.sendTransaction(singleMintTxHex);
+  //         await signedTx?.wait();
+  //         if (signedTx?.hash) txid=signedTx?.hash;
 
-        } else if (currentLayer.layer === "FRACTAL") {
-          await window.unisat.sendBitcoin(
-            createOrderRes.data.order.fundingAddress,
-            createOrderRes.data.order.fundingAmount,
-          );
-        }
-        if (orderId) {
-          router.push("/launchpad");
-          await new Promise((resolve) => setTimeout(resolve, 5000));
-          await confirmOrderMutation({ orderId: orderId, txid: txid });
-        }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to create order");
-    }
-  };
+  //       } else if (currentLayer.layer === "FRACTAL") {
+  //         await window.unisat.sendBitcoin(
+  //           createOrderRes.data.order.fundingAddress,
+  //           createOrderRes.data.order.fundingAmount,
+  //         );
+  //       }
+  //       if (orderId) {
+  //         router.push("/launchpad");
+  //         await new Promise((resolve) => setTimeout(resolve, 5000));
+  //         await confirmOrderMutation({ orderId: orderId, txid: txid });
+  //       }
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("Failed to create order");
+  //   }
+  // };
 
   const handlePhaseClick = (phaseType: any) => {
     setActivePhase(phaseType);
@@ -349,7 +349,7 @@ const Page = () => {
             </div>
             <div className="flex flex-col justify-between h-[464px] gap-8">
               <ScrollArea className="flex flex-col">
-                <div className="flex flex-col gap-4 w-full">
+                {/* <div className="flex flex-col gap-4 w-full">
                   <PhaseCard
                     key={collectibles.id}
                     maxMintPerWallet={collectibles.poMaxMintPerWallet}
@@ -370,7 +370,7 @@ const Page = () => {
                       onClick={() => handlePhaseClick("guaranteed")}
                     />
                   )}
-                </div>
+                </div> */}
               </ScrollArea>
               {status === "Ended" ? (
                 <ButtonLg
@@ -388,7 +388,7 @@ const Page = () => {
                   isSelected={true}
                   className="w-full py-3 text-lg font-semibold bg-brand rounded-xl text-neutral600"
                   disabled={isLoading}
-                  onClick={handleConfirm}
+                  // onClick={handleConfirm}
                 >
                   {isLoading ? "Loading..." : "Mint"}
                 </ButtonLg>

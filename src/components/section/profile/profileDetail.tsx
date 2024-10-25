@@ -1,18 +1,8 @@
-import Image from "next/image";
-import { CardType } from "@/components/atom/cards/collectionCard";
-import DiscordIcon from "@/components/icon/hoverIcon";
-import ThreadIcon from "@/components/icon/thread";
+
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
-import { collection } from "@/lib/constants";
-import { Global, Notepad, Profile2User } from "iconsax-react";
-import CollecBanner from "../collections/collecBanner";
 import Assets from "./assets";
 import Activity from "./activity";
-import { getListableById, getListedCollections } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
-import { useQuery } from "@tanstack/react-query";
-import { CollectibleList } from "@/lib/types";
-import AssetsCard from "@/components/atom/cards/assetsCard";
 import { useState } from "react";
 
 const ProfileDetail = () => {
