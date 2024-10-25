@@ -324,7 +324,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                       className="h-6 w-6"
                     />
                     <p className="flex items-center font-bold text-xl text-white">
-                      {formatBalance(balance.btc)} BTC
+                      {formatBalance(balance.btc)} cBTC
                     </p>
                     <p className="border-l border-l-white16 pl-4 h-5 text-neutral100 text-md flex items-center">
                       ${formatUSD(balance.usdBtc)}

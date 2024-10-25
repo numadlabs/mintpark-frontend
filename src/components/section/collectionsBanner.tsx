@@ -39,7 +39,7 @@ const CollectionsBanner = () => {
                   />
                   <p className="pl-2 font-bold text-lg2 text-neutral50">
                     <span>0.0003</span>
-                    <span className="ml-1">BTC</span>
+                    <span className="ml-1">cBTC</span>
                   </p>
                 </div>
               </div>
@@ -57,7 +57,7 @@ const CollectionsBanner = () => {
                   />
                   <p className="pl-2 font-bold text-lg2 text-neutral50">
                     <span>1.56</span>
-                    <span className="ml-1">BTC</span>
+                    <span className="ml-1">cBTC</span>
                   </p>
                 </div>
               </div>

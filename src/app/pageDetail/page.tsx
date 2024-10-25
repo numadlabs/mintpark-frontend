@@ -186,7 +186,7 @@ export default function Page() {
                       />
                       <p className="pl-2">
                         <span>0.0003</span>
-                        <span className="ml-1">BTC</span>
+                        <span className="ml-1">cBTC</span>
                       </p>
                     </div>
                     <div className="text-md">
@@ -224,7 +224,7 @@ export default function Page() {
                       />
                       <p className="pl-2">
                         <span>0.0003</span>
-                        <span className="ml-1">BTC</span>
+                        <span className="ml-1">cBTC</span>
                       </p>
                     </div>
                     <div className="text-md">
@@ -262,7 +262,7 @@ export default function Page() {
                       />
                       <p className="pl-2">
                         <span>0.0003</span>
-                        <span className="ml-1">BTC</span>
+                        <span className="ml-1">cBTC</span>
                       </p>
                     </div>
                     <div className="text-md">

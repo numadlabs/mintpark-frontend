@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import ColumColCard from "@/components/atom/cards/ColumColCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -18,7 +18,7 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import CollectionCard from "@/components/atom/cards/collectionCard";
 import { CollectionDataType } from "@/lib/types";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Collections({ detail = false }: { detail: boolean }) {
   const router = useRouter();
@@ -44,7 +44,11 @@ export default function Collections({ detail = false }: { detail: boolean }) {
 
   return (
     <>
-      <Tabs value={selectedTab} onValueChange={setSelectedTab} className="mt-8 mb-10 border-hidden">
+      <Tabs
+        value={selectedTab}
+        onValueChange={setSelectedTab}
+        className="mt-8 mb-10 border-hidden"
+      >
         <section className="flex justify-between mb-7">
           {detail ? (
             <section className="flex justify-between ">
@@ -143,7 +147,6 @@ export default function Collections({ detail = false }: { detail: boolean }) {
             </TabsList>
           </div>
         </section>
-
         {detail && (
           <section
             className={`flex w-full ${active ? "gap-10" : "gap-0"} pt-7`}
@@ -209,21 +212,31 @@ export default function Collections({ detail = false }: { detail: boolean }) {
                 <TabsContent value="ColCard">
                   <div className="flex h-[34px] pr-8 pb-4 pl-4">
                     <div className="w-[376px] h-[18px]">
-                      <p className="font-medium text-md text-neutral200">Name</p>
+                      <p className="font-medium text-md text-neutral200">
+                        Name
+                      </p>
                     </div>
                     <div className="w-[468px] h-[18px] flex justify-around">
                       <p className="font-medium text-md text-neutral200">
                         Floor price
                       </p>
-                      <p className="font-medium text-md text-neutral200">Volume</p>
+                      <p className="font-medium text-md text-neutral200">
+                        Volume
+                      </p>
                       <p className="font-medium text-md text-neutral200">
                         Market cap
                       </p>
                     </div>
                     <div className="w-[324px] h-[18px] flex justify-around">
-                      <p className="font-medium text-md text-neutral200">Sales</p>
-                      <p className="font-medium text-md text-neutral200">Listed</p>
-                      <p className="font-medium text-md text-neutral200">Owners</p>
+                      <p className="font-medium text-md text-neutral200">
+                        Sales
+                      </p>
+                      <p className="font-medium text-md text-neutral200">
+                        Listed
+                      </p>
+                      <p className="font-medium text-md text-neutral200">
+                        Owners
+                      </p>
                     </div>
                   </div>
                   <ScrollArea className="h-[754px] border-t-2 border-neutral500">

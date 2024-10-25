@@ -117,7 +117,7 @@ const PhaseCard: React.FC<PhaseCardItemProps> = ({
             {mintPrice !== undefined && (
               <p className="pl-2 text-neutral50">
                 <span className="mr-1">{mintPrice}</span>
-                BTC
+                cBTC
               </p>
             )}
           </div>

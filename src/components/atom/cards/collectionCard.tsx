@@ -39,7 +39,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
               {data.floor === 0
                 ? data.floor
                 : (data.floor)?.toFixed(4)}
-              <span className="ml-1">BTC</span>
+              <span className="ml-1">cBTC</span>
             </p>
           </div>
           <div className="text-start">
@@ -49,7 +49,11 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
             {data?.volume === 0
                 ? data?.volume
                 : (data?.volume)?.toFixed(4)}
-              <span className="ml-1">BTC</span>
+              <span className="ml-1">cBTC</span>
+            {data.volume === 0
+                ? data.volume
+                : (data.volume).toFixed(4)}
+              <span className="ml-1">cBTC</span>
             </p>
           </div>
         </div>
@@ -58,6 +62,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
           <div className="flex mt-2 items-center">
             <Profile2User color="#d3f85a" className="w-4 h-4" />
             <p className="ml-2 font-medium text-md text-neutral50">
+              <span>1</span> owners
               <span>1</span> owners
             </p>
           </div>

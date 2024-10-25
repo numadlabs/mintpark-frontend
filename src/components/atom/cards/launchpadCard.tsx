@@ -92,7 +92,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
             <p className="font-medium text-neutral100 text-md">Price</p>
             <p className="font-bold text-md text-neutral50">
               {(data.poMintPrice)?.toFixed(8)} {/* Fixed: added decimal precision */}
-              <span className="ml-1">BTC</span>
+              <span className="ml-1">cBTC</span>
             </p>
           </div>
           <div className="flex h-2 mt-1 border border-white8 rounded-lg border-1">

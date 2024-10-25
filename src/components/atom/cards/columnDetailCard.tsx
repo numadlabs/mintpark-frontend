@@ -65,7 +65,7 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
           <div className="w-full max-w-[200px] grid gap-1 h-[18px]">
             <p className="font-medium text-lg2 text-neutral50">
               {(data.price)?.toFixed(2)}
-              <span className="ml-1">BTC</span>
+              <span className="ml-1">cBTC</span>
             </p>
             <p>
               {" "}
