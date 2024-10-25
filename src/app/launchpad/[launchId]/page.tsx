@@ -310,6 +310,8 @@ const Page = () => {
               </ScrollArea>
               {unixToISOString(collectibles.poStartsAt) > now ? (
                 ""
+              ) : unixToISOString(collectibles.poEndsAt) < now ? (
+                <Button>Go to collection</Button>
               ) : (
                 <Button
                   variant={"default"}
@@ -319,11 +321,12 @@ const Page = () => {
                   onClick={handleConfirm}
                 >
                   {isLoading ? (
-                    <Loader2
-                      className="animate-spin"
-                      color="#111315"
-                      size={24}
-                    />
+                    // <Loader2
+                    //   className="animate-spin"
+                    //   color="#111315"
+                    //   size={24}
+                    // />
+                    "Loading"
                   ) : (
                     "Mint"
                   )}

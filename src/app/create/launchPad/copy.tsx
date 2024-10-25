@@ -363,7 +363,7 @@ const Copy = () => {
                   isSelected={true}
                   onClick={() => handleSubmit()}
                   isLoading={isLoading}
-                  // disabled={isLoading}
+                  disabled={isLoading}
                 >
                   {isLoading ? "...loading" : "Upload"}
                 </ButtonLg>

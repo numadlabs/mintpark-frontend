@@ -214,11 +214,12 @@ const PendingListModal: React.FC<ModalProps> = ({
                 </Button>
                 <Button onClick={handlePendingList} disabled={isLoading}>
                   {isLoading ? (
-                    <Loader2
-                      className="animate-spin"
-                      color="#111315"
-                      size={24}
-                    />
+                    // <Loader2
+                    //   className="animate-spin"
+                    //   color="#111315"
+                    //   size={24}
+                    // />
+                    "Loading"
                   ) : (
                     "List"
                   )}

@@ -316,9 +316,14 @@ const SingleCollectible = () => {
   //   }
   // };
 
-  const handleDelete = () => {
-    setImageFile([]);
-    setImageFiles([]);
+  const handleDelete = (indexToDelete: number) => {
+    // Create new arrays without the deleted items
+    const newImageFile = Array.from(imageFile).filter((_, index) => index !== indexToDelete);
+    const newImageFiles = imageFiles.filter((_, index) => index !== indexToDelete);
+    
+    // Update state with the new arrays directly
+    setImageFile(newImageFile);
+    setImageFiles(newImageFiles);
   };
 
   const files = imageFiles.map((image) => image.file);
@@ -433,6 +438,7 @@ const SingleCollectible = () => {
                           key={index}
                           image={item.preview}
                           onDelete={handleDelete}
+                          index={index}
                         />
                       ))}
                     </div>
@@ -535,6 +541,7 @@ const SingleCollectible = () => {
                   isSelected={true}
                   isLoading={isLoading}
                   onClick={handlePay}
+                  disabled={isLoading}
                   className="flex w-full justify-center items-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold"
                 >
                   {isLoading ? (

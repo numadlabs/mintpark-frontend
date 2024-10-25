@@ -312,7 +312,8 @@ const OrderPayModal: React.FC<ModalProps> = ({
             >
               {" "}
               {isLoading ? (
-                <Loader2 className="animate-spin" color="#111315" size={24} />
+                // <Loader2 className="animate-spin" color="#111315" size={24} />
+                "Loading..."
               ) : (
                 "Pay"
               )}
