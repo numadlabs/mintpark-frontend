@@ -99,7 +99,7 @@ const Page = () => {
     } catch (error) {
       // console.error(error);
       toast.error("Failed to create order");
-    } finally{
+    } finally {
       setIsLoading(false);
     }
   };
@@ -121,7 +121,7 @@ const Page = () => {
           backgroundSize: "cover",
         }}
 
-        // className="bg-white"
+        // className="bg-white"te"
       >
         <DetailLayout>
           <Header />
@@ -175,27 +175,27 @@ const Page = () => {
               // ]}
               >
                 {/* <CarouselPrevious onClick={() => setCurrent(current - 1)} />
-                <CarouselNext onClick={() => setCurrent(current + 1)} /> */}
+              <CarouselNext onClick={() => setCurrent(current + 1)} /> */}
                 {/* <CarouselContent> */}
                 {/* {collectibles &&
-                    collectibles.map((item, index) => {
-                      return (
-                        <CarouselItem
-                          key={item.id}
-                          onMouseEnter={() => setCurrentIndex(index)}
-                        >
-                          <Image
-                            width={384}
-                            height={384}
-                            // src={item.image}
-                            // src={`/launchpads/launch_${item.id}.png`}
-                            src={s3ImageUrlBuilder(item.lo)}
-                            className="aspect-square rounded-3xl"
-                            alt="png"
-                          />
-                        </CarouselItem>
-                      );
-                    })} */}
+                  collectibles.map((item, index) => {
+                    return (
+                      <CarouselItem
+                        key={item.id}
+                        onMouseEnter={() => setCurrentIndex(index)}
+                      >
+                        <Image
+                          width={384}
+                          height={384}
+                          // src={item.image}
+                          // src={`/launchpads/launch_${item.id}.png`}
+                          src={s3ImageUrlBuilder(item.lo)}
+                          className="aspect-square rounded-3xl"
+                          alt="png"
+                        />
+                      </CarouselItem>
+                    );
+                  })} */}
                 {collectibles?.logoKey && (
                   <Image
                     width={384}
@@ -209,23 +209,23 @@ const Page = () => {
                 )}
 
                 {/* <CarouselItem>
-                    <Image
-                      width={384}
-                      height={384}
-                      src="/launchpads/launch_1.png"
-                      className="aspect-square rounded-3xl"
-                      alt="png"
-                    />
-                  </CarouselItem>
-                  <CarouselItem>
-                    <Image
-                      width={384}
-                      height={384}
-                      src="/launchpads/launch_3.png"
-                      className="aspect-square rounded-3xl"
-                      alt="png"
-                    />
-                  </CarouselItem> */}
+                  <Image
+                    width={384}
+                    height={384}
+                    src="/launchpads/launch_1.png"
+                    className="aspect-square rounded-3xl"
+                    alt="png"
+                  />
+                </CarouselItem>
+                <CarouselItem>
+                  <Image
+                    width={384}
+                    height={384}
+                    src="/launchpads/launch_3.png"
+                    className="aspect-square rounded-3xl"
+                    alt="png"
+                  />
+                </CarouselItem> */}
                 {/* </CarouselContent> */}
               </Carousel>
 
@@ -282,15 +282,15 @@ const Page = () => {
                   )}
                 </div>
               </ScrollArea>
-                <ButtonLg
-                  type="submit"
-                  isSelected={true}
-                  className="w-full py-3 text-lg font-semibold bg-brand rounded-xl text-neutral600"
-                  disabled={isLoading}
-                  onClick={handleConfirm}
-                >
-                  {isLoading ? "Loading..." : "Mint"}
-                </ButtonLg>
+              <ButtonLg
+                type="submit"
+                isSelected={true}
+                className="w-full py-3 text-lg font-semibold bg-brand rounded-xl text-neutral600"
+                disabled={isLoading}
+                onClick={handleConfirm}
+              >
+                {isLoading ? "Loading..." : "Mint"}
+              </ButtonLg>
             </div>
           </section>
         </DetailLayout>
