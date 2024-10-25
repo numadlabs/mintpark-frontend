@@ -119,7 +119,7 @@ const PendingListModal: React.FC<ModalProps> = ({
           {success ? (
             <div className="flex flex-col gap-6 w-full items-center justify-center">
               <div className="flex flex-col gap-6 justify-center items-center w-full">
-                <div className="flex justify-center items-center rounded-2xl bg-white8">
+                <div className="flex justify-center p-3 items-center rounded-2xl bg-white8">
                   <Check size={40} color="#FFEE32" />
                 </div>
                 <div className="flex flex-col gap-3">
@@ -150,17 +150,18 @@ const PendingListModal: React.FC<ModalProps> = ({
                   <p className="text-xl text-neutral00 font-bold">{name}</p>
                 </div>
               </div>
-              <div className="text-white8 w-full h-[1px]" />
-              <div className="flex flex-row items-center justify-between rounded-2xl p-4 bg-white8">
+              <div className="bg-white8 w-full h-[1px]" />
+              <div className="flex flex-row items-center w-full justify-between rounded-2xl p-4 bg-white8">
                 <p className="text-neutral100 text-lg font-medium">
                   Listing price
                 </p>
                 <p className="text-brand text-lg font-bold">{price}</p>
               </div>
-              <div className="text-white8 w-full h-[1px]" />
+              <div className="bg-white8 w-full h-[1px]" />
               <Button
                 variant={"secondary"}
                 onClick={() => router.push("/assets")}
+                className="w-full"
               >
                 Done
               </Button>
