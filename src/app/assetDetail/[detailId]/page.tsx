@@ -159,7 +159,7 @@ export default function AssetDetail() {
             ""
           )}
           <div>
-            <Accordion type="single" collapsible className="w-[592px]">
+            <Accordion type="multiple"  className="w-[592px]">
               <AccordionItem value="item-1">
                 <AccordionTrigger className="font-medium text-xl text-neutral50">
                   Detail
