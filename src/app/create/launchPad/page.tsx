@@ -36,6 +36,7 @@ import SuccessModal from "@/components/modal/success-modal";
 import { getLayerById } from "@/lib/service/queryHelper";
 import { ethers } from "ethers";
 import { getSigner } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 const CollectionDetail = () => {
   const router = useRouter();
@@ -114,29 +115,32 @@ const CollectionDetail = () => {
     enabled: !!authState.layerId,
   });
 
-  const calculateTimeUntilDate = (dateString: string, timeString: string): number => {
+  const calculateTimeUntilDate = (
+    dateString: string,
+    timeString: string,
+  ): number => {
     try {
       // Input validation
       if (!dateString || !timeString) {
         console.error("Missing date or time input");
         return 0;
       }
-  
+
       // Normalize the time string to ensure proper format (HH:mm)
-      const normalizedTime = timeString.replace(' ', ':');
-      
+      const normalizedTime = timeString.replace(" ", ":");
+
       // Combine date and time
       const dateTimeString = `${dateString} ${normalizedTime}`;
-      
+
       // Parse using moment with explicit format
-      const momentDate = moment(dateTimeString, 'YYYY-MM-DD HH:mm');
-      
+      const momentDate = moment(dateTimeString, "YYYY-MM-DD HH:mm");
+
       // Validate the parsed date
       if (!momentDate.isValid()) {
         console.error("Invalid date/time combination:", dateTimeString);
         return 0;
       }
-  
+
       // Get Unix timestamp in seconds
       return momentDate.unix();
     } catch (error) {
@@ -245,28 +249,25 @@ const CollectionDetail = () => {
       const response = await mintFeeOfCitreaMutation({ data: params });
       if (response && response.success) {
         const { singleMintTxHex } = response.data;
-          console.log("create collection success", response);
+        console.log("create collection success", response);
 
-          if (currentLayer.layer === "CITREA") {
-            const { signer } = await getSigner();
-            const signedTx = await signer?.sendTransaction(singleMintTxHex);
-            await signedTx?.wait();
-          }
+        if (currentLayer.layer === "CITREA") {
+          const { signer } = await getSigner();
+          const signedTx = await signer?.sendTransaction(singleMintTxHex);
+          await signedTx?.wait();
+        }
         setStep(3);
       }
     } catch (error) {
       console.error("Error creating launch: ", error);
-    }finally{
-        setIsLoading(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleCreateLaunch = async () => {
     setIsLoading(true);
-    const POStartsAt = calculateTimeUntilDate(
-      POStartsAtDate,
-      POStartsAtTime,
-    );
+    const POStartsAt = calculateTimeUntilDate(POStartsAtDate, POStartsAtTime);
     const POEndsAt = calculateTimeUntilDate(POEndsAtDate, POEndsAtTime);
 
     try {
@@ -291,7 +292,7 @@ const CollectionDetail = () => {
       }
     } catch (error) {
       console.error("Error creating launch:", error);
-    } finally{
+    } finally {
       setIsLoading(false);
     }
   };
@@ -458,13 +459,22 @@ const CollectionDetail = () => {
               <div className="flex flex-row w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
                 <ButtonLg
+                  className="flex items-center justify-center"
                   // type="submit"
                   isSelected={true}
                   onClick={() => setStep(2)}
                   isLoading={isLoading}
-                  // disabled={isLoading}
+                  disabled={isLoading}
                 >
-                  {isLoading ? "...loading" : "Continue"}
+                  {isLoading ? (
+                    <Loader2
+                      className="animate-spin"
+                      color="#111315"
+                      size={24}
+                    />
+                  ) : (
+                    "Continue"
+                  )}
                 </ButtonLg>
               </div>
             </div>
@@ -616,9 +626,18 @@ const CollectionDetail = () => {
                   isSelected={true}
                   onClick={isChecked ? handleMintfeeChange : () => setStep(3)}
                   isLoading={isLoading}
-                  // disabled={isLoading}
+                  disabled={isLoading}
+                  className="flex items-center justify-center"
                 >
-                  {isLoading ? "...loading" : "Continue"}
+                  {isLoading ? (
+                    <Loader2
+                      className="animate-spin"
+                      color="#111315"
+                      size={24}
+                    />
+                  ) : (
+                    "Continue"
+                  )}
                 </ButtonLg>
               </div>
             </div>
@@ -705,9 +724,15 @@ const CollectionDetail = () => {
                   isSelected={true}
                   onClick={isChecked ? handleCreateLaunch : togglePayModal}
                   isLoading={isLoading}
+                  className="flex justify-center items-center"
                 >
-                  {isLoading ? "...loading" : "Confirm"}
-
+                  {isLoading ? 
+                  <Loader2
+                  className="animate-spin"
+                  color="#111315"
+                  size={24}
+                />
+                   : "Confirm"}
                 </ButtonLg>
               </div>
             </div>

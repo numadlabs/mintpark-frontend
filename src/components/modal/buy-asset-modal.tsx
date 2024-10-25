@@ -119,7 +119,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                       List Price
                     </p>
                     <p className="text-lg text-neutral50 font-bold">
-                      {(price).toFixed(6)} Sats
+                      {(price)?.toFixed(6)} Sats
                     </p>
                   </div>
                   <div className="w-full flex flex-row items-center justify-between">
@@ -127,7 +127,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                       Network Fee
                     </p>
                     <p className="text-lg text-neutral50 font-bold">
-                      {(networkFee).toFixed(6)}Sats
+                      {(networkFee)?.toFixed(6)}Sats
                     </p>
                   </div>
                   <div className="w-full flex flex-row items-center justify-between">
@@ -135,7 +135,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                       Service Fee
                     </p>
                     <p className="text-lg text-neutral50 font-bold">
-                      {(serviceFee).toFixed(6)} Sats
+                      {(serviceFee)?.toFixed(6)} Sats
                     </p>
                   </div>
                 </div>
@@ -145,7 +145,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                       Total Amount
                     </p>
                     <p className="text-lg text-neutral50 font-bold">
-                      {(total).toFixed(6)} Sats
+                      {(total)?.toFixed(6)} Sats
                     </p>
                   </div>
                 </div>

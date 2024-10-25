@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogFooter,
 } from "../ui/dialog";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -311,7 +311,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
                         Network Fee
                       </p>
                       <p className="text-lg2 text-neutral50 font-bold">
-                        {(estimatedFee.networkFee).toFixed(4)} Sats
+                        {estimatedFee.networkFee.toFixed(4)} Sats
                       </p>
                     </div>
                     <div className="flex flex-row justify-between items-center">
@@ -319,7 +319,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
                         Service Fee
                       </p>
                       <p className="text-lg2 text-neutral50 font-bold">
-                        {(estimatedFee.serviceFee).toFixed(4)} Sats
+                        {estimatedFee.serviceFee.toFixed(4)} Sats
                       </p>
                     </div>
                   </div>
@@ -328,7 +328,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
                       Total Amount
                     </p>
                     <p className="text-lg2 text-brand font-bold">
-                      {(estimatedFee.totalFee).toFixed(4)} Sats
+                      {estimatedFee.totalFee.toFixed(4)} Sats
                     </p>
                   </div>
                 </div>
@@ -345,9 +345,16 @@ const SubmitPayModal: React.FC<ModalProps> = ({
             >
               Cancel
             </Button>
-            <Button onClick={handlePay} disabled={isLoading}>
-            {isLoading ? "Loading..." : "Pay"}
-
+            <Button
+              className="flex items-center justify-center"
+              onClick={handlePay}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="animate-spin" color="#111315" size={24} />
+              ) : (
+                "Pay"
+              )}
             </Button>
           </DialogFooter>
           <button
