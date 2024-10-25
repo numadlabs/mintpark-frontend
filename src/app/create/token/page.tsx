@@ -227,14 +227,14 @@ const SingleToken = () => {
                   <p className="text-profileTitle text-neutral50 font-bold">
                     Token logo (Optional)
                   </p>
-                  {imageBase64 ? (
+                  {/* {imageBase64 ? (
                     <UploadFile image={imageBase64} onDelete={handleDelete} />
                   ) : (
                     <UploadFile
                       text="Accepted file types: WEBP (recommended), JPEG, PNG, SVG, and GIF."
                       handleImageUpload={handleImageUpload}
                     />
-                  )}
+                  )} */}
                 </div>
                 <div className="flex flex-row gap-8 justify-between w-full">
                   <ButtonOutline

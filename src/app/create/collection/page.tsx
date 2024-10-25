@@ -327,7 +327,7 @@ const CollectionDetail = () => {
                 <div className="flex flex-col w-full gap-6">
                   <Input
                     title="Name"
-                    text="Collection name"
+                    // text="Collection name"
                     value={headline}
                     onChange={(e: any) => setHeadline(e.target.value)}
                   />
@@ -341,7 +341,7 @@ const CollectionDetail = () => {
                   {/* add to height description height  */}
                   <Input
                     title="Description"
-                    text="Collection description"
+                    // text="Collection description"
                     value={description}
                     onChange={(e: any) => setDescription(e.target.value)}
                   />
