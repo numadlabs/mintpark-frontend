@@ -94,6 +94,7 @@ const Page = () => {
         }
         if (orderId) {
           await confirmOrderMutation({ orderId: orderId, txid: txid });
+          toast.success("Success minted.")
           router.push("/launchpad");
         }
       }
@@ -133,6 +134,10 @@ const Page = () => {
   };
 
   const now = new Date().toISOString();
+
+  const handlCollectionClick = () => {
+    router.push("/collections");
+  };
 
   return (
     <>
@@ -311,7 +316,7 @@ const Page = () => {
               {unixToISOString(collectibles.poStartsAt) > now ? (
                 ""
               ) : unixToISOString(collectibles.poEndsAt) < now ? (
-                <Button>Go to collection</Button>
+                <Button onClick={handlCollectionClick}>Go to collection</Button>
               ) : (
                 <Button
                   variant={"default"}
@@ -320,16 +325,14 @@ const Page = () => {
                   disabled={isLoading}
                   onClick={handleConfirm}
                 >
-                  {isLoading ? (
-                    // <Loader2
-                    //   className="animate-spin"
-                    //   color="#111315"
-                    //   size={24}
-                    // />
-                    "Loading"
-                  ) : (
-                    "Mint"
-                  )}
+                  {isLoading
+                    ? // <Loader2
+                      //   className="animate-spin"
+                      //   color="#111315"
+                      //   size={24}
+                      // />
+                      "Loading"
+                    : "Mint"}
                 </Button>
               )}
             </div>

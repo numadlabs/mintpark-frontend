@@ -85,18 +85,19 @@ const PendingListModal: React.FC<ModalProps> = ({
         txid: txid,
       });
       if (collectibleRes && collectibleRes.success) {
+        let txid
         const { preparedListingTx } = collectibleRes.data.list;
         const { id } = collectibleRes.data.list.sanitizedList;
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(preparedListingTx);
         await signedTx?.wait();
-        if (signedTx?.hash) setHash(signedTx?.hash);
+        if (signedTx?.hash) txid = signedTx?.hash;
 
-        if (id && hash) {
+        if (id && txid) {
           console.log("first")
           const response = await confirmPendingListMutation({
             id: id,
-            txid: hash,
+            txid: txid,
             vout: 0,
             inscribedAmount: 546,
           });
@@ -126,7 +127,7 @@ const PendingListModal: React.FC<ModalProps> = ({
                   <p className="text-center text-2xl text-brand font-bold">
                     Listing Successful!
                   </p>
-                  <p className="text-2xl font-medium text-neutral50">
+                  <p className="text-lg font-medium text-neutral50">
                     Your listing was completed successfully.
                   </p>
                 </div>
@@ -219,7 +220,7 @@ const PendingListModal: React.FC<ModalProps> = ({
                     //   color="#111315"
                     //   size={24}
                     // />
-                    "Loading"
+                    "loading..."
                   ) : (
                     "List"
                   )}
