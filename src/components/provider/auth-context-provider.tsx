@@ -52,6 +52,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: React.ReactNode;
+  connector?: any;
 }
 
 type LoginParams = {
@@ -65,7 +66,7 @@ const generateFallbackMessage = (address: string) => {
   return `Sign this message to verify your ownership of the address ${address}. Timestamp: ${timestamp}`;
 };
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children, connector }) => {
   const router = useRouter();
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [walletAddress, setWalletAddress] = useState<string>("");
