@@ -22,6 +22,7 @@ import PendingListModal from "@/components/modal/pending-list-modal";
 import moment from "moment";
 import { createApprovalTransaction } from "@/lib/service/postRequest";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AssetsDetails() {
   const params = useParams();
@@ -110,6 +111,10 @@ export default function AssetsDetails() {
           await signedTx?.wait();
           if (signedTx?.hash) setTxid(signedTx?.hash);
           toggleModal();
+        }else if (isApproved === true){
+          toggleModal();
+        }else{
+          toast.error("Unknown issue")
         }
       }
     } catch (error) {
@@ -190,7 +195,7 @@ export default function AssetsDetails() {
                     //   color="#111315"
                     //   size={24}
                     // />
-                    "Loading..."
+                    "loading..."
                   ) : (
                     "List"
                   )}
