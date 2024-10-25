@@ -132,7 +132,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                       />
                       {/* <Bitcoin color="#f7931a" variant="Bold" className="" /> */}
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>{data.floor}</span> BTC
+                        <span>{data.floor}</span> cBTC
                       </p>
                     </div>
                   </div>
@@ -150,7 +150,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                       />
                       {/* <Bitcoin color="#f7931a" variant="Bold" className="" /> */}
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>{data.volume}</span> BTC
+                        <span>{data.volume}</span> cBTC
                       </p>
                     </div>
                   </div>
@@ -161,7 +161,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                     <div className="flex mt-2">
                       <Profile2User color="#d3f85a" />
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>0</span>
+                        <span>1</span>
                       </p>
                     </div>
                   </div>

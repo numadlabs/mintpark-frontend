@@ -31,7 +31,7 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
           <div className="text-right items-center grid gap-1">
             <p className="font-medium text-lg2 text-neutral50">
               ${(data.floor)?.toFixed(4)}
-              <span className="ml-1">BTC</span>
+              <span className="ml-1">cBTC</span>
             </p>
 
             <span className="font-medium text-md text-start text-neutral200">
@@ -41,7 +41,7 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
           <div className="text-right grid gap-1">
             <p className="font-medium text-lg2 text-neutral50">
               ${(data.volume)?.toFixed(4)}
-              <span className="ml-1">BTC</span>
+              <span className="ml-1">cBTC</span>
             </p>
             <span className="font-medium text-start text-md text-neutral200">
               ${((data.volume) * 65000)?.toFixed(1)}k
@@ -51,7 +51,7 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
             <p className="font-medium text-lg2 text-neutral50">
             ${((data.marketCap))?.toFixed(4)}
 
-              <span className="ml-1">BTC</span>
+              <span className="ml-1">cBTC</span>
             </p>
             <span className="font-medium text-md text-start text-neutral200">
               ${((data.marketCap) * 65000)?.toFixed(1)}k

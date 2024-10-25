@@ -161,7 +161,7 @@ const CollectionDetailPage = () => {
                             ? (collectionData.floor)?.toFixed(4)
                             : "0.00000"}
                         </span>{" "}
-                        BTC
+                        cBTC
                       </p>
                     </div>
                   </div>
@@ -179,7 +179,7 @@ const CollectionDetailPage = () => {
                       />
                       <p className="ml-2 font-bold text-xl text-neutral50">
                         <span>{collectionData?.volume   ? (collectionData?.volume)?.toFixed(4)
-                            : "0.00000"}</span> BTC
+                            : "0.00000"}</span> cBTC
                       </p>
                     </div>
                   </div>
