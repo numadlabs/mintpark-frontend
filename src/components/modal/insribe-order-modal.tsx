@@ -125,7 +125,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="flex flex-col p-6 gap-6 max-w-[592px] w-full items-center">
+      <DialogContent className="flex flex-col p-6 h-[710px] gap-6 max-w-[592px] w-full items-center">
         <DialogHeader className="flex w-full">
           <div className="text-xl text-neutral00 font-bold text-center">
             Inscribe Order
