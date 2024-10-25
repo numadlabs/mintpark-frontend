@@ -198,7 +198,7 @@ export type CollectionDataType = {
   floorDifference: number;
   ownedBy: string;
   collectionId: string;
-  listId: string
+  listId: string;
 };
 
 

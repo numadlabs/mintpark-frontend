@@ -20,7 +20,15 @@ import { CollectionDataType } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Collections({ detail = false }: { detail: boolean }) {
+interface CollectionsProps {
+  params: {};
+  searchParams: {
+    detail?: string;
+  };
+}
+
+export default function Collections({ params, searchParams }: CollectionsProps) {
+  const detail = searchParams.detail === "true";
   const router = useRouter();
   const { authState } = useAuth();
   const id = authState?.layerId;
