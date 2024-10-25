@@ -16,42 +16,31 @@ import {
   getCollectionById,
   getEstimateFee,
 } from "@/lib/service/queryHelper";
-import { CollectibleDataType, CollectionDataType } from "@/lib/types";
 import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
-import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useParams } from "next/navigation";
 import BuyAssetModal from "@/components/modal/buy-asset-modal";
-
-interface PageProps {
-  params: { id: string };
-}
+import { Loader2 } from "lucide-react";
 
 export default function AssetDetail() {
   const params = useParams();
-  const { id } = params;
+  const id = params.detailId as string;
   const [isVisible, setIsVisible] = useState(false);
 
-  const {
-    data: collectionData,
-    isLoading: isCollectionLoading,
-    error: collectionError,
-  } = useQuery<CollectionDataType[]>({
+  const { data: collectionData = [] } = useQuery({
     queryKey: ["collectionData", id],
     queryFn: () => getCollectionById(id as string),
     enabled: !!id,
   });
 
-  const {
-    data: collectibleData,
-    isLoading: isCollectibleLoading,
-    error: collectibleError,
-  } = useQuery<CollectibleDataType[]>({
-    queryKey: ["collectibleData", params.id],
-    queryFn: () => getCollectibleById(id as string),
-    enabled: !!params.id,
-  });
+  const { data: collectibleData = [], isLoading: isCollectionLoading } =
+    useQuery({
+      queryKey: ["collectibleData", id],
+      queryFn: () => getCollectibleById(id as string),
+      enabled: !!id,
+    });
 
-  const { data: estimateFee = [] } = useQuery({
+  const { data: estimateFee = [], isLoading: isCollectibleLoading } = useQuery({
     queryKey: ["feeData"],
     queryFn: () => getEstimateFee(collectionData?.[0]?.listId ?? ""),
     enabled: !!collectionData?.[0]?.listId,
@@ -60,36 +49,10 @@ export default function AssetDetail() {
   if (isCollectionLoading || isCollectibleLoading) {
     return (
       <div className="flex justify-center items-center w-full h-screen">
-        Loading...
+        <Loader2 className="animate-spin" color="#111315" size={60} />
       </div>
     );
   }
-
-  if (collectionError || collectibleError) {
-    return (
-      <div className="flex justify-center items-center w-full h-screen">
-        Error: {((collectionError || collectibleError) as Error).message}
-      </div>
-    );
-  }
-
-  if (
-    !collectionData ||
-    collectionData.length === 0 ||
-    !collectibleData ||
-    collectibleData.length === 0
-  ) {
-    return (
-      <div className="flex justify-center items-center w-full h-screen">
-        No data available
-      </div>
-    );
-  }
-
-  const collection = collectionData[0];
-  const collectible = collectibleData[0];
-
-  console.log(estimateFee);
 
   const formatDaysAgo = (dateString: string) => {
     const createdDate = new Date(dateString);
@@ -110,6 +73,8 @@ export default function AssetDetail() {
     setIsVisible(!isVisible);
   };
 
+  console.log("first", estimateFee);
+
   return (
     <Layout>
       <Header />
@@ -119,26 +84,26 @@ export default function AssetDetail() {
             width={560}
             height={560}
             src={
-              collection.fileKey
-                ? s3ImageUrlBuilder(collection.fileKey)
-                : ordinalsImageCDN(collection.uniqueIdx)
+              collectionData[0]?.fileKey
+                ? s3ImageUrlBuilder(collectionData[0]?.fileKey)
+                : ordinalsImageCDN(collectionData[0]?.uniqueIdx)
             }
             className="aspect-square rounded-xl"
-            alt={`${collection.name} logo`}
+            alt={`${collectionData[0]?.name} logo`}
           />
         </div>
         <div className="flex flex-col gap-8">
           <div className="flex flex-col gap-2">
             <p className="font-medium text-xl text-brand">
-              {collection.collectionName}
+              {collectionData[0]?.collectionName}
             </p>
             <span className="flex text-3xl font-bold text-neutral50">
-              {collection.name}
+              {collectionData[0]?.name}
             </span>
           </div>
           <div className="w-[592px] h-[1px] bg-neutral500" />
           <div className="flex flex-col justify-center gap-6">
-            {collection.price > 0 ? (
+            {collectionData.price > 0 ? (
               <div className="flex flex-col gap-6">
                 <div className="flex justify-between w-full">
                   <span className="font-medium pt-3 text-end text-lg text-neutral200">
@@ -193,7 +158,7 @@ export default function AssetDetail() {
               ""
             )}
             <div className="flex gap-4">
-              {collection.price > 0 ? (
+              {collectionData.price > 0 ? (
                 <Button
                   variant={"default"}
                   className="w-60 h-12 bg-brand500"
@@ -214,10 +179,10 @@ export default function AssetDetail() {
             <div className="grid grid-cols-3 gap-2">
               <div className="w-[192px] rounded-xl grid gap-2 border border-neutral500 pt-3 pb-4 pl-4 pr-4">
                 <p className="font-medium text-sm text-neutral200">
-                  {collectible.name}
+                  {collectibleData[0]?.name}
                 </p>
                 <h1 className="font font-medium text-md text-neutral50">
-                  {collectible.value}
+                  {collectibleData[0]?.value}
                 </h1>
               </div>
             </div>
@@ -235,7 +200,7 @@ export default function AssetDetail() {
                       Owned by
                     </h1>
                     <p className="font-medium text-md text-neutral50">
-                      {collection.ownedBy}
+                      {collectionData[0]?.ownedBy}
                     </p>
                   </div>
                   <div className="flex justify-between">
@@ -243,7 +208,7 @@ export default function AssetDetail() {
                       Floor difference
                     </h1>
                     <p className="font-medium text-md text-success">
-                      {collection.floorDifference}%
+                      {collectionData[0]?.floorDifference}%
                     </p>
                   </div>
                   <div className="flex justify-between">
@@ -251,18 +216,18 @@ export default function AssetDetail() {
                       Listed time
                     </h1>
                     <p className="font-medium text-md text-neutral50">
-                      {formatDaysAgo(collection.createdAt)}
+                      {formatDaysAgo(collectionData[0]?.createdAt)}
                     </p>
                   </div>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-2">
                 <AccordionTrigger className="font-medium text-xl text-neutral50">
-                  About {collection.collectionName}
+                  About {collectionData[0]?.collectionName}
                 </AccordionTrigger>
                 <AccordionContent>
                   <p className="text-neutral200 font-medium text-md">
-                    {collection.description}
+                    {collectionData[0]?.description}
                   </p>
                 </AccordionContent>
               </AccordionItem>
@@ -273,10 +238,10 @@ export default function AssetDetail() {
       <BuyAssetModal
         open={isVisible}
         onClose={toggleModal}
-        fileKey={collection.fileKey}
-        uniqueIdx={collection.uniqueIdx}
-        name={collection.name}
-        collectionName={collection.collectionName}
+        fileKey={collectionData.fileKey}
+        uniqueIdx={collectionData.uniqueIdx}
+        name={collectionData.name}
+        collectionName={collectionData.collectionName}
         price={estimateFee?.estimation?.price}
         serviceFee={estimateFee?.estimation?.serviceFee}
         networkFee={estimateFee?.estimation?.networkFee}

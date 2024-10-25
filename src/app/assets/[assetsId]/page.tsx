@@ -15,29 +15,25 @@ import {
   getCollectibleById,
   getCollectionById,
 } from "@/lib/service/queryHelper";
-import { CollectibleDataType, CollectionDataType } from "@/lib/types";
 import { getSigner, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import PendingListModal from "@/components/modal/pending-list-modal";
 import moment from "moment";
-import {
-  buyListedCollectible,
-  createApprovalTransaction,
-  listCollectiblesForConfirm,
-} from "@/lib/service/postRequest";
+import { createApprovalTransaction } from "@/lib/service/postRequest";
+import { Loader2 } from "lucide-react";
 
 export default function AssetsDetails() {
   const params = useParams();
   const id = params.assetsId as string;
   const [isVisible, setIsVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [txid, setTxid] = useState<string>("");
 
   const { mutateAsync: createApprovalMutation } = useMutation({
     mutationFn: createApprovalTransaction,
   });
 
-  const collectibleId = id;
   const {
     data: collectionData,
     isLoading: isCollectionLoading,
@@ -45,7 +41,7 @@ export default function AssetsDetails() {
   } = useQuery({
     queryKey: ["collectionData", id],
     queryFn: () => getCollectionById(id),
-    enabled: !!params.assetsId,
+    enabled: !!id,
   });
 
   const {
@@ -55,13 +51,13 @@ export default function AssetsDetails() {
   } = useQuery({
     queryKey: ["collectibleData", id],
     queryFn: () => getCollectibleById(id),
-    enabled: !!params.assetsId,
+    enabled: !!id,
   });
 
   if (isCollectionLoading || isCollectibleLoading) {
     return (
       <div className="flex justify-center items-center w-full h-screen">
-        Loading...
+        <Loader2 className="animate-spin" color="#111315" size={60} />
       </div>
     );
   }
@@ -99,6 +95,7 @@ export default function AssetsDetails() {
   };
 
   const HandleList = async () => {
+    setIsLoading(true);
     try {
       const collectionId = collection.collectionId;
       const response = await createApprovalMutation({
@@ -106,15 +103,17 @@ export default function AssetsDetails() {
       });
       if (response && response.success) {
         const { transaction } = response.data.approveTxHex;
-        console.log(transaction)
+        console.log(transaction);
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(transaction);
         await signedTx?.wait();
         if (signedTx?.hash) setTxid(signedTx?.hash);
-        toggleModal()
+        toggleModal();
       }
     } catch (error) {
       console.error("Error list:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -180,10 +179,18 @@ export default function AssetsDetails() {
               <div className="">
                 <Button
                   variant={"default"}
-                  className="w-60 h-12 bg-brand500"
+                  className="w-60 h-12 bg-brand500 flex justify-center items-center"
                   onClick={HandleList}
                 >
-                  List
+                  {isLoading ? (
+                    <Loader2
+                      className="animate-spin"
+                      color="#111315"
+                      size={24}
+                    />
+                  ) : (
+                    "List"
+                  )}
                 </Button>
               </div>
             )}
