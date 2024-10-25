@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
 import { X } from "lucide-react";
 import { Timer } from "iconsax-react";
+import { Check } from "lucide-react";
 
 interface modalProps {
   open: boolean;
@@ -27,7 +28,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
   const getInscribeStatus = (paymentStatus: string) => {
     switch (paymentStatus) {
       case "PENDING":
-        return "Pending...";
+        return "Inscribing will start after payment is recieved";
       case "IN_QUEUE":
         return "The inscription is in queue";
       case "DONE":
@@ -46,7 +47,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
       case "IN_QUEUE":
         return "Paid";
       case "DONE":
-        return "Inscribed";
+        return "Paid";
       case "EXPIRED":
         return "Closed";
       default:
@@ -66,6 +67,23 @@ const OrderDetailModal: React.FC<modalProps> = ({
         return "Closed";
       default:
         return "Pending...";
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    // Convert the input status to uppercase to match our case conditions
+    const upperStatus = status.toUpperCase();
+    switch (upperStatus) {
+      case "PENDING":
+        return "text-[#B0B0B1]";
+      case "IN_QUEUE":
+        return "text-[#6DB5E5]";
+      case "DONE":
+        return "text-[#2CB59E]";
+      case "EXPIRED":
+        return "text-[#FF5C69]";
+      default:
+        return "text-[#B0B0B1]";
     }
   };
 
@@ -99,20 +117,20 @@ const OrderDetailModal: React.FC<modalProps> = ({
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Network Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {(networkFee).toFixed(4)} Sats
+              {networkFee.toFixed(4)} Sats
             </p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Service Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {(serviceFee).toFixed(4)} Sats
+              {serviceFee.toFixed(4)} Sats
             </p>
           </div>
         </div>
         <div className="flex flex-row justify-between items-center -4 w-full bg-white4 rounded-2xl p-4">
           <p className="text-lg2 text-neutral100 font-medium">Total Amount</p>
           <p className="text-lg2 text-brand font-bold">
-            {(totalFee).toFixed(4)} Sats
+            {totalFee.toFixed(4)} Sats
           </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />
@@ -133,23 +151,35 @@ const OrderDetailModal: React.FC<modalProps> = ({
             <>
               <div className="flex flex-row items-center justify-between w-full bg-white4 p-4 rounded-2xl">
                 <div className="flex flex-row gap-3 items-center">
-                  <div className="h-8 w-8 bg-white8 flex justify-center items-center rounded-[20px]">
-                    <p className="text-lg text-brand font-bold">1</p>
+                  <div
+                    className={`h-8 w-8 ${status === "PENDING" ? "bg-white8" : "bg-success"} flex justify-center items-center rounded-[20px]`}
+                  >
+                    {status === "PENDING" ? (
+                      <p className="text-lg text-brand font-bold">1</p>
+                    ) : (
+                      <Check size={16} color="#111315" />
+                    )}
                   </div>
                   <p className="text-neutral50 text-lg font-bold">Payment</p>
                 </div>
-                <p className={`text-lg font-medium`}>
+                <p className={`text-lg font-medium ${getStatusColor(status)}`}>
                   {getPaymentStatus(status)}
                 </p>
               </div>
               <div className="flex flex-row items-center justify-between w-full bg-white4 p-4 rounded-2xl">
                 <div className="flex flex-row gap-3 items-center">
-                  <div className="h-8 w-8 bg-white8 flex justify-center items-center rounded-[20px]">
-                    <p className="text-lg text-neutral50 font-bold">2</p>
+                  <div
+                    className={`h-8 w-8 ${status === "DONE" ? "bg-success" : "bg-white8"} flex justify-center items-center rounded-[20px]`}
+                  >
+                    {status === "DONE" ? (
+                      <Check size={16} color="#111315" />
+                    ) : (
+                      <p className="text-lg text-neutral50 font-bold">2</p>
+                    )}
                   </div>
                   <p className="text-neutral50 text-lg font-bold">Inscribe</p>
                 </div>
-                <p className={`text-lg font-medium`}>
+                <p className={`text-lg font-medium ${getStatusColor(status)}`}>
                   {getInscribeStatus(status)}
                 </p>
               </div>

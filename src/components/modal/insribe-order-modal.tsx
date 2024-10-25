@@ -5,11 +5,11 @@ import {
   DialogHeader,
   DialogFooter,
 } from "../ui/dialog";
-import { X } from "lucide-react";
+import { Check, Timer, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { checkOrderStatus, getOrderById } from "@/lib/service/queryHelper";
-import { useRouter } from "next/navigation";  // Note: from 'navigation' instead of 'router'
+import { useRouter } from "next/navigation"; // Note: from 'navigation' instead of 'router'
 
 interface modalProps {
   open: boolean;
@@ -26,7 +26,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
   id,
   navigateOrders,
   navigateToCreate,
-  txid
+  txid,
 }) => {
   const { data: orders = [] } = useQuery({
     queryKey: ["orderData"],
@@ -44,7 +44,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
   console.log("status", status);
   const totalFee = orders?.networkFee + orders?.serviceFee;
   console.log("oasdfkid", orders);
-  const router = useRouter(); 
+  const router = useRouter();
   const createOrder = () => {
     onClose();
     navigateOrders();
@@ -54,21 +54,6 @@ const InscribeOrderModal: React.FC<modalProps> = ({
     router.push(`/orders`);
     // onClose();
     // navigateToCreate();
-  };
-
-  const getInscribeStatus = (paymentStatus: string) => {
-    switch (paymentStatus) {
-      case "PENDING":
-        return "Pending...";
-      case "IN_QUEUE":
-        return "The inscription is in queue";
-      case "DONE":
-        return "Inscribed";
-      case "EXPIRED":
-        return "Payment timeout, order closed";
-      default:
-        return "Pending...";
-    }
   };
 
   const getPaymentStatus = (paymentStatus: string) => {
@@ -98,6 +83,43 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         return "Closed";
       default:
         return "Pending...";
+    }
+  };
+
+  const getInscribeStatus = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case "PENDING":
+        return "Inscribing will start after payment is recieved";
+      case "IN_QUEUE":
+        return "The inscription is in queue";
+      case "DONE":
+        return "Inscribed";
+      case "EXPIRED":
+        return "Payment timeout, order closed";
+      default:
+        return "Pending...";
+    }
+  };
+
+  const getStatusColor = (status?: string) => {
+    // If status is undefined or null, return the default color
+    if (!status) {
+      return "text-[#B0B0B1]";
+    }
+    
+    // Convert the input status to uppercase to match our case conditions
+    const upperStatus = status.toUpperCase();
+    switch (upperStatus) {
+      case "PENDING":
+        return "text-[#B0B0B1]";
+      case "IN_QUEUE":
+        return "text-[#6DB5E5]";
+      case "DONE":
+        return "text-[#2CB59E]";
+      case "EXPIRED":
+        return "text-[#FF5C69]";
+      default:
+        return "text-[#B0B0B1]";
     }
   };
 
@@ -133,44 +155,74 @@ const InscribeOrderModal: React.FC<modalProps> = ({
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Network Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {(orders?.networkFee/10**8).toFixed(4)} Sats
+              {(orders?.networkFee / 10 ** 8).toFixed(4)} Sats
             </p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Service Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {(orders?.serviceFee/10**8).toFixed(4)} Sats
+              {(orders?.serviceFee / 10 ** 8).toFixed(4)} Sats
             </p>
           </div>
         </div>
         <div className="flex flex-row justify-between items-center -4 w-full bg-white4 rounded-2xl p-4">
           <p className="text-lg2 text-neutral100 font-medium">Total Amount</p>
-          <p className="text-lg2 text-brand font-bold">{(totalFee/10**8).toFixed(4)} Sats</p>
+          <p className="text-lg2 text-brand font-bold">
+            {(totalFee / 10 ** 8).toFixed(4)} Sats
+          </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />
         <div className="flex flex-col gap-4 w-full">
-          <div className="flex flex-row items-center justify-between w-full bg-white4 p-4 rounded-2xl">
-            <div className="flex flex-row gap-3 items-center">
-              <div className="h-8 w-8 bg-white8 flex justify-center items-center rounded-[20px]">
-                <p className="text-lg text-brand font-bold">1</p>
+          {orders?.orderStatus === "CLOSED" ? (
+            <div className="flex flex-row items-center justify-between w-full bg-white4 p-4 rounded-2xl">
+              <div className="flex flex-row gap-3 items-center">
+                <div className="h-8 w-8 bg-white8 flex justify-center items-center rounded-[20px]">
+                  <Timer size={20} color="#FF5C69" />
+                </div>
+                <p className="text-neutral50 text-lg font-bold">Payment</p>
               </div>
-              <p className="text-neutral50 text-lg font-bold">Payment</p>
+              <p className="text-errorMsg text-lg font-medium">
+                Payment timeout, order closed.
+              </p>
             </div>
-            <p className="text-neutral50 text-lg font-medium">
-              {getPaymentStatus(orders.orderStatus)}
-            </p>
-          </div>
-          <div className="flex flex-row items-center justify-between w-full bg-white4 p-4 rounded-2xl">
-            <div className="flex flex-row gap-3 items-center">
-              <div className="h-8 w-8 bg-white8 flex justify-center items-center rounded-[20px]">
-                <p className="text-lg text-neutral50 font-bold">2</p>
+          ) : (
+            <>
+              <div className="flex flex-row items-center justify-between w-full bg-white4 p-4 rounded-2xl">
+                <div className="flex flex-row gap-3 items-center">
+                  <div
+                    className={`h-8 w-8 ${orders?.orderStatus === "PENDING" ? "bg-white8" : "bg-success"} flex justify-center items-center rounded-[20px]`}
+                  >
+                    {orders?.orderStatus === "PENDING" ? (
+                      <p className="text-lg text-brand font-bold">1</p>
+                    ) : (
+                      <Check size={16} color="#111315" />
+                    )}
+                  </div>
+                  <p className="text-neutral50 text-lg font-bold">Payment</p>
+                </div>
+                <p className={`text-lg font-medium ${getStatusColor(orders?.orderStatus)}`}>
+                  {getPaymentStatus(orders?.orderStatus)}
+                </p>
               </div>
-              <p className="text-neutral50 text-lg font-bold">Inscribe</p>
-            </div>
-            <p className="text-neutral50 text-lg font-medium">
-              {getInscribeStatus((orders?.orderStatus/10**8).toFixed(4))}
-            </p>
-          </div>
+              <div className="flex flex-row items-center justify-between w-full bg-white4 p-4 rounded-2xl">
+                <div className="flex flex-row gap-3 items-center">
+                  <div
+                    className={`h-8 w-8 ${orders?.orderStatus === "DONE" ? "bg-success" : "bg-white8"} flex justify-center items-center rounded-[20px]`}
+                  >
+                    {orders?.orderStatus === "DONE" ? (
+                      <Check size={16} color="#111315" />
+                    ) : (
+                      <p className="text-lg text-neutral50 font-bold">2</p>
+                    )}
+                  </div>
+                  <p className="text-neutral50 text-lg font-bold">Inscribe</p>
+                </div>
+                <p className={`text-lg font-medium ${getStatusColor(orders?.orderStatus)}`}>
+                  {getInscribeStatus(orders?.orderStatus)}
+                </p>
+              </div>
+            </>
+          )}
         </div>
         <div className="h-[1px] w-full bg-white8" />
         <p className="text-neutral200 text-lg font-medium text-start w-full">
