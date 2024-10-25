@@ -56,12 +56,12 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
 
   const formatBalance = (value: number): string => {
     if (typeof value !== "number" || isNaN(value)) return "0.00";
-    return value.toFixed(4);
+    return value?.toFixed(4);
   };
 
   const formatUSD = (value: number): string => {
     if (typeof value !== "number" || isNaN(value)) return "0.00";
-    return value.toFixed(2);
+    return value?.toFixed(2);
   };
 
   const resetWalletState = () => {

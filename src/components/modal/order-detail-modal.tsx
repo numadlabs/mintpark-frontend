@@ -117,20 +117,20 @@ const OrderDetailModal: React.FC<modalProps> = ({
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Network Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {networkFee.toFixed(4)} Sats
+              {networkFee?.toFixed(4)} Sats
             </p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Service Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {serviceFee.toFixed(4)} Sats
+              {serviceFee?.toFixed(4)} Sats
             </p>
           </div>
         </div>
         <div className="flex flex-row justify-between items-center -4 w-full bg-white4 rounded-2xl p-4">
           <p className="text-lg2 text-neutral100 font-medium">Total Amount</p>
           <p className="text-lg2 text-brand font-bold">
-            {totalFee.toFixed(4)} Sats
+            {totalFee?.toFixed(4)} Sats
           </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />

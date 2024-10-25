@@ -68,7 +68,7 @@ const AssetsCard: React.FC<cardProps> = ({ data }) => {
                 <>
                   <p className="text-neutral200 font-medium text-md">Price</p>
                   <p className="text-neutral50">
-                    {(data.price).toFixed(5)}
+                    {(data.price)?.toFixed(5)}
                     <span className="ml-1">BTC</span>
                   </p>
                 </>

@@ -9,7 +9,7 @@ interface cardProps {
 }
 
 const FileCard: React.FC<cardProps> = ({ onDelete, fileSize, fileName }) => {
-  const fileSizeInKB = (fileSize / 1024).toFixed(2);
+  const fileSizeInKB = (fileSize / 1024)?.toFixed(2);
   return (
     <div className="rounded-[20px] w-[280px] h-[280px] border border-neutral400 relative flex items-center justify-center">
       <div className="flex flex-col items-center justify- gap-4">
