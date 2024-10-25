@@ -31,6 +31,13 @@ const OrderDetail = () => {
     enabled: !!id,
   });
 
+  // const { data: status = [] } = useQuery({
+  //   queryKey: ["statusData"],
+  //   queryFn: () => checkOrderStatus(id, txid),
+  //   enabled: !!id,
+  //   refetchInterval: 5000,
+  // });
+
   const orders = Array.isArray(ordersData) ? ordersData : [];
 
   const filteredOrders = useMemo(() => {
