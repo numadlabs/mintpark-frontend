@@ -727,15 +727,15 @@ export async function generateBuyHex({
 
 export async function buyListedCollectible({
   id,
-  hex,
+  txid,
 }: {
   id: string;
-  hex: string;
+  txid: string;
 }) {
   try {
     return axiosClient
       .post(`/api/v1/lists/${id}/buy`, {
-        hex,
+        txid,
       })
       .then((response) => {
         return response.data;

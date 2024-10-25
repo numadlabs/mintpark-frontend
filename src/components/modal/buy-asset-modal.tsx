@@ -9,13 +9,14 @@ import { X } from "lucide-react";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
+import { getSigner, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import { Input } from "../ui/input";
 import { useMutation } from "@tanstack/react-query";
 import {
   generateBuyHex,
   buyListedCollectible,
 } from "@/lib/service/postRequest";
+import { toast } from "sonner";
 
 interface ModalProps {
   open: boolean;
@@ -43,6 +44,8 @@ const BuyAssetModal: React.FC<ModalProps> = ({
 }) => {
   const router = useRouter();
   const [isSuccess, setIsSuccess] = useState(false);
+  const [txid, setTxid] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
   const { mutateAsync: generateBuyHexMutation } = useMutation({
     mutationFn: generateBuyHex,
   });
@@ -51,27 +54,68 @@ const BuyAssetModal: React.FC<ModalProps> = ({
     mutationFn: buyListedCollectible,
   });
 
+  // const handlePendingList = async () => {
+  //   try {
+  //     const params = await generateBuyHexMutation({
+  //       id: listId,
+  //       feeRate: 1,
+  //     });
+  //     if (params && params.success) {
+  //       const psbtHex = params.data.txHex;
+  //       const { signer } = await getSigner();
+  //         const signedTx = await signer?.sendTransaction(
+  //           response.data.batchMintTxHex,
+  //         );
+  //         await signedTx?.wait();
+  //       const hex = await window.unisat.signPsbt(psbtHex);
+  //       if (hex && listId) {
+  //         const response = await buyListedCollectibleMutation({
+  //           id: listId,
+  //           hex: hex,
+  //         });
+  //         if (response && response.success) {
+  //           setIsSuccess(true);
+  //         }
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error pending list:", error);
+  //   }
+  // };
+
   const handlePendingList = async () => {
+    setIsLoading(true);
     try {
-      const params = await generateBuyHexMutation({
+      const pendingRes = await generateBuyHexMutation({
         id: listId,
         feeRate: 1,
       });
-      if (params && params.success) {
-        const psbtHex = params.data.hex;
-        const hex = await window.unisat.signPsbt(psbtHex);
-        if (hex && listId) {
-          const response = await buyListedCollectibleMutation({
+      if (pendingRes && pendingRes.success) {
+        let txid;
+        const { signer } = await getSigner();
+        const signedTx = await signer?.sendTransaction(pendingRes.data.txHex);
+        await signedTx?.wait();
+        if (signedTx?.hash) {
+          const response = await buyListedCollectible({
             id: listId,
-            hex: hex,
+            txid: signedTx?.hash,
           });
           if (response && response.success) {
-            setIsSuccess(true);
+            toast.success("Successfully sent buy request");
+            router.push("/collections");
+          } else {
+            toast.error(response.error);
           }
+        } else {
+          toast.error("txid missing error");
         }
+      } else {
+        toast.error(pendingRes.error);
       }
     } catch (error) {
       console.error("Error pending list:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -80,7 +124,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="flex flex-col p-6 gap-6 max-w-[592px] w-full items-center">
           {isSuccess ? (
-            <div></div>
+            <div className="text-neutral00">ok</div>
           ) : (
             <div className="w-full items-center flex flex-col p-6 gap-6">
               <DialogHeader className="flex w-full">
@@ -116,7 +160,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                       List Price
                     </p>
                     <p className="text-lg text-neutral50 font-bold">
-                      {(price)?.toFixed(6)} Sats
+                      {price?.toFixed(6)} Sats
                     </p>
                   </div>
                 </div>
@@ -129,7 +173,9 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                 >
                   Cancel
                 </Button>
-                <Button onClick={handlePendingList}>Buy</Button>
+                <Button onClick={handlePendingList} disabled={isLoading}>
+                  {isLoading ? "Loading..." : "Buy"}
+                </Button>
               </DialogFooter>
               <button
                 className="w-12 h-12 absolute top-3 right-3 flex justify-center items-center"

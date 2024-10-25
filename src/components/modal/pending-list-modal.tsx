@@ -17,6 +17,7 @@ import {
   listCollectiblesForConfirm,
 } from "@/lib/service/postRequest";
 import { Check } from "lucide-react";
+import { toast } from "sonner";
 
 interface ModalProps {
   open: boolean;
@@ -105,6 +106,8 @@ const PendingListModal: React.FC<ModalProps> = ({
             setSuccess(true);
           }
         }
+      }else{
+        toast.error(collectibleRes.error)
       }
     } catch (error) {
       console.error("Error pending list:", error);
