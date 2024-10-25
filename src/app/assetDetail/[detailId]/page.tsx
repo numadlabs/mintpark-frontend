@@ -111,7 +111,7 @@ export default function AssetDetail() {
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
                     <h1>
-                      {(estimateFee?.estimation?.price / 10 ** 8).toFixed(6)}{" "}
+                      {(estimateFee?.estimation?.price).toFixed(6)}{" "}
                       BTC
                     </h1>
                   </span>
@@ -122,7 +122,7 @@ export default function AssetDetail() {
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
                     <h1>
-                      {(estimateFee?.estimation?.networkFee / 10 ** 8).toFixed(
+                      {(estimateFee?.estimation?.networkFee).toFixed(
                         6,
                       )}{" "}
                       BTC
@@ -135,7 +135,7 @@ export default function AssetDetail() {
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
                     <h1>
-                      {(estimateFee?.estimation?.serviceFee / 10 ** 8).toFixed(
+                      {(estimateFee?.estimation?.serviceFee).toFixed(
                         6,
                       )}{" "}
                       BTC
@@ -148,7 +148,7 @@ export default function AssetDetail() {
                   </span>
                   <span className="font-bold text-brand500 text-xl">
                     <h1>
-                      {(estimateFee?.estimation?.total / 10 ** 8).toFixed(6)}{" "}
+                      {(estimateFee?.estimation?.total).toFixed(6)}{" "}
                       BTC
                     </h1>
                   </span>

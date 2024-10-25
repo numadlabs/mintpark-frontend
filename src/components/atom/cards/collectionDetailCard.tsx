@@ -48,7 +48,7 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
                 <>
                   <p className="text-neutral200 font-medium text-md">Price</p>
                   <p className="text-neutral50">
-                    {(data.price / 10 ** 8).toFixed(5)}
+                    {(data.price).toFixed(5)}
                     <span className="ml-1">BTC</span>
                   </p>
                 </>

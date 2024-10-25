@@ -143,7 +143,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
         throw new Error("Invalid balance format received");
       }
 
-      const btcAmount = Number(res.total) / 10 ** 8;
+      const btcAmount = Number(res.total);
       const usdAmount = btcAmount * 65000; // Example rate - replace with real price feed
 
       setBalance((prev) => ({

@@ -30,31 +30,31 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
         <div className="w-[468px] h-[42px] flex justify-around items-center">
           <div className="text-right items-center grid gap-1">
             <p className="font-medium text-lg2 text-neutral50">
-              ${(data.floor / 10 ** 8).toFixed(4)}
+              ${(data.floor).toFixed(4)}
               <span className="ml-1">BTC</span>
             </p>
 
             <span className="font-medium text-md text-start text-neutral200">
-              ${((data.floor / 10 ** 8) * 65000).toFixed(1)}
+              ${((data.floor) * 65000).toFixed(1)}
             </span>
           </div>
           <div className="text-right grid gap-1">
             <p className="font-medium text-lg2 text-neutral50">
-              ${(data.volume / 10 ** 8).toFixed(4)}
+              ${(data.volume).toFixed(4)}
               <span className="ml-1">BTC</span>
             </p>
             <span className="font-medium text-start text-md text-neutral200">
-              ${((data.volume / 10 ** 8) * 65000).toFixed(1)}k
+              ${((data.volume) * 65000).toFixed(1)}k
             </span>
           </div>
           <div className="text-right grid gap-1">
             <p className="font-medium text-lg2 text-neutral50">
-            ${((data.marketCap / 10 ** 8)).toFixed(4)}
+            ${((data.marketCap)).toFixed(4)}
 
               <span className="ml-1">BTC</span>
             </p>
             <span className="font-medium text-md text-start text-neutral200">
-              ${((data.marketCap / 10 ** 8) * 65000).toFixed(1)}k
+              ${((data.marketCap) * 65000).toFixed(1)}k
             </span>
           </div>
         </div>

@@ -91,8 +91,10 @@ const PendingListModal: React.FC<ModalProps> = ({
         const signedTx = await signer?.sendTransaction(preparedListingTx);
         await signedTx?.wait();
         if (signedTx?.hash) setHash(signedTx?.hash);
+        setSuccess(true);
 
         if (id && hash) {
+          console.log("first")
           const response = await confirmPendingListMutation({
             id: id,
             txid: hash,
