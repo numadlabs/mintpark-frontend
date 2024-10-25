@@ -436,7 +436,7 @@ const SingleCollectible = () => {
                   isSelected={true}
                   isLoading={isLoading}
                   onClick={toggleSubmitModal}
-                  className="flex justify-center items-center"
+                  className="flex w-full justify-center items-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold"
                 >
                   {isLoading ? (
                     <Loader2

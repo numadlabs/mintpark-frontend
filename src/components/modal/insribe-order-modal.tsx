@@ -125,7 +125,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="flex flex-col p-6 h-[710px] gap-6 max-w-[592px] w-full items-center">
+      <DialogContent className="flex flex-col p-6 gap-5 max-w-[592px] w-full items-center">
         <DialogHeader className="flex w-full">
           <div className="text-xl text-neutral00 font-bold text-center">
             Inscribe Order
@@ -155,20 +155,20 @@ const InscribeOrderModal: React.FC<modalProps> = ({
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Network Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {(orders?.networkFee / 10 ** 8).toFixed(4)} Sats
+              {(orders?.networkFee).toFixed(4)} Sats
             </p>
           </div>
           <div className="flex flex-row justify-between items-center">
             <p className="text-lg2 text-neutral100 font-medium">Service Fee</p>
             <p className="text-lg2 text-neutral50 font-bold">
-              {(orders?.serviceFee / 10 ** 8).toFixed(4)} Sats
+              {(orders?.serviceFee).toFixed(4)} Sats
             </p>
           </div>
         </div>
         <div className="flex flex-row justify-between items-center -4 w-full bg-white4 rounded-2xl p-4">
           <p className="text-lg2 text-neutral100 font-medium">Total Amount</p>
           <p className="text-lg2 text-brand font-bold">
-            {(totalFee / 10 ** 8).toFixed(4)} Sats
+            {(totalFee)?.toFixed(4)} Sats
           </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />
