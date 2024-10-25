@@ -318,9 +318,13 @@ const SingleCollectible = () => {
 
   const handleDelete = (indexToDelete: number) => {
     // Create new arrays without the deleted items
-    const newImageFile = Array.from(imageFile).filter((_, index) => index !== indexToDelete);
-    const newImageFiles = imageFiles.filter((_, index) => index !== indexToDelete);
-    
+    const newImageFile = Array.from(imageFile).filter(
+      (_, index) => index !== indexToDelete,
+    );
+    const newImageFiles = imageFiles.filter(
+      (_, index) => index !== indexToDelete,
+    );
+
     // Update state with the new arrays directly
     setImageFile(newImageFile);
     setImageFiles(newImageFiles);
@@ -457,6 +461,7 @@ const SingleCollectible = () => {
                     <div className="flex flex-col gap-3">
                       <p className="font-medium text-lg text-neutral50">Name</p>
                       <Input
+                        onReset={reset}
                         placeholder="Collectible name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -467,12 +472,14 @@ const SingleCollectible = () => {
                         Creater (optional)
                       </p>
                       <Input
+                        onReset={reset}
                         placeholder="Collectible creator name"
                         value={creator}
                         onChange={(e) => setCreator(e.target.value)}
                       />
                     </div>
                     <TextArea
+                      // onReset={reset}
                       title="Description"
                       text="Collectible description"
                       value={description}

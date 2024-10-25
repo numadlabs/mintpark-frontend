@@ -328,6 +328,7 @@ const CollectionDetail = () => {
                   <Input
                     title="Name"
                     // text="Collection name"
+                    onReset={reset}
                     value={headline}
                     onChange={(e: any) => setHeadline(e.target.value)}
                   />
@@ -341,6 +342,7 @@ const CollectionDetail = () => {
                   {/* add to height description height  */}
                   <Input
                     title="Description"
+                    onReset={reset}
                     // text="Collection description"
                     value={description}
                     onChange={(e: any) => setDescription(e.target.value)}
