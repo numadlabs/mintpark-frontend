@@ -67,7 +67,6 @@ const SubmitPayModal: React.FC<ModalProps> = ({
   const [inscribeModal, setInscribeModal] = useState(false);
   const [hash, setHash] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [collectionTxid, setCollectionTxid] = useState<string>("");
   const [collectionId, setCollectionId] = useState<string>("");
   const [selectedTab, setSelectedTab] = useState<"Slow" | "Fast" | "Custom">(
     "Custom",

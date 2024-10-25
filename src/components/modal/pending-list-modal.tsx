@@ -9,12 +9,16 @@ import { X } from "lucide-react";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
+import { getSigner, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import { Input } from "../ui/input";
 import { useMutation } from "@tanstack/react-query";
 import {
+  buyListedCollectible,
   confirmPendingList,
+  createApprovalTransaction,
+  generateBuyHex,
   listCollectibleConfirm,
+  listCollectiblesForConfirm,
 } from "@/lib/service/postRequest";
 
 interface ModalProps {
@@ -25,6 +29,7 @@ interface ModalProps {
   collectionName: string;
   name: string;
   collectibleId: string;
+  txid: string
 }
 
 const PendingListModal: React.FC<ModalProps> = ({
@@ -35,47 +40,78 @@ const PendingListModal: React.FC<ModalProps> = ({
   collectionName,
   name,
   collectibleId,
+  txid
 }) => {
   const router = useRouter();
   const [price, setPrice] = useState<number>(0);
-  const { mutateAsync: listCollectibleConfirmMutation } = useMutation({
-    mutationFn: listCollectibleConfirm,
+  const [isLoading, setIsLoading] = useState(false);
+  const [hash, setHash] = useState<string>("")
+  const [id, setId] = useState<string>("")
+  const [success, setSuccess] = useState(false);
+
+  const { mutateAsync: listCollectiblesMutation } = useMutation({
+    mutationFn: listCollectiblesForConfirm,
   });
 
   const { mutateAsync: confirmPendingListMutation } = useMutation({
     mutationFn: confirmPendingList,
   });
 
+  // if (collectibleRes && collectibleRes.success) {
+      //   const id = params.data.list.id;
+      //   const address = params.data.list.address;
+      //   const inscriptionId = uniqueIdx;
+      //   const txid = await window.unisat.sendInscription(
+      //     address,
+      //     inscriptionId,
+      //   );
+      //   if (txid && id) {
+      //     await new Promise((resolve) => setTimeout(resolve, 5000));
+
+      //     const response = await confirmPendingListMutation({
+      //       id: id,
+      //       txid: txid,
+      //       vout: 0,
+      //       inscribedAmount: 546,
+      //     });
+      //     if (response && response.success) {
+      //       router.push("/collections");
+      //     }
+      //   }
+      // }
+
   const handlePendingList = async () => {
+    setIsLoading(true);
     try {
-      const params = await listCollectibleConfirmMutation({
+      const collectibleRes = await listCollectiblesMutation({
         collectibleId: collectibleId,
         price: price,
+        txid: txid,
       });
-      if (params && params.success) {
-        const id = params.data.list.id;
-        const address = params.data.list.address;
-        const inscriptionId = uniqueIdx;
-        const txid = await window.unisat.sendInscription(
-          address,
-          inscriptionId,
-        );
-        if (txid && id) {
-          await new Promise((resolve) => setTimeout(resolve, 5000));
+      if(collectibleRes && collectibleRes.success){
+        const { preparedListingTx } = collectibleRes.data.list;
+        const {id} = collectibleRes.data.list.sanitizedList;
+        const { signer } = await getSigner();
+        const signedTx = await signer?.sendTransaction(preparedListingTx);
+        await signedTx?.wait();
+        if (signedTx?.hash) setHash(signedTx?.hash);
 
+        if(id && hash){
           const response = await confirmPendingListMutation({
             id: id,
-            txid: txid,
+            txid: hash,
             vout: 0,
             inscribedAmount: 546,
-          });
+          })
           if (response && response.success) {
-            router.push("/collections");
+            setSuccess(true)
           }
         }
       }
     } catch (error) {
       console.error("Error pending list:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -83,6 +119,8 @@ const PendingListModal: React.FC<ModalProps> = ({
     <>
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="flex flex-col p-6 gap-6 max-w-[592px] w-full items-center">
+          {success ? "ok" :
+          (<>
           <DialogHeader className="flex w-full">
             <div className="text-xl text-neutral00 font-bold text-center">
               List Asset
@@ -124,14 +162,16 @@ const PendingListModal: React.FC<ModalProps> = ({
             >
               Cancel
             </Button>
-            <Button onClick={handlePendingList}>List</Button>
+            <Button onClick={handlePendingList} disabled={isLoading}>
+              {isLoading ? "Loading..." : "List"}
+            </Button>
           </DialogFooter>
           <button
             className="w-12 h-12 absolute top-3 right-3 flex justify-center items-center"
             onClick={onClose}
           >
             <X size={20} color="#D7D8D8" />
-          </button>
+          </button></>)}
         </DialogContent>
       </Dialog>
     </>
