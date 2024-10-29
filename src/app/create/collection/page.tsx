@@ -399,6 +399,7 @@ const CollectionDetail = () => {
                           image={item.base64}
                           key={index}
                           title={item.fileName}
+                          onDelete={handleDelete} 
                         />
                       </div>
                     ))}
@@ -680,6 +681,7 @@ const CollectionDetail = () => {
                       image={item.base64}
                       key={index}
                       title={item.fileName}
+                      onDelete={handleDelete} 
                     />
                   </div>
                 ))}

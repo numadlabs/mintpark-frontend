@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogFooter,
 } from "../ui/dialog";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -102,7 +102,8 @@ const BuyAssetModal: React.FC<ModalProps> = ({
           });
           if (response && response.success) {
             toast.success("Successfully sent buy request");
-            router.push("/collections");
+            router.push("/orders");
+            toast.success("Successfully");
           } else {
             toast.error(response.error);
           }
@@ -113,6 +114,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
         toast.error(pendingRes.error);
       }
     } catch (error) {
+      toast.error("Error pending list.");
       console.error("Error pending list:", error);
     } finally {
       setIsLoading(false);
@@ -160,7 +162,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                       List Price
                     </p>
                     <p className="text-lg text-neutral50 font-bold">
-                      {price?.toFixed(6)} Sats
+                      {price?.toFixed(4)} Sats
                     </p>
                   </div>
                 </div>
@@ -174,7 +176,15 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                   Cancel
                 </Button>
                 <Button onClick={handlePendingList} disabled={isLoading}>
-                  {isLoading ? "Loading..." : "Buy"}
+                  {isLoading ? (
+                    <Loader2
+                      className="animate-spin w-full"
+                      color="#111315"
+                      size={24}
+                    />
+                  ) : (
+                    "Buy"
+                  )}
                 </Button>
               </DialogFooter>
               <button

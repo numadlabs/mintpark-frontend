@@ -104,6 +104,7 @@ export default function AssetsDetails() {
       });
       if (response && response.success) {
         const { transaction, isApproved } = response.data.approveTxHex;
+        toast.success("List success.")
         console.log(transaction);
         if (isApproved === false) {
           const { signer } = await getSigner();
@@ -118,6 +119,7 @@ export default function AssetsDetails() {
         }
       }
     } catch (error) {
+      toast.error("Error list")
       console.error("Error list:", error);
     } finally {
       setIsLoading(false);
@@ -161,7 +163,7 @@ export default function AssetsDetails() {
                     <p>List price</p>
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
-                    <h1>{collection?.price?.toFixed(6)} cBTC</h1>
+                    <h1>{collection?.price?.toFixed(0)} cBTC</h1>
                   </span>
                 </div>
                 {/* <div className="flex justify-between w-full">
@@ -190,12 +192,12 @@ export default function AssetsDetails() {
                   onClick={HandleList}
                 >
                   {isLoading ? (
-                    // <Loader2
-                    //   className="animate-spin"
-                    //   color="#111315"
-                    //   size={24}
-                    // />
-                    "loading..."
+                    <Loader2
+                      className="animate-spin w-full"
+                      color="#111315"
+                      size={24}
+                    />
+                    // "loading..."
                   ) : (
                     "List"
                   )}
@@ -227,7 +229,7 @@ export default function AssetsDetails() {
           )} */}
           <div className="w-[592px] h-[1px] bg-neutral500" />
           <div>
-            <Accordion type="single" collapsible className="w-[592px]">
+            <Accordion type="multiple" className="w-[592px]">
               <AccordionItem value="item-1">
                 <AccordionTrigger className="font-medium text-xl text-neutral50">
                   Detail

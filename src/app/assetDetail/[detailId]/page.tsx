@@ -108,7 +108,7 @@ export default function AssetDetail() {
                     <p>List price</p>
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
-                    <h1>{(estimateFee?.estimation?.price)?.toFixed(6)} cBTC</h1>
+                    <h1>{(estimateFee?.estimation?.price)?.toFixed(0)} cBTC</h1>
                   </span>
                 </div>
               </div>

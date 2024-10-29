@@ -10,12 +10,12 @@ import Layout from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
 
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 const Create = () => {
   const router = useRouter();
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
 
   const handleOptionClick = (id: number) => {
     setSelectedOption((prevSelectedOption) => {
@@ -85,7 +85,7 @@ const Create = () => {
             />
             <div className="absolute top-0 flex flex-col items-center justify-center w-full h-full gap-6 bg-bannerBlack rounded-3xl backdrop-blur-3xl">
               <p className="text-4xl font-bold text-neutral50">
-              What do you want to create?
+                What do you want to create?
               </p>
               <p className="text-xl text-neutral-100">
                 Choose one to continue.
@@ -107,8 +107,16 @@ const Create = () => {
               />
             ))}
           </div>
-          <ButtonLg isSelected={selectedOption !== null} onClick={handleNav}  disabled={isLoading}>
-              {isLoading ? "Loading..." : "continue"}
+          <ButtonLg
+            isSelected={selectedOption !== null}
+            onClick={handleNav}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="animate-spin w-full" color="#111315" size={24} />
+            ) : (
+              "Continue"
+            )}
           </ButtonLg>
         </div>
       </div>
