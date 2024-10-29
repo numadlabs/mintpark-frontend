@@ -158,8 +158,8 @@ const CollectionDetailPage = () => {
                         {/* <span>{(collectionData?.floor / 10 ** 8).toFixed(5)}</span> BTC */}
                         <span>
                           {collectionData?.floor
-                            ? (collectionData.floor)?.toFixed(4)
-                            : "0.00000"}
+                            ? (collectionData.floor)?.toFixed(0)
+                            : "0"}
                         </span>{" "}
                         cBTC
                       </p>
@@ -178,8 +178,8 @@ const CollectionDetailPage = () => {
                         className="aspect-square"
                       />
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>{collectionData?.volume   ? (collectionData?.volume)?.toFixed(4)
-                            : "0.00000"}</span> cBTC
+                        <span>{collectionData?.volume   ? (collectionData?.volume)?.toFixed(0)
+                            : "0"}</span> cBTC
                       </p>
                     </div>
                   </div>

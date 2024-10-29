@@ -104,12 +104,14 @@ const PendingListModal: React.FC<ModalProps> = ({
           });
           if (response && response.success) {
             setSuccess(true);
+            toast.success("Successfully.")
           }
         }
       }else{
         toast.error(collectibleRes.error)
       }
     } catch (error) {
+      toast.error("error pending list.")
       console.error("Error pending list:", error);
     } finally {
       setIsLoading(false);
@@ -218,12 +220,12 @@ const PendingListModal: React.FC<ModalProps> = ({
                 </Button>
                 <Button onClick={handlePendingList} disabled={isLoading}>
                   {isLoading ? (
-                    // <Loader2
-                    //   className="animate-spin"
-                    //   color="#111315"
-                    //   size={24}
-                    // />
-                    "loading..."
+                    <Loader2
+                      className="animate-spin w-full"
+                      color="#111315"
+                      size={24}
+                    />
+                    // "loading..."
                   ) : (
                     "List"
                   )}

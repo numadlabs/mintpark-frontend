@@ -27,6 +27,7 @@ import WhiteListPhaseCard from "@/components/atom/cards/white-list-phase-card";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { createOrderToMint } from "@/lib/service/postRequest";
 import moment from "moment";
+import { Loader2 } from "lucide-react";
 
 const Page = () => {
   const router = useRouter();
@@ -117,7 +118,7 @@ const Page = () => {
 
   //       if (currentLayer.layer === "CITREA") {
   //         const { signer } = await getSigner();
-  
+
   //         console.log(singleMintTxHex);
   //         const signedTx = await signer?.sendTransaction(singleMintTxHex);
   //         await signedTx?.wait();
@@ -380,7 +381,15 @@ const Page = () => {
                   disabled={isLoading}
                   onClick={navigateCollection}
                 >
-                  Go to collection
+                  {/* Go to collection */}
+                  {isLoading
+                    ?  <Loader2
+                        className="animate-spin w-full"
+                        color="#111315"
+                        size={24}
+                      />
+                      // "Loading"
+                    : "Go to collection"}
                 </ButtonLg>
               ) : status === "Live" || status === "Indefinite" ? (
                 <ButtonLg
@@ -390,7 +399,15 @@ const Page = () => {
                   disabled={isLoading}
                   // onClick={handleConfirm}
                 >
-                  {isLoading ? "Loading..." : "Mint"}
+                  {isLoading ? (
+                    <Loader2
+                      className="animate-spin w-full"
+                      color="#111315"
+                      size={24}
+                    />
+                  ) : (
+                    "Mint"
+                  )}
                 </ButtonLg>
               ) : status === "Upcoming" ? (
                 ""

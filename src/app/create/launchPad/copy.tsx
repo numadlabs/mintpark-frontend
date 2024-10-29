@@ -295,11 +295,11 @@ const Copy = () => {
                   <div className="flex flex-row w-full h-full gap-8 overflow-x-auto">
                     {imageFiles.map((item, index) => (
                       <div key={index} className="w-full h-full">
-                        <CollectiblePreviewCard
+                        {/* <CollectiblePreviewCard
                           image={item.preview}
                           key={index}
                           title={item.file.name}
-                        />
+                        /> */}
                       </div>
                     ))}
                   </div>

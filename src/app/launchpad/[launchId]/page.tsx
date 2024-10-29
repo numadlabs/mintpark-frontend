@@ -94,7 +94,7 @@ const Page = () => {
         }
         if (orderId) {
           await confirmOrderMutation({ orderId: orderId, txid: txid });
-          toast.success("Success minted.")
+          toast.success("Success minted.");
           router.push("/launchpad");
         }
       }
@@ -316,23 +316,37 @@ const Page = () => {
               {unixToISOString(collectibles.poStartsAt) > now ? (
                 ""
               ) : unixToISOString(collectibles.poEndsAt) < now ? (
-                <Button onClick={handlCollectionClick}>Go to collection</Button>
+                <Button disabled={isLoading} onClick={handlCollectionClick}>
+                  {" "}
+                  {isLoading ? (
+                    <Loader2
+                      className="animate-spin w-full"
+                      color="#111315"
+                      size={24}
+                    />
+                  ) : (
+                    // "Loading"
+                    "Go to collection"
+                  )}
+                </Button>
               ) : (
                 <Button
                   variant={"default"}
                   type="submit"
-                  className="w-full"
+                  className=""
                   disabled={isLoading}
                   onClick={handleConfirm}
                 >
-                  {isLoading
-                    ? // <Loader2
-                      //   className="animate-spin"
-                      //   color="#111315"
-                      //   size={24}
-                      // />
-                      "Loading"
-                    : "Mint"}
+                  {isLoading ? (
+                    <Loader2
+                      className="animate-spin w-full"
+                      color="#111315"
+                      size={24}
+                    />
+                  ) : (
+                    // "Loading"
+                    "Mint"
+                  )}
                 </Button>
               )}
             </div>

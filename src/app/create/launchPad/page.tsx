@@ -133,6 +133,7 @@ const CollectionDetail = () => {
       // Input validation
       if (!dateString || !timeString) {
         console.error("Missing date or time input");
+        toast.error("Missing date or time input");
         return 0;
       }
 
@@ -148,6 +149,7 @@ const CollectionDetail = () => {
       // Validate the parsed date
       if (!momentDate.isValid()) {
         console.error("Invalid date/time combination:", dateTimeString);
+        toast.error("Invalid date and time combination.");
         return 0;
       }
 
@@ -155,8 +157,8 @@ const CollectionDetail = () => {
       return momentDate.unix();
     } catch (error) {
       console.error("Error calculating timestamp:", error);
+      toast.error("Error calculating timestamp.");
       return 0;
-
     }
   };
 
@@ -178,6 +180,7 @@ const CollectionDetail = () => {
           const { deployContractTxHex } = response.data;
           setCollectionId(id);
           console.log("create collection success", response);
+          toast.success("Create collection success.");
 
           if (currentLayer.layer === "CITREA") {
             const { signer } = await getSigner();
@@ -190,6 +193,7 @@ const CollectionDetail = () => {
         }
       }
     } catch (error) {
+      toast.error("Error creating collection.");
       console.error("Error creating collection:", error);
     } finally {
       setIsLoading(false);
@@ -265,6 +269,7 @@ const CollectionDetail = () => {
       if (response && response.success) {
         const { singleMintTxHex } = response.data;
         console.log("create collection success", response);
+        toast.success("Create collection success.");
 
         if (currentLayer.layer === "CITREA") {
           const { signer } = await getSigner();
@@ -274,6 +279,7 @@ const CollectionDetail = () => {
         setStep(3);
       }
     } catch (error) {
+      toast.error("Error creating launch.");
       console.error("Error creating launch: ", error);
     } finally {
       setIsLoading(false);
@@ -302,11 +308,13 @@ const CollectionDetail = () => {
         });
         if (response && response.success) {
           console.log("create launch success", response);
+          toast.success("Create launch success.");
           toggleSuccessModal();
         }
       }
     } catch (error) {
       console.error("Error creating launch:", error);
+      toast.error("Error creatin launch.");
     } finally {
       setIsLoading(false);
     }
@@ -441,9 +449,17 @@ const CollectionDetail = () => {
                   isSelected={true}
                   onClick={handleCreateCollection}
                   disabled={isLoading}
-                  isLoading={isLoading}
+                  // isLoading={isLoading}
                 >
-                  {isLoading ? "Loading..." : "Continue"}
+                  {isLoading ? (
+                    <Loader2
+                      className="animate-spin w-full"
+                      color="#111315"
+                      size={24}
+                    />
+                  ) : (
+                    "Continue"
+                  )}
                 </ButtonLg>
               </div>
             </div>
@@ -462,6 +478,7 @@ const CollectionDetail = () => {
                           image={item.preview}
                           key={index}
                           title={item.file.name}
+                          onDelete={handleDeleteLogo}
                         />
                       </div>
                     ))}
@@ -526,20 +543,20 @@ const CollectionDetail = () => {
                   // type="submit"
                   isSelected={true}
                   onClick={() => setStep(2)}
-                  isLoading={isLoading}
+                  // isLoading={isLoading}
                   disabled={isLoading}
                 >
-                  {/* {isLoading ? (
+                  {isLoading ? (
                     <Loader2
-                      className="animate-spin"
+                      className="animate-spin w-full"
                       color="#111315"
                       size={24}
                     />
                   ) : (
                     "Continue"
-                  )} */}
+                  )}
 
-                  {isLoading ? "...loading" : "Continue"}
+                  {/* {isLoading ? "...loading" : "Continue"} */}
                 </ButtonLg>
               </div>
             </div>
@@ -692,7 +709,7 @@ const CollectionDetail = () => {
                 <ButtonLg
                   isSelected={true}
                   onClick={isChecked ? handleMintfeeChange : () => setStep(3)}
-                  isLoading={isLoading}
+                  // isLoading={isLoading}
                   disabled={isLoading}
                   className="flex items-center   border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold  w-full justify-center"
                 >
@@ -742,6 +759,7 @@ const CollectionDetail = () => {
                           image={item.preview}
                           key={index}
                           title={name + " " + "#" + index}
+                          onDelete={handleDeleteLogo}
                         />
                       </div>
                     ))}
@@ -790,18 +808,20 @@ const CollectionDetail = () => {
                 <ButtonLg
                   isSelected={true}
                   onClick={isChecked ? handleCreateLaunch : handlePay}
-                  isLoading={isLoading}
+                  // isLoading={isLoading}
                   disabled={isLoading}
                   className="flex justify-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold  w-full items-center"
                 >
-                  {isLoading
-                    ? // <Loader2
-                      //   className="animate-spin"
-                      //   color="#111315"
-                      //   size={24}
-                      // />
-                      "Loading"
-                    : "Confirm"}
+                  {isLoading ? (
+                    <Loader2
+                      className="animate-spin w-full"
+                      color="#111315"
+                      size={24}
+                    />
+                  ) : (
+                    // "Loading"
+                    "Confirm"
+                  )}
                 </ButtonLg>
               </div>
             </div>
