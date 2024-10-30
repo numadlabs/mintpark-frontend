@@ -12,7 +12,7 @@ const Activity = () => {
             <p className='max-w-[152px] w-full text-md text-neutral200 font-medium'>Date</p>
         </div>
         <div className='mt-3 flex flex-col gap-3'>
-            <ActivityCard/>
+            {/* <ActivityCard/> */}
         </div>
     </div>
   )

@@ -154,7 +154,7 @@ export async function getCollectionById(id: string) {
 
 export async function getCollectibleById(id: string) {
   return axiosClient
-    .get(`/api/v1/collectible-traits/${id}/collectible`)
+    .get(`/api/v1/collectibles/02424158-f089-4a95-b341-0fb1f02f7573/collection/listable`)
     .then((response) => {
       if (response.data.success) {
         return response.data.data;
@@ -192,6 +192,18 @@ export async function checkOrderStatus(id: string, txid?: string) {
 export async function getEstimateFee(id: string) {
   return axiosClient
     .get(`/api/v1/lists/${id}/estimate-fee`)
+    .then((response) => {
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.error);
+      }
+    });
+}
+
+export async function getCollectibleActivity(id: string) {
+  return axiosClient
+    .get(`/api/v1/collectibles/${id}/activity`)
     .then((response) => {
       if (response.data.success) {
         return response.data.data;

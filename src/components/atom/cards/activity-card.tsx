@@ -2,6 +2,11 @@ import React from "react";
 import Image from "next/image";
 import { TickCircle, ArrowRight } from "iconsax-react";
 
+interface cardProps {
+  fileKey: string;
+  activityType: string;
+}
+
 const ActivityCard = () => {
   return (
     <div className="flex flex-row items-center justify-between p-3 bg-gray50 rounded-2xl">
