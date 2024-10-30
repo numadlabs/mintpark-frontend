@@ -320,7 +320,7 @@ const Page = () => {
                   {" "}
                   {isLoading ? (
                     <Loader2
-                      className="animate-spin w-full"
+                      className="animate-spin"
                       color="#111315"
                       size={24}
                     />
@@ -333,13 +333,13 @@ const Page = () => {
                 <Button
                   variant={"primary"}
                   type="submit"
-                  className=""
+                  className="w-full"
                   disabled={isLoading}
                   onClick={handleConfirm}
                 >
                   {isLoading ? (
                     <Loader2
-                      className="animate-spin w-full"
+                      className="animate-spin"
                       color="#111315"
                       size={24}
                     />

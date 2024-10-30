@@ -77,7 +77,7 @@ const OrderDetail = () => {
       case "IN_QUEUE":
         return "In queue";
       case "DONE":
-        return "Inscribed";
+        return "Minted";
       case "EXPIRED":
         return "Closed";
       default:

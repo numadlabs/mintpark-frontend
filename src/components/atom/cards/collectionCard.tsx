@@ -13,7 +13,7 @@ export type CardType = {
 };
 const formatPrice = (price: number) => {
   const btcAmount = price;
-  return btcAmount.toLocaleString('en-US', {
+  return btcAmount?.toLocaleString('en-US', {
     minimumFractionDigits:0,
     maximumFractionDigits: 2
   });

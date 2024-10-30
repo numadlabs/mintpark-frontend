@@ -103,15 +103,15 @@ const BuyAssetModal: React.FC<ModalProps> = ({
           if (response && response.success) {
             toast.success("Successfully sent buy request");
             router.push("/orders");
-            toast.success("Successfully");
+            toast.success("Successfully sent buy request");
           } else {
-            toast.error(response.error);
+            toast.error("Error");
           }
         } else {
           toast.error("txid missing error");
         }
       } else {
-        toast.error(pendingRes.error);
+        toast.error("Sent buy request error");
       }
     } catch (error) {
       toast.error("Error pending list.");
@@ -168,7 +168,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                       List Price
                     </p>
                     <p className="text-lg text-neutral50 font-bold">
-                      {formatPrice(price)} Sats
+                      {formatPrice(price)} cBTC
                     </p>
                   </div>
                 </div>

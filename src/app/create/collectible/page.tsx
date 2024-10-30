@@ -31,6 +31,7 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import { getSigner } from "@/lib/utils";
 import { toast } from "sonner";
 import InscribeOrderModal from "@/components/modal/insribe-order-modal";
+import { Button } from "@/components/ui/button";
 
 const stepperData = ["Upload", "Confirm"];
 
@@ -493,12 +494,14 @@ const SingleCollectible = () => {
                     // onClick={() => router.push("/")}
                     onClick={handleBack}
                   />
-                  <ButtonLg
+                  <Button
                     onClick={handleNextStep}
                     type="submit"
-                    isSelected={true}
-                    isLoading={isLoading}
+                    // isSelected={true}
+                    // isLoading={isLoading}
+                    variant={"primary"}
                     disabled={isLoading}
+                    className="w-full"
                   >
                     {isLoading ? (
                       <Loader2
@@ -509,7 +512,7 @@ const SingleCollectible = () => {
                     ) : (
                       "Continue"
                     )}
-                  </ButtonLg>
+                  </Button>
                 </div>
               </div>
               <div className="text-errorMsg">{error}</div>
@@ -543,13 +546,16 @@ const SingleCollectible = () => {
                   title="Go home"
                   onClick={() => router.push("/")}
                 />
-                <ButtonLg
+                <Button
                   type="button"
-                  isSelected={true}
-                  isLoading={isLoading}
+                  variant={"primary"}
+                  // isSelected={true}
+                  // isLoading={isLoading}
+                  
                   onClick={handlePay}
                   disabled={isLoading}
-                  className="flex w-full justify-center items-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold"
+                  className="w-full"
+                  // className="flex w-full justify-center items-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold"
                 >
                   {isLoading ? (
                     <Loader2
@@ -560,7 +566,7 @@ const SingleCollectible = () => {
                   ) : (
                     "Confirm"
                   )}
-                </ButtonLg>
+                </Button>
               </div>
             </div>
           )}
