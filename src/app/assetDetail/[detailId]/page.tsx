@@ -72,6 +72,13 @@ export default function AssetDetail() {
   const toggleModal = () => {
     setIsVisible(!isVisible);
   };
+  const formatPrice = (price: number) => {
+    const btcAmount = price;
+    return btcAmount?.toLocaleString('en-US', {
+      minimumFractionDigits:0,
+      maximumFractionDigits: 2
+    });
+  };
 
   return (
     <Layout>
@@ -108,7 +115,7 @@ export default function AssetDetail() {
                     <p>List price</p>
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
-                    <h1>{(estimateFee?.estimation?.price)?.toFixed(0)} cBTC</h1>
+                    <h1>{formatPrice(estimateFee?.estimation?.price)} cBTC</h1>
                   </span>
                 </div>
               </div>
@@ -118,7 +125,7 @@ export default function AssetDetail() {
             <div className="flex gap-4">
               {collectionData[0]?.price > 0 ? (
                 <Button
-                  variant={"default"}
+                  variant={"primary"}
                   className="w-60 h-12 bg-brand500"
                   onClick={toggleModal}
                 >

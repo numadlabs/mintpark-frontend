@@ -331,7 +331,7 @@ const Page = () => {
                 </Button>
               ) : (
                 <Button
-                  variant={"default"}
+                  variant={"primary"}
                   type="submit"
                   className=""
                   disabled={isLoading}

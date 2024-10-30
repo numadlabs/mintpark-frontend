@@ -69,6 +69,13 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
     return () => clearInterval(interval);
   }, [data.poStartsAt, data.poEndsAt]); // Fixed: removed createdAt from dependencies as it's not used
 
+  const formatPrice = (price: number) => {
+    const btcAmount = price;
+    return btcAmount.toLocaleString('en-US', {
+      minimumFractionDigits:0,
+      maximumFractionDigits: 2
+    });
+  };
   return (
     <Link href={`/launchpad/${id}`}>
       <div className="relative h-[412px] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-[20px] px-4 pt-4 flex flex-col text-neutral00">
@@ -91,7 +98,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
           <div className="flex justify-between py-3">
             <p className="font-medium text-neutral100 text-md">Price</p>
             <p className="font-bold text-md text-neutral50">
-              {(data.poMintPrice)?.toFixed(4)} {/* Fixed: added decimal precision */}
+              {formatPrice(data.poMintPrice)} {/* Fixed: added decimal precision */}
               <span className="ml-1">cBTC</span>
             </p>
           </div>

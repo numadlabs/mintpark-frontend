@@ -31,7 +31,7 @@ export default function Home() {
               </Link>
               <Link href={"/collections"} className="cursor-pointer">
                 <Button
-                  variant="default"
+                  variant="primary"
                   className="w-[176px] h-12 cursor-pointer"
                 >
                   Explore

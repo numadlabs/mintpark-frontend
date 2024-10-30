@@ -9,6 +9,13 @@ interface CardProps {
   handleNav: () => void;
 }
 const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
+  const formatPrice = (price: number) => {
+    const btcAmount = price;
+    return btcAmount.toLocaleString('en-US', {
+      minimumFractionDigits:0,
+      maximumFractionDigits: 2
+    });
+  };
   return (
     <>
       <button
@@ -30,31 +37,31 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
         <div className="w-[468px] h-[42px] flex justify-around items-center">
           <div className="text-right items-center grid gap-1">
             <p className="font-medium text-lg2 text-neutral50">
-              ${(data.floor)?.toFixed(4)}
+              ${formatPrice(data.floor)}
               <span className="ml-1">cBTC</span>
             </p>
 
             <span className="font-medium text-md text-start text-neutral200">
-              ${((data.floor) * 65000)?.toFixed(1)}
+              ${formatPrice((data.floor) * 65000)}
             </span>
           </div>
           <div className="text-right grid gap-1">
             <p className="font-medium text-lg2 text-neutral50">
-              ${(data.volume)?.toFixed(4)}
+              ${formatPrice(data.volume)}
               <span className="ml-1">cBTC</span>
             </p>
             <span className="font-medium text-start text-md text-neutral200">
-              ${((data.volume) * 65000)?.toFixed(1)}k
+              ${formatPrice((data.volume) * 65000)}k
             </span>
           </div>
           <div className="text-right grid gap-1">
             <p className="font-medium text-lg2 text-neutral50">
-            ${((data.marketCap))?.toFixed(4)}
+            ${(formatPrice(data.marketCap))}
 
               <span className="ml-1">cBTC</span>
             </p>
             <span className="font-medium text-md text-start text-neutral200">
-              ${((data.marketCap) * 65000)?.toFixed(1)}k
+              ${formatPrice((data.marketCap) * 65000)}k
             </span>
           </div>
         </div>

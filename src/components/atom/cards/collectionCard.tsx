@@ -11,6 +11,13 @@ export type CardType = {
   data: CollectionDataType;
   handleNav: () => void;
 };
+const formatPrice = (price: number) => {
+  const btcAmount = price;
+  return btcAmount.toLocaleString('en-US', {
+    minimumFractionDigits:0,
+    maximumFractionDigits: 2
+  });
+};
 
 const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
   return (
@@ -36,7 +43,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
               Floor price
             </p>
             <p className="pt-2 font-bold text-md text-neutral-50">
-              {data.floor === 0 ? data.floor : data.floor?.toFixed(0)}
+              {(data.floor )=== 0 ? formatPrice(data.floor) : formatPrice(data.floor)}
               <span className="ml-1">cBTC</span>
             </p>
           </div>
@@ -44,7 +51,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
             {" "}
             <p className="text-sm font-medium text-neutral200 gap-2">Volume</p>
             <p className="pt-2 font-bold text-md text-neutral-50">
-              {data?.volume === 0 ? data?.volume : data?.volume?.toFixed(0)}
+              {data?.volume === 0 ? formatPrice(data?.volume) : formatPrice(data?.volume)}
               <span className="ml-1">cBTC</span>
               {/* {data.volume === 0
                 ? data.volume

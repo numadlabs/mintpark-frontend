@@ -104,7 +104,7 @@ export default function AssetsDetails() {
       });
       if (response && response.success) {
         const { transaction, isApproved } = response.data.approveTxHex;
-        toast.success("List success.")
+        // toast.success("List.")
         console.log(transaction);
         if (isApproved === false) {
           const { signer } = await getSigner();
@@ -125,7 +125,13 @@ export default function AssetsDetails() {
       setIsLoading(false);
     }
   };
-
+  const formatPrice = (price: number) => {
+    const btcAmount = price;
+    return btcAmount?.toLocaleString('en-US', {
+      minimumFractionDigits:0,
+      maximumFractionDigits: 2
+    });
+  };
   return (
     <Layout>
       <Header />
@@ -163,7 +169,7 @@ export default function AssetsDetails() {
                     <p>List price</p>
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
-                    <h1>{collection?.price?.toFixed(0)} cBTC</h1>
+                    <h1>{formatPrice(collection?.price)} cBTC</h1>
                   </span>
                 </div>
                 {/* <div className="flex justify-between w-full">
@@ -187,7 +193,7 @@ export default function AssetsDetails() {
             {collection?.price === 0 && (
               <div className="">
                 <Button
-                  variant={"default"}
+                  variant={"primary"}
                   className="w-60 h-12 bg-brand500 flex justify-center items-center"
                   onClick={HandleList}
                 >
@@ -248,7 +254,7 @@ export default function AssetsDetails() {
                       Floor difference
                     </h1>
                     <p className="font-medium text-md text-success">
-                      {collection?.floorDifference}%
+                      {formatPrice(collection?.floorDifference)}%
                     </p>
                   </div>
                   <div className="flex justify-between">

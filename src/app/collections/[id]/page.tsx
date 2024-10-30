@@ -22,6 +22,7 @@ import { getListedCollectionById } from "@/lib/service/queryHelper";
 import { s3ImageUrlBuilder } from "@/lib/utils";
 import { CollectionDataType } from "@/lib/types";
 import CollectionSideBar from "@/components/section/collections/sideBar";
+import { Button } from "@/components/ui/button";
 
 const CollectionDetailPage = () => {
   const params = useParams();
@@ -72,6 +73,13 @@ const CollectionDetailPage = () => {
       icon: <ThreadIcon size={34} className={`iconHover`} />,
     },
   ];
+  const formatPrice = (price: number) => {
+    const btcAmount = price;
+    return btcAmount?.toLocaleString('en-US', {
+      minimumFractionDigits:0,
+      maximumFractionDigits: 2
+    });
+  };
 
   return (
     <>
@@ -127,17 +135,17 @@ const CollectionDetailPage = () => {
                   </div>
                   <div className="flex gap-6 pt-8">
                     {links.map((link, i) => (
-                      <button
+                      <Button
                         key={i}
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          console.log("Button clicked");
+                          // console.log("Button clicked");
                         }}
                         className="h-10 w-10 border border-transparent bg-transparent"
                       >
                         {link.icon}
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -158,7 +166,7 @@ const CollectionDetailPage = () => {
                         {/* <span>{(collectionData?.floor / 10 ** 8).toFixed(5)}</span> BTC */}
                         <span>
                           {collectionData?.floor
-                            ? (collectionData.floor)?.toFixed(0)
+                            ? formatPrice(collectionData.floor)
                             : "0"}
                         </span>{" "}
                         cBTC
@@ -178,7 +186,7 @@ const CollectionDetailPage = () => {
                         className="aspect-square"
                       />
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>{collectionData?.volume   ? (collectionData?.volume)?.toFixed(0)
+                        <span>{collectionData?.volume  ? formatPrice(collectionData?.volume)
                             : "0"}</span> cBTC
                       </p>
                     </div>

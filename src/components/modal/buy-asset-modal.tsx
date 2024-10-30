@@ -120,7 +120,13 @@ const BuyAssetModal: React.FC<ModalProps> = ({
       setIsLoading(false);
     }
   };
-
+  const formatPrice = (price: number) => {
+    const btcAmount = price;
+    return btcAmount?.toLocaleString('en-US', {
+      minimumFractionDigits:0,
+      maximumFractionDigits: 2
+    });
+  };
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
@@ -162,7 +168,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                       List Price
                     </p>
                     <p className="text-lg text-neutral50 font-bold">
-                      {price?.toFixed(4)} Sats
+                      {formatPrice(price)} Sats
                     </p>
                   </div>
                 </div>
