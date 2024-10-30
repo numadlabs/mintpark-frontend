@@ -69,7 +69,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
       case "IN_QUEUE":
         return "Paid";
       case "DONE":
-        return "Inscribed";
+        return "Minted";
       case "EXPIRED":
         return "Closed";
       default:
@@ -84,7 +84,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
       case "IN_QUEUE":
         return "In queue";
       case "DONE":
-        return "Inscribed";
+        return "Minted";
       case "EXPIRED":
         return "Closed";
       default:
@@ -99,7 +99,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
       case "IN_QUEUE":
         return "The inscription is in queue";
       case "DONE":
-        return "Inscribed";
+        return "Minted";
       case "EXPIRED":
         return "Payment timeout, order closed";
       default:

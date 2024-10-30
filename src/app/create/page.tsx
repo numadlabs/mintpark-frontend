@@ -111,6 +111,7 @@ const Create = () => {
             isSelected={selectedOption !== null}
             onClick={handleNav}
             disabled={isLoading}
+            isLoading={isLoading}
           >
             {isLoading ? (
               <Loader2 className="animate-spin w-full" color="#111315" size={24} />

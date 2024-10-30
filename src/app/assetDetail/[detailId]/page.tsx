@@ -185,7 +185,7 @@ export default function AssetDetail() {
                       Floor difference
                     </h1>
                     <p className="font-medium text-md text-success">
-                      {collectionData[0]?.floorDifference}%
+                      {formatPrice(collectionData[0]?.floorDifference)}%
                     </p>
                   </div>
                   <div className="flex justify-between">
