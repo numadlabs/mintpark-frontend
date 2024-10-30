@@ -208,6 +208,7 @@ export type MintDataType = {
   collectionId: string;
   feeRate: number;
   txid?: string;
+  totalFileCount: number;
 }
 
 export type MintCollectibleDataType = {
@@ -233,6 +234,7 @@ export type LaunchCollectionData = {
   files: File[];
   isWhiteListed: boolean;
   txid?: string;
+  totalFileCount: number;
 }
 
 

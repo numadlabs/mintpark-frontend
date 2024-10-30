@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -28,18 +28,27 @@ const InscribeOrderModal: React.FC<modalProps> = ({
   navigateToCreate,
   txid,
 }) => {
+  const [isPaid, setIsPaid] = useState(false);
   const { data: orders = [] } = useQuery({
     queryKey: ["orderData"],
     queryFn: () => getOrderById(id as string),
     enabled: !!id,
     refetchInterval: 5000,
   });
-  const { data: status = [] } = useQuery({
-    queryKey: ["statusData"],
-    queryFn: () => checkOrderStatus(id, txid),
-    enabled: !!id,
-    refetchInterval: 5000,
+
+  const { data: paymentStatus = [] } = useQuery({
+    queryKey: ["paymentStatus"],
+    queryFn: async () => {
+      const result = await checkOrderStatus(id, txid);
+      if (result?.isPaid) {
+        setIsPaid(true);
+      }
+      return result;
+    },
+    enabled: !!id && !!txid,
+    refetchInterval: isPaid ? false : 5000,
   });
+
   const totalFee = orders?.networkFee + orders?.serviceFee;
   const router = useRouter();
   const createOrder = () => {
@@ -103,7 +112,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
     if (!status) {
       return "text-[#B0B0B1]";
     }
-    
+
     // Convert the input status to uppercase to match our case conditions
     const upperStatus = status.toUpperCase();
     switch (upperStatus) {
@@ -171,7 +180,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         <div className="flex flex-row justify-between items-center -4 w-full bg-white4 rounded-2xl p-4">
           <p className="text-lg2 text-neutral100 font-medium">Total Amount</p>
           <p className="text-lg2 text-brand font-bold">
-            {formatPrice(totalFee)} Sats
+            {totalFee?.toFixed(4)} Sats
           </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />
@@ -203,7 +212,9 @@ const InscribeOrderModal: React.FC<modalProps> = ({
                   </div>
                   <p className="text-neutral50 text-lg font-bold">Payment</p>
                 </div>
-                <p className={`text-lg font-medium ${getStatusColor(orders?.orderStatus)}`}>
+                <p
+                  className={`text-lg font-medium ${getStatusColor(orders?.orderStatus)}`}
+                >
                   {getPaymentStatus(orders?.orderStatus)}
                 </p>
               </div>
@@ -220,7 +231,9 @@ const InscribeOrderModal: React.FC<modalProps> = ({
                   </div>
                   <p className="text-neutral50 text-lg font-bold">Inscribe</p>
                 </div>
-                <p className={`text-lg font-medium ${getStatusColor(orders?.orderStatus)}`}>
+                <p
+                  className={`text-lg font-medium ${getStatusColor(orders?.orderStatus)}`}
+                >
                   {getInscribeStatus(orders?.orderStatus)}
                 </p>
               </div>

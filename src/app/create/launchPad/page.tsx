@@ -23,6 +23,7 @@ import TextArea from "@/components/ui/textArea";
 import {
   createCollectiblesToCollection,
   createCollection,
+  createMintHexCollection,
   launchCollection,
   mintFeeOfCitrea,
 } from "@/lib/service/postRequest";
@@ -102,6 +103,10 @@ const CollectionDetail = () => {
     mutationFn: createCollectiblesToCollection,
   });
 
+  const { mutateAsync: createHexCollectionMutation } = useMutation({
+    mutationFn: createMintHexCollection,
+  });
+  
   const updateFileInfo = (files: File[]) => {
     const newSizes = files.map((file) => file.size);
     setFileSizes((prevSizes) => [...prevSizes, ...newSizes]);
@@ -292,29 +297,45 @@ const CollectionDetail = () => {
     const POEndsAt = calculateTimeUntilDate(POEndsAtDate, POEndsAtTime);
 
     try {
-      const params: LaunchCollectionData = {
-        files: files,
-        POStartsAt: POStartsAt,
-        POEndsAt: POEndsAt,
-        POMintPrice: POMintPrice,
-        POMaxMintPerWallet: POMaxMintPerWallet,
-        isWhiteListed: false,
-        txid: txid,
-      };
-      if (params && collectionId) {
-        const response = await launchCollectionMutation({
+      const batchSize = 10;
+      const totalBatches = Math.ceil(files.length / batchSize);
+      let response;
+      for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+        // Get the current batch of files
+        const start = batchIndex * batchSize;
+        const end = Math.min(start + batchSize, files.length);
+        const currentBatchFiles = files.slice(start, end);
+
+        const params: LaunchCollectionData = {
+          files: currentBatchFiles,
+          POStartsAt: POStartsAt,
+          POEndsAt: POEndsAt,
+          POMintPrice: POMintPrice,
+          POMaxMintPerWallet: POMaxMintPerWallet,
+          isWhiteListed: false,
+          txid: txid,
+          totalFileCount: files.length,
+        };
+
+        response = await launchCollectionMutation({
           data: params,
           collectionId: collectionId,
         });
+
         if (response && response.success) {
-          console.log("create launch success", response);
-          toast.success("Create launch success.");
-          toggleSuccessModal();
+          // Small delay between batches to prevent rate limiting
+          if (batchIndex < totalBatches - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+          }
         }
+
+        console.log("Batch upload index: ", batchIndex);
       }
+      toggleSuccessModal();
     } catch (error) {
       console.error("Error creating launch:", error);
-      toast.error("Error creatin launch.");
+      toast.error("Error creating launch.");
+      toast.error("Error creating launch.");
     } finally {
       setIsLoading(false);
     }
@@ -333,40 +354,62 @@ const CollectionDetail = () => {
   const handlePay = async () => {
     setIsLoading(true);
     try {
-      const params: MintDataType = {
-        orderType: "COLLECTION",
-        files: files,
-        collectionId: collectionId,
-        feeRate: 1,
-        txid: txid,
-      };
+      // Process files in batches of 10
+      const batchSize = 10;
+      const totalBatches = Math.ceil(files.length / batchSize);
+      let response;
 
-      const response = await createCollectiblesMutation({ data: params });
-      if (response && response.success) {
-        if (currentLayer.layer === "CITREA") {
-          console.log(response);
+      for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+        // Get the current batch of files
+        const start = batchIndex * batchSize;
+        const end = Math.min(start + batchSize, files.length);
+        const currentBatchFiles = files.slice(start, end);
 
+        const params: MintDataType = {
+          orderType: "COLLECTION",
+          files: currentBatchFiles,
+          collectionId: collectionId,
+          feeRate: 1,
+          txid: txid,
+          totalFileCount: files.length, // Total count of all files
+        };
+
+        response = await createCollectiblesMutation({ data: params });
+
+        if (response && response.success) {
+          // Small delay between batches to prevent rate limiting
+          if (batchIndex < totalBatches - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+          }
+
+          // Store the last successful order ID
+          setData(response.data.order.id);
+        }
+
+        console.log("Batch upload index: ", batchIndex);
+      }
+
+      if (currentLayer.layer === "CITREA") {
+        const hexRes = await createHexCollectionMutation({
+          orderId: response.data.order.id,
+        });
+        if (hexRes && hexRes.success) {
           const { signer } = await getSigner();
           const signedTx = await signer?.sendTransaction(
-            response.data.batchMintTxHex,
+            hexRes.data.batchMintTxHex,
           );
+          setInscribeModal(true);
           await signedTx?.wait();
-          console.log(signedTx);
-          if (signedTx?.hash) setHash(signedTx?.hash);
-        } else if (currentLayer.layer === "FRACTAL") {
-          console.log(
-            response.data.order.fundingAddress,
-            response.data.order.fundingAmount,
-          );
-          await window.unisat.sendBitcoin(
-            response.data.order.fundingAddress,
-            response.data.order.fundingAmount,
-          );
+          setInscribeModal(true);
         }
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        setData(response.data.order.id);
+      } else if (currentLayer.layer === "FRACTAL") {
+        await window.unisat.sendBitcoin(
+          response.data.order.fundingAddress,
+          response.data.order.fundingAmount,
+        );
         setInscribeModal(true);
       }
+      
     } catch (error) {
       console.error(error);
       toast.error("Failed to create order");

@@ -222,6 +222,7 @@ export async function createCollectiblesToCollection({
   formData.append("orderType", data.orderType);
   formData.append("collectionId", data.collectionId);
   formData.append("feeRate", data.feeRate.toString());
+  formData.append("totalFileCount", data.totalFileCount.toString());
   formData.append("txid", data.txid || "");
 
   console.log("FormData contents:");
@@ -232,7 +233,7 @@ export async function createCollectiblesToCollection({
 
   const config: AxiosRequestConfig = {
     method: "post",
-    url: `/api/v1/orders/`,
+    url: `/api/v1/orders/collection`,
     data: formData,
     headers: {
       "Content-Type": "multipart/form-data",
@@ -275,6 +276,7 @@ export async function launchCollection({
   formData.append("POMintPrice", data.POMintPrice.toString());
   formData.append("POMaxMintPerWallet", data.POMaxMintPerWallet.toString());
   formData.append("isWhiteListed", data.isWhiteListed.toString());
+  formData.append("totalFileCount", data.totalFileCount.toString());
   formData.append("txid", data.txid || "");
 
   console.log("FormData contents:");
@@ -736,6 +738,24 @@ export async function buyListedCollectible({
     return axiosClient
       .post(`/api/v1/lists/${id}/buy`, {
         txid,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function createMintHexCollection({
+  orderId,
+}: {
+  orderId: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/orders/collection/hex`, {
+        orderId,
       })
       .then((response) => {
         return response.data;
