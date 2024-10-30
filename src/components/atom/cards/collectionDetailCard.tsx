@@ -12,6 +12,13 @@ type DetailCard = {
 
 export default function ColDetailCard({ data }: { data: CollectionDataType }) {
   const isListed = data.price > 0;
+  const formatPrice = (price: number) => {
+    const btcAmount = price;
+    return btcAmount.toLocaleString('en-US', {
+      minimumFractionDigits:0,
+      maximumFractionDigits: 2
+    });
+  };
   return (
     <>
       {" "}
@@ -48,7 +55,7 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
                 <>
                   <p className="text-neutral200 font-medium text-md">Price</p>
                   <p className="text-neutral50">
-                    {(data.price)?.toFixed(4)}
+                    {formatPrice(data.price)}
                     <span className="ml-1">cBTC</span>
                   </p>
                 </>

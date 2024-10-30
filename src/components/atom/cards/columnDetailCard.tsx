@@ -39,6 +39,13 @@ const getDaysAgo = (createdAt: string) => {
 
 const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
   const daysAgo = getDaysAgo(data.createdAt);
+  const formatPrice = (price: number) => {
+    const btcAmount = price;
+    return btcAmount.toLocaleString('en-US', {
+      minimumFractionDigits:0,
+      maximumFractionDigits: 2
+    });
+  };
   return (
     <>
       <Link
@@ -64,14 +71,14 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
         <div className="flex justify-end items-center w-full text-start">
           <div className="w-full max-w-[200px] grid gap-1 h-[18px]">
             <p className="font-medium text-lg2 text-neutral50">
-              {(data.price)?.toFixed(2)}
+              {formatPrice(data.price)}
               <span className="ml-1">cBTC</span>
             </p>
             <p>
               {" "}
               <p className="font-medium text-sm text-neutral200">
                 <span className="mr-1">$</span>
-                {((data.price) * 65000)?.toFixed(2)}
+                {formatPrice((data.price) * 65000)}
                 <span className="">k</span>
               </p>
             </p>
@@ -81,7 +88,7 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
               className={`font-medium text-lg2 ${(data.floorDifference ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}
             >
               {(data.floorDifference ?? 0) >= 0 ? "+" : "-"}
-              {data.floorDifference ?? 0}%
+              {formatPrice((data.floorDifference) ?? 0)}%
             </p>
           </div>
           <div className="w-full max-w-[200px] h-[18px]">

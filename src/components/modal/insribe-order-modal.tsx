@@ -119,7 +119,13 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         return "text-[#B0B0B1]";
     }
   };
-
+  const formatPrice = (price: number) => {
+    const btcAmount = price;
+    return btcAmount?.toLocaleString('en-US', {
+      minimumFractionDigits:0,
+      maximumFractionDigits: 2
+    });
+  };
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="flex flex-col p-6 gap-5 max-w-[592px] w-full items-center">
@@ -165,7 +171,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         <div className="flex flex-row justify-between items-center -4 w-full bg-white4 rounded-2xl p-4">
           <p className="text-lg2 text-neutral100 font-medium">Total Amount</p>
           <p className="text-lg2 text-brand font-bold">
-            {(totalFee)?.toFixed(4)} Sats
+            {formatPrice(totalFee)} Sats
           </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />

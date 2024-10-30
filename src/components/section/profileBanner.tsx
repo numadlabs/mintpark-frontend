@@ -54,14 +54,22 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const formatBalance = (value: number): string => {
-    if (typeof value !== "number" || isNaN(value)) return "0.00";
-    return value?.toFixed(4);
-  };
+  // const formatBalance = (value: number): string => {
+  //   if (typeof value !== "number" || isNaN(value)) return "0.00";
+  //   return value?.toFixed(2);
+  // };
 
-  const formatUSD = (value: number): string => {
-    if (typeof value !== "number" || isNaN(value)) return "0.00";
-    return value?.toFixed(2);
+  // const formatUSD = (value: number): string => {
+  //   if (typeof value !== "number" || isNaN(value)) return "0.00";
+  //   return value?.toFixed(2);
+  // };
+
+  const formatPrice = (price: number) => {
+    const btcAmount = price;
+    return btcAmount?.toLocaleString('en-US', {
+      minimumFractionDigits:0,
+      maximumFractionDigits: 2
+    });
   };
 
   const resetWalletState = () => {
@@ -307,10 +315,10 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                       className="h-6 w-6"
                     />
                     <p className="flex items-center font-bold text-xl text-white">
-                      {formatBalance(balance.eth)} cBTC
+                      {formatPrice(balance.eth)} cBTC
                     </p>
                     <p className="border-l border-l-white16 pl-4 h-5 text-neutral100 text-md flex items-center">
-                      ${formatUSD(balance.usdEth)}
+                      ${formatPrice(balance.usdEth)}
                     </p>
                   </h2>
                 )}
@@ -324,10 +332,10 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                       className="h-6 w-6"
                     />
                     <p className="flex items-center font-bold text-xl text-white">
-                      {formatBalance(balance.btc)} cBTC
+                      {formatPrice(balance.btc)} cBTC
                     </p>
                     <p className="border-l border-l-white16 pl-4 h-5 text-neutral100 text-md flex items-center">
-                      ${formatUSD(balance.usdBtc)}
+                      ${formatPrice(balance.usdBtc)}
                     </p>
                   </h2>
                 )}
