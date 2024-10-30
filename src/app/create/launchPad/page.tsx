@@ -106,7 +106,7 @@ const CollectionDetail = () => {
   const { mutateAsync: createHexCollectionMutation } = useMutation({
     mutationFn: createMintHexCollection,
   });
-  
+
   const updateFileInfo = (files: File[]) => {
     const newSizes = files.map((file) => file.size);
     setFileSizes((prevSizes) => [...prevSizes, ...newSizes]);
@@ -409,7 +409,6 @@ const CollectionDetail = () => {
         );
         setInscribeModal(true);
       }
-      
     } catch (error) {
       console.error(error);
       toast.error("Failed to create order");
@@ -614,13 +613,11 @@ const CollectionDetail = () => {
                   <Toggle isChecked={isChecked} onChange={handleToggle} />
                 </div>
                 <p className="text-neutral200 text-lg">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin
-                  ac ornare nisi. Aliquam eget semper risus, sed commodo elit.
-                  Curabitur sed congue magna. Donec ultrices dui nec ullamcorper
-                  aliquet. Nunc efficitur mauris id mi venenatis imperdiet.
-                  Integer mauris lectus, pretium eu nibh molestie, rutrum
-                  lobortis tortor. Duis sit amet sem fermentum, consequat est
-                  nec, ultricies justo.
+                  Discover endless possibilities in digital creation. Our
+                  platform empowers artists and creators to bring their vision
+                  to life through unique NFT collections. With advanced tools
+                  and seamless integration, you can focus on what matters most -
+                  your creative expression.
                 </p>
               </div>
               {isChecked ? (
@@ -632,13 +629,10 @@ const CollectionDetail = () => {
                       </p>
                     </div>
                     <p className="text-neutral200 text-lg">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                      Proin ac ornare nisi. Aliquam eget semper risus, sed
-                      commodo elit. Curabitur sed congue magna. Donec ultrices
-                      dui nec ullamcorper aliquet. Nunc efficitur mauris id mi
-                      venenatis imperdiet. Integer mauris lectus, pretium eu
-                      nibh molestie, rutrum lobortis tortor. Duis sit amet sem
-                      fermentum, consequat est nec, ultricies justo.
+                      Take control of your digital creations. Our platform
+                      provides the tools you need to mint, manage, and monetize
+                      your NFT collections. Join a growing ecosystem of artists
+                      redefining the boundaries of digital art.
                     </p>
                   </div>
                   <div className="flex flex-col gap-4">
