@@ -297,4 +297,6 @@ export type ActivityType = {
   price: number;
   collectionId: string;
   fromAddress: string;
+  toAddress: string;
+  timestamp: number;
 }
