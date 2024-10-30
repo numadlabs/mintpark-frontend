@@ -85,9 +85,9 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
           </div>
           <div className="w-full max-w-[200px] h-[18px]">
             <p
-              className={`font-medium text-lg2 ${(data.floorDifference ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}
+              className={`font-medium text-lg2 ${((data.floorDifference ?? 0) )>= 0 ? "text-green-500" : "text-red-500"}`}
             >
-              {(data.floorDifference ?? 0) >= 0 ? "+" : "-"}
+              {((data.floorDifference ?? 0) >= 0) ? "+" : "-"}
               {formatPrice((data.floorDifference) ?? 0)}%
             </p>
           </div>
