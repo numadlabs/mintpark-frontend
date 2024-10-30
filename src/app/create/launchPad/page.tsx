@@ -106,7 +106,7 @@ const CollectionDetail = () => {
   const { mutateAsync: createHexCollectionMutation } = useMutation({
     mutationFn: createMintHexCollection,
   });
-
+  
   const updateFileInfo = (files: File[]) => {
     const newSizes = files.map((file) => file.size);
     setFileSizes((prevSizes) => [...prevSizes, ...newSizes]);
@@ -335,6 +335,7 @@ const CollectionDetail = () => {
     } catch (error) {
       console.error("Error creating launch:", error);
       toast.error("Error creating launch.");
+      toast.error("Error creating launch.");
     } finally {
       setIsLoading(false);
     }
@@ -348,11 +349,6 @@ const CollectionDetail = () => {
   const handleNavigateToCreate = () => {
     router.push(`/create`);
     reset();
-  };
-
-  const totalFileCount = () => {
-    if (files.length > 10) {
-    }
   };
 
   const handlePay = async () => {
@@ -402,6 +398,7 @@ const CollectionDetail = () => {
           const signedTx = await signer?.sendTransaction(
             hexRes.data.batchMintTxHex,
           );
+          setInscribeModal(true);
           await signedTx?.wait();
           setInscribeModal(true);
         }
@@ -412,6 +409,7 @@ const CollectionDetail = () => {
         );
         setInscribeModal(true);
       }
+      
     } catch (error) {
       console.error(error);
       toast.error("Failed to create order");
