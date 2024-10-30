@@ -12,6 +12,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
+  getCollectibleActivity,
   getCollectibleById,
   getCollectionById,
   getEstimateFee,
@@ -21,6 +22,8 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import BuyAssetModal from "@/components/modal/buy-asset-modal";
 import { Loader2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ActivityCard from "@/components/atom/cards/activity-card";
 
 export default function AssetDetail() {
   const params = useParams();
@@ -44,6 +47,12 @@ export default function AssetDetail() {
     queryKey: ["feeData"],
     queryFn: () => getEstimateFee(collectionData?.[0]?.listId ?? ""),
     enabled: !!collectionData?.[0]?.listId,
+  });
+
+  const { data: activity = [] } = useQuery({
+    queryKey: ["acitivtyData", collectionData?.[0]?.id],
+    queryFn: () => getCollectibleActivity(collectionData?.[0]?.id as string),
+    enabled: !!collectionData?.[0]?.id,
   });
 
   if (isCollectionLoading || isCollectibleLoading) {
@@ -74,9 +83,9 @@ export default function AssetDetail() {
   };
   const formatPrice = (price: number) => {
     const btcAmount = price;
-    return btcAmount?.toLocaleString('en-US', {
-      minimumFractionDigits:0,
-      maximumFractionDigits: 2
+    return btcAmount?.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
     });
   };
 
@@ -185,7 +194,7 @@ export default function AssetDetail() {
                       Floor difference
                     </h1>
                     <p className="font-medium text-md text-success">
-                      {formatPrice(collectionData[0]?.floorDifference)}%
+                    {formatPrice(collectionData[0]?.floorDifference)}%
                     </p>
                   </div>
                   <div className="flex justify-between">

@@ -38,16 +38,12 @@ const InscribeOrderModal: React.FC<modalProps> = ({
 
   const { data: paymentStatus = [] } = useQuery({
     queryKey: ["paymentStatus"],
-    queryFn: async () => {
-      const result = await checkOrderStatus(id, txid);
-      if (result?.isPaid) {
-        setIsPaid(true);
-      }
-      return result;
-    },
+    queryFn:() => checkOrderStatus(id, txid),
     enabled: !!id && !!txid,
-    refetchInterval: isPaid ? false : 5000,
+    refetchInterval: 5000,
   });
+
+  console.log(paymentStatus)
 
   const totalFee = orders?.networkFee + orders?.serviceFee;
   const router = useRouter();

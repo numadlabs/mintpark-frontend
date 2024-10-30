@@ -291,3 +291,10 @@ export type LaunchDataType = {
     mintedAmount: number;
     createdAt: string;
 }
+
+export type ActivityType = {
+  activityType: string;
+  price: number;
+  collectionId: string;
+  fromAddress: string;
+}
