@@ -488,9 +488,11 @@ const CollectionDetail = () => {
               <div className="flex flex-row justify-between w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
                 <Button
+                  type="submit"
                   title="Continue"
                   onClick={handleCreateCollection}
                   disabled={isLoading}
+                  className="w-full"
                   // isLoading={isLoading}
                 >
                   {isLoading ? (
