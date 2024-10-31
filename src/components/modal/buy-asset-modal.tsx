@@ -102,8 +102,6 @@ const BuyAssetModal: React.FC<ModalProps> = ({
           });
           if (response && response.success) {
             toast.success("Successfully sent buy request");
-            router.push("/orders");
-            toast.success("Successfully sent buy request");
           } else {
             toast.error("Error");
           }

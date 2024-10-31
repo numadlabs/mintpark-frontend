@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import CollectionSideBar from "../../components/section/collections/sideBar";
 import { useQuery } from "@tanstack/react-query";
-import { getListedCollections } from "@/lib/service/queryHelper";
+import { getListedCollectionById, getListedCollections } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import CollectionCard from "@/components/atom/cards/collectionCard";
 import { CollectionDataType } from "@/lib/types";
@@ -49,6 +49,8 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
     }).toString();
     router.push(`/collections/${collectionData.id}?${queryParams}`);
   };
+
+  const collectionArray = Array.isArray(collection) ? collection : [];
 
   return (
     <>
@@ -207,11 +209,12 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
             {!detail && (
               <>
                 <TabsContent value="All" className="grid grid-cols-4 gap-10">
-                  {collection.map((item: any) => (
+                  {collectionArray?.map((item: any) => (
                     <div key={item.id}>
                       <CollectionCard
                         data={item}
                         handleNav={() => handleNavigation(item)}
+                        totalOwnerCount={1}
                       />
                     </div>
                   ))}
@@ -249,7 +252,7 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
                   </div>
                   <ScrollArea className="h-[754px] border-t-2 border-neutral500">
                     <div className="grid grid-cols-1 pt-4 gap-4">
-                      {collection.map((item: any) => (
+                      {collectionArray?.map((item: any) => (
                         <div key={item.id}>
                           <ColumColCard
                             data={item}

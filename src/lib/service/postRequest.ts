@@ -146,9 +146,9 @@ export async function createMintCollectible({
   //   throw new Error("Files are required");
   // }
   // Append files with explicit type checking
-  data.files.forEach((file, index) => {
+  data.file.forEach((file, index) => {
     if (file instanceof File) {
-      formData.append(`files`, file);
+      formData.append(`file`, file);
       console.log(
         `Appending file ${index}: ${file.name}, size: ${file.size}, type: ${file.type}`,
       );
@@ -159,7 +159,7 @@ export async function createMintCollectible({
   });
 
   // Append other data with null checking and type conversion
-  formData.append("orderType", data.orderType || "COLLECTIBLE");
+  formData.append("collectionId", data.collectionId);
   // Handle txid specifically
   if (data.txid) {
     console.log("Appending txid:", data.txid);
@@ -183,7 +183,7 @@ export async function createMintCollectible({
 
   const config: AxiosRequestConfig = {
     method: "post",
-    url: `/api/v1/orders/`,
+    url: `/api/v1/orders/collectible`,
     data: formData,
     headers: {
       "Content-Type": "multipart/form-data",
