@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ColumColCard from "@/components/atom/cards/ColumColCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -13,12 +13,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import CollectionSideBar from "../../components/section/collections/sideBar";
 import { useQuery } from "@tanstack/react-query";
-import { getListedCollectionById, getListedCollections } from "@/lib/service/queryHelper";
+import {
+  getListedCollectionById,
+  getListedCollections,
+} from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import CollectionCard from "@/components/atom/cards/collectionCard";
 import { CollectionDataType } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import CollectionSkeleton from "@/components/atom/skeleton/collection-skeletion";
 
 interface CollectionsProps {
   params: {};
@@ -27,7 +31,10 @@ interface CollectionsProps {
   };
 }
 
-export default function Collections({ params, searchParams }: CollectionsProps) {
+export default function Collections({
+  params,
+  searchParams,
+}: CollectionsProps) {
   const detail = searchParams.detail === "true";
   const router = useRouter();
   const { authState } = useAuth();
@@ -35,11 +42,15 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
   const tabs = ["1h", "24h", "7d", "30d", "All"];
   const [active, setActive] = useState(false);
   const [selectedTab, setSelectedTab] = useState("All");
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  const { data: collection = [] } = useQuery({
+  const { data: collection = [], isLoading } = useQuery({
     queryKey: ["collectionData"],
     queryFn: () => getListedCollections(id as string),
     enabled: !!id,
+    staleTime: 30000, // Data remains fresh for 30 seconds
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
   const handleNavigation = (collectionData: CollectionDataType) => {
@@ -51,6 +62,21 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
   };
 
   const collectionArray = Array.isArray(collection) ? collection : [];
+
+  useEffect(() => {
+    if (!isLoading && isInitialLoad) {
+      setIsInitialLoad(false);
+    }
+  }, [isLoading]);
+
+  // Reset initial load when id changes
+  useEffect(() => {
+    if (id) {
+      setIsInitialLoad(true);
+    }
+  }, [id]);
+
+  const showSkeleton = isInitialLoad && isLoading;
 
   return (
     <>
@@ -209,14 +235,18 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
             {!detail && (
               <>
                 <TabsContent value="All" className="grid grid-cols-4 gap-10">
-                  {collectionArray?.map((item: any) => (
-                    <div key={item.id}>
-                      <CollectionCard
-                        data={item}
-                        handleNav={() => handleNavigation(item)}
-                      />
-                    </div>
-                  ))}
+                  {showSkeleton
+                    ? Array(8)
+                        .fill(null)
+                        .map((_, index) => <CollectionSkeleton key={index} />)
+                    : collectionArray?.map((item: any) => (
+                        <div key={item.id}>
+                          <CollectionCard
+                            data={item}
+                            handleNav={() => handleNavigation(item)}
+                          />
+                        </div>
+                      ))}
                 </TabsContent>
 
                 <TabsContent value="ColCard">

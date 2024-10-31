@@ -23,6 +23,7 @@ import { s3ImageUrlBuilder } from "@/lib/utils";
 import { CollectionDataType } from "@/lib/types";
 import CollectionSideBar from "@/components/section/collections/sideBar";
 import { Button } from "@/components/ui/button";
+import CollectionDetailSkeleton from "@/components/atom/skeleton/collection-detail-skeleton";
 
 const CollectionDetailPage = () => {
   const params = useParams();
@@ -32,11 +33,13 @@ const CollectionDetailPage = () => {
   const [collectionData, setCollectionData] =
     useState<CollectionDataType | null>(null);
 
-  const { data: collection = [] } = useQuery({
+  const { data: collection = [], isLoading: isCollectionLoading } = useQuery({
     queryKey: ["collectionData"],
     queryFn: () => getListedCollectionById(id as string),
     enabled: !!id,
   });
+
+  const isLoading = isCollectionLoading || (!collectionData && searchParams.has('data'));
 
   useEffect(() => {
     const data = searchParams.get("data");
@@ -53,6 +56,9 @@ const CollectionDetailPage = () => {
     setActive(!active);
   };
 
+  if (isLoading) {
+    return <CollectionDetailSkeleton />;
+  }
 
   const links = [
     {
@@ -78,6 +84,8 @@ const CollectionDetailPage = () => {
       maximumFractionDigits: 8
     });
   };
+
+  
 
   return (
     <>
