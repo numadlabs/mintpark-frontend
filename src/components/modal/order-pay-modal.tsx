@@ -196,7 +196,7 @@ const OrderPayModal: React.FC<ModalProps> = ({
     const btcAmount = price;
     return btcAmount?.toLocaleString('en-US', {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 6
     });
   };
 
