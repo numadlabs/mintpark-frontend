@@ -192,6 +192,7 @@ export default function AssetsDetails() {
             {collectionData[0]?.price === 0 && (
               <div className="">
                 <Button
+                  type="submit"
                   variant={"primary"}
                   className="w-60 h-12 bg-brand500 flex justify-center items-center"
                   onClick={HandleList}
