@@ -7,8 +7,8 @@ import { clearToken, getAccessToken, getRefreshToken, saveToken } from "./auth";
 
 export const BACKEND_URL =
   process.env.NODE_ENV === "development"
-    ? "http://0.0.0.0:3000" // development api
-    : "https://api.mainnet.araafal.com";
+    ? "http://localhost:3001" // development api
+    : "https://mintpark-staging-2edee1d55eb3.herokuapp.com";
 
 const instance = axios.create({
   baseURL: BACKEND_URL,
@@ -21,13 +21,13 @@ instance.interceptors.request.use(
     if (token) {
       config.headers["Authorization"] = "Bearer " + token;
     }
-        // Set the correct Content-Type based on the request data
-        if (config.data instanceof FormData) {
-          config.headers["Content-Type"] = "multipart/form-data";
-        } else {
-          config.headers["Content-Type"] = "application/json";
-        }
-        
+    // Set the correct Content-Type based on the request data
+    if (config.data instanceof FormData) {
+      config.headers["Content-Type"] = "multipart/form-data";
+    } else {
+      config.headers["Content-Type"] = "application/json";
+    }
+
     return config;
   },
   (error) => {
