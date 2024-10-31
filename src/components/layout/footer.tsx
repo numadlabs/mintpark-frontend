@@ -14,7 +14,7 @@ export default function Footer() {
     router.push("/privacy-policy");
   };
   const handleTwitter = () => {
-    router.push("/");
+    router.push("https://x.com/mintpark_io");
   };
   const handleLogoClick = () => {
     router.push("/");
