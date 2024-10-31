@@ -10,6 +10,7 @@ import { s3ImageUrlBuilder } from "@/lib/utils";
 export type CardType = {
   data: CollectionDataType;
   handleNav: () => void;
+  totalOwnerCount: number;
 };
 const formatPrice = (price: number) => {
   const btcAmount = price;
@@ -19,7 +20,7 @@ const formatPrice = (price: number) => {
   });
 };
 
-const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
+const CollectionCard: React.FC<CardType> = ({ data, handleNav, totalOwnerCount }) => {
   return (
     <button
       onClick={handleNav}
@@ -65,7 +66,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
           <div className="flex mt-2 items-center">
             <Profile2User color="#d3f85a" className="w-4 h-4" />
             <p className="ml-2 font-medium text-md text-neutral50">
-              <span>1</span> owners
+              <span>{totalOwnerCount}</span> owners
             </p>
           </div>
           <div className="flex mt-2 items-center">

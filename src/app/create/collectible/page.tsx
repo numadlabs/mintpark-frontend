@@ -160,163 +160,6 @@ const SingleCollectible = () => {
     setStep(1);
   };
 
-  // const handleSubmit = async () => {
-  //   try {
-  //     if (!imageFile) {
-  //       throw new Error("Image file is required");
-  //     }
-
-  //     const collectibleData: CollectibleDataType = {
-  //       name,
-  //       creator,
-  //       description,
-  //       mintLayerType,
-  //       feeRate,
-  //       imageFile,
-  //     };
-
-  //     setIsLoading(true);
-  //     const result = await createCollectibleMutation({ data: collectibleData });
-  //     if (result.success) {
-  //       toast.success("Collectible successfully created");
-  //       reset();
-  //     } else {
-  //       throw new Error(result.message || "Failed to create collectible");
-  //     }
-  //   } catch (error: any) {
-  //     console.error("Error creating collectible:", error);
-  //     setError(error.message || "An error occurred while creating the collectible");
-  //     toast.error(error.message || "Failed to create collectible");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }
-
-  // const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
-  //   event.preventDefault();
-  //   setIsLoading(true);
-  //   if (!imageFile) {
-  //     setError("Image not provided.");
-  //     setIsLoading(false);
-  //     return;
-  //   }
-
-  //   // if (ticker.length > 7) {
-  //   //   setError("Invalid ticker. Need to be no longer than 7 characters long");
-  //   //   setIsLoading(false);
-  //   //   return;
-  //   // }
-
-  //   try {
-  //     const opReturnValues = [
-  //       {
-  //         image_data: imageFile,
-  //       },
-  //     ];
-
-  //     const hexPayload = stringtoHex(JSON.stringify(opReturnValues));
-
-  //     const mintPayload: MintCollectiblePayload = {
-  //       payload: hexPayload,
-  //       ticker,
-  //       headline,
-  //       supply: 1,
-  //       assetType: ASSETTYPE.NFTONCHAIN,
-  //     };
-  //     const response = await mintCollectibleHandler(mintPayload);
-
-  //     if (response.success) {
-  //       setRawHex(response.data.hex);
-  //       setError("");
-  //       setStep(2); // Move to signing step
-  //     } else {
-  //       throw new Error("Failed to mint collectible");
-  //     }
-  //   } catch (error) {
-  //     console.log("🚀 ~ handleSign ~ error:", error);
-  //     setError((error as Error).message || "An error occurred during signing");
-  //     toast.error(
-  //       (error as Error).message || "An error occurred during signing",
-  //     );
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // const handleSign = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     console.log("🚀 ~ handleSign ~ rawHex:", rawHex);
-  //     const signResult = await signTransaction({
-  //       hex: rawHex,
-  //     });
-  //     console.log("🚀 ~ handleSign ~ signResult:", signResult);
-
-  //     if (signResult.status) {
-  //       setSignedHex(signResult.result.signedHex);
-  //       setStep(3); // Move to send step
-  //     } else {
-  //       throw new Error("Failed to sign transaction");
-  //     }
-  //   } catch (error) {
-  //     console.log("🚀 ~ handleSign ~ error:", error);
-  //     setError(error.message || "An error occurred during signing");
-  //     toast.error(error.message || "An error occurred during signing");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // const handleSend = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     const sendResult = await sendTransaction({
-  //       hex: signedHex,
-  //       transactionType: "SEND_NFT", // Adjust this based on your requirements
-  //     });
-
-  //     if (sendResult.status) {
-  //       setTxUrl(`https://testnet.coordiscan.io/tx/${sendResult.result}`);
-  //       setStep(4); // Move to final confirmation step
-  //       toast.success("Transaction sent successfully");
-  //     } else {
-  //       throw new Error("Failed to send transaction");
-  //     }
-  //   } catch (error) {
-  //     setError(error.message || "An error occurred during sending");
-  //     toast.error(error.message || "An error occurred during sending");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // const handleSignandSend = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     console.log("🚀 ~ handleSign ~ rawHex:", rawHex);
-  //     const signResult = await signAndSendTransaction({
-  //       hex: rawHex,
-  //       transactionType: "normal",
-  //     });
-  //     console.log("🚀 ~ handleSign ~ signResult:", signResult);
-
-  //     if (signResult.status) {
-  //       setSignedHex(signResult.result.signedHex);
-  //       setStep(3); // Move to send step
-  //     } else {
-  //       throw new Error("Failed to sign transaction");
-  //     }
-  //   } catch (error) {
-  //     console.log("🚀 ~ handleSign ~ error:", error);
-  //     setError((error as Error).message || "An error occurred during signing");
-  //     toast.error(
-  //       (error as Error).message || "An error occurred during signing",
-  //     );
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
   const handleDelete = (indexToDelete: number) => {
     // Create new arrays without the deleted items
     const newImageFile = Array.from(imageFile).filter(
@@ -351,15 +194,16 @@ const SingleCollectible = () => {
         name: name,
         creator: creator,
         description: description,
-        priceForLaunchpad: 0,
+        priceForLaunchpad: 0.001,
       };
       if (collectionParams) {
         let collectionTxid;
+        let id;
         let collectionResponse = await createCollectionMutation({
           data: collectionParams,
         });
         if (collectionResponse && collectionResponse.success) {
-          const { id } = collectionResponse.data.collection;
+          id = collectionResponse.data.collection.id;
           const { deployContractTxHex } = collectionResponse.data;
           console.log("create collection success", collectionResponse);
 
@@ -372,10 +216,10 @@ const SingleCollectible = () => {
           }
         }
         const params: MintCollectibleDataType = {
-          orderType: "COLLECTIBLE",
-          files: files,
+          file: files,
           feeRate: 1,
           txid: collectionTxid,
+          collectionId: id,
         };
 
         const response = await createCollectiblesMutation({ data: params });

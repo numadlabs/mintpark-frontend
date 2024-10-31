@@ -135,7 +135,7 @@ export async function getListedCollectionById(collectionId: string) {
     .get(`/api/v1/collectibles/${collectionId}/collection/listable`)
     .then((response) => {
       if (response.data.success) {
-        return response.data.data.collectibles;
+        return response.data.data;
       } else {
         throw new Error(response.data.error);
       }
@@ -154,7 +154,7 @@ export async function getCollectionById(id: string) {
 
 export async function getCollectibleById(id: string) {
   return axiosClient
-    .get(`/api/v1/collectibles/02424158-f089-4a95-b341-0fb1f02f7573/collection/listable`)
+    .get(`/api/v1/collectibles/${id}/collection/listable`)
     .then((response) => {
       if (response.data.success) {
         return response.data.data;

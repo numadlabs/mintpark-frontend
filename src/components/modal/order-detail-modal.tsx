@@ -47,7 +47,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
       case "IN_QUEUE":
         return "Paid";
       case "DONE":
-        return "Paid";
+        return "Minted";
       case "EXPIRED":
         return "Closed";
       default:
