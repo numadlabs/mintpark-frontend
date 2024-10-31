@@ -41,7 +41,7 @@ export default function Footer() {
         </p>
       </div>
       <div className="flex flex-col gap-7">
-        <h1 className="font-medium text-lg text-neutral50">marketplace</h1>
+        <h1 className="font-medium text-lg text-neutral50">Marketplace</h1>
         <p
           onClick={handleCreate}
           className="font-medium text-md text-neutral200 hover:text-neutral00 cursor-pointer transition-all duration-300 ease-out"

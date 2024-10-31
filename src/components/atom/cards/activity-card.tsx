@@ -70,12 +70,12 @@ const ActivityCard: React.FC<cardProps> = ({
       </div>
       <div className="max-w-[200px] w-full flex flex-col gap-1">
         <p className="text-md text-neutral50 font-medium">
-          {data?.activityType === "MINTED" ? "-" : data?.price / 10 ** 18}{" "}
-          {data?.activityType === "MINTED" ? "" : "cBTC"}
+          {(data?.activityType === "MINTED" || data?.activityType === "TRANSFER") ? "-" : data?.price / 10 ** 18}{" "}
+          {(data?.activityType === "MINTED" || data?.activityType === "TRANSFER") ? "" : "cBTC"}
         </p>
         <p className="text-sm text-neutral200 font-medium">
-          {data?.activityType === "MINTED" ? "" : "$"}{" "}
-          {data?.activityType === "MINTED" ? "" : formatPrice(data?.price * 65000 / 10 ** 18)}
+          {(data?.activityType === "MINTED" || data?.activityType === "TRANSFER") ? "" : "$"}{" "}
+          {(data?.activityType === "MINTED" || data?.activityType === "TRANSFER") ? "" : formatPrice(data?.price * 65000 / 10 ** 18)}
         </p>
       </div>
       <div className="max-w-[260px] w-full gap-2 flex flex-row items-center">
