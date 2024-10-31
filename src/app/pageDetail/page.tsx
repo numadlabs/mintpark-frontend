@@ -11,6 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Image from "next/image";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const background = [
   {
@@ -276,13 +277,12 @@ export default function Page() {
                   </div>
                 </div>
               </ScrollArea>
-              <ButtonLg
+              <Button
                 type="submit"
-                isSelected={true}
                 className="bg-brand py-3 w-full rounded-xl text-lg font-semibold text-neutral600"
               >
                 Mint
-              </ButtonLg>
+              </Button>
             </div>
           </section>
         </DetailLayout>

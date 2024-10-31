@@ -26,7 +26,7 @@ const TermsConditions = () => {
             />
             <div className="relative w-full h-full flex flex-col justify-center gap-12 z-50">
               <div className="flex flex-col items-center justify-center pt-8 pb-8 gap-6">
-                <h1 className="font-medium text-logoSize text-neutral50">
+                <h1 className="font-bold text-logoSize text-neutral50">
                   Terms and Conditions
                 </h1>
                 <p className="font-normal text-lg text-neutral100">

@@ -5,29 +5,26 @@ import ButtonLg from "@/components/ui/buttonLg";
 import { Carousel } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CollectionType } from "@/lib/types";
 import {
   confirmOrder,
   mintFeeOfCitrea,
   generateBuyHexCitrea,
 } from "@/lib/service/postRequest";
-import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
+import { s3ImageUrlBuilder } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import {
   getFeeRates,
   getLaunchByCollectionId,
   getLayerById,
 } from "@/lib/service/queryHelper";
-import PhaseCard from "@/components/atom/cards/phaseCard";
-import { useParams, useRouter } from "next/navigation";
-import WhiteListPhaseCard from "@/components/atom/cards/white-list-phase-card";
+import { useParams, useRouter } from "next/navigation";;
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { createOrderToMint } from "@/lib/service/postRequest";
 import moment from "moment";
 import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Page = () => {
   const router = useRouter();
@@ -374,9 +371,8 @@ const Page = () => {
                 </div> */}
               </ScrollArea>
               {status === "Ended" ? (
-                <ButtonLg
+                <Button
                   type="submit"
-                  isSelected={true}
                   className="w-full py-3 text-lg font-semibold bg-brand rounded-xl text-neutral600"
                   disabled={isLoading}
                   onClick={navigateCollection}
@@ -390,11 +386,10 @@ const Page = () => {
                       />
                       // "Loading"
                     : "Go to collection"}
-                </ButtonLg>
+                </Button>
               ) : status === "Live" || status === "Indefinite" ? (
-                <ButtonLg
+                <Button
                   type="submit"
-                  isSelected={true}
                   className="w-full py-3 text-lg font-semibold bg-brand rounded-xl text-neutral600"
                   disabled={isLoading}
                   // onClick={handleConfirm}
@@ -408,7 +403,7 @@ const Page = () => {
                   ) : (
                     "Mint"
                   )}
-                </ButtonLg>
+                </Button>
               ) : status === "Upcoming" ? (
                 ""
               ) : null}
