@@ -199,6 +199,7 @@ export type CollectionDataType = {
   ownedBy: string;
   collectionId: string;
   listId: string;
+  totalOwnerCount: number;
 };
 
 

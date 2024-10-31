@@ -344,12 +344,13 @@ export async function createOrderToMint({
   }
 }
 
-export async function confirmOrder({ orderId, txid }: { orderId: string, txid?: string | undefined }) {
+export async function confirmOrder({ orderId, txid, launchItemId }: { orderId: string, txid?: string | undefined, launchItemId: string }) {
   try {
     return axiosClient
       .post(`/api/v1/launchpad/invoke-order`, {
         orderId,
-        txid
+        txid,
+        launchItemId
       })
       .then((response) => {
         return response.data;

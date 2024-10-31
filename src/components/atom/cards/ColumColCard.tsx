@@ -73,7 +73,7 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
             {data.listedCount}
           </span>
           <span className="font-medium text-lg2 text-neutral50">
-            <span>{1}</span>
+            <span>{data.totalOwnerCount}</span>
           </span>
         </div>
       </button>
