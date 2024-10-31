@@ -38,8 +38,6 @@ const CollectionDetailPage = () => {
     enabled: !!id,
   });
 
-  console.log(collection)
-
   useEffect(() => {
     const data = searchParams.get("data");
     if (data) {
@@ -198,7 +196,7 @@ const CollectionDetailPage = () => {
                     <div className="flex mt-2">
                       <Profile2User color="#d3f85a" />
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>1</span>
+                        <span>{collection?.totalOwnerCount}</span>
                       </p>
                     </div>
                   </div>
@@ -324,7 +322,7 @@ const CollectionDetailPage = () => {
                   active ? "grid-cols-3" : "grid-cols-4"
                 }`}
               >
-                {collection.map((item: any) => (
+                {collection?.collectibles?.map((item: any) => (
                   <div key={item.id}>
                     <ColDetailCard data={item} />
                   </div>
@@ -360,7 +358,7 @@ const CollectionDetailPage = () => {
               </div>
               <ScrollArea className="h-[754px] w-full border-t-2 border-neutral500">
                 <div className="flex flex-col w-full pt-4 gap-4">
-                  {collection.map((item: any) => (
+                  {collection?.collectibles?.map((item: any) => (
                     <div key={item.id}>
                       <ColDetailCards data={item} />
                     </div>

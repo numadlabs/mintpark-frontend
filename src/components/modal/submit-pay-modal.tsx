@@ -164,18 +164,14 @@ const SubmitPayModal: React.FC<ModalProps> = ({
           }
         }
         const params: MintCollectibleDataType = {
-          orderType: "COLLECTIBLE",
-          files: files,
+          // orderType: "COLLECTIBLE",
+          file: files,
           // description: description,
           // name: name,
           // creator: creator,
-          feeRate:
-            selectedTab === "Slow"
-              ? feeRates?.economyFee
-              : selectedTab === "Fast"
-                ? feeRates?.fastestFee
-                : feeRate,
+          feeRate: 1,
           txid: collectionTxid,
+          collectionId: ""
         };
 
         const response = await createCollectiblesMutation({ data: params });
@@ -236,7 +232,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
     const btcAmount = price;
     return btcAmount?.toLocaleString('en-US', {
       minimumFractionDigits:0,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 6
     });
   };
   return (

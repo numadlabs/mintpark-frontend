@@ -45,17 +45,17 @@ export default function AssetsDetails() {
     enabled: !!id,
   });
 
-  const {
-    data: collectibleData,
-    isLoading: isCollectibleLoading,
-    error: collectibleError,
-  } = useQuery({
-    queryKey: ["collectibleData", id],
-    queryFn: () => getCollectibleById(id),
-    enabled: !!id,
-  });
+  // const {
+  //   data: collectibleData,
+  //   isLoading: isCollectibleLoading,
+  //   error: collectibleError,
+  // } = useQuery({
+  //   queryKey: ["collectibleData", id],
+  //   queryFn: () => getCollectibleById(id),
+  //   enabled: !!id,
+  // });
 
-  if (isCollectionLoading || isCollectibleLoading) {
+  if (isCollectionLoading) {
     return (
       <div className="flex justify-center items-center w-full h-screen">
         <Loader2 className="animate-spin" color="#111315" size={60} />
@@ -63,16 +63,15 @@ export default function AssetsDetails() {
     );
   }
 
-  if (collectionError || collectibleError) {
+  if (collectionError) {
     return (
       <div className="flex justify-center items-center w-full h-screen">
-        Error: {((collectionError || collectibleError) as Error).message}
+        Error: {((collectionError) as Error).message}
       </div>
     );
   }
 
   const collection = collectionData[0];
-  const collectible = collectibleData[0];
   const formatTimeAgo = (dateString: string) => {
     const now = moment();
     const createdDate = moment(dateString);
@@ -141,26 +140,26 @@ export default function AssetsDetails() {
             width={560}
             height={560}
             src={
-              collection?.fileKey
-                ? s3ImageUrlBuilder(collection?.fileKey)
-                : ordinalsImageCDN(collection?.uniqueIdx)
+              collectionData[0]?.fileKey
+                ? s3ImageUrlBuilder(collectionData[0]?.fileKey)
+                : ordinalsImageCDN(collectionData[0]?.uniqueIdx)
             }
             className="aspect-square rounded-xl"
-            alt={`${collection?.name} logo`}
+            alt={`${collectionData[0]?.name} logo`}
           />
         </div>
         <div className="flex flex-col gap-8">
           <div className="flex flex-col gap-2">
             <p className="font-medium text-xl text-brand">
-              {collection?.collectionName}
+              {collectionData[0]?.collectionName}
             </p>
             <span className="flex text-3xl font-bold text-neutral50">
-              {collection?.name}
+              {collectionData[0]?.name}
             </span>
           </div>
           <div className="w-[592px] h-[1px] bg-neutral500" />
           <div className="flex flex-col justify-center gap-6">
-            {collection?.price === 0 ? (
+            {collectionData[0]?.price === 0 ? (
               "This asset is not listed"
             ) : (
               <div className="flex flex-col justify-center gap-6">
@@ -169,7 +168,7 @@ export default function AssetsDetails() {
                     <p>List price</p>
                   </span>
                   <span className="font-bold text-neutral50 text-lg">
-                    <h1>{formatPrice(collection?.price)} cBTC</h1>
+                    <h1>{formatPrice(collectionData[0]?.price)} cBTC</h1>
                   </span>
                 </div>
                 {/* <div className="flex justify-between w-full">
@@ -190,7 +189,7 @@ export default function AssetsDetails() {
                 </div> */}
               </div>
             )}
-            {collection?.price === 0 && (
+            {collectionData[0]?.price === 0 && (
               <div className="">
                 <Button
                   variant={"primary"}
@@ -246,7 +245,7 @@ export default function AssetsDetails() {
                       Owned by
                     </h1>
                     <p className="font-medium text-md text-neutral50">
-                      {collection?.ownedBy}
+                      {collectionData[0]?.ownedBy}
                     </p>
                   </div>
                   <div className="flex justify-between">
@@ -254,7 +253,7 @@ export default function AssetsDetails() {
                       Floor difference
                     </h1>
                     <p className="font-medium text-md text-success">
-                      {formatPrice(collection?.floorDifference)}%
+                      {collectionData[0]?.floorDifference ?? 0}%
                     </p>
                   </div>
                   <div className="flex justify-between">
@@ -262,18 +261,18 @@ export default function AssetsDetails() {
                       Listed time
                     </h1>
                     <p className="font-medium text-md text-neutral50">
-                      {formatTimeAgo(collection?.createdAt)} ago
+                      {formatTimeAgo(collectionData[0]?.createdAt)} ago
                     </p>
                   </div>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="item-2">
                 <AccordionTrigger className="font-medium text-xl text-neutral50">
-                  About {collection?.collectionName}
+                  About {collectionData[0]?.collectionName}
                 </AccordionTrigger>
                 <AccordionContent>
                   <p className="text-neutral200 font-medium text-md">
-                    {collection?.description}
+                    {collectionData[0]?.description}
                   </p>
                 </AccordionContent>
               </AccordionItem>
@@ -284,11 +283,11 @@ export default function AssetsDetails() {
       <PendingListModal
         open={isVisible}
         onClose={toggleModal}
-        fileKey={collection?.fileKey}
-        uniqueIdx={collection?.uniqueIdx}
-        name={collection?.name}
-        collectionName={collection?.collectionName}
-        collectibleId={collection.id}
+        fileKey={collectionData[0]?.fileKey}
+        uniqueIdx={collectionData[0]?.uniqueIdx}
+        name={collectionData[0]?.name}
+        collectionName={collectionData[0]?.collectionName}
+        collectibleId={collectionData[0].id}
         txid={txid}
       />
     </Layout>

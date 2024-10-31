@@ -199,6 +199,7 @@ export type CollectionDataType = {
   ownedBy: string;
   collectionId: string;
   listId: string;
+  totalOwnerCount: number;
 };
 
 
@@ -212,13 +213,13 @@ export type MintDataType = {
 }
 
 export type MintCollectibleDataType = {
-  orderType: string;
-  files: File[];
+  file: File[];
   feeRate?: number | undefined;
   name?: string;
   creator?: string;
   description?: string;
   txid?: string;
+  collectionId: string;
 }
 
 export type MintFeeType = {

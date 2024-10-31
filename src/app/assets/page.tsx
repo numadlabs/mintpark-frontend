@@ -15,7 +15,6 @@ const Assets = () => {
     queryFn: () => getListableById(authState?.userId as string),
     enabled: !!authState?.userId,
   });
-  console.log("collectiblelist",collectiblelist)
 
   return (
     <Layout>

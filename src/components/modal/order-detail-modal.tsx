@@ -47,7 +47,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
       case "IN_QUEUE":
         return "Paid";
       case "DONE":
-        return "Paid";
+        return "Minted";
       case "EXPIRED":
         return "Closed";
       default:
@@ -90,7 +90,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
     const btcAmount = price;
     return btcAmount?.toLocaleString('en-US', {
       minimumFractionDigits:0,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 10
     });
   };
 
@@ -137,7 +137,7 @@ const OrderDetailModal: React.FC<modalProps> = ({
         <div className="flex flex-row justify-between items-center -4 w-full bg-white4 rounded-2xl p-4">
           <p className="text-lg2 text-neutral100 font-medium">Total Amount</p>
           <p className="text-lg2 text-brand font-bold">
-            {formatPrice(totalFee)} Sats
+            {formatPrice(totalFee)} cBTC
           </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />

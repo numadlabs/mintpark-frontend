@@ -65,7 +65,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
           <div className="flex mt-2 items-center">
             <Profile2User color="#d3f85a" className="w-4 h-4" />
             <p className="ml-2 font-medium text-md text-neutral50">
-              <span>1</span> owners
+              <span>{data?.totalOwnerCount}</span> owners
             </p>
           </div>
           <div className="flex mt-2 items-center">

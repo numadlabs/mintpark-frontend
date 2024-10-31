@@ -95,7 +95,6 @@ const PendingListModal: React.FC<ModalProps> = ({
         if (signedTx?.hash) txid = signedTx?.hash;
 
         if (id && txid) {
-          console.log("first")
           const response = await confirmPendingListMutation({
             id: id,
             txid: txid,

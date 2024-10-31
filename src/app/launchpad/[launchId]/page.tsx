@@ -70,6 +70,7 @@ const Page = () => {
     setIsLoading(true);
     try {
       let txid;
+      let launchItemId;
       const response = await createOrderToMintMutation({
         collectionId: id,
         feeRate: feeRates.fastestFee,
@@ -77,6 +78,7 @@ const Page = () => {
       });
       if (response && response.success) {
         const orderId = response.data.order.id;
+        launchItemId = response.data.launchedItem.id;
         const { singleMintTxHex } = response.data;
 
         if (currentLayer.layer === "CITREA") {
@@ -93,7 +95,11 @@ const Page = () => {
           );
         }
         if (orderId) {
-          await confirmOrderMutation({ orderId: orderId, txid: txid });
+          await confirmOrderMutation({
+            orderId: orderId,
+            txid: txid,
+            launchItemId: launchItemId,
+          });
           toast.success("Success minted.");
           router.push("/launchpad");
         }

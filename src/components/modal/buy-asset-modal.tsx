@@ -102,8 +102,6 @@ const BuyAssetModal: React.FC<ModalProps> = ({
           });
           if (response && response.success) {
             toast.success("Successfully sent buy request");
-            router.push("/orders");
-            toast.success("Successfully sent buy request");
           } else {
             toast.error("Error");
           }
@@ -124,7 +122,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
     const btcAmount = price;
     return btcAmount?.toLocaleString('en-US', {
       minimumFractionDigits:0,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 6
     });
   };
   return (
