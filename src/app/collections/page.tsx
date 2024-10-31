@@ -214,7 +214,6 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
                       <CollectionCard
                         data={item}
                         handleNav={() => handleNavigation(item)}
-                        totalOwnerCount={1}
                       />
                     </div>
                   ))}
