@@ -15,7 +15,7 @@ const formatPrice = (price: number) => {
   const btcAmount = price;
   return btcAmount?.toLocaleString('en-US', {
     minimumFractionDigits:0,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 8
   });
 };
 
@@ -32,11 +32,11 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
         className="aspect-square rounded-xl"
         alt="png"
       />
-      <div className="pt-4  grid gap-4 w-full">
+      <div className="pt-4 grid gap-4 w-full">
         <p className="text-xl font-bold pl-1 text-start text-neutral00">
           {data.name}
         </p>
-        <div className="flex justify-around relative right-6 gap-2">
+        <div className="flex justify-around w-full relative pl-2 right-6 gap-2">
           <div className="text-start">
             {" "}
             <p className="text-sm font-medium text-neutral200 gap-2">
@@ -51,7 +51,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
             {" "}
             <p className="text-sm font-medium text-neutral200 gap-2">Volume</p>
             <p className="pt-2 font-bold text-md text-neutral-50">
-              {data?.volume === 0 ? formatPrice(data?.volume) : formatPrice(data?.volume)}
+              {(data?.volume) === 0 ? formatPrice(data?.volume) : formatPrice(data?.volume)}
               <span className="ml-1">cBTC</span>
               {/* {data.volume === 0
                 ? data.volume
