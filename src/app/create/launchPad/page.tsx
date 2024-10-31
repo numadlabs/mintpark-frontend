@@ -42,6 +42,7 @@ import { getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const CollectionDetail = () => {
   const router = useRouter();
@@ -486,9 +487,8 @@ const CollectionDetail = () => {
               </div>
               <div className="flex flex-row justify-between w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
-                <ButtonLg
+                <Button
                   title="Continue"
-                  isSelected={true}
                   onClick={handleCreateCollection}
                   disabled={isLoading}
                   // isLoading={isLoading}
@@ -502,7 +502,7 @@ const CollectionDetail = () => {
                   ) : (
                     "Continue"
                   )}
-                </ButtonLg>
+                </Button>
               </div>
             </div>
           )}
@@ -580,10 +580,9 @@ const CollectionDetail = () => {
               {/* <div className="text-red-500">{error}</div> */}
               <div className="flex flex-row w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
-                <ButtonLg
+                <Button
                   className="flex w-full border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold items-center justify-center"
                   // type="submit"
-                  isSelected={true}
                   onClick={() => setStep(2)}
                   // isLoading={isLoading}
                   disabled={isLoading}
@@ -599,7 +598,7 @@ const CollectionDetail = () => {
                   )}
 
                   {/* {isLoading ? "...loading" : "Continue"} */}
-                </ButtonLg>
+                </Button>
               </div>
             </div>
           )}
@@ -743,8 +742,7 @@ const CollectionDetail = () => {
               )}
               <div className="flex flex-row w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
-                <ButtonLg
-                  isSelected={true}
+                <Button
                   onClick={isChecked ? handleMintfeeChange : () => setStep(3)}
                   // isLoading={isLoading}
                   disabled={isLoading}
@@ -759,7 +757,7 @@ const CollectionDetail = () => {
                   ) : (
                     "Continue"
                   )}
-                </ButtonLg>
+                </Button>
               </div>
             </div>
           )}
@@ -842,8 +840,7 @@ const CollectionDetail = () => {
               )}
               <div className="flex flex-row gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
-                <ButtonLg
-                  isSelected={true}
+                <Button
                   onClick={isChecked ? handleCreateLaunch : handlePay}
                   // isLoading={isLoading}
                   disabled={isLoading}
@@ -859,7 +856,7 @@ const CollectionDetail = () => {
                     // "Loading"
                     "Confirm"
                   )}
-                </ButtonLg>
+                </Button>
               </div>
             </div>
           )}
