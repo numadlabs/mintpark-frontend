@@ -19,6 +19,7 @@ import { getListableById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import AssetsSkeleton from "@/components/atom/skeleton/my-asset-skeleton";
+import { toast } from "sonner";
 
 export default function Assets({ detail = false }: { detail: boolean }) {
   const [active, setActive] = useState(false);
@@ -34,6 +35,15 @@ export default function Assets({ detail = false }: { detail: boolean }) {
       getListableById(authState?.userId as string, orderDirection, orderBy),
     enabled: !!authState?.userId,
   });
+
+  // const handleComingSoon = () => {
+  //   toast({
+  //     title: "Coming Soon!",
+  //     description: "This feature is under development and will be available soon.",
+  //     variant: "default",
+  //     duration: 3000,
+  //   });
+  // };
 
   // Handle filter change
   const handleOrderChange = (value: string) => {
@@ -71,12 +81,14 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                 alt="burger"
                 width={20}
                 height={20}
-                className={`w-12 h-12 rounded-xl p-3 ${
+                className={`w-12 h-12 rounded-xl cursor-not-allowed p-3 ${
                   active
                     ? "bg-neutral500 hover:bg-neutral400 border-transparent"
                     : "bg-neutral600 border border-neutral500 hover:border-neutral400"
                 }`}
-                onClick={() => setActive(!active)}
+                // onClick={() => setActive(!active)}
+                // onClick={handleComingSoon}
+                // gime ve onClick to comint soon toast message
               />
               <div className="flex">
                 <Image
