@@ -42,11 +42,11 @@ export default function Assets({ detail = false }: { detail: boolean }) {
         setOrderBy("recent");
         setOrderDirection("desc");
         break;
-      case "price_asc":
+      case "price_high_to_low":
         setOrderBy("price");
         setOrderDirection("asc");
         break;
-      case "price_desc":
+      case "price_low_to_high":
         setOrderBy("price");
         setOrderDirection("desc");
         break;
@@ -112,10 +112,10 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                 <SelectItem value="recent" className="pl-10">
                   Recently listed
                 </SelectItem>
-                <SelectItem value="price_asc" className="pl-10">
+                <SelectItem value="price_low_to_high" className="pl-10">
                   Price: Low to High
                 </SelectItem>
-                <SelectItem value="price_desc" className="pl-10">
+                <SelectItem value="price_high_to_low" className="pl-10">
                   Price: High to Low
                 </SelectItem>
               </SelectContent>

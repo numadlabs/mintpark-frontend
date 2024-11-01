@@ -77,6 +77,7 @@ const Page = () => {
     try {
       let txid;
       let launchItemId;
+      let orderRes
       const response = await createOrderToMintMutation({
         collectionId: id,
         feeRate: feeRates.fastestFee,
@@ -101,14 +102,20 @@ const Page = () => {
           );
         }
         if (orderId) {
-          await confirmOrderMutation({
+          orderRes = await confirmOrderMutation({
             orderId: orderId,
             txid: txid,
             launchItemId: launchItemId,
           });
-          toast.success("Success minted.");
-          router.push("/launchpad");
+          if(orderRes && orderRes.success){
+            toast.success("Success minted.");
+            router.push("/launchpad");
+          } else {
+            toast.error("Failed to confirm order");
+          }
         }
+      } else {
+        toast.error(response.error);
       }
     } catch (error) {
       // console.error(error);
