@@ -20,13 +20,12 @@ const HeaderItem: React.FC<itemProps> = ({ title, handleNav }) => {
         onMouseEnter={() => setShowDiv(true)}
         onMouseLeave={() => setShowDiv(false)}
       >
-        <p className={"text-neutral00 hover:text-brand"}>{title}</p>
+        <p
+          className={`${title === "Create" ? "text-neutral200" : "text-neutral00"} ${title === "Create" ? "" : "hover:text-brand"}`}
+        >
+          {title}
+        </p>
       </div>
-      {/* {showDiv && (
-        <div
-          className={`blur-[28px] bg-[#D3F85A] transition delay-300 duration-300 ease-in-out absolute top-20 w-10 h-10`}
-        />
-      )} */}
     </div>
   );
 };

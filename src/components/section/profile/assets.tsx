@@ -22,17 +22,44 @@ import AssetsSkeleton from "@/components/atom/skeleton/my-asset-skeleton";
 
 export default function Assets({ detail = false }: { detail: boolean }) {
   const [active, setActive] = useState(false);
+  // Add states for ordering
+  const [orderBy, setOrderBy] = useState("recent");
+  const [orderDirection, setOrderDirection] = useState("desc");
 
   const { authState } = useAuth();
+
   const { data: collectiblelist = [], isLoading } = useQuery({
-    queryKey: ["getListableById", authState.userId],
-    queryFn: () => getListableById(authState?.userId as string),
+    queryKey: ["getListableById", authState.userId, orderBy, orderDirection],
+    queryFn: () =>
+      getListableById(authState?.userId as string, orderDirection, orderBy),
     enabled: !!authState?.userId,
   });
+
+  // Handle filter change
+  const handleOrderChange = (value: string) => {
+    switch (value) {
+      case "recent":
+        setOrderBy("recent");
+        setOrderDirection("desc");
+        break;
+      case "price_asc":
+        setOrderBy("price");
+        setOrderDirection("asc");
+        break;
+      case "price_desc":
+        setOrderBy("price");
+        setOrderDirection("desc");
+        break;
+      default:
+        setOrderBy("recent");
+        setOrderDirection("desc");
+    }
+  };
 
   if (isLoading) {
     return <AssetsSkeleton detail={detail} />;
   }
+
   return (
     <>
       <Tabs defaultValue="All" className="mt-20 mb-10 border-hidden">
@@ -57,7 +84,6 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                   alt="search"
                   width={20}
                   height={20}
-                  // sizes="100%"
                   className="w-[17.08px] h-[17.08px] relative left-8 top-4"
                 />
                 <input
@@ -70,24 +96,12 @@ export default function Assets({ detail = false }: { detail: boolean }) {
               </div>
             </section>
           ) : (
-            <div>
-              {/* <TabsList className="h-12 text-neutral50 p-1 border border-neutral400 rounded-xl gap-1">
-                {tabs.map((tab) => (
-                  <TabsTrigger
-                    key={tab}
-                    value={tab}
-                    className="w-[59px] h-10 font-semibold text-[15px] rounded-lg border-hidden"
-                  >
-                    {tab}
-                  </TabsTrigger>
-                ))}
-              </TabsList> */}
-            </div>
+            <div>{/* Tabs code removed for brevity */}</div>
           )}
           <div className="flex justify-between text-center items-center w-[330px] h-[48px] gap-4">
-            <Select>
+            <Select defaultValue="recent" onValueChange={handleOrderChange}>
               <SelectTrigger className="w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50 pt-2 pr-4 pb-2 pl-5">
-                <SelectValue placeholder="Highest volume" />
+                <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent
                 className="w-[225px] h-40 rounded-xl text-center bg-neutral600 bg-opacity-[70%] text-neutral50 border-neutral400"
@@ -95,17 +109,14 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                   backdropFilter: "blur(30px)",
                 }}
               >
-                <SelectItem value="highest" className="pl-10">
-                  Highest volume
+                <SelectItem value="recent" className="pl-10">
+                  Recently listed
                 </SelectItem>
-                <SelectItem value="low" className="pl-10">
-                  Lowest volume
+                <SelectItem value="price_asc" className="pl-10">
+                  Price: Low to High
                 </SelectItem>
-                <SelectItem value="highestFloor" className="pl-10">
-                  Highest floor price
-                </SelectItem>
-                <SelectItem value="lowest" className="pl-10">
-                  Lowest floor price
+                <SelectItem value="price_desc" className="pl-10">
+                  Price: High to Low
                 </SelectItem>
               </SelectContent>
             </Select>
