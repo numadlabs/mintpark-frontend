@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogFooter,
 } from "../ui/dialog";
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Check } from "lucide-react";
 import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -16,7 +16,6 @@ import {
   confirmPendingList,
   listCollectiblesForConfirm,
 } from "@/lib/service/postRequest";
-import { Check } from "lucide-react";
 import { toast } from "sonner";
 
 interface ModalProps {
@@ -42,7 +41,7 @@ const PendingListModal: React.FC<ModalProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const [price, setPrice] = useState<number>(0);
+  const [price, setPrice] = useState<string>('0');
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -58,39 +57,45 @@ const PendingListModal: React.FC<ModalProps> = ({
     },
   });
 
-  // if (collectibleRes && collectibleRes.success) {
-  //   const id = params.data.list.id;
-  //   const address = params.data.list.address;
-  //   const inscriptionId = uniqueIdx;
-  //   const txid = await window.unisat.sendInscription(
-  //     address,
-  //     inscriptionId,
-  //   );
-  //   if (txid && id) {
-  //     await new Promise((resolve) => setTimeout(resolve, 5000));
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    
+    // Return to '0' if input is empty
+    if (newValue === '') {
+      setPrice('0');
+      return;
+    }
+    
+    // Only allow numbers and decimal point
+    if (!/^\d*\.?\d*$/.test(newValue)) {
+      return;
+    }
+    
+    // Remove leading zeros unless it's a decimal
+    if (newValue.length > 1 && newValue[0] === '0' && newValue[1] !== '.') {
+      setPrice(String(parseInt(newValue, 10)));
+      return;
+    }
+    
+    setPrice(newValue);
+  };
 
-  //     const response = await confirmPendingListMutation({
-  //       id: id,
-  //       txid: txid,
-  //       vout: 0,
-  //       inscribedAmount: 546,
-  //     });
-  //     if (response && response.success) {
-  //       router.push("/collections");
-  //     }
-  //   }
-  // }
+  const handlePriceBlur = () => {
+    if (price === '' || parseFloat(price) < 0) {
+      setPrice('0');
+    }
+  };
 
   const handlePendingList = async () => {
     setIsLoading(true);
     try {
       const collectibleRes = await listCollectiblesMutation({
         collectibleId: collectibleId,
-        price: price,
+        price: parseFloat(price),
         txid: txid,
       });
       if (collectibleRes && collectibleRes.success) {
-        let txid
+        let txid;
         const { preparedListingTx } = collectibleRes.data.list;
         const { id } = collectibleRes.data.list.sanitizedList;
         const { signer } = await getSigner();
@@ -110,7 +115,7 @@ const PendingListModal: React.FC<ModalProps> = ({
             toast.success("Successfully.")
           }
         }
-      }else{
+      } else {
         toast.error(collectibleRes.error)
       }
     } catch (error) {
@@ -208,9 +213,10 @@ const PendingListModal: React.FC<ModalProps> = ({
                 <Input
                   placeholder="Enter listing price"
                   className="bg-gray50"
-                  type="number"
+                  type="text"
                   value={price}
-                  onChange={(e) => setPrice(Number(e.target.value))}
+                  onChange={handlePriceChange}
+                  onBlur={handlePriceBlur}
                 />
               </div>
               <DialogFooter className="grid grid-cols-2 gap-2 w-full">
@@ -228,7 +234,6 @@ const PendingListModal: React.FC<ModalProps> = ({
                       color="#111315"
                       size={24}
                     />
-                    // "loading..."
                   ) : (
                     "List"
                   )}
