@@ -22,7 +22,6 @@ import { getListedCollectionById } from "@/lib/service/queryHelper";
 import { s3ImageUrlBuilder } from "@/lib/utils";
 import { CollectionDataType } from "@/lib/types";
 import CollectionSideBar from "@/components/section/collections/sideBar";
-import { Button } from "@/components/ui/button";
 import CollectionDetailSkeleton from "@/components/atom/skeleton/collection-detail-skeleton";
 
 const CollectionDetailPage = () => {
@@ -68,17 +67,17 @@ const CollectionDetailPage = () => {
     {
       url: "/collections",
       isIcon: true,
-      icon: <Global size={34} className={`hover:text-brand text-neutral00`} />,
-    },
-    {
-      url: "/collections",
-      isIcon: true,
-      icon: <DiscordIcon size={34} className={`iconHover`} />,
+      icon: <Global size={34} className={`hover:text-brand text-neutral00`}/>,
     },
     {
       url: "/collections",
       isIcon: false,
-      icon: <ThreadIcon size={34} className={`iconHover`} />,
+      icon: <DiscordIcon size={34} className={`hover:text-brand text-neutral00`} />,
+    },
+    {
+      url: "/collections",
+      isIcon: false,
+      icon: <ThreadIcon size={34} className={`hover:text-brand text-neutral00`} />,
     },
   ];
   const formatPrice = (price: number) => {
@@ -151,7 +150,7 @@ const CollectionDetailPage = () => {
                   </div>
                   <div className="flex gap-6 pt-8">
                     {links.map((link, i) => (
-                      <Button
+                      <button
                         key={i}
                         onClick={(e) => {
                           e.preventDefault();
@@ -161,7 +160,7 @@ const CollectionDetailPage = () => {
                         className="h-10 w-10 border border-transparent bg-transparent"
                       >
                         {link.icon}
-                      </Button>
+                      </button>
                     ))}
                   </div>
                 </div>
