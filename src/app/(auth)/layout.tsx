@@ -4,13 +4,9 @@ import { redirect } from "next/navigation";
 // import { useRouter } from "next/router";""
 import Footer from "@/components/layout/footer";
 
-export default function Layout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   const { authState } = useAuth();
-  if (!authState.authenticated) {
+  if (!authState.loading && !authState.authenticated) {
     redirect("/");
     return null;
   }
