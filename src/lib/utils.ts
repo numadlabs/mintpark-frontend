@@ -12,7 +12,7 @@ export const stringtoHex = (value: any) => {
 };
 
 export function s3ImageUrlBuilder(fileKey: string) {
-  return `https://numadlabs-coordinals-test.s3.eu-central-1.amazonaws.com/${fileKey}`;
+  return `https://d1orw8h9a3ark2.cloudfront.net/${fileKey}`;
 }
 
 export function imageCDN(uniqueIdx: string) {
