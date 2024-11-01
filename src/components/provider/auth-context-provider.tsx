@@ -152,16 +152,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         layerId: currentLayerId,
         walletType: null,
       });
-      localStorage.removeItem("userProfile");
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("logoutTime");
 
       if (currentLayerId) {
         localStorage.setItem("layerId", currentLayerId);
       }
       // router.push("/");
       clearToken();
-      
+
       window.location.reload();
     } catch (error) {
       console.error("Logout error:", error);
