@@ -99,8 +99,11 @@ const BuyAssetModal: React.FC<ModalProps> = ({
         let txid;
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(pendingRes.data.txHex);
+        console.log("first", signedTx?.hash)
         await signedTx?.wait();
+        
         if (signedTx?.hash) {
+          
           const response = await buyListedCollectible({
             id: listId,
             txid: signedTx?.hash,
@@ -137,7 +140,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
         <DialogContent className="flex flex-col p-6 gap-6 max-w-[592px] w-full items-center">
           {isSuccess ? (
             <div className="w-full flex flex-col gap-6 items-center justify-center">
-              <div className="flex flex-col gap-6 p-4">
+              <div className="flex flex-col gap-6 p-4 w-full justify-center items-center">
                 <div className="p-3 flex justify-center items-center rounded-2xl bg-white8 w-16 h-16">
                   <Check size={40} color="#FFEE32" />
                 </div>
@@ -150,7 +153,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                   </p>
                 </div>
               </div>
-              <div className="flex flex-col gap-6 justify-center items-center w-full bg-white4 rounded-2xl">
+              <div className="flex flex-col gap-6 justify-center items-center w-full bg-white4 rounded-2xl p-8">
                 <Image
                   width={160}
                   height={160}

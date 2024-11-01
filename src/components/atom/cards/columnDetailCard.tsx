@@ -18,6 +18,7 @@ interface ColDetailCardsProps {
     collectionId: string;
     id:string; // Change this to string as we'll pass an ISO date string
   };
+  totalOwnerCount: number;
 }
 
 const TruncatedAddress = ({ address }: { address: string | null }) => {
@@ -37,7 +38,7 @@ const getDaysAgo = (createdAt: string) => {
   return diffDays;
 };
 
-const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
+const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data, totalOwnerCount }) => {
   const daysAgo = getDaysAgo(data.createdAt);
   const formatPrice = (price: number) => {
     const btcAmount = price;
@@ -93,7 +94,7 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
           </div>
           <div className="w-full max-w-[200px] h-[18px]">
             <p className="font-medium text-lg2 ml-10 text-neutral50">
-              <TruncatedAddress address={data.ownedBy} />
+              {totalOwnerCount}
             </p>
           </div>
           <div
