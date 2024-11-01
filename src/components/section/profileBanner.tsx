@@ -54,16 +54,6 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // const formatBalance = (value: number): string => {
-  //   if (typeof value !== "number" || isNaN(value)) return "0.00";
-  //   return value?.toFixed(2);
-  // };
-
-  // const formatUSD = (value: number): string => {
-  //   if (typeof value !== "number" || isNaN(value)) return "0.00";
-  //   return value?.toFixed(2);
-  // };
-
   const formatPrice = (price: number) => {
     const btcAmount = price;
     return btcAmount?.toLocaleString('en-US', {
