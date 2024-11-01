@@ -28,7 +28,7 @@ import {
   mintFeeOfCitrea,
 } from "@/lib/service/postRequest";
 import useCreateFormState from "@/lib/store/createFormStore";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import CollectionUploadFile from "@/components/section/collectionUploadFile";
 import Toggle from "@/components/ui/toggle";
 import { Calendar2, Clock, Bitcoin } from "iconsax-react";
@@ -72,6 +72,7 @@ const CollectionDetail = () => {
     setTxid,
     reset,
   } = useCreateFormState();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [collectionId, setCollectionId] = useState<string>("");
@@ -88,12 +89,16 @@ const CollectionDetail = () => {
   const [inscribeModal, setInscribeModal] = useState(false);
   const [data, setData] = useState<string>("");
   const [hash, setHash] = useState<string>("");
+
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
   });
 
   const { mutateAsync: launchCollectionMutation } = useMutation({
     mutationFn: launchCollection,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["launchData"] });
+    },
   });
 
   const { mutateAsync: mintFeeOfCitreaMutation } = useMutation({
@@ -106,6 +111,9 @@ const CollectionDetail = () => {
 
   const { mutateAsync: createHexCollectionMutation } = useMutation({
     mutationFn: createMintHexCollection,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["collectionData"] });
+    },
   });
 
   const updateFileInfo = (files: File[]) => {

@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getSigner, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import { Input } from "../ui/input";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   confirmPendingList,
   listCollectiblesForConfirm,
@@ -40,10 +40,10 @@ const PendingListModal: React.FC<ModalProps> = ({
   collectibleId,
   txid,
 }) => {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const [price, setPrice] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [hash, setHash] = useState<string>("");
   const [success, setSuccess] = useState(false);
 
   const { mutateAsync: listCollectiblesMutation } = useMutation({
@@ -52,6 +52,10 @@ const PendingListModal: React.FC<ModalProps> = ({
 
   const { mutateAsync: confirmPendingListMutation } = useMutation({
     mutationFn: confirmPendingList,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["collectionData"] });
+      queryClient.invalidateQueries({ queryKey: ["acitivtyData"] });
+    },
   });
 
   // if (collectibleRes && collectibleRes.success) {

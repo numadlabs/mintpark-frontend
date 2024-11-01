@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getSigner, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import { Input } from "../ui/input";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   generateBuyHex,
   buyListedCollectible,
@@ -43,6 +43,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   price,
   listId,
 }) => {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +53,10 @@ const BuyAssetModal: React.FC<ModalProps> = ({
 
   const { mutateAsync: buyListedCollectibleMutation } = useMutation({
     mutationFn: buyListedCollectible,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["collectionData"] });
+      queryClient.invalidateQueries({ queryKey: ["acitivtyData"] });
+    },
   });
 
   // const handlePendingList = async () => {
@@ -165,7 +170,11 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                 </div>
               </div>
               <div className="h-[1px] w-full bg-white8" />
-              <Button variant={"secondary"} className="w-full" onClick={() => router.push("/collections")}>
+              <Button
+                variant={"secondary"}
+                className="w-full"
+                onClick={() => router.push("/collections")}
+              >
                 Done
               </Button>
             </div>
