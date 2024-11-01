@@ -281,6 +281,7 @@ export default function AssetsDetails() {
         collectionName={collectionData?.[0]?.collectionName}
         collectibleId={collectionData?.[0]?.id}
         txid={txid}
+        id={id}
       />
     </Layout>
   );

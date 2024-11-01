@@ -41,8 +41,8 @@ const Page = () => {
   const { mutateAsync: confirmOrderMutation } = useMutation({
     mutationFn: confirmOrder,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collectiblesByCollections"] });
-      queryClient.invalidateQueries({ queryKey: ["launchData"] });
+      queryClient.invalidateQueries({ queryKey: ["collectiblesByCollections", id] });
+      queryClient.invalidateQueries({ queryKey: ["launchData", id] });
     },
   });
 
