@@ -105,7 +105,7 @@ export default function AssetsDetails() {
     const btcAmount = price;
     return btcAmount?.toLocaleString("en-US", {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
+      maximumFractionDigits: 6,
     });
   };
   return (

@@ -137,31 +137,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const handleLogout = async () => {
     try {
       const currentLayerId = authState.layerId;
-      if (authState.walletType === "metamask") {
-        await disconnectMetaMask();
-      }
+
+      // Clear all wallet-related state
       setConnectedAddress("");
       setConnected(false);
       setWalletAddress("");
+
+      // Clear auth state
       setAuthState({
         token: null,
         authenticated: false,
         loading: false,
         userId: null,
         address: null,
-        layerId: currentLayerId,
+        layerId: currentLayerId, // Preserve layerId
         walletType: null,
       });
-      localStorage.removeItem("userProfile");
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("logoutTime");
 
       if (currentLayerId) {
         localStorage.setItem("layerId", currentLayerId);
       }
-      // router.push("/");
+
+      // Clear tokens
       clearToken();
-      
+
       window.location.reload();
     } catch (error) {
       console.error("Logout error:", error);

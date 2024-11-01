@@ -7,7 +7,7 @@ import {
 } from "../ui/dialog";
 import { Loader2, X } from "lucide-react";
 import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { getSigner, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import { Input } from "../ui/input";
@@ -18,6 +18,7 @@ import {
 } from "@/lib/service/postRequest";
 import { toast } from "sonner";
 import { Check } from "lucide-react";
+import { id } from "ethers";
 
 interface ModalProps {
   open: boolean;
@@ -44,18 +45,20 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   listId,
 }) => {
   const queryClient = useQueryClient();
+  const params = useParams();
+  const id = params.detailId as string;
   const router = useRouter();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { mutateAsync: generateBuyHexMutation } = useMutation({
     mutationFn: generateBuyHex,
   });
-
+  console.log("paramsss", params);
   const { mutateAsync: buyListedCollectibleMutation } = useMutation({
     mutationFn: buyListedCollectible,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collectionData"] });
-      queryClient.invalidateQueries({ queryKey: ["acitivtyData"] });
+      queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
+      queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
     },
   });
 
@@ -99,18 +102,19 @@ const BuyAssetModal: React.FC<ModalProps> = ({
         let txid;
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(pendingRes.data.txHex);
-        console.log("first", signedTx?.hash)
+        console.log("first", signedTx?.hash);
         await signedTx?.wait();
-        
+
         if (signedTx?.hash) {
-          
           const response = await buyListedCollectible({
             id: listId,
             txid: signedTx?.hash,
           });
           if (response && response.success) {
             setIsSuccess(true);
-            toast.success("Successfully sent buy request");
+            toast.success("Purchase successful");
+            queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
+            queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
           } else {
             toast.error("Error");
           }
@@ -176,7 +180,8 @@ const BuyAssetModal: React.FC<ModalProps> = ({
               <Button
                 variant={"secondary"}
                 className="w-full"
-                onClick={() => router.push("/collections")}
+                // onClick={() => router.push("/collections")}
+                onClick={onClose}
               >
                 Done
               </Button>

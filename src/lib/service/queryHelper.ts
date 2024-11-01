@@ -164,9 +164,9 @@ export async function getCollectibleById(id: string) {
     });
 }
 
-export async function getListableById(id: string) {
+export async function getListableById(id: string, orderDirection: string, orderBy: string) {
   return axiosClient
-    .get(`/api/v1/collectibles/${id}/listable?orderBy=recent`)
+    .get(`/api/v1/collectibles/${id}/listable?orderDirection=${orderDirection}&orderBy=${orderBy}`)
     .then((response) => {
       if (response.data.success) {
         return response.data;

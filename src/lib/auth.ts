@@ -66,4 +66,7 @@ export function clearToken() {
   localStorage.removeItem("id");
   localStorage.removeItem("refreshToken");
   localStorage.removeItem("userProfile");
+
+  localStorage.removeItem("userProfile");
+  localStorage.removeItem("authToken");
 }

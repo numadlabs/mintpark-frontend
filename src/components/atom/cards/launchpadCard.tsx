@@ -73,7 +73,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
     const btcAmount = price;
     return btcAmount.toLocaleString('en-US', {
       minimumFractionDigits:0,
-      maximumFractionDigits: 10
+      maximumFractionDigits: 6
     });
   };
   return (
