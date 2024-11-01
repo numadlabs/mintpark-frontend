@@ -76,7 +76,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
           </div>
         </div>
       </div>
-      <HoverCard />
+      {/* <HoverCard /> */}
     </button>
   );
 };
