@@ -27,6 +27,7 @@ interface ModalProps {
   name: string;
   collectibleId: string;
   txid: string;
+  id: string;
 }
 
 const PendingListModal: React.FC<ModalProps> = ({
@@ -38,6 +39,7 @@ const PendingListModal: React.FC<ModalProps> = ({
   name,
   collectibleId,
   txid,
+  id
 }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -52,8 +54,8 @@ const PendingListModal: React.FC<ModalProps> = ({
   const { mutateAsync: confirmPendingListMutation } = useMutation({
     mutationFn: confirmPendingList,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collectionData"] });
-      queryClient.invalidateQueries({ queryKey: ["acitivtyData"] });
+      queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
+      queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
     },
   });
 
@@ -174,7 +176,7 @@ const PendingListModal: React.FC<ModalProps> = ({
               <div className="bg-white8 w-full h-[1px]" />
               <Button
                 variant={"secondary"}
-                onClick={() => router.push("/assets")}
+                onClick={onClose}
                 className="w-full"
               >
                 Done
