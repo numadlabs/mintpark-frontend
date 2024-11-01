@@ -2,13 +2,9 @@
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import Assets from "./assets";
 import Activity from "./activity";
-import { useAuth } from "@/components/provider/auth-context-provider";
-import { useState } from "react";
 
 const ProfileDetail = () => {
-  const { authState } = useAuth();
-  
-  const [active, setActive] = useState(false);
+
   return (
     <div className="mt-8 flex flex-col gap-8">
       <Tabs defaultValue={"Assets"}>

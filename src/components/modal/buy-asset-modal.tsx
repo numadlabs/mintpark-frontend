@@ -11,12 +11,13 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { getSigner, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import { Input } from "../ui/input";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   generateBuyHex,
   buyListedCollectible,
 } from "@/lib/service/postRequest";
 import { toast } from "sonner";
+import { Check } from "lucide-react";
 
 interface ModalProps {
   open: boolean;
@@ -42,9 +43,9 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   price,
   listId,
 }) => {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const [isSuccess, setIsSuccess] = useState(false);
-  const [txid, setTxid] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const { mutateAsync: generateBuyHexMutation } = useMutation({
     mutationFn: generateBuyHex,
@@ -52,6 +53,10 @@ const BuyAssetModal: React.FC<ModalProps> = ({
 
   const { mutateAsync: buyListedCollectibleMutation } = useMutation({
     mutationFn: buyListedCollectible,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["collectionData"] });
+      queryClient.invalidateQueries({ queryKey: ["acitivtyData"] });
+    },
   });
 
   // const handlePendingList = async () => {
@@ -94,13 +99,17 @@ const BuyAssetModal: React.FC<ModalProps> = ({
         let txid;
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(pendingRes.data.txHex);
+        console.log("first", signedTx?.hash)
         await signedTx?.wait();
+        
         if (signedTx?.hash) {
+          
           const response = await buyListedCollectible({
             id: listId,
             txid: signedTx?.hash,
           });
           if (response && response.success) {
+            setIsSuccess(true);
             toast.success("Successfully sent buy request");
           } else {
             toast.error("Error");
@@ -120,9 +129,9 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   };
   const formatPrice = (price: number) => {
     const btcAmount = price;
-    return btcAmount?.toLocaleString('en-US', {
-      minimumFractionDigits:0,
-      maximumFractionDigits: 6
+    return btcAmount?.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 6,
     });
   };
   return (
@@ -130,12 +139,53 @@ const BuyAssetModal: React.FC<ModalProps> = ({
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="flex flex-col p-6 gap-6 max-w-[592px] w-full items-center">
           {isSuccess ? (
-            <div className="text-neutral00">ok</div>
+            <div className="w-full flex flex-col gap-6 items-center justify-center">
+              <div className="flex flex-col gap-6 p-4 w-full justify-center items-center">
+                <div className="p-3 flex justify-center items-center rounded-2xl bg-white8 w-16 h-16">
+                  <Check size={40} color="#FFEE32" />
+                </div>
+                <div className="flex flex-col gap-3 justify-center items-center">
+                  <p className="text-2xl text-brand font-bold">
+                    Purchase Successful!
+                  </p>
+                  <p className="text-lg text-neutral50 font-medium">
+                    Your purchase was completed successfully.
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-6 justify-center items-center w-full bg-white4 rounded-2xl p-8">
+                <Image
+                  width={160}
+                  height={160}
+                  src={
+                    fileKey
+                      ? s3ImageUrlBuilder(fileKey)
+                      : ordinalsImageCDN(uniqueIdx)
+                  }
+                  className="aspect-square rounded-xl"
+                  alt={`logo`}
+                />
+                <div className="flex flex-col gap-2 justify-center items-center">
+                  <p className="text-lg text-brand font-medium">
+                    {collectionName}
+                  </p>
+                  <p className="text-xl text-neutral50 font-bold">{name}</p>
+                </div>
+              </div>
+              <div className="h-[1px] w-full bg-white8" />
+              <Button
+                variant={"secondary"}
+                className="w-full"
+                onClick={() => router.push("/collections")}
+              >
+                Done
+              </Button>
+            </div>
           ) : (
-            <div className="w-full items-center flex flex-col p-6 gap-6">
+            <div className="w-full items-center flex flex-col gap-6">
               <DialogHeader className="flex w-full">
                 <div className="text-xl text-neutral00 font-bold text-center">
-                  List Asset
+                  Buy Asset
                 </div>
               </DialogHeader>
               <div className="bg-white8 w-full h-[1px]" />

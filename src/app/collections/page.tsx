@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ColumColCard from "@/components/atom/cards/ColumColCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -13,12 +13,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import CollectionSideBar from "../../components/section/collections/sideBar";
 import { useQuery } from "@tanstack/react-query";
-import { getListedCollectionById, getListedCollections } from "@/lib/service/queryHelper";
+import { getListedCollections } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import CollectionCard from "@/components/atom/cards/collectionCard";
 import { CollectionDataType } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import CollectionSkeleton from "@/components/atom/skeleton/collection-skeletion";
 
 interface CollectionsProps {
   params: {};
@@ -27,18 +28,49 @@ interface CollectionsProps {
   };
 }
 
-export default function Collections({ params, searchParams }: CollectionsProps) {
+type OrderConfig = {
+  orderBy: "floor" | "volume";
+  orderDirection: "highest" | "lowest";
+};
+
+const orderConfigs: Record<string, OrderConfig> = {
+  "highest-volume": { orderBy: "volume", orderDirection: "highest" },
+  "lowest-volume": { orderBy: "volume", orderDirection: "lowest" },
+  "highest-floor": { orderBy: "floor", orderDirection: "highest" },
+  "lowest-floor": { orderBy: "floor", orderDirection: "lowest" },
+};
+
+export default function Collections({
+  params,
+  searchParams,
+}: CollectionsProps) {
   const detail = searchParams.detail === "true";
   const router = useRouter();
   const { authState } = useAuth();
   const id = authState?.layerId;
-  const tabs = ["1h", "24h", "7d", "30d", "All"];
+  const intervals = ["1h", "24h", "7d", "30d", "all"];
   const [active, setActive] = useState(false);
-  const [selectedTab, setSelectedTab] = useState("All");
+  const [selectedInterval, setSelectedInterval] = useState("all");
+  const [selectedOrder, setSelectedOrder] = useState<string>("highest-volume");
+  const [viewType, setViewType] = useState<"grid" | "list">("grid");
 
-  const { data: collection = [] } = useQuery({
-    queryKey: ["collectionData"],
-    queryFn: () => getListedCollections(id as string),
+  // Extract order configuration based on selected order
+  const orderConfig = orderConfigs[selectedOrder];
+
+  const { data: collection = [], isLoading } = useQuery({
+    queryKey: [
+      "collectionData",
+      selectedInterval,
+      orderConfig.orderBy,
+      orderConfig.orderDirection,
+    ],
+    queryFn: () =>
+      getListedCollections(
+        id as string,
+        selectedInterval.toLowerCase(),
+        orderConfig.orderBy,
+        orderConfig.orderDirection,
+      ),
     enabled: !!id,
   });
 
@@ -50,13 +82,21 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
     router.push(`/collections/${collectionData.id}?${queryParams}`);
   };
 
+  const handleOrderChange = (value: string) => {
+    setSelectedOrder(value);
+  };
+
+  const handleViewTypeChange = (type: "grid" | "list") => {
+    setViewType(type);
+  };
+
   const collectionArray = Array.isArray(collection) ? collection : [];
 
   return (
     <>
       <Tabs
-        value={selectedTab}
-        onValueChange={setSelectedTab}
+        value={selectedInterval}
+        onValueChange={setSelectedInterval}
         className="mt-8 mb-10 border-hidden"
       >
         <section className="flex justify-between mb-7">
@@ -94,20 +134,20 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
           ) : (
             <div>
               <TabsList className="h-12 text-neutral50 p-1 border border-neutral400 rounded-xl gap-1">
-                {tabs.map((tab) => (
+                {intervals.map((interval) => (
                   <TabsTrigger
-                    key={tab}
-                    value={tab}
+                    key={interval}
+                    value={interval}
                     className="w-[59px] h-10 font-semibold text-[15px] rounded-lg border-hidden"
                   >
-                    {tab}
+                    {interval}
                   </TabsTrigger>
                 ))}
               </TabsList>
             </div>
           )}
           <div className="flex justify-between text-center items-center w-[330px] h-[48px] gap-4">
-            <Select>
+            <Select value={selectedOrder} onValueChange={handleOrderChange}>
               <SelectTrigger className="w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50 pt-2 pr-4 pb-2 pl-5">
                 <SelectValue placeholder="Highest volume" />
               </SelectTrigger>
@@ -117,46 +157,51 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
                   backdropFilter: "blur(30px)",
                 }}
               >
-                <SelectItem value="highest" className="pl-10">
+                <SelectItem value="highest-volume" className="pl-10">
                   Highest volume
                 </SelectItem>
-                <SelectItem value="low" className="pl-10">
+                <SelectItem value="lowest-volume" className="pl-10">
                   Lowest volume
                 </SelectItem>
-                <SelectItem value="highestFloor" className="pl-10">
+                <SelectItem value="highest-floor" className="pl-10">
                   Highest floor price
                 </SelectItem>
-                <SelectItem value="lowest" className="pl-10">
+                <SelectItem value="lowest-floor" className="pl-10">
                   Lowest floor price
                 </SelectItem>
               </SelectContent>
             </Select>
-            <TabsList className="text-neutral50 border border-neutral400 rounded-xl w-[92px] h-12">
-              <TabsTrigger
-                value="All"
-                className="w-10 h-10 font-semibold text-[15px] border-hidden rounded-lg p-[10px]"
+            <div className="text-neutral50 border border-neutral400 rounded-xl w-[92px] h-12 flex justify-center items-center">
+              <button
+                className={`w-10 h-10 font-semibold text-[15px] rounded-lg p-[10px] ${
+                  viewType === "grid" ? "bg-white4" : ""
+                }`}
+                onClick={() => handleViewTypeChange("grid")}
               >
                 <Image
                   src="/collections/hashtag.png"
-                  alt="hashtag"
+                  alt="grid view"
                   width={20}
                   height={20}
                 />
-              </TabsTrigger>
-              <TabsTrigger
-                value="ColCard"
-                className="w-10 h-10 font-semibold text-[15px] border-hidden rounded-lg p-[10px]"
+              </button>
+              <button
+                className={`w-10 h-10 font-semibold text-[15px] rounded-lg p-[10px] ${
+                  viewType === "list" ? "bg-white4" : ""
+                }`}
+                onClick={() => handleViewTypeChange("list")}
               >
                 <Image
                   src="/collections/burger.png"
-                  alt="burger"
+                  alt="list view"
                   width={20}
                   height={20}
                 />
-              </TabsTrigger>
-            </TabsList>
+              </button>
+            </div>
           </div>
         </section>
+
         {detail && (
           <section
             className={`flex w-full ${active ? "gap-10" : "gap-0"} pt-7`}
@@ -182,7 +227,7 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
                   </div>
                   <div className="max-w-[200px] h-[18px]">
                     <p className="font-medium text-md text-neutral200">
-                      Floor defference
+                      Floor difference
                     </p>
                   </div>
                   <div className="max-w-[200px] h-[18px]">
@@ -198,71 +243,78 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
             </TabsContent>
           </section>
         )}
+
         <AnimatePresence mode="wait">
           <motion.div
-            key={selectedTab}
-            initial={{ opacity: 0, y: 10 }}
+            key={`${selectedInterval}-${viewType}`}
+            initial={{ opacity: 0, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.3 }}
+            exit={{ opacity: 0, y: 0 }}
+            transition={{ duration: 0 }}
           >
             {!detail && (
-              <>
-                <TabsContent value="All" className="grid grid-cols-4 gap-10">
-                  {collectionArray?.map((item: any) => (
-                    <div key={item.id}>
-                      <CollectionCard
-                        data={item}
-                        handleNav={() => handleNavigation(item)}
-                      />
-                    </div>
-                  ))}
-                </TabsContent>
-
-                <TabsContent value="ColCard">
-                  <div className="flex h-[34px] pr-8 pb-4 pl-4">
-                    <div className="w-[376px] h-[18px]">
-                      <p className="font-medium text-md text-neutral200">
-                        Name
-                      </p>
-                    </div>
-                    <div className="w-[468px] h-[18px] flex justify-around">
-                      <p className="font-medium text-md text-neutral200">
-                        Floor price
-                      </p>
-                      <p className="font-medium text-md text-neutral200">
-                        Volume
-                      </p>
-                      <p className="font-medium text-md text-neutral200">
-                        Market cap
-                      </p>
-                    </div>
-                    <div className="w-[324px] h-[18px] flex justify-around">
-                      <p className="font-medium text-md text-neutral200">
-                        Sales
-                      </p>
-                      <p className="font-medium text-md text-neutral200">
-                        Listed
-                      </p>
-                      <p className="font-medium text-md text-neutral200">
-                        Owners
-                      </p>
-                    </div>
+              <div>
+                {viewType === "grid" ? (
+                  <div className="grid grid-cols-4 gap-10">
+                    {isLoading
+                      ? Array(8)
+                          .fill(null)
+                          .map((_, index) => <CollectionSkeleton key={index} />)
+                      : collectionArray?.map((item: any) => (
+                          <div key={item.id}>
+                            <CollectionCard
+                              data={item}
+                              handleNav={() => handleNavigation(item)}
+                            />
+                          </div>
+                        ))}
                   </div>
-                  <ScrollArea className="h-[754px] border-t-2 border-neutral500">
-                    <div className="grid grid-cols-1 pt-4 gap-4">
-                      {collectionArray?.map((item: any) => (
-                        <div key={item.id}>
-                          <ColumColCard
-                            data={item}
-                            handleNav={() => handleNavigation(item)}
-                          />
-                        </div>
-                      ))}
+                ) : (
+                  <div>
+                    <div className="flex h-[34px] pr-8 pb-4 pl-4">
+                      <div className="w-[376px] h-[18px]">
+                        <p className="font-medium text-md text-neutral200">
+                          Name
+                        </p>
+                      </div>
+                      <div className="w-[468px] h-[18px] flex justify-around">
+                        <p className="font-medium text-md text-neutral200">
+                          Floor price
+                        </p>
+                        <p className="font-medium text-md text-neutral200">
+                          Volume
+                        </p>
+                        <p className="font-medium text-md text-neutral200">
+                          Market cap
+                        </p>
+                      </div>
+                      <div className="w-[324px] h-[18px] flex justify-around">
+                        <p className="font-medium text-md text-neutral200">
+                          Sales
+                        </p>
+                        <p className="font-medium text-md text-neutral200">
+                          Listed
+                        </p>
+                        <p className="font-medium text-md text-neutral200">
+                          Owners
+                        </p>
+                      </div>
                     </div>
-                  </ScrollArea>
-                </TabsContent>
-              </>
+                    <ScrollArea className="h-[754px] border-t-2 border-neutral500">
+                      <div className="grid grid-cols-1 pt-4 gap-4">
+                        {collectionArray?.map((item: any) => (
+                          <div key={item.id}>
+                            <ColumColCard
+                              data={item}
+                              handleNav={() => handleNavigation(item)}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                )}
+              </div>
             )}
           </motion.div>
         </AnimatePresence>

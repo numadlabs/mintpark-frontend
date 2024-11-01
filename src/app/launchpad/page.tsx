@@ -8,14 +8,16 @@ import { fetchLaunchs } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import LaunchpadCard from "@/components/atom/cards/launchpadCard";
 import { LaunchDataType } from "@/lib/types";
+import LaunchpadCardSkeleton from "@/components/atom/skeleton/launchpad-skeleton";
 
 const Launchpad = () => {
   const { authState } = useAuth();
   const [interval, setInterval] = useState<string>("all");
 
-  const { data: launch = [] } = useQuery({
+  const { data: launch = [], isLoading } = useQuery({
     queryKey: ["launchData", interval],
     queryFn: () => fetchLaunchs(authState?.layerId as string, interval),
     enabled: !!authState?.layerId,
@@ -23,7 +25,12 @@ const Launchpad = () => {
 
   const handleIntervalChange = (value: string) => {
     setInterval(value);
-    console.log("first", value);
+  };
+
+  const renderSkeletons = () => {
+    return Array(8).fill(null).map((_, index) => (
+      <LaunchpadCardSkeleton key={`skeleton-${index}`} />
+    ));
   };
 
   return (
@@ -57,19 +64,25 @@ const Launchpad = () => {
         </TabsList>
 
         <TabsContent value="all" className="grid grid-cols-4 gap-10">
-          {launch.map((item: LaunchDataType) => (
-            <LaunchpadCard id={item.id} key={item.id} data={item} />
-          ))}
+          {isLoading ? renderSkeletons() : 
+            launch.map((item: LaunchDataType) => (
+              <LaunchpadCard id={item.id} key={item.id} data={item} />
+            ))
+          }
         </TabsContent>
         <TabsContent value="live" className="grid grid-cols-4 gap-10">
-          {launch.map((item: LaunchDataType) => (
-            <LaunchpadCard id={item.id} key={item.id} data={item} />
-          ))}
+          {isLoading ? renderSkeletons() : 
+            launch.map((item: LaunchDataType) => (
+              <LaunchpadCard id={item.id} key={item.id} data={item} />
+            ))
+          }
         </TabsContent>
         <TabsContent value="past" className="grid grid-cols-4 gap-10">
-          {launch.map((item: LaunchDataType) => (
-            <LaunchpadCard id={item.id} key={item.id} data={item} />
-          ))}
+          {isLoading ? renderSkeletons() : 
+            launch.map((item: LaunchDataType) => (
+              <LaunchpadCard id={item.id} key={item.id} data={item} />
+            ))
+          }
         </TabsContent>
       </Tabs>
     </Layout>

@@ -1,12 +1,25 @@
 "use client";
-import Footer from "@/components/layout/footer";
+
 import Header from "@/components/layout/header";
 import Layout from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { useAuth } from "@/components/provider/auth-context-provider";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const { authState } = useAuth();
+  const router = useRouter();
+
+  const handleNavigation = () => {
+    if (!authState.authenticated) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+    router.push("/create");
+  };
   return (
     <>
       <Layout>
@@ -21,14 +34,20 @@ export default function Home() {
               ornare nisi. Aliquam eget semper risus, sed commodo elit.{" "}
             </p>
             <div className="flex gap-8">
-              <Link href={"/create"} className="cursor-pointer">
+              <div className="relative cursor-not-allowed">
                 <Button
                   variant="outline"
-                  className="w-[176px] h-12 cursor-pointer"
+                  className="w-[176px] h-12 cursor-not-allowed"
+                  onClick={handleNavigation}
+                  disabled
                 >
                   Create
                 </Button>
-              </Link>
+                <div className="absolute -top-3 -right-3 bg-brand text-neutral500 px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1">
+                  <span className="w-2 h-2 bg-neutral500 rounded-full animate-pulse"></span>
+                  Coming Soon
+                </div>
+              </div>
               <Link href={"/collections"} className="cursor-pointer">
                 <Button
                   variant="primary"

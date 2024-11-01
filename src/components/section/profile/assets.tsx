@@ -1,9 +1,5 @@
 "use client";
 
-import CollectionCard, {
-  CardType,
-} from "@/components/atom/cards/collectionCard";
-import ColumColCard from "@/components/atom/cards/ColumColCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -18,24 +14,25 @@ import { useState } from "react";
 import CollectionSideBar from "../collections/sideBar";
 import AssetsCard from "@/components/atom/cards/assetsCard";
 import ColAssetsCards from "@/components/atom/cards/colAssetsCard";
-import { Collectible, CollectibleList } from "@/lib/types";
-import { collection } from "@/lib/constants";
-import {
-  getListableById,
-} from "@/lib/service/queryHelper";
+import { Collectible } from "@/lib/types";
+import { getListableById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/provider/auth-context-provider";
+import AssetsSkeleton from "@/components/atom/skeleton/my-asset-skeleton";
 
 export default function Assets({ detail = false }: { detail: boolean }) {
-  // const tabs = ["1h", "24h", "7d", "30d", "All"];
   const [active, setActive] = useState(false);
 
   const { authState } = useAuth();
-  const { data: collectiblelist = [] } = useQuery({
+  const { data: collectiblelist = [], isLoading } = useQuery({
     queryKey: ["getListableById", authState.userId],
     queryFn: () => getListableById(authState?.userId as string),
     enabled: !!authState?.userId,
   });
+
+  if (isLoading) {
+    return <AssetsSkeleton detail={detail} />;
+  }
   return (
     <>
       <Tabs defaultValue="All" className="mt-20 mb-10 border-hidden">
@@ -157,11 +154,13 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                   active ? "grid-cols-3" : "grid-cols-4"
                 }`}
               >
-                {collectiblelist.data?.collectibles?.map((item: Collectible) => (
-                  <div key={item.id}>
-                    <AssetsCard data={item} />
-                  </div>
-                ))}
+                {collectiblelist.data?.collectibles?.map(
+                  (item: Collectible) => (
+                    <div key={item.id}>
+                      <AssetsCard data={item} />
+                    </div>
+                  ),
+                )}
               </div>
             </TabsContent>
 
@@ -193,76 +192,17 @@ export default function Assets({ detail = false }: { detail: boolean }) {
               </div>
               <ScrollArea className="h-[754px] w-full border-t-2 border-neutral500">
                 <div className="flex flex-col w-full pt-4 gap-4">
-                  {collectiblelist.data?.collectibles?.map((item: Collectible) => (
-                    <div key={item.id}>
-                      <ColAssetsCards data={item} />
-                    </div>
-                    // it is column
-                  ))}
+                  {collectiblelist.data?.collectibles?.map(
+                    (item: Collectible) => (
+                      <div key={item.id}>
+                        <ColAssetsCards data={item} />
+                      </div>
+                    ),
+                  )}
                 </div>
               </ScrollArea>
             </TabsContent>
           </section>
-        )}
-        {!detail && (
-          <>
-            {/* {tabs.map((tab) => (
-              <TabsContent
-                key={tab}
-                value={tab}
-                className="grid grid-cols-4 gap-10"
-              >
-                {data
-                  .filter((item) => item.type === tab || tab === "All")
-                  .map((item) => {
-                    return (
-                      <div key={item.id}>
-                        <CollectionCard data={item} />
-                      </div>
-                    );
-                  })}
-              </TabsContent>
-            ))} */}
-
-            <TabsContent value="All" className="grid grid-cols-4 gap-10">
-              {/* {data.map((item) => (
-                <div key={item.id}>
-                  <CollectionCard data={item} />
-                </div>
-              ))} */}
-            </TabsContent>
-
-            <TabsContent value="ColCard">
-              <div className="flex h-[34px] pr-8 pb-4 pl-4">
-                <div className="w-[376px] h-[18px]">
-                  <p className="font-medium text-md text-neutral200">Name</p>
-                </div>
-                <div className="w-[468px] h-[18px] flex justify-around">
-                  <p className="font-medium text-md text-neutral200">
-                    Floor price
-                  </p>
-                  <p className="font-medium text-md text-neutral200">Volume</p>
-                  <p className="font-medium text-md text-neutral200">
-                    Market cap
-                  </p>
-                </div>
-                <div className="w-[324px] h-[18px] flex justify-around">
-                  <p className="font-medium text-md text-neutral200">Sales</p>
-                  <p className="font-medium text-md text-neutral200">Listed</p>
-                  <p className="font-medium text-md text-neutral200">Owners</p>
-                </div>
-              </div>
-              <ScrollArea className="h-[754px] border-t-2 border-neutral500">
-                <div className="grid grid-cols-1 pt-4 gap-4">
-                  {/* {data.map((item) => (
-                    <div key={item.id}>
-                      <ColumColCard data={item} />
-                    </div>
-                  ))} */}
-                </div>
-              </ScrollArea>
-            </TabsContent>
-          </>
         )}
       </Tabs>
     </>

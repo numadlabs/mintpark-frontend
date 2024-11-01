@@ -28,7 +28,7 @@ import {
   mintFeeOfCitrea,
 } from "@/lib/service/postRequest";
 import useCreateFormState from "@/lib/store/createFormStore";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import CollectionUploadFile from "@/components/section/collectionUploadFile";
 import Toggle from "@/components/ui/toggle";
 import { Calendar2, Clock, Bitcoin } from "iconsax-react";
@@ -42,6 +42,7 @@ import { getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 const CollectionDetail = () => {
   const router = useRouter();
@@ -71,6 +72,7 @@ const CollectionDetail = () => {
     setTxid,
     reset,
   } = useCreateFormState();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [collectionId, setCollectionId] = useState<string>("");
@@ -87,12 +89,16 @@ const CollectionDetail = () => {
   const [inscribeModal, setInscribeModal] = useState(false);
   const [data, setData] = useState<string>("");
   const [hash, setHash] = useState<string>("");
+
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
   });
 
   const { mutateAsync: launchCollectionMutation } = useMutation({
     mutationFn: launchCollection,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["launchData"] });
+    },
   });
 
   const { mutateAsync: mintFeeOfCitreaMutation } = useMutation({
@@ -105,6 +111,9 @@ const CollectionDetail = () => {
 
   const { mutateAsync: createHexCollectionMutation } = useMutation({
     mutationFn: createMintHexCollection,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["collectionData"] });
+    },
   });
 
   const updateFileInfo = (files: File[]) => {
@@ -486,11 +495,12 @@ const CollectionDetail = () => {
               </div>
               <div className="flex flex-row justify-between w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
-                <ButtonLg
+                <Button
+                  type="submit"
                   title="Continue"
-                  isSelected={true}
                   onClick={handleCreateCollection}
                   disabled={isLoading}
+                  className="w-full"
                   // isLoading={isLoading}
                 >
                   {isLoading ? (
@@ -502,7 +512,7 @@ const CollectionDetail = () => {
                   ) : (
                     "Continue"
                   )}
-                </ButtonLg>
+                </Button>
               </div>
             </div>
           )}
@@ -580,10 +590,9 @@ const CollectionDetail = () => {
               {/* <div className="text-red-500">{error}</div> */}
               <div className="flex flex-row w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
-                <ButtonLg
+                <Button
                   className="flex w-full border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold items-center justify-center"
                   // type="submit"
-                  isSelected={true}
                   onClick={() => setStep(2)}
                   // isLoading={isLoading}
                   disabled={isLoading}
@@ -599,7 +608,7 @@ const CollectionDetail = () => {
                   )}
 
                   {/* {isLoading ? "...loading" : "Continue"} */}
-                </ButtonLg>
+                </Button>
               </div>
             </div>
           )}
@@ -743,8 +752,7 @@ const CollectionDetail = () => {
               )}
               <div className="flex flex-row w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
-                <ButtonLg
-                  isSelected={true}
+                <Button
                   onClick={isChecked ? handleMintfeeChange : () => setStep(3)}
                   // isLoading={isLoading}
                   disabled={isLoading}
@@ -759,7 +767,7 @@ const CollectionDetail = () => {
                   ) : (
                     "Continue"
                   )}
-                </ButtonLg>
+                </Button>
               </div>
             </div>
           )}
@@ -842,8 +850,7 @@ const CollectionDetail = () => {
               )}
               <div className="flex flex-row gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
-                <ButtonLg
-                  isSelected={true}
+                <Button
                   onClick={isChecked ? handleCreateLaunch : handlePay}
                   // isLoading={isLoading}
                   disabled={isLoading}
@@ -859,7 +866,7 @@ const CollectionDetail = () => {
                     // "Loading"
                     "Confirm"
                   )}
-                </ButtonLg>
+                </Button>
               </div>
             </div>
           )}

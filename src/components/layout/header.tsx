@@ -31,6 +31,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { LayerType } from "@/lib/types";
 import { toast } from "sonner";
+import Badge from "../atom/badge";
 
 declare global {
   interface Window {
@@ -42,6 +43,7 @@ export default function Header() {
   const router = useRouter();
   const [walletModal, setWalletModal] = useState(false);
   const [defaultLayer, setDefaultLayer] = useState<string>("CITREA-mainnet");
+  console.log(defaultLayer);
   const { connect, authState, onLogout, selectedLayerId, setSelectedLayerId } =
     useAuth();
   const id = authState?.layerId;
@@ -64,11 +66,6 @@ export default function Header() {
     enabled: !!id,
   });
 
-  // useEffect(() => {
-  //   if (currentLayer) {
-  //     setDefaultLayer(`${currentLayer.layer}-${currentLayer.network}`);
-  //   }
-  // }, [currentLayer]);
   useEffect(() => {
     // Set CITREA as default if there's no currentLayer
     if (!currentLayer) {
@@ -83,7 +80,8 @@ export default function Header() {
   }, [currentLayer, layers, setSelectedLayerId]);
 
   const routesData = [
-    { title: "Create", pageUrl: "/create" },
+    { title: "Create", pageUrl: "/create", requiresAuth: true, disabled: true, // Add this
+      badge: "Coming Soon" },
     { title: "Launchpad", pageUrl: "/launchpad" },
     { title: "Collections", pageUrl: "/collections" },
   ];
@@ -127,6 +125,7 @@ export default function Header() {
           "Logged out due to layer change. Please reconnect your wallet.",
         );
       }
+      localStorage.setItem("layerId", selectedLayer.id);
       setSelectedLayerId(selectedLayer.id);
       setDefaultLayer(value);
     }
@@ -147,6 +146,18 @@ export default function Header() {
     }
   };
 
+  const handleNavigation = (pageUrl: string, requiresAuth?: boolean, disabled?: boolean) => {
+    if (disabled) {
+      toast.info("This feature is coming soon!");
+      return;
+    }
+    if (requiresAuth && !authState.authenticated) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+    router.push(pageUrl);
+  };
+
   return (
     <>
       <div className="h-[72px] w-full flex justify-center bg-neutral500 bg-opacity-50 backdrop-blur-4xl mt-5 rounded-3xl">
@@ -162,13 +173,17 @@ export default function Header() {
                 />
               </Link>
               <div className="flex flex-row gap-2 text-neutral00">
-                {routesData.map((item, index) => (
-                  <HeaderItem
-                    key={index}
-                    title={item.title}
-                    handleNav={() => router.push(item.pageUrl)}
-                  />
-                ))}
+              {routesData.map((item, index) => (
+            <div key={index} className="relative">
+              <HeaderItem
+                title={item.title}
+                handleNav={() =>
+                  handleNavigation(item.pageUrl, item.requiresAuth, item.disabled)
+                }
+              />
+              {item.badge && <Badge label={item.badge} />}
+            </div>
+          ))}
               </div>
             </div>
             <div className="flex flex-row overflow-hidden items-center gap-4">
