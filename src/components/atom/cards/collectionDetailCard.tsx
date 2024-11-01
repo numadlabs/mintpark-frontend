@@ -9,7 +9,7 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
   const formatPrice = (price: number) => {
     return price.toLocaleString('en-US', {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 8
+      maximumFractionDigits: 6
     });
   };
 

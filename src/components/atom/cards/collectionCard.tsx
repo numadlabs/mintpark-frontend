@@ -15,7 +15,7 @@ const formatPrice = (price: number) => {
   const btcAmount = price;
   return btcAmount?.toLocaleString('en-US', {
     minimumFractionDigits:0,
-    maximumFractionDigits: 8
+    maximumFractionDigits: 6
   });
 };
 
@@ -36,7 +36,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
         <p className="text-xl font-bold pl-1 text-start text-neutral00">
           {data.name}
         </p>
-        <div className="flex justify-around w-full relative pl-2 right-6 gap-2">
+        <div className="flex justify-around w-full relative pl-5 right-6 gap-2">
           <div className="text-start">
             {" "}
             <p className="text-sm font-medium text-neutral200 gap-2">
