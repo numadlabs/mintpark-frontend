@@ -81,7 +81,7 @@ export default function Header() {
 
   const routesData = [
     { title: "Create", pageUrl: "/create", requiresAuth: true, disabled: true, // Add this
-      badge: "Coming Soon" },
+      badge: "Soon" },
     { title: "Launchpad", pageUrl: "/launchpad" },
     { title: "Collections", pageUrl: "/collections" },
   ];

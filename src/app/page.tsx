@@ -30,8 +30,9 @@ export default function Home() {
               Empower Your <br /> Art with <br /> Mint Park
             </h1>
             <p className="text-neutral100 text-lg2">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac
-              ornare nisi. Aliquam eget semper risus, sed commodo elit.{" "}
+              Unlock the potential of your digital art on the Bitcoin network.
+              Create, mint, and showcase your NFT collections with seamless
+              tools designed for artists and creators.
             </p>
             <div className="flex gap-8">
               <div className="relative cursor-not-allowed">
