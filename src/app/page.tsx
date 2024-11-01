@@ -1,12 +1,25 @@
 "use client";
-import Footer from "@/components/layout/footer";
+
 import Header from "@/components/layout/header";
 import Layout from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import { useAuth } from "@/components/provider/auth-context-provider";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const { authState } = useAuth();
+  const router = useRouter();
+
+  const handleNavigation = () => {
+    if (!authState.authenticated) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+    router.push("/create");
+  };
   return (
     <>
       <Layout>
@@ -21,14 +34,13 @@ export default function Home() {
               ornare nisi. Aliquam eget semper risus, sed commodo elit.{" "}
             </p>
             <div className="flex gap-8">
-              <Link href={"/create"} className="cursor-pointer">
-                <Button
-                  variant="outline"
-                  className="w-[176px] h-12 cursor-pointer"
-                >
-                  Create
-                </Button>
-              </Link>
+              <Button
+                variant="outline"
+                className="w-[176px] h-12 cursor-pointer"
+                onClick={handleNavigation}
+              >
+                Create
+              </Button>
               <Link href={"/collections"} className="cursor-pointer">
                 <Button
                   variant="primary"
