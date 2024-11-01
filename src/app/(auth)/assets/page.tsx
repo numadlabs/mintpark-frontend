@@ -1,7 +1,6 @@
 "use client";
 
 import Header from "@/components/layout/header";
-import Layout from "@/components/layout/layout";
 import ProfileBanner from "@/components/section/profileBanner";
 import ProfileDetail from "@/components/section/profile/profileDetail";
 import { useQuery } from "@tanstack/react-query";
@@ -18,7 +17,7 @@ const Assets = () => {
   });
 
   return (
-    <Layout>
+    <>
       <Header />
       {isLoading ? (
         <ProfileBannerSkeleton />
@@ -26,7 +25,7 @@ const Assets = () => {
         <ProfileBanner params={collectiblelist} />
       )}
       <ProfileDetail />
-    </Layout>
+    </>
   );
 };
 

@@ -285,4 +285,3 @@ export default function AssetsDetails() {
     </Layout>
   );
 }
-

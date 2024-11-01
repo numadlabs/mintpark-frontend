@@ -1,15 +1,15 @@
 "use client";
 
 import Header from "@/components/layout/header";
-import Layout from "@/components/layout/layout";
 import OrderDetail from "@/components/section/orderDetail";
+import Layout from "../layout";
 
 const Orders = () => {
   return (
-    <Layout>
+    <>
       <Header />
       < OrderDetail />
-    </Layout>
+    </>
   );
 };
 
