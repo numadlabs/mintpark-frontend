@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Header from "@/components/layout/header";
 import Layout from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AssetDetailSkeleton from "@/components/atom/skeleton/asset-detail-skeleton";
 
 export default function AssetsDetails() {
+  const queryClient = useQueryClient();
   const params = useParams();
   const id = params.assetsId as string;
   const [isVisible, setIsVisible] = useState(false);
@@ -36,6 +37,10 @@ export default function AssetsDetails() {
 
   const { mutateAsync: createApprovalMutation } = useMutation({
     mutationFn: createApprovalTransaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
+      queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
+    },
   });
 
   const { data: collectionData, isLoading: isCollectionLoading } = useQuery({
@@ -49,6 +54,8 @@ export default function AssetsDetails() {
     queryFn: () => getCollectibleActivity(id as string),
     enabled: !!id,
   });
+
+  console.log("first", activity)
 
   const formatTimeAgo = (dateString: string) => {
     const now = moment();
@@ -281,6 +288,7 @@ export default function AssetsDetails() {
         collectionName={collectionData?.[0]?.collectionName}
         collectibleId={collectionData?.[0]?.id}
         txid={txid}
+        id={id}
       />
     </Layout>
   );
