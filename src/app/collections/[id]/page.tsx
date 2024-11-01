@@ -148,7 +148,7 @@ const CollectionDetailPage = () => {
                       by {collectionData?.creator}
                     </h2>
                   </div>
-                  <div className="flex gap-6 pt-8">
+                  {/* <div className="flex gap-6 pt-8">
                     {links.map((link, i) => (
                       <button
                         key={i}
@@ -162,7 +162,7 @@ const CollectionDetailPage = () => {
                         {link.icon}
                       </button>
                     ))}
-                  </div>
+                  </div> */}
                 </div>
                 <div className="flex justify-around relative right-14 top-9">
                   <div className="pl-1">
