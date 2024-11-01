@@ -66,7 +66,10 @@ const generateFallbackMessage = (address: string) => {
   return `Sign this message to verify your ownership of the address ${address}. Timestamp: ${timestamp}`;
 };
 
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children, connector }) => {
+export const AuthProvider: React.FC<AuthProviderProps> = ({
+  children,
+  connector,
+}) => {
   const router = useRouter();
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
   const [walletAddress, setWalletAddress] = useState<string>("");
@@ -131,25 +134,67 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, connector 
     },
   });
 
-  const handleLogout = () => {
-    setConnectedAddress("");
-    setConnected(false);
-    setWalletAddress("");
-    setAuthState({
-      token: null,
-      authenticated: false,
-      loading: false,
-      userId: null,
-      address: null,
-      layerId: null,
-      walletType: null,
-    });
-    localStorage.removeItem("userProfile");
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("layerId");
-    localStorage.removeItem("logoutTime");
-    // router.push("/");
-    clearToken();
+  const handleLogout = async () => {
+    try {
+      const currentLayerId = authState.layerId;
+      if (authState.walletType === "metamask") {
+        await disconnectMetaMask();
+      }
+      setConnectedAddress("");
+      setConnected(false);
+      setWalletAddress("");
+      setAuthState({
+        token: null,
+        authenticated: false,
+        loading: false,
+        userId: null,
+        address: null,
+        layerId: currentLayerId,
+        walletType: null,
+      });
+      localStorage.removeItem("userProfile");
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("logoutTime");
+
+      if (currentLayerId) {
+        localStorage.setItem("layerId", currentLayerId);
+      }
+      // router.push("/");
+      clearToken();
+      
+      window.location.reload();
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Error during logout process");
+    }
+  };
+
+  const disconnectMetaMask = async () => {
+    if (window.ethereum) {
+      try {
+        // Clear the ethereum permissions
+        const permissions = await window.ethereum.request({
+          method: "wallet_requestPermissions",
+          params: [
+            {
+              eth_accounts: {},
+            },
+          ],
+        });
+
+        // After getting permissions, request to disconnect
+        await window.ethereum.request({
+          method: "wallet_revokePermissions",
+          params: [
+            {
+              eth_accounts: {},
+            },
+          ],
+        });
+      } catch (error) {
+        console.error("Error disconnecting from MetaMask:", error);
+      }
+    }
   };
 
   const setupMetaMaskListeners = () => {
@@ -368,7 +413,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, connector 
       const userProfile = localStorage.getItem("userProfile");
       const storedLayerId = localStorage.getItem("layerId");
 
-      if (storedAuth && userProfile && storedLayerId) {
+      if (storedAuth && userProfile) {
         const authData = JSON.parse(storedAuth);
         const profileData = JSON.parse(userProfile);
 
@@ -401,13 +446,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, connector 
           loading: false,
           userId: authData.userId,
           address: profileData.address,
-          layerId: storedLayerId,
+          layerId: storedLayerId || null,
           walletType: profileData.walletType,
         });
         setConnectedAddress(profileData.address);
         setConnected(true);
       } else {
-        setAuthState((prev) => ({ ...prev, loading: false }));
+        setAuthState((prev) => ({
+          ...prev,
+          loading: false,
+          layerId: storedLayerId || null,
+        }));
+        if (storedLayerId) {
+          setSelectedLayerId(storedLayerId);
+        }
       }
     } catch (error) {
       console.error("Error loading wallet:", error);

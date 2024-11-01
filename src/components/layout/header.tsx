@@ -42,6 +42,7 @@ export default function Header() {
   const router = useRouter();
   const [walletModal, setWalletModal] = useState(false);
   const [defaultLayer, setDefaultLayer] = useState<string>("CITREA-mainnet");
+  console.log(defaultLayer);
   const { connect, authState, onLogout, selectedLayerId, setSelectedLayerId } =
     useAuth();
   const id = authState?.layerId;
@@ -64,11 +65,6 @@ export default function Header() {
     enabled: !!id,
   });
 
-  // useEffect(() => {
-  //   if (currentLayer) {
-  //     setDefaultLayer(`${currentLayer.layer}-${currentLayer.network}`);
-  //   }
-  // }, [currentLayer]);
   useEffect(() => {
     // Set CITREA as default if there's no currentLayer
     if (!currentLayer) {
@@ -83,7 +79,7 @@ export default function Header() {
   }, [currentLayer, layers, setSelectedLayerId]);
 
   const routesData = [
-    { title: "Create", pageUrl: "/create" },
+    { title: "Create", pageUrl: "/create", requiresAuth: true },
     { title: "Launchpad", pageUrl: "/launchpad" },
     { title: "Collections", pageUrl: "/collections" },
   ];
@@ -127,6 +123,7 @@ export default function Header() {
           "Logged out due to layer change. Please reconnect your wallet.",
         );
       }
+      localStorage.setItem("layerId", selectedLayer.id);
       setSelectedLayerId(selectedLayer.id);
       setDefaultLayer(value);
     }
@@ -145,6 +142,14 @@ export default function Header() {
       onLogout();
       toast.info("Logged out successfully");
     }
+  };
+
+  const handleNavigation = (pageUrl: string, requiresAuth?: boolean) => {
+    if (requiresAuth && !authState.authenticated) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+    router.push(pageUrl);
   };
 
   return (
@@ -166,7 +171,9 @@ export default function Header() {
                   <HeaderItem
                     key={index}
                     title={item.title}
-                    handleNav={() => router.push(item.pageUrl)}
+                    handleNav={() =>
+                      handleNavigation(item.pageUrl, item.requiresAuth)
+                    }
                   />
                 ))}
               </div>
