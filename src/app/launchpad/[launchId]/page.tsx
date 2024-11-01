@@ -7,7 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { confirmOrder, generateHex } from "@/lib/service/postRequest";
 import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import LaunchDetailSkeleton from "@/components/atom/skeleton/launch-detail-skeleton";
 
 const Page = () => {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const { authState } = useAuth();
   const params = useParams();
@@ -39,6 +40,10 @@ const Page = () => {
 
   const { mutateAsync: confirmOrderMutation } = useMutation({
     mutationFn: confirmOrder,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["collectiblesByCollections"] });
+      queryClient.invalidateQueries({ queryKey: ["launchData"] });
+    },
   });
 
   const { data: collectibles = [], isLoading: isCollectiblesLoading } =
