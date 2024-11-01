@@ -1,11 +1,11 @@
 import Image from "next/image";
 // import { Progress } from "@/components/ui/progress";
-import HoverCard from "@/components/section/collections/hoverCard";
-import { Notepad, Profile2User } from "iconsax-react";
-import Link from "next/link";
+import { Global, Notepad, Profile2User } from "iconsax-react";
 import { CollectionDataType } from "@/lib/types";
 import React from "react";
 import { s3ImageUrlBuilder } from "@/lib/utils";
+import HoverCard from "@/components/section/collections/hoverCard";
+
 
 export type CardType = {
   data: CollectionDataType;
@@ -76,7 +76,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
           </div>
         </div>
       </div>
-      {/* <HoverCard /> */}
+      <HoverCard data={data}/>
     </button>
   );
 };
