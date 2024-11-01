@@ -13,7 +13,7 @@ const AssetsCard: React.FC<CardProps> = ({ data }) => {
   const formatPrice = (price: number) => {
     return price?.toLocaleString('en-US', {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 2
+      maximumFractionDigits: 6
     });
   };
 
@@ -49,8 +49,8 @@ const AssetsCard: React.FC<CardProps> = ({ data }) => {
                 <div className="flex justify-between py-2">
                   {isListed ? (
                     <>
-                      <p className="text-neutral200 font-medium text-md">Price</p>
-                      <p className="text-neutral50">
+                      <p className="text-neutral200 font-medium text-md group-hover:hidden">Price</p>
+                      <p className="text-neutral50 group-hover:hidden">
                         {formatPrice(data.price)}
                         <span className="ml-1">cBTC</span>
                       </p>
