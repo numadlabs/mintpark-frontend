@@ -13,7 +13,7 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
     const btcAmount = price;
     return btcAmount.toLocaleString('en-US', {
       minimumFractionDigits:0,
-      maximumFractionDigits: 8
+      maximumFractionDigits: 6
     });
   };
   return (
