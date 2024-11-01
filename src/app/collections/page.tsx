@@ -42,15 +42,11 @@ export default function Collections({
   const tabs = ["1h", "24h", "7d", "30d", "All"];
   const [active, setActive] = useState(false);
   const [selectedTab, setSelectedTab] = useState("All");
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const { data: collection = [], isLoading } = useQuery({
     queryKey: ["collectionData"],
     queryFn: () => getListedCollections(id as string),
     enabled: !!id,
-    staleTime: 30000, // Data remains fresh for 30 seconds
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
   });
 
   const handleNavigation = (collectionData: CollectionDataType) => {
@@ -62,21 +58,6 @@ export default function Collections({
   };
 
   const collectionArray = Array.isArray(collection) ? collection : [];
-
-  useEffect(() => {
-    if (!isLoading && isInitialLoad) {
-      setIsInitialLoad(false);
-    }
-  }, [isLoading]);
-
-  // Reset initial load when id changes
-  useEffect(() => {
-    if (id) {
-      setIsInitialLoad(true);
-    }
-  }, [id]);
-
-  const showSkeleton = isInitialLoad && isLoading;
 
   return (
     <>
@@ -235,7 +216,7 @@ export default function Collections({
             {!detail && (
               <>
                 <TabsContent value="All" className="grid grid-cols-4 gap-10">
-                  {showSkeleton
+                  {isLoading
                     ? Array(8)
                         .fill(null)
                         .map((_, index) => <CollectionSkeleton key={index} />)

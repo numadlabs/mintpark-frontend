@@ -32,33 +32,37 @@ const CollectionDetailPage = () => {
   const searchParams = useSearchParams();
   const [collectionData, setCollectionData] =
     useState<CollectionDataType | null>(null);
+  const [isParamsLoading, setIsParamsLoading] = useState(true);
 
-  const { data: collection = [], isLoading: isCollectionLoading } = useQuery({
-    queryKey: ["collectionData"],
+  useEffect(() => {
+    setIsParamsLoading(true);
+    if (params) {
+      setIsParamsLoading(false);
+    }
+  }, [params]);
+
+  const { data: collection = [], isLoading: isQueryLoading } = useQuery({
+    queryKey: ["collectionData", id],
     queryFn: () => getListedCollectionById(id as string),
     enabled: !!id,
+    retry: 1
   });
-
-  const isLoading = isCollectionLoading || (!collectionData && searchParams.has('data'));
 
   useEffect(() => {
     const data = searchParams.get("data");
     if (data) {
-      const parsedData = JSON.parse(data) as CollectionDataType;
-      setCollectionData(parsedData);
+      try {
+        const parsedData = JSON.parse(data) as CollectionDataType;
+        setCollectionData(parsedData);
+      } catch (error) {
+        console.error("Failed to parse collection data:", error);
+      }
     }
   }, [searchParams]);
-  useEffect(() => {
-    console.log("Sidebar active state:", active);
-  }, [active]);
 
   const handleSortClick = () => {
     setActive(!active);
   };
-
-  if (isLoading) {
-    return <CollectionDetailSkeleton />;
-  }
 
   const links = [
     {
@@ -79,13 +83,19 @@ const CollectionDetailPage = () => {
   ];
   const formatPrice = (price: number) => {
     const btcAmount = price;
-    return btcAmount?.toLocaleString('en-US', {
-      minimumFractionDigits:0,
-      maximumFractionDigits: 8
+    return btcAmount?.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 8,
     });
   };
 
-  
+  const isLoading = isParamsLoading || (!!id && isQueryLoading);
+
+  if(isLoading){
+    return (
+      <CollectionDetailSkeleton />
+    );
+  }
 
   return (
     <>
@@ -181,8 +191,8 @@ const CollectionDetailPage = () => {
                   </div>
                   <div className="border-l border-l-neutral300 pl-7">
                     <h2 className="font-medium text-lg2 text-neutral100">
-                      Total volume  
-                     </h2>
+                      Total volume
+                    </h2>
                     <div className="flex mt-2">
                       <Image
                         width={24}
@@ -192,8 +202,12 @@ const CollectionDetailPage = () => {
                         className="aspect-square"
                       />
                       <p className="ml-2 font-bold text-xl text-neutral50">
-                        <span>{collectionData?.volume  ? formatPrice(collectionData?.volume)
-                            : "0"}</span> cBTC
+                        <span>
+                          {collectionData?.volume
+                            ? formatPrice(collectionData?.volume)
+                            : "0"}
+                        </span>{" "}
+                        cBTC
                       </p>
                     </div>
                   </div>
