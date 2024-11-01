@@ -113,13 +113,13 @@ export async function getLayerById(id: string) {
 
 export async function getListedCollections(
   layerId: string,
-  // interval: string,
-  // orderBy: string,
-  // orderDirection: string,
+  interval: string,
+  orderBy: string,
+  orderDirection: string,
 ) {
   return axiosClient
     .get(
-      `/api/v1/collections/listed?layerId=${layerId}&interval=all&orderBy=volume&orderDirection=highest`,
+      `/api/v1/collections/listed?layerId=${layerId}&interval=${interval}&orderBy=${orderBy}&orderDirection=${orderDirection}`,
     )
     .then((response) => {
       if (response.data.success) {

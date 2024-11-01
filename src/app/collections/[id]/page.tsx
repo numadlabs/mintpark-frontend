@@ -382,7 +382,7 @@ const CollectionDetailPage = () => {
                 <div className="flex flex-col w-full pt-4 gap-4">
                   {collection?.collectibles?.map((item: any) => (
                     <div key={item.id}>
-                      <ColDetailCards data={item} />
+                      <ColDetailCards data={item} totalOwnerCount={collection?.totalOwnerCount}/>
                     </div>
                   ))}
                 </div>
