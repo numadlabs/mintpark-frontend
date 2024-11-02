@@ -200,6 +200,9 @@ export type CollectionDataType = {
   collectionId: string;
   listId: string;
   totalOwnerCount: number;
+  websiteUrl: string;
+  twitterUrl: string;
+  discordUrl: string;
 };
 
 

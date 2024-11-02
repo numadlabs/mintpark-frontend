@@ -22,7 +22,6 @@ import { getListedCollectionById } from "@/lib/service/queryHelper";
 import { s3ImageUrlBuilder } from "@/lib/utils";
 import { CollectionDataType } from "@/lib/types";
 import CollectionSideBar from "@/components/section/collections/sideBar";
-import { Button } from "@/components/ui/button";
 import CollectionDetailSkeleton from "@/components/atom/skeleton/collection-detail-skeleton";
 
 const CollectionDetailPage = () => {
@@ -45,8 +44,9 @@ const CollectionDetailPage = () => {
     queryKey: ["collectionData", id],
     queryFn: () => getListedCollectionById(id as string),
     enabled: !!id,
-    retry: 1
+    retry: 1,
   });
+  // console.log("asdsad",collectionData)
 
   useEffect(() => {
     const data = searchParams.get("data");
@@ -66,21 +66,35 @@ const CollectionDetailPage = () => {
 
   const links = [
     {
-      url: "/collections",
+      url: collectionData?.websiteUrl,
       isIcon: true,
       icon: <Global size={34} className={`hover:text-brand text-neutral00`} />,
     },
     {
-      url: "/collections",
-      isIcon: true,
-      icon: <DiscordIcon size={34} className={`iconHover`} />,
+      url: collectionData?.discordUrl,
+      isIcon: false,
+      icon: (
+        <DiscordIcon size={34} className={`hover:text-brand text-neutral00`} />
+      ),
     },
     {
-      url: "/collections",
+      url: collectionData?.twitterUrl,
       isIcon: false,
-      icon: <ThreadIcon size={34} className={`iconHover`} />,
+      icon: (
+        <ThreadIcon size={34} className={`hover:text-brand text-neutral00`} />
+      ),
     },
-  ];
+  ].filter(
+    (link) => link.url !== null && link.url !== undefined && link.url !== "",
+  );
+
+  const handleSocialClick = (url: string | undefined) => {
+    if (!url) return;
+    const validUrl = url.startsWith("http") ? url : `https://${url}`;
+    window.open(validUrl, "_blank", "noopener,noreferrer");
+    // window.location.href = validUrl;
+  };
+
   const formatPrice = (price: number) => {
     const btcAmount = price;
     return btcAmount?.toLocaleString("en-US", {
@@ -91,10 +105,8 @@ const CollectionDetailPage = () => {
 
   const isLoading = isParamsLoading || (!!id && isQueryLoading);
 
-  if(isLoading){
-    return (
-      <CollectionDetailSkeleton />
-    );
+  if (isLoading) {
+    return <CollectionDetailSkeleton />;
   }
 
   return (
@@ -149,21 +161,19 @@ const CollectionDetailPage = () => {
                       by {collectionData?.creator}
                     </h2>
                   </div>
-                  <div className="flex gap-6 pt-8">
-                    {links.map((link, i) => (
-                      <Button
-                        key={i}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          // console.log("Button clicked");
-                        }}
-                        className="h-10 w-10 border border-transparent bg-transparent"
-                      >
-                        {link.icon}
-                      </Button>
-                    ))}
-                  </div>
+                  {links.length > 0 && (
+                    <div className="flex gap-6 pt-8">
+                      {links.map((link, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleSocialClick(link.url)}
+                          className="h-10 w-10 border border-transparent bg-transparent"
+                        >
+                          {link.icon}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="flex justify-around relative right-14 top-9">
                   <div className="pl-1">
@@ -249,12 +259,13 @@ const CollectionDetailPage = () => {
             alt="burger"
             width={20}
             height={20}
-            className={`w-12 h-12 rounded-xl p-3 ${
+            className={`w-12 h-12 cursor-not-allowed rounded-xl p-3 ${
               active
                 ? "bg-neutral500 hover:bg-neutral400 border-transparent"
                 : "bg-neutral600 border border-neutral500 hover:border-neutral400"
             }`}
-            onClick={handleSortClick}
+            // onClick={handleSortClick}
+            
           />
           <div className="flex">
             <Image
@@ -382,7 +393,10 @@ const CollectionDetailPage = () => {
                 <div className="flex flex-col w-full pt-4 gap-4">
                   {collection?.collectibles?.map((item: any) => (
                     <div key={item.id}>
-                      <ColDetailCards data={item} totalOwnerCount={collection?.totalOwnerCount}/>
+                      <ColDetailCards
+                        data={item}
+                        totalOwnerCount={collection?.totalOwnerCount}
+                      />
                     </div>
                   ))}
                 </div>
