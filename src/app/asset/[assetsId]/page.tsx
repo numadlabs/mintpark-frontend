@@ -114,9 +114,9 @@ export default function AssetsDetails() {
       {isCollectionLoading || isActivityLoading ? (
         <AssetDetailSkeleton />
       ) : (
-        <div className="flex flex-col gap-32 w-full">
+        <div className="flex  flex-col gap-32 w-full">
           <div className="flex justify-between pt-16 relative z-50">
-            <div>
+            <div className="relative z-10 w-[580px] h-[580px] blur-[90px] opacity-35 scale-120">
               <Image
                 width={560}
                 height={560}
@@ -129,6 +129,17 @@ export default function AssetsDetails() {
                 alt={`${collectionData?.[0]?.name} logo`}
               />
             </div>
+            <Image
+              width={560}
+              height={560}
+              src={
+                collectionData[0]?.fileKey
+                  ? s3ImageUrlBuilder(collectionData[0]?.fileKey)
+                  : ordinalsImageCDN(collectionData[0]?.uniqueIdx)
+              }
+              className="aspect-square rounded-xl absolute z-50"
+              alt={`${collectionData[0]?.name} logo`}
+            />
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-2">
                 <p className="font-medium text-xl text-brand">
@@ -286,4 +297,3 @@ export default function AssetsDetails() {
     </Layout>
   );
 }
-

@@ -83,7 +83,8 @@ export default function AssetDetail() {
         <div className="flex flex-col w-full gap-32">
           <div className="flex justify-between pt-16 relative z-50">
             <div
-            className="relative z-10 w-[580px] h-[580px] blur-[130px] opacity-60 scale-120"
+              className="relative z-10 w-[580px] h-[580px] blur-[90px] opacity-35 scale-120"
+
               // style={{
               //   backgroundImage: `url(${s3ImageUrlBuilder(
               //     collectionData?.[0]?.fileKey
@@ -109,17 +110,16 @@ export default function AssetDetail() {
               />
             </div>
             <Image
-                width={560}
-                height={560}
-                src={
-                  collectionData[0]?.fileKey
-                    ? s3ImageUrlBuilder(collectionData[0]?.fileKey)
-                    : ordinalsImageCDN(collectionData[0]?.uniqueIdx)
-                }
-                className="aspect-square rounded-xl absolute z-50"
-                alt={`${collectionData[0]?.name} logo`}
-                
-              />
+              width={560}
+              height={560}
+              src={
+                collectionData[0]?.fileKey
+                  ? s3ImageUrlBuilder(collectionData[0]?.fileKey)
+                  : ordinalsImageCDN(collectionData[0]?.uniqueIdx)
+              }
+              className="aspect-square rounded-xl absolute z-50"
+              alt={`${collectionData[0]?.name} logo`}
+            />
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-2">
                 <p className="font-medium text-xl text-brand">
