@@ -75,6 +75,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const [walletAddress, setWalletAddress] = useState<string>("");
   const [loginParams, setLoginParams] = useState<LoginParams | null>(null);
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
+
+console.log("layer id",selectedLayerId)
   const { setConnectedAddress, setConnected } = useWalletStore();
 
   const [authState, setAuthState] = useState<AuthProps["authState"]>({
@@ -411,6 +413,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       const storedAuth = localStorage.getItem("authToken");
       const userProfile = localStorage.getItem("userProfile");
       const storedLayerId = localStorage.getItem("layerId");
+      // console.log("storedLayerId",storedLayerId)
+      // console.log("here is debug",storedLayerId ||selectedLayerId || null)
 
       if (storedAuth && userProfile) {
         const authData = JSON.parse(storedAuth);
@@ -451,10 +455,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         setConnectedAddress(profileData.address);
         setConnected(true);
       } else {
+        
         setAuthState((prev) => ({
           ...prev,
           loading: false,
-          layerId: storedLayerId || null,
+          layerId: storedLayerId ||selectedLayerId || null,
         }));
         if (storedLayerId) {
           setSelectedLayerId(storedLayerId);
@@ -470,7 +475,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     setupMetaMaskListeners();
     setupUnisatListeners();
     connectWalletOnLoad();
-  }, []);
+  }, [selectedLayerId]);
 
   useEffect(() => {
     if (loginParams) {
