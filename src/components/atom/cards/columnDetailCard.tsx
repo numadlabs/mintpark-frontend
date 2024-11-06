@@ -70,7 +70,7 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data, totalOwnerCount }
           </p>
         </div>
         <div className="flex justify-end items-center w-full text-start">
-          <div className="w-full max-w-[200px] grid gap-1 h-[18px]">
+          <div className="w-full max-w-[200px] grid gap-1">
             <p className="font-medium text-lg2 text-neutral50">
               {formatPrice(data.price)}
               <span className="ml-1">cBTC</span>
