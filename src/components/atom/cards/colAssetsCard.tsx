@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
 import { Collectible } from "@/lib/types";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 const TruncatedAddress = ({ address }: { address: string | null }) => {
   if (!address) return <span>-</span>;
@@ -25,6 +26,7 @@ interface cardProps {
 }
 
 const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
+  const { citreaPrice } = useAuth();
   const daysAgo = getDaysAgo(data.createdAt);
   const formatPrice = (price: number) => {
     const btcAmount = price;
@@ -65,7 +67,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
               {" "}
               <p className="font-medium text-sm text-neutral200">
                 <span className="mr-1">$</span>
-                {formatPrice(data.floor * 65000)}
+                {formatPrice(data.floor * citreaPrice)}
                 <span className="">k</span>
               </p>
             </p>

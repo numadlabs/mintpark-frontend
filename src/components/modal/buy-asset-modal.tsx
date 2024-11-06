@@ -53,7 +53,6 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   const { mutateAsync: generateBuyHexMutation } = useMutation({
     mutationFn: generateBuyHex,
   });
-  console.log("paramsss", params);
   const { mutateAsync: buyListedCollectibleMutation } = useMutation({
     mutationFn: buyListedCollectible,
     onSuccess: () => {
@@ -102,7 +101,6 @@ const BuyAssetModal: React.FC<ModalProps> = ({
         let txid;
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(pendingRes.data.txHex);
-        console.log("first", signedTx?.hash);
         await signedTx?.wait();
 
         if (signedTx?.hash) {
