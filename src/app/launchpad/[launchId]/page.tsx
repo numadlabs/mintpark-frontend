@@ -12,6 +12,8 @@ import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
+  getCollectionById,
+  getCollectionsById,
   getFeeRates,
   getLaunchByCollectionId,
   getLayerById,
@@ -24,6 +26,9 @@ import { createOrderToMint } from "@/lib/service/postRequest";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LaunchDetailSkeleton from "@/components/atom/skeleton/launch-detail-skeleton";
+import { Global } from "iconsax-react";
+import DiscordIcon from "@/components/icon/hoverIcon";
+import ThreadIcon from "@/components/icon/thread";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -41,7 +46,9 @@ const Page = () => {
   const { mutateAsync: confirmOrderMutation } = useMutation({
     mutationFn: confirmOrder,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collectiblesByCollections", id] });
+      queryClient.invalidateQueries({
+        queryKey: ["collectiblesByCollections", id],
+      });
       queryClient.invalidateQueries({ queryKey: ["launchData", id] });
     },
   });
@@ -52,6 +59,12 @@ const Page = () => {
       queryFn: () => getLaunchByCollectionId(id as string),
       enabled: !!id,
     });
+
+  const { data: collectionsData, isLoading: isCollectionLoading } = useQuery({
+    queryKey: ["collectionsData", id],
+    queryFn: () => getCollectionsById(id),
+    enabled: !!id,
+  });
 
   const { data: feeRates = [], isLoading: isFeeRatesLoading } = useQuery({
     queryKey: ["feeRateData"],
@@ -77,7 +90,7 @@ const Page = () => {
     try {
       let txid;
       let launchItemId;
-      let orderRes
+      let orderRes;
       const response = await createOrderToMintMutation({
         collectionId: id,
         feeRate: feeRates.fastestFee,
@@ -107,7 +120,7 @@ const Page = () => {
             txid: txid,
             launchItemId: launchItemId,
           });
-          if(orderRes && orderRes.success){
+          if (orderRes && orderRes.success) {
             toast.success("Success minted.");
             router.push("/launchpad");
           } else {
@@ -158,9 +171,45 @@ const Page = () => {
     router.push("/collections");
   };
 
-  if (isCollectiblesLoading || isFeeRatesLoading || isLayerLoading) {
+  if (
+    isCollectiblesLoading ||
+    isFeeRatesLoading ||
+    isLayerLoading ||
+    isCollectionLoading
+  ) {
     return <LaunchDetailSkeleton />;
   }
+
+  const links = [
+    {
+      url: collectionsData?.websiteUrl,
+      isIcon: true,
+      icon: <Global size={34} className={`hover:text-brand text-neutral00`} />,
+    },
+    {
+      url: collectionsData?.discordUrl,
+      isIcon: false,
+      icon: (
+        <DiscordIcon size={34} className={`hover:text-brand text-neutral00`} />
+      ),
+    },
+    {
+      url: collectionsData?.twitterUrl,
+      isIcon: false,
+      icon: (
+        <ThreadIcon size={34} className={`hover:text-brand text-neutral00`} />
+      ),
+    },
+  ].filter(
+    (link) => link.url !== null && link.url !== undefined && link.url !== "",
+  );
+
+  const handleSocialClick = (url: string | undefined) => {
+    if (!url) return;
+    const validUrl = url.startsWith("http") ? url : `https://${url}`;
+    window.open(validUrl, "_blank", "noopener,noreferrer");
+    // window.location.href = validUrl;
+  };
 
   return (
     <>
@@ -178,7 +227,7 @@ const Page = () => {
           <Header />
           {isCollectiblesLoading || isFeeRatesLoading || isLayerLoading ? (
             <div className="mt-24 w-full h-screen">
-            <LaunchDetailSkeleton />
+              <LaunchDetailSkeleton />
             </div>
           ) : (
             <section className="grid grid-cols-3 gap-8 h-[464px] mt-24">
@@ -193,7 +242,20 @@ const Page = () => {
                   {collectibles?.description}
                 </p>
                 <div className="flex gap-6">
-                  <span>
+                  {links.length > 0 && (
+                    <div className="flex gap-6">
+                      {links.map((link, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleSocialClick(link.url)}
+                          className="h-10 w-10 border border-transparent bg-transparent"
+                        >
+                          {link.icon}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {/* <span>
                     <Image
                       width={32}
                       height={32}
@@ -219,7 +281,7 @@ const Page = () => {
                       className="aspect-square rounded-3xl"
                       alt="png"
                     />
-                  </span>
+                  </span> */}
                 </div>
               </div>
               <div className="flex flex-col justify-between">
@@ -250,8 +312,9 @@ const Page = () => {
                   <h2>
                     <span className="text-neutral50">
                       {collectibles?.mintedAmount}
-                    </span> /
-                    <span className="text-brand"> </span> {collectibles?.supply}
+                    </span>{" "}
+                    /<span className="text-brand"> </span>{" "}
+                    {collectibles?.supply}
                   </h2>
                 </div>
               </div>

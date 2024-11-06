@@ -152,6 +152,7 @@ export async function getCollectionById(id: string) {
   });
 }
 
+
 export async function getCollectibleById(id: string) {
   return axiosClient
     .get(`/api/v1/collectibles/${id}/collection/listable`)
@@ -162,6 +163,16 @@ export async function getCollectibleById(id: string) {
         throw new Error(response.data.error);
       }
     });
+};
+
+export async function getCollectionsById(id: string) {
+  return axiosClient.get(`/api/v1/collections/${id}`).then((response) => {
+    if (response.data.success) {
+      return response.data.data;
+    } else {
+      throw new Error(response.data.error);
+    }
+  });
 }
 
 export async function getListableById(id: string, orderDirection: string, orderBy: string) {
