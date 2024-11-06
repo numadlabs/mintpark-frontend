@@ -3,6 +3,7 @@ import Image from "next/image";
 import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
 import { Collectible } from "@/lib/types";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 const TruncatedAddress = ({ address }: { address: string | null }) => {
   if (!address) return <span>-</span>;
@@ -25,12 +26,13 @@ interface cardProps {
 }
 
 const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
+  const { citreaPrice } = useAuth();
   const daysAgo = getDaysAgo(data.createdAt);
   const formatPrice = (price: number) => {
     const btcAmount = price;
-    return btcAmount.toLocaleString('en-US', {
-      minimumFractionDigits:0,
-      maximumFractionDigits: 6
+    return btcAmount.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 6,
     });
   };
   return (
@@ -65,17 +67,17 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
               {" "}
               <p className="font-medium text-sm text-neutral200">
                 <span className="mr-1">$</span>
-                {formatPrice((data.floor) * 65000)}
+                {formatPrice(data.floor * citreaPrice)}
                 <span className="">k</span>
               </p>
             </p>
           </div>
           <div className="w-full max-w-[220px] h-[18px]">
             <p
-              className={`font-medium text-lg2 ${(data.floor ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}
+              className={`font-medium text-lg2 ${(data.floor ?? 0) >= 0 ? "text-success" : "text-errorMsg"}`}
             >
               {(data.floor ?? 0) >= 0 ? "+" : ""}
-              {formatPrice(data.floor) ?? 0}% 
+              {formatPrice(data.floor) ?? 0}%
             </p>
           </div>
           <div className="w-full max-w-[160px] h-[18px]">

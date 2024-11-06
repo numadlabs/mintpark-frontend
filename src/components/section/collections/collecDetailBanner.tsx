@@ -1,25 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { CardType } from "@/components/atom/cards/collectionCard";
 import DiscordIcon from "@/components/icon/hoverIcon";
 import ThreadIcon from "@/components/icon/thread";
 import { Tabs } from "@/components/ui/tabs";
-import { collection } from "@/lib/constants";
 import { Global, Notepad, Profile2User } from "iconsax-react";
 // import CollecBanner from "./collecBanner";
 import { CollectionDataType } from "@/lib/types";
-import { getCollectionById } from "@/lib/service/queryHelper";
-import { useQuery } from "@tanstack/react-query";
 
 const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
-  const { data: collection = [] } = useQuery({
-    queryKey: ["collectionData"],
-    queryFn: () => getCollectionById(data.id),
-    enabled:!!data.id,
-  });
-
-  console.log(collection)
   
   const links = [
     {

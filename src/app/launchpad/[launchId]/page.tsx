@@ -12,8 +12,6 @@ import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
-  getCollectionById,
-  getCollectionsById,
   getFeeRates,
   getLaunchByCollectionId,
   getLayerById,
@@ -59,12 +57,6 @@ const Page = () => {
       queryFn: () => getLaunchByCollectionId(id as string),
       enabled: !!id,
     });
-
-  const { data: collectionsData, isLoading: isCollectionLoading } = useQuery({
-    queryKey: ["collectionsData", id],
-    queryFn: () => getCollectionsById(id),
-    enabled: !!id,
-  });
 
   const { data: feeRates = [], isLoading: isFeeRatesLoading } = useQuery({
     queryKey: ["feeRateData"],
@@ -171,30 +163,25 @@ const Page = () => {
     router.push("/collections");
   };
 
-  if (
-    isCollectiblesLoading ||
-    isFeeRatesLoading ||
-    isLayerLoading ||
-    isCollectionLoading
-  ) {
+  if (isCollectiblesLoading || isFeeRatesLoading || isLayerLoading) {
     return <LaunchDetailSkeleton />;
   }
 
   const links = [
     {
-      url: collectionsData?.websiteUrl,
+      url: "collectionsData?.websiteUrl",
       isIcon: true,
       icon: <Global size={34} className={`hover:text-brand text-neutral00`} />,
     },
     {
-      url: collectionsData?.discordUrl,
+      url: "collectionsData?.discordUrl",
       isIcon: false,
       icon: (
         <DiscordIcon size={34} className={`hover:text-brand text-neutral00`} />
       ),
     },
     {
-      url: collectionsData?.twitterUrl,
+      url: "collectionsData?.twitterUrl",
       isIcon: false,
       icon: (
         <ThreadIcon size={34} className={`hover:text-brand text-neutral00`} />
@@ -346,7 +333,8 @@ const Page = () => {
                 </ScrollArea>
                 {unixToISOString(collectibles.poStartsAt) > now ? (
                   ""
-                ) : unixToISOString(collectibles.poEndsAt) < now ? (
+                ) : unixToISOString(collectibles.poEndsAt) < now &&
+                  unixToISOString(collectibles.poEndsAt) > "0" ? (
                   <Button disabled={isLoading} onClick={handlCollectionClick}>
                     {" "}
                     {isLoading ? (

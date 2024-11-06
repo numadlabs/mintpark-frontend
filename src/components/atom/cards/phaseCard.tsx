@@ -28,7 +28,7 @@ const PhaseCard: React.FC<PhaseCardItemProps> = ({
   useEffect(() => {
     const updateTime = () => {
       // If endsAt is undefined, set status to Indefinite
-      if (endsAt === undefined) {
+      if (!endsAt) {
         setStatus("Indefinite");
         setTimeDisplay("");
         return;

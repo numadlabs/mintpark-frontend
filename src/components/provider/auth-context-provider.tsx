@@ -39,6 +39,7 @@ interface AuthProps {
 interface AuthContextType extends AuthProps {
   isConnecting: boolean;
   walletAddress: string;
+  citreaPrice: number;
 }
 
 const CITREA_CHAIN_CONFIG = {
@@ -47,6 +48,9 @@ const CITREA_CHAIN_CONFIG = {
   rpcUrls: ["https://rpc.testnet.citrea.xyz"],
   blockExplorerUrls: ["https://explorer.testnet.citrea.xyz"],
 };
+
+const PRICE_UPDATE_INTERVAL = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+const CITREA_PRICE_KEY = "CITREA_PRICE";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -75,8 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
   const [walletAddress, setWalletAddress] = useState<string>("");
   const [loginParams, setLoginParams] = useState<LoginParams | null>(null);
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
-
-console.log("layer id",selectedLayerId)
+  const [citreaPrice, setCitreaPrice] = useState<number>(0);
   const { setConnectedAddress, setConnected } = useWalletStore();
 
   const [authState, setAuthState] = useState<AuthProps["authState"]>({
@@ -94,6 +97,26 @@ console.log("layer id",selectedLayerId)
     queryFn: () => getLayerById(selectedLayerId as string),
     enabled: !!selectedLayerId,
   });
+
+  const storePriceData = (price: number) => {
+    localStorage.setItem(CITREA_PRICE_KEY, price.toString());
+    setCitreaPrice(price);
+  };
+
+  useEffect(() => {
+    if (currentLayer?.layer === "CITREA") {
+      if (currentLayer.price) {
+        storePriceData(currentLayer.price);
+      } else {
+        const storedPrice = localStorage.getItem(CITREA_PRICE_KEY);
+        if (storedPrice) {
+          setCitreaPrice(parseFloat(storedPrice));
+        }
+      }
+    } else {
+      setCitreaPrice(0);
+    }
+  }, [currentLayer]);
 
   const generateMessageMutation = useMutation({
     mutationFn: generateMessageHandler,
@@ -455,11 +478,10 @@ console.log("layer id",selectedLayerId)
         setConnectedAddress(profileData.address);
         setConnected(true);
       } else {
-        
         setAuthState((prev) => ({
           ...prev,
           loading: false,
-          layerId: storedLayerId ||selectedLayerId || null,
+          layerId: storedLayerId || selectedLayerId || null,
         }));
         if (storedLayerId) {
           setSelectedLayerId(storedLayerId);
@@ -494,6 +516,7 @@ console.log("layer id",selectedLayerId)
         walletAddress,
         selectedLayerId,
         setSelectedLayerId,
+        citreaPrice,
       }}
     >
       {children}
