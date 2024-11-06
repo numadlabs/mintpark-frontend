@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
+import Banner from "@/components/section/banner";
 
 const Launchpad = () => {
   const { authState } = useAuth();
@@ -44,16 +45,16 @@ const Launchpad = () => {
   return (
     <Layout>
       <Header />
-      <Carousel
+      {/* <Carousel
         plugins={[plugin.current]}
         className="w-full"
         onMouseEnter={plugin.current.stop}
         onMouseLeave={plugin.current.reset}
       >
-        <CarouselContent className="w-full h-[320px]">
-          {/* {Array.from({ length: 5 }).map((_, index) => (
+        <CarouselContent className="w-full h-[320px] pt-12">
+          {Array.from({ length: 5 }).map((_, index) => (
             <CarouselItem key={index}>
-              <div className="p-1 bg-neutral500 w-full h-full">
+              <div className="rounded-3xl bg-neutral500 w-full h-full">
                 <div>
                   <div className="flex aspect-square items-center justify-center p-6">
                     <span className="text-4xl font-semibold">{index + 1}</span>
@@ -61,9 +62,9 @@ const Launchpad = () => {
                 </div>
               </div>
             </CarouselItem>
-          ))} */}
+          ))}
           <CarouselItem>
-            <div className="w-full relative h-[320px] z-50 pt-11 flex justify-center">
+            <div className="w-full relative h-[320px] z-50 pt-12 flex justify-center">
               <Image
                 src={"/banner.png"}
                 alt=""
@@ -96,9 +97,10 @@ const Launchpad = () => {
             </div>
           </CarouselItem>
         </CarouselContent>
-      </Carousel>
+      </Carousel> */}
+      <LaunchpadBanner />
       <Tabs
-        className="text-neutral50 mt-20"
+        className="text-neutral50 mt-12"
         defaultValue="all"
         onValueChange={handleIntervalChange}
       >
