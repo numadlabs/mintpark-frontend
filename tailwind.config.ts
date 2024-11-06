@@ -26,7 +26,7 @@ module.exports = {
       "2xl": ["24px", "36px"],
       "3xl": ["32px", "40px"],
       "4xl": ["40px", "54px"],
-      "5xl": ["56px", "58px"],
+      "5xl": ["40px", "48px"],
       "6xl": ["64px", "64px"],
       btnSmall: ["13px", "16px"],
       btnMedium: ["15px", "24px"],
@@ -34,12 +34,14 @@ module.exports = {
       logoMobile: ["20px", "28px"],
       cartDesktop: ["28px", "40px"],
       faq: ["24px", "36px"],
-      aboutUs: ["24px", "36px"],
+      aboutUs: ["24px", "32px"],
       faqExtended: ["20px", "28px"],
       featured: ["32px", "44px"],
       blueTitle: ["56px", "68px"],
       smallTitles: ["16px", "22px"],
       profileTitle: ["28px", "36px"],
+      headText:["88px", "88px"],
+      // memeBtn:["17px","24px"]
     },
     extend: {
       backdropBlur: {
@@ -50,6 +52,11 @@ module.exports = {
       backgroundImage: {
         backgroundImg: "url('/background.png')",
         slideImg: "url('/slide.png')",
+        serviceBg1:"url('/homePage/serviceBg1.png')",
+        serviceBg2:"url('/homePage/serviceBg2.png')",
+        serviceBg3:"url('/homePage/serviceBg3.png')",
+        contactBg:"url('/homePage/contactBg.png')",
+
         "secondary-less": "var(--Black-less-opacity, rgba(33, 37, 41, 0.70))",
       },
       fontFamily: {
