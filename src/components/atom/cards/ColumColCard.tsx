@@ -43,7 +43,7 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
             </p>
 
             <span className="font-medium text-md text-start text-neutral200">
-              ${formatPrice(data.floor * citreaPrice)}
+              ${formatPrice(data.floor * citreaPrice)}k
             </span>
           </div>
           <div className="text-right grid gap-1">

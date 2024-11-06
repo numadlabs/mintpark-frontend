@@ -45,60 +45,7 @@ const Launchpad = () => {
   return (
     <Layout>
       <Header />
-      {/* <Carousel
-        plugins={[plugin.current]}
-        className="w-full"
-        onMouseEnter={plugin.current.stop}
-        onMouseLeave={plugin.current.reset}
-      >
-        <CarouselContent className="w-full h-[320px] pt-12">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <CarouselItem key={index}>
-              <div className="rounded-3xl bg-neutral500 w-full h-full">
-                <div>
-                  <div className="flex aspect-square items-center justify-center p-6">
-                    <span className="text-4xl font-semibold">{index + 1}</span>
-                  </div>
-                </div>
-              </div>
-            </CarouselItem>
-          ))}
-          <CarouselItem>
-            <div className="w-full relative h-[320px] z-50 pt-12 flex justify-center">
-              <Image
-                src={"/banner.png"}
-                alt=""
-                width={1216}
-                height={320}
-                sizes="100%"
-                className="w-full h-full rounded-3xl"
-              />
-              <div className="absolute top-[152px] flex flex-col gap-6 items-center">
-                <div className="flex flex-row items-center gap-4">
-                  <p className="text-3xl text-neutral00 font-bold">
-                    We are live on
-                  </p>
-                  <Image
-                    src={"/wallets/Citrea.png"}
-                    alt="citrea"
-                    width={40}
-                    height={40}
-                    className="rounded-xl"
-                  />
-                  <p className="text-3xl text-neutral00 font-bold">
-                    Citrea testnet!
-                  </p>
-                </div>
-                <p className="text-lg text-neutral50">
-                  Mint Park is live on Citrea testnet! Start minting and trading
-                  NFTs.
-                </p>
-              </div>
-            </div>
-          </CarouselItem>
-        </CarouselContent>
-      </Carousel> */}
-      <LaunchpadBanner />
+      <LaunchpadBanner data={launch?.[0]} />
       <Tabs
         className="text-neutral50 mt-12"
         defaultValue="all"

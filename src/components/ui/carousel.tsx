@@ -216,6 +216,37 @@ const CarouselItem = React.forwardRef<
 });
 CarouselItem.displayName = "CarouselItem";
 
+const CarouselNext = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<typeof Button>
+>(({ className, variant = "outline", size = "icon", ...props }, ref) => {
+  const { orientation, scrollNext, canScrollNext } = useCarousel();
+
+  return (
+    <Button
+      ref={ref}
+      variant={variant}
+      size={size}
+      className={cn(
+        "absolute border-0 rounded-full transition-all duration-200",
+        orientation === "horizontal"
+          ? "-bottom-9 left-1/2 translate-x-[calc(50%+8px)]"
+          : "top-12 left-1/2 -translate-x-1/2 rotate-90",
+        canScrollNext
+          ? "h-2 w-4 bg-brand hover:bg-brand/90"
+          : "h-2 w-2 bg-neutral400",
+        className,
+      )}
+      disabled={!canScrollNext}
+      onClick={scrollNext}
+      {...props}
+    >
+      <span className="sr-only">Next slide</span>
+    </Button>
+  );
+});
+CarouselNext.displayName = "CarouselNext";
+
 const CarouselPrevious = React.forwardRef<
   HTMLButtonElement,
   React.ComponentProps<typeof Button>
@@ -247,36 +278,7 @@ const CarouselPrevious = React.forwardRef<
 });
 CarouselPrevious.displayName = "CarouselPrevious";
 
-const CarouselNext = React.forwardRef<
-  HTMLButtonElement,
-  React.ComponentProps<typeof Button>
->(({ className, variant = "outline", size = "icon", ...props }, ref) => {
-  const { orientation, scrollNext, canScrollNext } = useCarousel();
 
-  return (
-    <Button
-      ref={ref}
-      variant={variant}
-      size={size}
-      className={cn(
-        "absolute border-0 rounded-full transition-all duration-200",
-        orientation === "horizontal"
-          ? "-bottom-9 left-1/2 translate-x-[calc(50%+8px)]"
-          : "top-12 left-1/2 -translate-x-1/2 rotate-90",
-        canScrollNext
-          ? "h-2 w-4 bg-brand hover:bg-brand/90"
-          : "h-2 w-2 bg-neutral400",
-        className,
-      )}
-      disabled={!canScrollNext}
-      onClick={scrollNext}
-      {...props}
-    >
-      <span className="sr-only">Next slide</span>
-    </Button>
-  );
-});
-CarouselNext.displayName = "CarouselNext";
 
 export {
   type CarouselApi,
