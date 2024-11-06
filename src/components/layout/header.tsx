@@ -66,6 +66,8 @@ export default function Header() {
     enabled: !!id,
   });
 
+  console.log("first", layers)
+
   useEffect(() => {
     // Set CITREA as default if there's no currentLayer
     if (!currentLayer) {
