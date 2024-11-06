@@ -2,8 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
-import { CollectionDataType } from "@/lib/types";
-import router from "next/router";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 // Define the type for the component props
 interface ColDetailCardsProps {
@@ -39,6 +38,7 @@ const getDaysAgo = (createdAt: string) => {
 };
 
 const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data, totalOwnerCount }) => {
+  const {citreaPrice} = useAuth()
   const daysAgo = getDaysAgo(data.createdAt);
   const formatPrice = (price: number) => {
     const btcAmount = price;
@@ -79,7 +79,7 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data, totalOwnerCount }
               {" "}
               <p className="font-medium text-sm text-neutral200">
                 <span className="mr-1">$</span>
-                {formatPrice((data.price) * 65000)}
+                {formatPrice((data.price) * citreaPrice)}
                 <span className="">k</span>
               </p>
             </p>

@@ -1,19 +1,20 @@
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { CollectionDataType } from "@/lib/types";
 import { s3ImageUrlBuilder } from "@/lib/utils";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 interface CardProps {
   data: CollectionDataType;
   handleNav: () => void;
 }
 const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
+  const { citreaPrice } = useAuth();
   const formatPrice = (price: number) => {
     const btcAmount = price;
-    return btcAmount.toLocaleString('en-US', {
-      minimumFractionDigits:0,
-      maximumFractionDigits: 6
+    return btcAmount.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 6,
     });
   };
   return (
@@ -42,7 +43,7 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
             </p>
 
             <span className="font-medium text-md text-start text-neutral200">
-              ${formatPrice((data.floor) * 65000)}
+              ${formatPrice(data.floor * citreaPrice)}
             </span>
           </div>
           <div className="text-right grid gap-1">
@@ -51,17 +52,16 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
               <span className="ml-1">cBTC</span>
             </p>
             <span className="font-medium text-start text-md text-neutral200">
-              ${formatPrice((data.volume) * 65000)}k
+              ${formatPrice(data.volume * citreaPrice)}k
             </span>
           </div>
           <div className="text-right grid gap-1">
             <p className="font-medium text-lg2 text-neutral50">
-            ${(formatPrice(data.marketCap))}
-
+              ${formatPrice(data.marketCap)}
               <span className="ml-1">cBTC</span>
             </p>
             <span className="font-medium text-md text-start text-neutral200">
-              ${formatPrice((data.marketCap) * 65000)}k
+              ${formatPrice(data.marketCap * citreaPrice)}k
             </span>
           </div>
         </div>
