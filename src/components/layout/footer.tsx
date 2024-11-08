@@ -31,7 +31,7 @@ export default function Footer() {
   };
 
   return (
-    <div className="h-314px pt-16 pr-48 pl-28 pb-16 mt-40 flex justify-between bg-background relative border-t border-t-neutral500">
+    <div className="h-[314px] w-full pt-16 pr-80 pl-80 pb-16 mt-40 flex justify-between bg-background relative border-t border-t-neutral500">
       <div className="flex flex-col justify-between h-[186px]">
         <div className="cursor-pointer" onClick={handleLogoClick}>
           <TextLogo />
