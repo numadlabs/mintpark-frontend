@@ -25,11 +25,29 @@ interface FormData {
   message: string;
 }
 
+// Email sending function
+const sendEmail = async (formData: FormData, formType: 'partner' | 'launch') => {
+  try {
+    const subject = formType === 'partner' ? 'New Partnership Request' : 'New Launch Request';
+    const mailtoLink = `mailto:bzao.hover@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
+      `Name: ${formData.name}
+Email: ${formData.email}
+Message: ${formData.message}`
+    )}`;
+
+    window.location.href = mailtoLink;
+    return true;
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return false;
+  }
+};
+
 export default function Home() {
   const { authState } = useAuth();
   const router = useRouter();
 
-  // Contact Form States with types
+  // Contact Form States
   const [partnerFormData, setPartnerFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -53,7 +71,11 @@ export default function Home() {
     router.push("/create");
   };
 
-  // Validation function with type
+  const handleCitreaBlog = () => {
+    router.push("https://www.blog.citrea.xyz/");
+  };
+
+  // Validation function
   const validateForm = (formData: FormData): boolean => {
     const { name, email, message } = formData;
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -74,7 +96,7 @@ export default function Home() {
     setIsLaunchFormValid(validateForm(launchFormData));
   }, [launchFormData]);
 
-  // Handle input changes with types
+  // Handle input changes
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     setFormData: React.Dispatch<React.SetStateAction<FormData>>,
@@ -86,18 +108,28 @@ export default function Home() {
     }));
   };
 
-  // Handle form submissions
-  const handlePartnerSubmit = () => {
+  // Updated form submission handlers
+  const handlePartnerSubmit = async () => {
     if (isPartnerFormValid) {
-      toast.success("Partner request sent successfully!");
-      setPartnerFormData({ name: "", email: "", message: "" });
+      const emailSent = await sendEmail(partnerFormData, 'partner');
+      if (emailSent) {
+        toast.success("Partner request sent successfully!");
+        setPartnerFormData({ name: "", email: "", message: "" });
+      } else {
+        toast.error("Failed to send request. Please try again.");
+      }
     }
   };
 
-  const handleLaunchSubmit = () => {
+  const handleLaunchSubmit = async () => {
     if (isLaunchFormValid) {
-      toast.success("Launch request sent successfully!");
-      setLaunchFormData({ name: "", email: "", message: "" });
+      const emailSent = await sendEmail(launchFormData, 'launch');
+      if (emailSent) {
+        toast.success("Launch request sent successfully!");
+        setLaunchFormData({ name: "", email: "", message: "" });
+      } else {
+        toast.error("Failed to send request. Please try again.");
+      }
     }
   };
 
@@ -146,6 +178,7 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Banner Images */}
           <div className="relative z-10 h-[360px] blur-[55px] opacity-35 scale-110 overflow-x-hidden">
             <Image
               src={"/homePage/homeBanner.png"}
@@ -466,7 +499,9 @@ export default function Home() {
                   shaping the future.
                 </p>
               </div>
-              <Button variant="secondary">Read about Citrea</Button>
+              <Button variant="secondary" onClick={handleCitreaBlog}>
+                Read about Citrea
+              </Button>
             </div>
           </div>
         </section>
