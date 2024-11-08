@@ -169,7 +169,7 @@ export default function Home() {
               Our service
             </h1>
             <div className="flex gap-8">
-              <div className="bg-[url('/homePage/serviceBg1.png')] bg-cover w-[384px] h-[384px] rounded-[32px] border border-white4 border-b-0">
+              <div className="bg-[url('/homePage/BgFirst.png')] bg-cover w-[384px] h-[384px] rounded-[32px] border border-white4 border-b-0">
                 <div>
                   <Image
                     src={"/homePage/service1.png"}
@@ -188,7 +188,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="bg-[url('/homePage/serviceBg2.png')] bg-cover w-[384px] h-[384px] rounded-[32px] border border-white4 border-b-0">
+              <div className="bg-[url('/homePage/BgSecond.png')] bg-cover w-[384px] h-[384px] rounded-[32px] border border-white4 border-b-0">
                 <div>
                   <Image
                     src={"/homePage/service2.png"}
@@ -206,7 +206,7 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="bg-[url('/homePage/serviceBg3.png')] bg-cover w-[384px] h-[384px] rounded-[32px] border border-white4 border-b-0">
+              <div className="bg-[url('/homePage/BgThird.png')] bg-cover w-[384px] h-[384px] rounded-[32px] border border-white4 border-b-0">
                 <div>
                   <Image
                     src={"/homePage/service3.png"}
