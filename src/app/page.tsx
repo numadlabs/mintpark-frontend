@@ -173,7 +173,7 @@ export default function Home() {
                 <div>
                   <Image
                     src={"/homePage/service1.png"}
-                    alt="search"
+                    alt="service1"
                     width={384}
                     height={228}
                   />
@@ -192,7 +192,7 @@ export default function Home() {
                 <div>
                   <Image
                     src={"/homePage/service2.png"}
-                    alt="search"
+                    alt="service2"
                     width={384}
                     height={228}
                   />
@@ -210,7 +210,7 @@ export default function Home() {
                 <div>
                   <Image
                     src={"/homePage/service3.png"}
-                    alt="search"
+                    alt="service3"
                     width={384}
                     height={228}
                   />
