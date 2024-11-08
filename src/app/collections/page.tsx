@@ -20,6 +20,7 @@ import { CollectionDataType } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import CollectionSkeleton from "@/components/atom/skeleton/collection-skeletion";
+import CollectionsBanner from "@/components/section/collectionsBanner";
 
 interface CollectionsProps {
   params: {};
@@ -94,6 +95,7 @@ export default function Collections({
 
   return (
     <>
+    <CollectionsBanner/>
       <Tabs
         value={selectedInterval}
         onValueChange={setSelectedInterval}
