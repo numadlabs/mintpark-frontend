@@ -52,9 +52,9 @@ module.exports = {
       backgroundImage: {
         backgroundImg: "url('/background.png')",
         slideImg: "url('/slide.png')",
-        BgFirst: "url('/homePage/BgFirst.png')",
-        BgSecond: "url('/homePage/BgSecond.png')",
-        BgThird: "url('/homePage/BgThird.png')",
+        serviceBg1: "url('/homePage/BgFirst.png')",
+        serviceBg2: "url('/homePage/BgSecond.png')",
+        serviceBg3: "url('/homePage/BgThird.png')",
         contactBg: "url('/homePage/contactBg.png')",
 
         "secondary-less": "var(--Black-less-opacity, rgba(33, 37, 41, 0.70))",
