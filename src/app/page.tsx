@@ -169,11 +169,11 @@ export default function Home() {
               Our service
             </h1>
             <div className="flex gap-8">
-              <div className="bg-[url('/homePage/serviceBg1.png')] bg-cover w-[384px] h-[384px] rounded-[32px] border border-white4 border-b-0">
+              <div className="bg-[url('https://d1orw8h9a3ark2.cloudfront.net/asset/Service-1.png')] bg-cover w-[384px] h-[384px] rounded-[32px] border border-white4 border-b-0">
                 <div>
                   <Image
                     src={"/homePage/service1.png"}
-                    alt="search"
+                    alt="service1"
                     width={384}
                     height={228}
                   />
@@ -188,11 +188,11 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="bg-[url('/homePage/serviceBg2.png')] bg-cover w-[384px] h-[384px] rounded-[32px] border border-white4 border-b-0">
+              <div className="bg-[url('https://d1orw8h9a3ark2.cloudfront.net/asset/Service-2.png')] bg-cover w-[384px] h-[384px] rounded-[32px] border border-white4 border-b-0">
                 <div>
                   <Image
                     src={"/homePage/service2.png"}
-                    alt="search"
+                    alt="service2"
                     width={384}
                     height={228}
                   />
@@ -206,11 +206,11 @@ export default function Home() {
                   </p>
                 </div>
               </div>
-              <div className="bg-[url('/homePage/serviceBg3.png')] bg-cover w-[384px] h-[384px] rounded-[32px] border border-white4 border-b-0">
+              <div className="bg-[url('https://d1orw8h9a3ark2.cloudfront.net/asset/Service-3.png')] bg-cover w-[384px] h-[384px] rounded-[32px] border border-white4 border-b-0">
                 <div>
                   <Image
                     src={"/homePage/service3.png"}
-                    alt="search"
+                    alt="service3"
                     width={384}
                     height={228}
                   />
@@ -401,9 +401,9 @@ export default function Home() {
                   </AccordionTrigger>
                   <AccordionContent className="text-neutral100 font-normal text-lg2">
                     A Bitcoin cross-chain marketplace enables seamless trading
-                    of digital assets across different Bitcoin Layer 2networks, unifying liquidity and access while reducing
-                    fragmentation that would occur if each network operated in
-                    isolation.
+                    of digital assets across different Bitcoin Layer 2networks,
+                    unifying liquidity and access while reducing fragmentation
+                    that would occur if each network operated in isolation.
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem
@@ -462,8 +462,8 @@ export default function Home() {
                   Learn More About Citrea and Our Vision
                 </h1>
                 <p className="font-medium text-lg text-neutral100">
-                  Explore who we are, what we stand for, and how we&apos;re shaping
-                  the future.
+                  Explore who we are, what we stand for, and how we&apos;re
+                  shaping the future.
                 </p>
               </div>
               <Button variant="secondary">Read about Citrea</Button>
