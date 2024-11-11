@@ -82,7 +82,7 @@ const PhaseCard: React.FC<PhaseCardItemProps> = ({
 
   return (
     <button
-      className={`flex flex-col justify-between border ${isActive ? "border-brand" : "border-brand"} rounded-3xl p-5 gap-4 ${status === "Ended" ? "cursor-not-allowed" : "cursor-pointer"} `}
+      className={`flex flex-col justify-between border ${isActive ? "border-brand" : "border-white8"} rounded-3xl p-5 gap-4 ${status === "Ended" ? "cursor-not-allowed" : "cursor-pointer"} `}
       disabled={status === "Ended" || status === "Starts in:"}
       onClick={onClick}
     >
