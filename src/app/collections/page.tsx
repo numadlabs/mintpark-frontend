@@ -147,7 +147,7 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
                 </SelectContent>
               </Select>
 
-              <div className="flex justify-center border border-neutral400 p-1 rounded-xl h-12">
+              <div className="flex justify-center w-[100px] border border-neutral400 p-1 rounded-xl h-12">
                 <button
                   className={`w-11 h-10 rounded-lg p-3 ${viewType === "grid" ? "bg-white4" : ""}`}
                   onClick={() => setViewType("grid")}
@@ -193,7 +193,7 @@ export default function Collections({ params, searchParams }: CollectionsProps) 
               {!detail && (
                 <div>
                   {viewType === "grid" ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-6 lg:gap-8">
                       {isLoading
                         ? Array(8)
                             .fill(null)
