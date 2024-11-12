@@ -120,7 +120,7 @@ const CollectionDetailPage = () => {
           <div className="w-full relative h-[320px] mt-10">
             <div className="relative h-[200px] w-full rounded-3xl overflow-hidden">
               <div
-                className="absolute inset-0"
+                className="absolute z-0 inset-0"
                 style={{
                   backgroundImage: collectionData?.logoKey
                     ? `url(${s3ImageUrlBuilder(collectionData.logoKey)})`
@@ -130,11 +130,11 @@ const CollectionDetailPage = () => {
                   backgroundRepeat: "no-repeat",
                 }}
               />
-              <div className="absolute inset-0 bg-neutral600 bg-opacity-[70%] z-50 backdrop-blur-3xl" />
+              <div className="absolute inset-0 bg-neutral600 bg-opacity-[70%] z-0 backdrop-blur-3xl" />
             </div>
 
             {/* Collection Info */}
-            <div className="flex flex-col md:flex-row absolute top-24 w-full z-50 px-4 md:px-12 gap-6">
+            <div className="flex flex-col md:flex-row absolute top-24 w-full z-10 px-4 md:px-12 gap-6">
               <div className="flex justify-center md:block">
                 <Image
                   width={208}
