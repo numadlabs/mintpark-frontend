@@ -191,7 +191,7 @@ export default function Header() {
                 />
               </Link>
               {/* Desktop Navigation */}
-              <div className="hidden md:flex flex-row gap-2 text-neutral00">
+              <div className="hidden md2:flex flex-row gap-2 text-neutral00">
                 {routesData.map((item, index) => (
                   <div key={index} className="relative">
                     <HeaderItem
@@ -211,7 +211,7 @@ export default function Header() {
             </div>
 
             {/* Desktop Controls */}
-            <div className="hidden md:flex flex-row overflow-hidden items-center gap-4">
+            <div className="hidden md2:flex flex-row overflow-hidden items-center gap-4">
               <Select onValueChange={handleLayerSelect} value={defaultLayer}>
                 <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
                   <SelectValue
@@ -266,7 +266,7 @@ export default function Header() {
                       sizes="100%"
                       width={24}
                       height={24}
-                      className="object-cover rounded-full"
+                      className="object-cover rounded-full" 
                     />
                     <span className="text-neutral50 text-md font-medium">
                       {user?.address ? truncateAddress(user.address) : ""}
@@ -314,7 +314,7 @@ export default function Header() {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2 text-neutral50"
+              className="md2:hidden p-2 text-neutral50"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <MenuIcon size={24} />
@@ -325,7 +325,7 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-neutral500 bg-opacity-95 backdrop-blur-lg">
+        <div className="md2:hidden fixed inset-0 z-50 bg-neutral500 bg-opacity-95 backdrop-blur-lg">
           <div className="flex flex-col p-4 space-y-4">
             <div className="flex justify-between items-center">
               <Link href={"/"}>

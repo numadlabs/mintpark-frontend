@@ -36,7 +36,7 @@ export default function AssetDetail() {
       enabled: !!id,
     });
 
-  const { data: estimateFee = [], isLoading: isFeeLoading } = useQuery({
+  const { data: estimateFee = [] } = useQuery({
     queryKey: ["feeData"],
     queryFn: () => getEstimateFee(collectionData?.[0]?.listId ?? ""),
     enabled: !!collectionData?.[0]?.listId,
@@ -77,26 +77,25 @@ export default function AssetDetail() {
   return (
     <Layout>
       <Header />
-      {isCollectionLoading || isFeeLoading || isActivityLoading ? (
+      {isCollectionLoading ? (
         <AssetDetailSkeleton />
       ) : (
         <div className="flex flex-col w-full gap-32">
-          <div className="flex justify-between pt-16 relative z-50">
-            <div
-              className="relative z-10 w-[580px] h-[580px] blur-[90px] opacity-35 scale-120"
-
-              // style={{
-              //   backgroundImage: `url(${s3ImageUrlBuilder(
-              //     collectionData?.[0]?.fileKey
-              //       ? s3ImageUrlBuilder(collectionData?.[0]?.fileKey)
-              //       : ordinalsImageCDN(collectionData?.[0]?.uniqueIdx),
-              //   )})`,
-              //   backgroundRepeat: "no-repeat",
-              //   backgroundPosition: "center",
-              //   backgroundSize: "cover",
-              //   backdropFilter: "blur(50px)",
-              // }}
-            >
+          <div className="md:grid grid-cols-2 flex flex-col gap-16 justify-between pt-16 relative z-20">
+            <div className="w-full h-full relative flex items-center justify-center">
+              <div className="z-10 w-full h-full blur-[90px] opacity-35 scale-120">
+                <Image
+                  width={560}
+                  height={560}
+                  src={
+                    collectionData[0]?.fileKey
+                      ? s3ImageUrlBuilder(collectionData[0]?.fileKey)
+                      : ordinalsImageCDN(collectionData[0]?.uniqueIdx)
+                  }
+                  className="aspect-square rounded-xl relative z-20 md:h-full w-full h-[360px]"
+                  alt={`${collectionData[0]?.name} logo`}
+                />
+              </div>
               <Image
                 width={560}
                 height={560}
@@ -105,21 +104,10 @@ export default function AssetDetail() {
                     ? s3ImageUrlBuilder(collectionData[0]?.fileKey)
                     : ordinalsImageCDN(collectionData[0]?.uniqueIdx)
                 }
-                className="aspect-square rounded-xl relative z-50"
+                className="aspect-square rounded-xl absolute z-20 w-[360px] h-[320px] md:h-[340px] lg:w-full lg:h-full top-0"
                 alt={`${collectionData[0]?.name} logo`}
               />
             </div>
-            <Image
-              width={560}
-              height={560}
-              src={
-                collectionData[0]?.fileKey
-                  ? s3ImageUrlBuilder(collectionData[0]?.fileKey)
-                  : ordinalsImageCDN(collectionData[0]?.uniqueIdx)
-              }
-              className="aspect-square rounded-xl absolute z-50"
-              alt={`${collectionData[0]?.name} logo`}
-            />
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-2">
                 <p className="font-medium text-xl text-brand">
@@ -129,7 +117,7 @@ export default function AssetDetail() {
                   {collectionData[0]?.name}
                 </span>
               </div>
-              <div className="w-[592px] h-[1px] bg-neutral500" />
+              <div className="w-full h-[1px] bg-neutral500" />
               <div className="flex flex-col justify-center gap-6">
                 {collectionData[0]?.price > 0 ? (
                   <div className="flex flex-col gap-6">
@@ -163,78 +151,49 @@ export default function AssetDetail() {
                   )}
                 </div>
               </div>
-              {/* {collectibleData ? (
-              ""
-            ) : (
-              <div className="flex flex-col gap-16">
-                <div className="w-[592px] h-[1px] bg-neutral500" />
-                <div className="flex flex-col gap-6">
-                  <h1 className="font-medium text-lg2 text-neutral50">
-                    Attribute
-                  </h1>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="w-[192px] rounded-xl grid gap-2 border border-neutral500 pt-3 pb-4 pl-4 pr-4">
-                      <p className="font-medium text-sm text-neutral200">
-                        {collectibleData[0]?.name}
-                      </p>
-                      <h1 className="font font-medium text-md text-neutral50">
-                        {collectibleData[0]?.value}
+              <Accordion type="multiple" className="w-full">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger className="font-medium text-xl text-neutral50 w-full">
+                    Detail
+                  </AccordionTrigger>
+                  <AccordionContent className="flex flex-col gap-6">
+                    <div className="flex justify-between">
+                      <h1 className="font-medium text-md text-neutral200">
+                        Owned by
                       </h1>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )} */}
-              {/* {collectibleData ? (
-              <div className="w-[592px] h-[1px] bg-neutral500" />
-            ) : (
-              ""
-            )} */}
-              <div>
-                <Accordion type="multiple" className="w-[592px]">
-                  <AccordionItem value="item-1">
-                    <AccordionTrigger className="font-medium text-xl text-neutral50">
-                      Detail
-                    </AccordionTrigger>
-                    <AccordionContent className="flex flex-col gap-6">
-                      <div className="flex justify-between">
-                        <h1 className="font-medium text-md text-neutral200">
-                          Owned by
-                        </h1>
-                        <p className="font-medium text-md text-neutral50">
-                          {collectionData[0]?.ownedBy}
-                        </p>
-                      </div>
-                      <div className="flex justify-between">
-                        <h1 className="font-medium text-md text-neutral200">
-                          Floor difference
-                        </h1>
-                        <p className="font-medium text-md text-success">
-                          {collectionData[0]?.floorDifference}%
-                        </p>
-                      </div>
-                      <div className="flex justify-between">
-                        <h1 className="font-medium text-md text-neutral200">
-                          Listed time
-                        </h1>
-                        <p className="font-medium text-md text-neutral50">
-                          {formatDaysAgo(collectionData[0]?.createdAt)}
-                        </p>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="item-2">
-                    <AccordionTrigger className="font-medium text-xl text-neutral50">
-                      About {collectionData[0]?.collectionName}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <p className="text-neutral200 font-medium text-md">
-                        {collectionData[0]?.description}
+                      <p className="font-medium text-md text-neutral50">
+                        {collectionData[0]?.ownedBy}
                       </p>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </div>
+                    </div>
+                    <div className="flex justify-between">
+                      <h1 className="font-medium text-md text-neutral200">
+                        Floor difference
+                      </h1>
+                      <p className="font-medium text-md text-success">
+                        {collectionData[0]?.floorDifference}%
+                      </p>
+                    </div>
+                    <div className="flex justify-between">
+                      <h1 className="font-medium text-md text-neutral200">
+                        Listed time
+                      </h1>
+                      <p className="font-medium text-md text-neutral50">
+                        {formatDaysAgo(collectionData[0]?.createdAt)}
+                      </p>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                  <AccordionTrigger className="font-medium text-xl text-neutral50">
+                    About {collectionData[0]?.collectionName}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-neutral200 font-medium text-md">
+                      {collectionData[0]?.description}
+                    </p>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
           </div>
           <div className="w-full h-[1px] bg-white8" />
@@ -251,33 +210,57 @@ export default function AssetDetail() {
                   More from collection
                 </TabsTrigger>
               </TabsList>
-              <TabsContent value="activity" className="flex flex-col">
-                <div className="flex flex-row items-center px-3 pb-4 justify-between border-b border-neutral500">
-                  <p className="max-w-[360px] w-full text-neutral200 text-md font-medium">
-                    Item
-                  </p>
-                  <p className="max-w-[220px] w-full text-neutral200 text-md font-medium">
-                    Event
-                  </p>
-                  <p className="max-w-[200px] w-full text-neutral200 text-md font-medium">
-                    Price
-                  </p>
-                  <p className="max-w-[260px] w-full text-neutral200 text-md font-medium">
-                    Address
-                  </p>
-                  <p className="max-w-[152px] w-full text-neutral200 text-md font-medium">
-                    Date
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3 pt-3">
-                  {activity.map((item: any) => (
-                    <ActivityCard
-                      key={item.id}
-                      data={item}
-                      fileKey={collectionData[0]?.fileKey}
-                      collectionName={collectionData[0]?.collectionName}
-                    />
-                  ))}
+              <TabsContent value="activity" className="w-full">
+                <div className="overflow-x-auto">
+                  <div className="inline-block min-w-full">
+                    <div className="overflow-hidden">
+                      {/* Table Headers */}
+                      <div className="flex flex-row items-center px-3 pb-4 justify-between border-b border-neutral500">
+                        <div
+                          style={{ width: "360px" }}
+                          className="text-neutral200 text-md font-medium whitespace-nowrap"
+                        >
+                          Item
+                        </div>
+                        <div
+                          style={{ width: "220px" }}
+                          className="text-neutral200 text-md font-medium whitespace-nowrap"
+                        >
+                          Event
+                        </div>
+                        <div
+                          style={{ width: "200px" }}
+                          className="text-neutral200 text-md font-medium whitespace-nowrap"
+                        >
+                          Price
+                        </div>
+                        <div
+                          style={{ width: "260px" }}
+                          className="text-neutral200 text-md font-medium whitespace-nowrap"
+                        >
+                          Address
+                        </div>
+                        <div
+                          style={{ width: "152px" }}
+                          className="text-neutral200 text-md font-medium whitespace-nowrap"
+                        >
+                          Date
+                        </div>
+                      </div>
+
+                      {/* Table Content */}
+                      <div className="flex flex-col gap-3 pt-3">
+                        {activity.map((item: any) => (
+                          <ActivityCard
+                            key={item.id}
+                            data={item}
+                            fileKey={collectionData[0]?.fileKey}
+                            collectionName={collectionData[0]?.collectionName}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </TabsContent>
               <TabsContent value="more"></TabsContent>
