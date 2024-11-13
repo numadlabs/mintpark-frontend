@@ -271,7 +271,7 @@ export default function Home() {
                   <h1 className="font-bold text-2xl md:text-aboutUs text-neutral00">
                     {service.title}
                   </h1>
-                  <p className="font-medium text-sm md:text-md text-neutral100">
+                  <p className="font-medium text-sm md:text-md px-14 md:px-10 text-neutral100">
                     {service.description}
                   </p>
                 </div>
