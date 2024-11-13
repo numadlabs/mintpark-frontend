@@ -43,7 +43,7 @@ import React from "react";
 
 const CollectionsBanner = () => {
   return (
-    <div className="w-full relative min-h-[200px] md:h-[320px] z-50 pt-6 md:pt-11 flex justify-center px-4 md:px-6">
+    <div className="w-full relative h-[200px] sm:h-[260px] lg:h-[320px] z-50 pt-6 md:pt-11 flex justify-center items-center px-4 md:px-6">
       <Image
         src="/banner.png"
         alt="bannerDefault"
@@ -53,7 +53,7 @@ const CollectionsBanner = () => {
         className="w-full h-full object-cover rounded-xl md:rounded-3xl"
       />
 
-      <div className="absolute top-1/2 -translate-y-1/2 w-full px-4 md:px-0">
+      <div className="absolute flex flex-col  justify-center  w-full px-4 md:px-0">
         <div className="flex flex-col gap-4 md:gap-6 items-center text-center">
           <div className="flex flex-row items-center gap-2 md:gap-4 flex-wrap justify-center">
             <p className="text-xl md:text-3xl text-neutral00 font-bold">
@@ -66,12 +66,12 @@ const CollectionsBanner = () => {
               height={40}
               className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl"
             />
-            <p className="text-xl md:text-3xl text-neutral00 font-bold">
+            <p className="text-lg md:text-3xl text-neutral00 font-bold">
               Citrea testnet!
             </p>
           </div>
 
-          <p className="text-base md:text-lg text-neutral50 max-w-md mx-auto">
+          <p className="text-sm sm:text-2xl lg:text-lg text-neutral50 mx-auto">
             Mint Park is live on Citrea testnet! Start minting and trading NFTs.
           </p>
         </div>

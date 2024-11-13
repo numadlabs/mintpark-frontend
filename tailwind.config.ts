@@ -134,6 +134,16 @@ module.exports = {
         "slide-up": "slide-up 0.3s ease-in-out",
       },
     },
+    screens: {
+      sm: "640px",
+      md: "768px",
+      md2: "800px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
+      "3xl": "1920px",
+      "4xl": "2048px",
+    }
   },
   variants: {
     extend: {

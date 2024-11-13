@@ -142,7 +142,7 @@ export default function Home() {
   return (
     <Layout>
       <Header />
-      <section className="w-full flex flex-col gap-12 md:gap-[120px] mt-12 md:mt-[100px] px-4 md:px-8">
+      <section className="w-full flex flex-col gap-12 md:gap-[200px] mt-12 md:mt-[100px] px-4 md:px-8">
         {/* Hero Section */}
         <div className="w-full flex flex-col items-center gap-8 md:gap-12">
           <div className="flex flex-col gap-6 md:gap-8 items-center">
@@ -271,7 +271,7 @@ export default function Home() {
                   <h1 className="font-bold text-2xl md:text-aboutUs text-neutral00">
                     {service.title}
                   </h1>
-                  <p className="font-medium text-sm md:text-md text-neutral100">
+                  <p className="font-medium text-sm md:text-md px-14 md:px-10 text-neutral100">
                     {service.description}
                   </p>
                 </div>
