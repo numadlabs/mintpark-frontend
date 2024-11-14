@@ -218,9 +218,9 @@ const Page = () => {
           </div>
         ) : (
           <div className="px-4 sm:px-6 lg:px-8">
-            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 mt-16 sm:mt-20 lg:mt-24 mb-8">
+            <section className="flex flex-col md2:grid grid-cols-3 gap-6 lg:gap-8 mt-16 sm:mt-20 lg:mt-24 mb-8">
               {/* Left Column - Collection Info */}
-              <div className="flex flex-col gap-4 sm:gap-6 order-2 md:order-1">
+              <div className="flex flex-col gap-4 sm:gap-6 order-2">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold capitalize text-neutral50">
                   {collectibles?.name}
                 </h1>
@@ -248,12 +248,13 @@ const Page = () => {
               </div>
 
               {/* Middle Column - Image and Progress */}
-              <div className="flex flex-col gap-4 sm:gap-6 order-1 md:order-2">
-                <div className="w-full aspect-square relative rounded-2xl sm:rounded-3xl overflow-hidden">
-                  <Carousel className="w-full h-full">
+              <div className="flex flex-col gap-4 sm:gap-6 order-1 md2:order-2">
+                <div className="w-full aspect-square relative rounded-2xl sm:rounded-3xl overflow-hidden sm:h-[450px] h-[400px]">
+                  <Carousel className="w-full justify-center items-center flex">
                     {collectibles?.logoKey && (
                       <Image
-                        fill
+                        width={384}
+                        height={384}
                         src={s3ImageUrlBuilder(collectibles?.logoKey)}
                         className="object-cover"
                         alt={collectibles?.name || "Collection image"}
@@ -290,7 +291,7 @@ const Page = () => {
               </div>
 
               {/* Right Column - Phases and Button */}
-              <div className="flex flex-col gap-4 sm:gap-6 lg:gap-8 order-3 min-h-[320px] sm:min-h-[400px]">
+              <div className="flex flex-col gap-4 sm:gap-6 lg:gap-8 order-3">
                 <ScrollArea className="flex-grow">
                   <div className="flex flex-col gap-4 pr-4">
                     <PhaseCard
@@ -321,7 +322,7 @@ const Page = () => {
                 now ? null : unixToISOString(collectibles.poEndsAt) < now &&
                   unixToISOString(collectibles.poEndsAt) > "0" ? (
                   <Button
-                    className="w-full py-2 sm:py-3 text-base sm:text-lg font-semibold"
+                    className="w-full py-2 sm:py-3 text-base sm:text-lg font-semibold mt-4"
                     disabled={isLoading}
                     onClick={handlCollectionClick}
                   >
@@ -339,7 +340,7 @@ const Page = () => {
                   <Button
                     variant="primary"
                     type="submit"
-                    className="w-full py-2 sm:py-3 text-base sm:text-lg font-semibold"
+                    className="w-full py-2 sm:py-3 text-base sm:text-lg font-semibold mt-4"
                     disabled={isLoading}
                     onClick={handleConfirm}
                   >

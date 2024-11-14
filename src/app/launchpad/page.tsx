@@ -45,7 +45,7 @@ const Launchpad = () => {
   return (
     <Layout>
       <Header />
-      <div className="px-4 sm:px-6 lg:px-8">
+      <div className="">
         <LaunchpadBanner data={launch?.[0]} />
         <Tabs
           className="text-neutral50 mt-6 sm:mt-8 lg:mt-12"

@@ -1,77 +1,34 @@
-// import React from "react";
-// import Image from "next/image";
-// import { Button } from "../ui/button";
-// import { Notepad, Profile2User } from "iconsax-react";
-
-// const CollectionsBanner = () => {
-//   return (
-//     <>
-//       <div className="w-full relative h-[320px] z-50 pt-11 flex justify-center">
-//         <Image
-//           src={"/banner.png"}
-//           alt="bannerDafault"
-//           width={1216}
-//           height={320}
-//           sizes="100%"
-//           className="w-full h-full rounded-3xl"
-//         />
-//         <div className="absolute top-[152px] flex flex-col gap-6 items-center">
-//           <div className="flex flex-row items-center gap-4">
-//             <p className="text-3xl text-neutral00 font-bold">We are live on</p>
-//             <Image
-//               src={"/wallets/Citrea.png"}
-//               alt="citrea"
-//               width={40}
-//               height={40}
-//               className="rounded-xl"
-//             />
-//             <p className="text-3xl text-neutral00 font-bold">Citrea testnet!</p>
-//           </div>
-//           <p className="text-lg text-neutral50">
-//             Mint Park is live on Citrea testnet! Start minting and trading NFTs.
-//           </p>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default CollectionsBanner;
-
 import Image from "next/image";
 import React from "react";
 
 const CollectionsBanner = () => {
   return (
-    <div className="w-full relative h-[200px] sm:h-[260px] lg:h-[320px] z-50 pt-6 md:pt-11 flex justify-center items-center px-4 md:px-6">
-      <Image
-        src="/banner.png"
-        alt="bannerDefault"
-        width={1216}
-        height={320}
-        sizes="100%"
-        className="w-full h-full object-cover rounded-xl md:rounded-3xl"
-      />
-
-      <div className="absolute flex flex-col  justify-center  w-full px-4 md:px-0">
-        <div className="flex flex-col gap-4 md:gap-6 items-center text-center">
-          <div className="flex flex-row items-center gap-2 md:gap-4 flex-wrap justify-center">
-            <p className="text-xl md:text-3xl text-neutral00 font-bold">
+    <div className="relative h-[320px] w-full mt-4 sm:mt-8 lg:mt-12">
+      <div className="w-full h-full relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden">
+        <Image
+          src="/banner.png"
+          alt=""
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/20">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 mb-2 sm:mb-4">
+            <p className="text-xl sm:text-2xl lg:text-3xl text-neutral00 font-bold">
               We are live on
             </p>
             <Image
               src="/wallets/Citrea.png"
               alt="citrea"
-              width={40}
-              height={40}
-              className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl"
+              width={32}
+              height={32}
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg"
             />
-            <p className="text-lg md:text-3xl text-neutral00 font-bold">
+            <p className="text-xl sm:text-2xl lg:text-3xl text-neutral00 font-bold">
               Citrea testnet!
             </p>
           </div>
-
-          <p className="text-sm sm:text-2xl lg:text-lg text-neutral50 mx-auto">
+          <p className="mt-2 sm:mt-0 text-sm lg:text-lg text-neutral50 px-4 text-center">
             Mint Park is live on Citrea testnet! Start minting and trading NFTs.
           </p>
         </div>

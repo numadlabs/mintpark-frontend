@@ -24,12 +24,13 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
       onClick={handleNav}
       className="w-full transition-colors collection bg-neutral500 bg-opacity-[50%] hover:bg-neutral400 hover:bg-opacity-[30%] rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:pr-8"
     >
-      <div className="flex flex-col sm:flex-row gap-4 lg:gap-6">
+      <div className="flex flex-col sm:flex-row gap-4 lg:gap-6 w-full sm:items-center">
         {/* Collection Info */}
         <div className="flex items-center gap-3 sm:gap-4 lg:gap-5 sm:w-[220px] lg:w-[376px]">
           <div className="relative w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 flex-shrink-0">
             <Image
-              fill
+            width={248}
+            height={248}
               src={s3ImageUrlBuilder(data.logoKey)}
               className="rounded-lg object-cover"
               alt={`${data.name || 'Collection'} logo`}

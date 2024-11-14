@@ -16,9 +16,9 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
   return (
     <Link
       href={`/assetDetail/${data.id}`}
-      className="block w-[240px] sm:w-[280px] h-[394px] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl px-4 pt-4 pb-5"
+      className="block w-full h-[394px] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl px-4 pt-4 pb-5"
     >
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full justify-center items-center">
         <Image
           width={248}
           height={248}
@@ -31,7 +31,7 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
           alt={data.name || "Collection image"}
         />
 
-        <div className="flex flex-col flex-1 pt-1">
+        <div className="flex flex-col flex-1 pt-1 w-full">
           <p className="text-neutral200 font-medium text-md pt-2">
             {data.collectionName}
           </p>

@@ -46,7 +46,6 @@ const CollectionDetailPage = () => {
     enabled: !!id,
     retry: 1,
   });
-  // console.log("asdsad",collectionData)
 
   useEffect(() => {
     const data = searchParams.get("data");
@@ -256,7 +255,7 @@ const CollectionDetailPage = () => {
 
         {/* Search and Filter Section */}
         <section className="flex flex-col md:flex-row justify-between gap-4 mb-7 pt-10">
-          <Image
+          {/* <Image
             src="/collections/sort.png"
             alt="sort"
             width={20}
@@ -266,10 +265,10 @@ const CollectionDetailPage = () => {
                 ? "bg-neutral500 hover:bg-neutral400 border-transparent"
                 : "bg-neutral600 border border-neutral500 hover:border-neutral400"
             }`}
-          />
+          /> */}
 
-          <div className="flex flex-col md:flex-row gap-4 ">
-            <div className="relative">
+          <div className="flex flex-col md:flex-row gap-4 w-full">
+            <div className="relative w-full">
               <Image
                 src="/collections/search.png"
                 alt="search"
@@ -280,7 +279,7 @@ const CollectionDetailPage = () => {
               <input
                 type="text"
                 placeholder="Search ID"
-                className="w-full md:w-[400px] lg:w-[700px] h-12 rounded-xl pl-10 pr-4 bg-transparent border border-neutral400 text-neutral200"
+                className="w-full h-12 rounded-xl pl-10 pr-4 bg-transparent border border-neutral400 text-neutral200"
               />
             </div>
 
@@ -288,7 +287,7 @@ const CollectionDetailPage = () => {
               <SelectTrigger className="w-full md:w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50">
                 <SelectValue placeholder="Volume" />
               </SelectTrigger>
-              <SelectContent className="w-full md:w-60 rounded-xl bg-neutral600 bg-opacity-70 border-neutral400 backdrop-blur-lg">
+              <SelectContent className="w-[var(--radix-select-trigger-width)] rounded-xl bg-neutral600 bg-opacity-70 border-neutral400 backdrop-blur-lg pb-2 px-2">
                 <SelectItem value="highest">Highest volume</SelectItem>
                 <SelectItem value="lowest">Lowest volume</SelectItem>
                 <SelectItem value="highestFloor">
@@ -340,7 +339,7 @@ const CollectionDetailPage = () => {
           >
             <TabsContent value="AllCard">
               <div
-                className={`grid gap-4 md:gap-6 lg:gap-10 ${
+                className={`grid gap-4 md:gap-6 lg:gap-8 ${
                   active
                     ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
                     : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
