@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import ButtonLg from "@/components/ui/buttonLg";
 import { useRouter } from "next/navigation";
 import ButtonOutline from "@/components/ui/buttonOutline";
-import { tokenData } from "@/types";
 // import { mintToken } from "@/utils/mint";
 import Layout from "@/components/layout/layout";
 // import {
@@ -18,14 +17,9 @@ import Layout from "@/components/layout/layout";
 // } from "@/lib/constants";
 import Image from "next/image";
 import useFormState from "@/lib/store/useFormStore";
-import { toast } from "sonner";
-import { useConnector } from "anduro-wallet-connector-react";
-import UploadFile from "@/components/section/upload-file";
 
 const SingleToken = () => {
   const router = useRouter();
-  const { signAndSendTransaction, signTransaction, sign } =
-    React.useContext<any>(useConnector);
 
   const {
     ticker,

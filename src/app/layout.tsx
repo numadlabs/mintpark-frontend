@@ -26,7 +26,7 @@ export default function RootLayout({
       <html lang="en">
         <body>
           <main className={bai_Jamjuree.className}>
-          <link rel="icon" href="/logo.png" sizes="any"/>
+            <link rel="icon" href="/logo.png" sizes="any" />
             <WalletConnecProvider>{children}</WalletConnecProvider>
             {/* <Transition>{children}</Transition> */}
             <Toaster />

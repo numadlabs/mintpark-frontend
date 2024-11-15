@@ -1,7 +1,6 @@
 "use client";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { redirect } from "next/navigation";
-// import { useRouter } from "next/router";""
 import Footer from "@/components/layout/footer";
 
 export default function Layout({ children }: { children: React.ReactNode }) {

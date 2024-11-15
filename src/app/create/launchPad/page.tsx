@@ -5,7 +5,6 @@ import Banner from "@/components/section/banner";
 import Header from "@/components/layout/header";
 import { Input } from "@/components/ui/input";
 import UploadFile from "@/components/section/upload-file";
-import ButtonLg from "@/components/ui/buttonLg";
 import { useRouter } from "next/navigation";
 import ButtonOutline from "@/components/ui/buttonOutline";
 import Layout from "@/components/layout/layout";
@@ -88,7 +87,6 @@ const CollectionDetail = () => {
   const [successModal, setSuccessModal] = useState(false);
   const [inscribeModal, setInscribeModal] = useState(false);
   const [data, setData] = useState<string>("");
-  const [hash, setHash] = useState<string>("");
 
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
