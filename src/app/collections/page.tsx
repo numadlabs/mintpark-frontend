@@ -40,9 +40,7 @@ const orderConfigs: Record<string, OrderConfig> = {
   "lowest-floor": { orderBy: "floor", orderDirection: "lowest" },
 };
 
-export default function Collections({
-  searchParams,
-}: CollectionsProps) {
+export default function Collections({ searchParams }: CollectionsProps) {
   const detail = searchParams.detail === "true";
   const router = useRouter();
   const { authState } = useAuth();
