@@ -1,7 +1,7 @@
 "use client";
 
 import Header from "@/components/layout/header";
-import ProfileBanner from "@/components/section/profileBanner";
+import ProfileBanner from "@/components/section/profile-banner";
 import ProfileDetail from "@/components/section/profile/profileDetail";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/provider/auth-context-provider";

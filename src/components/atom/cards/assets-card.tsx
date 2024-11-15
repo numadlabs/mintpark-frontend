@@ -20,7 +20,7 @@ const AssetsCard: React.FC<CardProps> = ({ data }) => {
   return (
     <Link
       href={`/assets/${data.id}`}
-      className="block w-[280px] h-[394px] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl px-4 pt-4 pb-5"
+      className="block w-[280px] h-[394px] transition-transform hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl px-4 pt-4 pb-5"
     >
       <div className="flex flex-col h-full">
         <Image

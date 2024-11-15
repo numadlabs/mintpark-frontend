@@ -16,13 +16,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Global, Notepad, Profile2User } from "iconsax-react";
 import DiscordIcon from "@/components/icon/hoverIcon";
 import ThreadIcon from "@/components/icon/thread";
-import ColDetailCard from "@/components/atom/cards/collectionDetailCard";
-import ColDetailCards from "@/components/atom/cards/columnDetailCard";
+import ColDetailCard from "@/components/atom/cards/collection-detail-card";
+import ColDetailCards from "@/components/atom/cards/column-detail-card";
 import { getListedCollectionById } from "@/lib/service/queryHelper";
 import { s3ImageUrlBuilder } from "@/lib/utils";
 import { CollectionDataType } from "@/lib/types";
 import CollectionSideBar from "@/components/section/collections/sideBar";
 import CollectionDetailSkeleton from "@/components/atom/skeleton/collection-detail-skeleton";
+import { motion, AnimatePresence } from "framer-motion";
 
 const CollectionDetailPage = () => {
   const params = useParams();
@@ -287,7 +288,7 @@ const CollectionDetailPage = () => {
               <SelectTrigger className="w-full md:w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50">
                 <SelectValue placeholder="Volume" />
               </SelectTrigger>
-              <SelectContent className="w-[var(--radix-select-trigger-width)] rounded-xl bg-neutral600 bg-opacity-70 border-neutral400 backdrop-blur-lg pb-2 px-2">
+              <SelectContent className="w-full md:w-60 rounded-xl bg-neutral600 bg-opacity-70 border-neutral400 backdrop-blur-lg pb-2 px-2">
                 <SelectItem value="highest">Highest volume</SelectItem>
                 <SelectItem value="lowest">Lowest volume</SelectItem>
                 <SelectItem value="highestFloor">
@@ -297,7 +298,7 @@ const CollectionDetailPage = () => {
               </SelectContent>
             </Select>
 
-            <TabsList className="text-neutral50 border border-neutral400 rounded-lg w-[92px] h-12">
+            <TabsList className="text-neutral50 border border-neutral400 rounded-lg w-[92px] h-12 px-1">
               <TabsTrigger
                 value="AllCard"
                 className="w-10 h-10 rounded-lg p-[10px] border border-transparent"
@@ -337,52 +338,67 @@ const CollectionDetailPage = () => {
           <div
             className={`flex-grow ${active ? "w-[calc(100%-280px)]" : "w-full"}`}
           >
-            <TabsContent value="AllCard">
-              <div
-                className={`grid gap-4 md:gap-6 lg:gap-8 ${
-                  active
-                    ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                    : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-                }`}
+            <AnimatePresence mode="wait">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
               >
-                {collection?.collectibles?.map((item: any) => (
-                  <div key={item.id}>
-                    <ColDetailCard data={item} />
+                <TabsContent value="AllCard">
+                  <div
+                    className={`grid gap-4 md:gap-6 lg:gap-8 ${
+                      active
+                        ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                        : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                    }`}
+                  >
+                    {collection?.collectibles?.map((item: any) => (
+                      <div key={item.id}>
+                        <ColDetailCard data={item} />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            </TabsContent>
+                </TabsContent>
 
-            <TabsContent value="ColCard">
-              <div className="hidden md:flex h-[34px] pr-8 pb-4 pl-4">
-                <div className="w-[392px]">
-                  <p className="font-medium text-md text-neutral200">Item</p>
-                </div>
-                <div className="grid grid-cols-4 pl-5 w-full text-center">
-                  <p className="font-medium text-md text-neutral200">Price</p>
-                  <p className="font-medium text-md text-neutral200">
-                    Floor difference
-                  </p>
-                  <p className="font-medium text-md text-neutral200">Owner</p>
-                  <p className="font-medium text-md text-neutral200">
-                    Listed time
-                  </p>
-                </div>
-              </div>
-
-              <ScrollArea className="h-[754px] w-full border-t-2 border-neutral500">
-                <div className="flex flex-col w-full pt-4 gap-4">
-                  {collection?.collectibles?.map((item: any) => (
-                    <div key={item.id}>
-                      <ColDetailCards
-                        data={item}
-                        totalOwnerCount={collection?.totalOwnerCount}
-                      />
+                <TabsContent value="ColCard">
+                  <div className="hidden md:flex h-[34px] pr-8 pb-4 pl-4">
+                    <div className="w-[392px]">
+                      <p className="font-medium text-md text-neutral200">
+                        Item
+                      </p>
                     </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </TabsContent>
+                    <div className="grid grid-cols-4 pl-5 w-full text-center">
+                      <p className="font-medium text-md text-neutral200">
+                        Price
+                      </p>
+                      <p className="font-medium text-md text-neutral200">
+                        Floor difference
+                      </p>
+                      <p className="font-medium text-md text-neutral200">
+                        Owner
+                      </p>
+                      <p className="font-medium text-md text-neutral200">
+                        Listed time
+                      </p>
+                    </div>
+                  </div>
+
+                  <ScrollArea className="h-[754px] w-full border-t-2 border-neutral500">
+                    <div className="flex flex-col w-full pt-4 gap-4">
+                      {collection?.collectibles?.map((item: any) => (
+                        <div key={item.id}>
+                          <ColDetailCards
+                            data={item}
+                            totalOwnerCount={collection?.totalOwnerCount}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </section>
       </Tabs>

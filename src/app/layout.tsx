@@ -2,11 +2,8 @@ import WalletConnecProvider from "@/components/provider/wallet-connect-provider"
 import type { Metadata } from "next";
 import { Bai_Jamjuree } from "next/font/google";
 import "./globals.css";
-// import WalletConnecProvider from "@/components/layout/wallet-connect-provider";
 import { ReactQueryClientProvider } from "@/components/provider/query-client-provider";
 import { Toaster } from "@/components/ui/toaster";
-// import Transition from "./transition";
-import { Children } from "react";
 
 const bai_Jamjuree = Bai_Jamjuree({
   weight: ["400", "700"],

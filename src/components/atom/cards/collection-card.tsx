@@ -21,7 +21,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
   return (
     <button
       onClick={handleNav}
-      className="w-full transition-transform hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br collection from-gradientStart to-transparent border border-neutral400 rounded-xl p-3 sm:p-4 flex flex-col justify-between items-center"
+      className="w-full transition-transform duration-300 hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br collection from-gradientStart to-transparent border border-neutral400 rounded-xl p-3 sm:p-4 flex flex-col justify-between items-center"
     >
         <Image
           width={248}
@@ -75,7 +75,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
         </div>
       </div>
 
-      <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity">
+      <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500 delay-500">
         <HoverCard data={data} />
       </div>
     </button>
