@@ -4,14 +4,14 @@ import React, { useState } from "react";
 import Banner from "@/components/section/banner";
 import Header from "@/components/layout/header";
 import { Input } from "@/components/ui/input";
-import UploadFile from "@/components/section/uploadFile";
+import UploadFile from "@/components/section/upload-file";
 import ButtonLg from "@/components/ui/buttonLg";
 import { useRouter } from "next/navigation";
 import ButtonOutline from "@/components/ui/buttonOutline";
 import Layout from "@/components/layout/layout";
-import UploadCardFill from "@/components/atom/cards/uploadCardFill";
+import UploadCardFill from "@/components/atom/cards/upload-card-fill";
 import Image from "next/image";
-import CollectiblePreviewCard from "@/components/atom/cards/collectiblePreviewCard";
+import CollectiblePreviewCard from "@/components/atom/cards/collectible-preview-card";
 import {
   ImageFile,
   CollectionData,
@@ -29,7 +29,7 @@ import {
 } from "@/lib/service/postRequest";
 import useCreateFormState from "@/lib/store/createFormStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import CollectionUploadFile from "@/components/section/collectionUploadFile";
+import CollectionUploadFile from "@/components/section/collection-upload-file";
 import Toggle from "@/components/ui/toggle";
 import { Calendar2, Clock, Bitcoin } from "iconsax-react";
 import OrderPayModal from "@/components/modal/order-pay-modal";

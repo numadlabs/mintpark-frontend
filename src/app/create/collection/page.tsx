@@ -3,19 +3,19 @@
 import React, { useState, useEffect } from "react";
 import Banner from "@/components/section/banner";
 import Header from "@/components/layout/header";
-import UploadFile from "@/components/section/uploadFile";
+import UploadFile from "@/components/section/upload-file";
 import ButtonLg from "@/components/ui/buttonLg";
 import { useRouter } from "next/navigation";
 import ButtonOutline from "@/components/ui/buttonOutline";
 import Layout from "@/components/layout/layout";
-import UploadCardFill from "@/components/atom/cards/uploadCardFill";
+import UploadCardFill from "@/components/atom/cards/upload-card-fill";
 import useFormState from "@/lib/store/useFormStore";
 import { Calendar2, Clock, DocumentDownload } from "iconsax-react";
 import Toggle from "@/components/ui/toggle";
-import FileCard from "@/components/atom/cards/fileCard";
+import FileCard from "@/components/atom/cards/file-card";
 import Image from "next/image";
 import { exampleJson } from "@/lib/constants";
-import CollectiblePreviewCard from "@/components/atom/cards/collectiblePreviewCard";
+import CollectiblePreviewCard from "@/components/atom/cards/collectible-preview-card";
 import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";

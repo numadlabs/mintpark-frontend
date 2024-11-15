@@ -20,7 +20,7 @@ import Image from "next/image";
 import useFormState from "@/lib/store/useFormStore";
 import { toast } from "sonner";
 import { useConnector } from "anduro-wallet-connector-react";
-import UploadFile from "@/components/section/uploadFile";
+import UploadFile from "@/components/section/upload-file";
 
 const SingleToken = () => {
   const router = useRouter();
