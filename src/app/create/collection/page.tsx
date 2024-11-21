@@ -3,19 +3,18 @@
 import React, { useState, useEffect } from "react";
 import Banner from "@/components/section/banner";
 import Header from "@/components/layout/header";
-import UploadFile from "@/components/section/uploadFile";
+import UploadFile from "@/components/section/upload-file";
 import ButtonLg from "@/components/ui/buttonLg";
 import { useRouter } from "next/navigation";
 import ButtonOutline from "@/components/ui/buttonOutline";
 import Layout from "@/components/layout/layout";
-import UploadCardFill from "@/components/atom/cards/uploadCardFill";
+import UploadCardFill from "@/components/atom/cards/upload-card-fill";
 import useFormState from "@/lib/store/useFormStore";
 import { Calendar2, Clock, DocumentDownload } from "iconsax-react";
 import Toggle from "@/components/ui/toggle";
-import FileCard from "@/components/atom/cards/fileCard";
+import FileCard from "@/components/atom/cards/file-card";
 import Image from "next/image";
-import { exampleJson } from "@/lib/constants";
-import CollectiblePreviewCard from "@/components/atom/cards/collectiblePreviewCard";
+import CollectiblePreviewCard from "@/components/atom/cards/collectible-preview-card";
 import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -206,7 +205,7 @@ const CollectionDetail = () => {
   const validateJsonInput = (isChecked: boolean): string | null => {
     if (isChecked) {
       if (!(jsonData && files && jsonData.length === files.length)) {
-        toast.error("Images or JSON upload count doesn't match")
+        toast.error("Images or JSON upload count doesn't match");
         return "Images or JSON upload count doesn't match";
       }
       if (mergedArray.length === 0) {
@@ -240,7 +239,7 @@ const CollectionDetail = () => {
             const jsonData = JSON.parse(e.target.result);
             setJsonData(jsonData); // Assuming setJsonData is a state setter function
           } catch (error) {
-            toast.error("Error parsing JSON:")
+            toast.error("Error parsing JSON:");
             console.error("Error parsing JSON:", error);
           }
         }
@@ -280,11 +279,9 @@ const CollectionDetail = () => {
     if (day) {
       setStart(day);
       reset();
-
     }
   };
-  const handleBack = (resetType: 'create' | 'step') => {
-
+  const handleBack = (resetType: "create" | "step") => {
     reset();
     setFiles([]);
     setJsonData([]);
@@ -297,7 +294,7 @@ const CollectionDetail = () => {
     setStart(new Date());
     setEnd(new Date());
 
-    if (resetType === 'create') {
+    if (resetType === "create") {
       router.push("/create");
     } else {
       setStep(Math.max(0, step - 1));
@@ -366,7 +363,7 @@ const CollectionDetail = () => {
                 <ButtonOutline
                   title="Back"
                   // onClick={() => router.push("/create")}
-                  onClick={() => handleBack('create')}
+                  onClick={() => handleBack("create")}
                 />
                 <ButtonLg
                   title="Continue"
@@ -399,7 +396,7 @@ const CollectionDetail = () => {
                           image={item.base64}
                           key={index}
                           title={item.fileName}
-                          onDelete={handleDelete} 
+                          onDelete={handleDelete}
                         />
                       </div>
                     ))}
@@ -455,7 +452,7 @@ const CollectionDetail = () => {
                 <ButtonOutline
                   title="Back"
                   // onClick={() => router.push("/create")}
-                  onClick={() => handleBack('step')}
+                  onClick={() => handleBack("step")}
                 />
                 <ButtonLg
                   // type="submit"
@@ -628,7 +625,7 @@ const CollectionDetail = () => {
                 <ButtonOutline
                   title="Back"
                   // onClick={() => router.push("/create")}
-                  onClick={() => handleBack('step')}
+                  onClick={() => handleBack("step")}
                 />
                 <ButtonLg
                   // type="submit"
@@ -681,7 +678,7 @@ const CollectionDetail = () => {
                       image={item.base64}
                       key={index}
                       title={item.fileName}
-                      onDelete={handleDelete} 
+                      onDelete={handleDelete}
                     />
                   </div>
                 ))}
@@ -692,7 +689,7 @@ const CollectionDetail = () => {
                 <ButtonOutline
                   title="Go home"
                   // onClick={() => router.push("/")}
-                  onClick={() => handleBack('create')}
+                  onClick={() => handleBack("create")}
                 />
                 <ButtonLg isSelected={true} onClick={() => triggerRefresh()}>
                   Create Again

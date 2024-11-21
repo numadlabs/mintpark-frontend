@@ -3,15 +3,13 @@
 import React, { useState } from "react";
 import Header from "@/components/layout/header";
 import Banner from "@/components/section/banner";
-import ButtonLg from "@/components/ui/buttonLg";
-import UploadFile from "@/components/section/uploadFile";
+import UploadFile from "@/components/section/upload-file";
 import { Input } from "@/components/ui/input";
 import ButtonOutline from "@/components/ui/buttonOutline";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import UploadCardFit from "@/components/atom/cards/uploadCardFit";
+import UploadCardFit from "@/components/atom/cards/upload-card-fit";
 import Layout from "@/components/layout/layout";
-import { useConnector } from "anduro-wallet-connector-react";
 import TextArea from "@/components/ui/textArea";
 import useCreateFormState from "@/lib/store/createFormStore";
 import SubmitPayModal from "@/components/modal/submit-pay-modal";
@@ -38,8 +36,7 @@ const stepperData = ["Upload", "Confirm"];
 const SingleCollectible = () => {
   const { authState } = useAuth();
   const router = useRouter();
-  const { signTransaction, sendTransaction, signAndSendTransaction } =
-    React.useContext<any>(useConnector);
+
   const {
     imageFile,
     setImageFile,
@@ -395,7 +392,7 @@ const SingleCollectible = () => {
                   variant={"primary"}
                   // isSelected={true}
                   // isLoading={isLoading}
-                  
+
                   onClick={handlePay}
                   disabled={isLoading}
                   className="w-full"

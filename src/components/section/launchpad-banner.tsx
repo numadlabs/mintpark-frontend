@@ -87,7 +87,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
         <CarouselContent>
           {/* Static banner slide */}
           <CarouselItem>
-            <div className="relative h-[200px] sm:h-[260px] lg:h-[320px] w-full">
+            <div className="relative h-[320px] w-full">
               <div className="w-full h-full relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden">
                 <Image
                   src="/banner.png"
@@ -98,7 +98,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
                 />
                 <div className="absolute inset-0 flex flex-col justify-center items-center bg-black/20">
                   <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 mb-2 sm:mb-4">
-                    <p className="text-lg sm:text-2xl lg:text-3xl text-neutral00 font-bold">
+                    <p className="text-xl sm:text-2xl lg:text-3xl text-neutral00 font-bold">
                       We are live on
                     </p>
                     <Image
@@ -108,11 +108,11 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
                       height={32}
                       className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg"
                     />
-                    <p className="text-lg sm:text-2xl lg:text-3xl text-neutral00 font-bold">
+                    <p className="text-xl sm:text-2xl lg:text-3xl text-neutral00 font-bold">
                       Citrea testnet!
                     </p>
                   </div>
-                  <p className="text-sm sm:text-base lg:text-lg text-neutral50 px-4 text-center">
+                  <p className="text-sm lg:text-lg text-neutral50 px-4 text-center">
                     Mint Park is live on Citrea testnet! Start minting and
                     trading NFTs.
                   </p>
@@ -124,10 +124,10 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
           {/* Dynamic data slide */}
           {data && data.logoKey && (
             <CarouselItem>
-              <div className="relative h-[200px] sm:h-[260px] lg:h-[320px] w-full">
-                <div className="w-full h-full relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden">
+              <div className="relative h-[320px] w-full">
+                <div className="w-full h-[320px] relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden">
                   <div
-                    className="absolute inset-0"
+                    className="absolute z-0 inset-0"
                     style={{
                       backgroundImage: data?.logoKey
                         ? `url(${s3ImageUrlBuilder(data.logoKey)})`
@@ -137,6 +137,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
                       backgroundRepeat: "no-repeat",
                     }}
                   />
+                  
                   <div className="absolute inset-0 flex items-end bg-gradient-to-b from-transparent to-[#111315]">
                     <div className="w-full p-4 sm:p-6 lg:p-8">
                       <div className="flex flex-col gap-2 sm:gap-4">
@@ -191,6 +192,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
             }`}
             aria-label="Go to slide 1"
           />
+          {data && data.logoKey && 
           <button
             onClick={() => api?.scrollTo(1)}
             className={`h-1.5 sm:h-2 rounded-full transition-all duration-200 ${
@@ -199,7 +201,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
                 : "w-1.5 sm:w-2 bg-neutral400"
             }`}
             aria-label="Go to slide 2"
-          />
+          />}
         </div>
       </Carousel>
     </div>

@@ -12,18 +12,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import { useState } from "react";
 import CollectionSideBar from "../collections/sideBar";
-import AssetsCard from "@/components/atom/cards/assetsCard";
-import ColAssetsCards from "@/components/atom/cards/colAssetsCard";
+import AssetsCard from "@/components/atom/cards/assets-card";
+import ColAssetsCards from "@/components/atom/cards/col-assets-card";
 import { Collectible } from "@/lib/types";
 import { getListableById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import AssetsSkeleton from "@/components/atom/skeleton/my-asset-skeleton";
-import { toast } from "sonner";
 
 export default function Assets({ detail = false }: { detail: boolean }) {
   const [active, setActive] = useState(false);
-  // Add states for ordering
   const [orderBy, setOrderBy] = useState("recent");
   const [orderDirection, setOrderDirection] = useState("desc");
 
@@ -36,16 +34,6 @@ export default function Assets({ detail = false }: { detail: boolean }) {
     enabled: !!authState?.userId,
   });
 
-  // const handleComingSoon = () => {
-  //   toast({
-  //     title: "Coming Soon!",
-  //     description: "This feature is under development and will be available soon.",
-  //     variant: "default",
-  //     duration: 3000,
-  //   });
-  // };
-
-  // Handle filter change
   const handleOrderChange = (value: string) => {
     switch (value) {
       case "recent":
@@ -72,10 +60,13 @@ export default function Assets({ detail = false }: { detail: boolean }) {
 
   return (
     <>
-      <Tabs defaultValue="All" className="mt-20 mb-10 border-hidden">
-        <section className="flex justify-between mb-7">
+      <Tabs
+        defaultValue="All"
+        className="mt-10 md:mt-20 mb-6 md:mb-10 border-hidden px-4 md:px-0"
+      >
+        <section className="flex flex-col md:flex-row justify-between mb-4 md:mb-7 gap-4">
           {detail ? (
-            <section className="flex justify-between ">
+            <section className="flex flex-col md:flex-row justify-between w-full md:w-auto gap-4">
               <Image
                 src={"/collections/sort.png"}
                 alt="burger"
@@ -86,11 +77,8 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                     ? "bg-neutral500 hover:bg-neutral400 border-transparent"
                     : "bg-neutral600 border border-neutral500 hover:border-neutral400"
                 }`}
-                // onClick={() => setActive(!active)}
-                // onClick={handleComingSoon}
-                // gime ve onClick to comint soon toast message
               />
-              <div className="flex">
+              <div className="flex w-full md:w-auto">
                 <Image
                   src={"/collections/search.png"}
                   alt="search"
@@ -102,21 +90,19 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                   type="email"
                   name="Search"
                   placeholder="Search ID"
-                  className="w-[813px] h-[48px] rounded-xl pt-[14px] pr-[14px] pb-[14px] pl-10 bg-transparent border border-neutral400 text-neutral200"
+                  className="w-full md:w-[813px] h-[48px] rounded-xl pt-[14px] pr-[14px] pb-[14px] pl-10 bg-transparent border border-neutral400 text-neutral200"
                 />
-                <div />
               </div>
             </section>
-          ) : (
-            <div>{/* Tabs code removed for brevity */}</div>
-          )}
-          <div className="flex justify-between text-center items-center w-[330px] h-[48px] gap-4">
+          ) : null}
+
+          <div className="flex flex-col sm:flex-row justify-between text-center items-start w-full sm:w-[330px] h-auto sm:h-[48px] gap-4">
             <Select defaultValue="recent" onValueChange={handleOrderChange}>
-              <SelectTrigger className="w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50 pt-2 pr-4 pb-2 pl-5">
+              <SelectTrigger className="w-full sm:w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50 pt-2 pr-4 pb-2 pl-5">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent
-                className="w-[225px] h-40 rounded-xl text-center bg-neutral600 bg-opacity-[70%] text-neutral50 border-neutral400"
+                className="w-full sm:w-[225px] h-40 rounded-xl text-center bg-neutral600 bg-opacity-[70%] text-neutral50 border-neutral400"
                 style={{
                   backdropFilter: "blur(30px)",
                 }}
@@ -132,7 +118,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                 </SelectItem>
               </SelectContent>
             </Select>
-            <TabsList className="text-neutral50 border border-neutral400 rounded-xl w-[92px] h-12">
+            <TabsList className="text-neutral50 border border-neutral400 rounded-xl w-[92px] sm:w-[92px] h-12">
               <TabsTrigger
                 value="All"
                 className="w-10 h-10 font-semibold text-[15px] border-hidden rounded-lg p-[10px]"
@@ -161,11 +147,13 @@ export default function Assets({ detail = false }: { detail: boolean }) {
 
         {detail && (
           <section
-            className={`flex w-full ${active ? "gap-10" : "gap-0"} pt-7`}
+            className={`flex w-full ${
+              active ? "gap-4 md:gap-10" : "gap-0"
+            } pt-4 md:pt-7`}
           >
             <div
               className={`flex ${
-                active ? " opacity-100 w-[280px]" : " opacity-0 w-0"
+                active ? "opacity-100 w-full md:w-[280px]" : "opacity-0 w-0"
               } transition-all`}
             >
               <CollectionSideBar />
@@ -173,8 +161,10 @@ export default function Assets({ detail = false }: { detail: boolean }) {
 
             <TabsContent value="All">
               <div
-                className={`grid w-full gap-10 ${
-                  active ? "grid-cols-3" : "grid-cols-4"
+                className={`grid w-full gap-4 md:gap-10 ${
+                  active
+                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                 }`}
               >
                 {collectiblelist.data?.collectibles?.map(
@@ -182,13 +172,13 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                     <div key={item.id}>
                       <AssetsCard data={item} />
                     </div>
-                  ),
+                  )
                 )}
               </div>
             </TabsContent>
 
             <TabsContent value="ColCard" className="w-full">
-              <div className="flex h-[34px] pr-8 pb-4 pl-4">
+              <div className="hidden md:flex h-[34px] pr-8 pb-4 pl-4">
                 <div className="w-[392px] h-[18px]">
                   <p className="font-medium text-md text-neutral200">Item</p>
                 </div>
@@ -200,7 +190,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                   </div>
                   <div className="max-w-[200px] h-[18px]">
                     <p className="font-medium text-md text-neutral200">
-                      Floor defference
+                      Floor difference
                     </p>
                   </div>
                   <div className="max-w-[200px] h-[18px]">
@@ -213,14 +203,14 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                   </div>
                 </div>
               </div>
-              <ScrollArea className="h-[754px] w-full border-t-2 border-neutral500">
+              <ScrollArea className="h-[500px] md:h-[754px] w-full border-t-2 border-neutral500">
                 <div className="flex flex-col w-full pt-4 gap-4">
                   {collectiblelist.data?.collectibles?.map(
                     (item: Collectible) => (
                       <div key={item.id}>
                         <ColAssetsCards data={item} />
                       </div>
-                    ),
+                    )
                   )}
                 </div>
               </ScrollArea>

@@ -1,14 +1,13 @@
 "use client";
 
 import Header from "@/components/layout/header";
-import OrderDetail from "@/components/section/orderDetail";
-import Layout from "../layout";
+import OrderDetail from "@/components/section/order-detail";
 
 const Orders = () => {
   return (
     <>
       <Header />
-      < OrderDetail />
+      <OrderDetail />
     </>
   );
 };

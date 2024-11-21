@@ -9,7 +9,7 @@ export default function CollectionLayout({
 }) {
   return (
     <div className="flex flex-col w-full h-full bg-background items-center">
-      <div className="w-full max-w-[1216px]">
+      <div className="w-full max-w-[1216px] px-8 xl:px-0">
         <Header />
         {children}
       </div>

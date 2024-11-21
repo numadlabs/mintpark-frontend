@@ -1,13 +1,17 @@
 import Image from "next/image";
-import Link from "next/link";
-import { CollectionDataType } from "@/lib/types";
 import { s3ImageUrlBuilder, ordinalsImageCDN } from "@/lib/utils";
+import { Collectible } from "@/lib/types";
+import Link from "next/link";
 
-export default function ColDetailCard({ data }: { data: CollectionDataType }) {
-  const isListed = data.price > 0;
+interface CardProps {
+  data: Collectible;
+}
+
+const AssetsCard: React.FC<CardProps> = ({ data }) => {
+  const isListed = data?.price > 0;
 
   const formatPrice = (price: number) => {
-    return price.toLocaleString('en-US', {
+    return price?.toLocaleString('en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 6
     });
@@ -15,8 +19,8 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
 
   return (
     <Link
-      href={`/assetDetail/${data.id}`}
-      className="block w-[240px] sm:w-[280px] h-[394px] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl px-4 pt-4 pb-5"
+      href={`/assets/${data.id}`}
+      className="block w-[280px] h-[394px] transition-transform hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl px-4 pt-4 pb-5"
     >
       <div className="flex flex-col h-full">
         <Image
@@ -28,39 +32,41 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
               : ordinalsImageCDN(data.uniqueIdx)
           }
           className="aspect-square rounded-xl"
-          alt={data.name || "Collection image"}
+          alt={data.name || "Asset image"}
         />
 
-        <div className="flex flex-col flex-1 pt-1">
+        <div className="flex flex-col flex-grow">
           <p className="text-neutral200 font-medium text-md pt-2">
-            {data.collectionName}
+            {data?.collectionName}
           </p>
           <p className="py-1 text-lg2 text-neutral50 font-bold">
-            {data.name}
+            {data?.name}
           </p>
           
-          <div className="mt-auto">
+          <div className="mt-auto pt-4">
             <div className="relative group">
               <div className="h-10 border-t border-neutral400 group-hover:border-transparent">
-                <div className="flex justify-between py-4 group-hover:opacity-0 transition-opacity">
+                <div className="flex justify-between py-2">
                   {isListed ? (
                     <>
-                      <p className="text-neutral200 font-medium text-md">Price</p>
-                      <p className="text-neutral50">
+                      <p className="text-neutral200 font-medium text-md group-hover:hidden">Price</p>
+                      <p className="text-neutral50 group-hover:hidden">
                         {formatPrice(data.price)}
                         <span className="ml-1">cBTC</span>
                       </p>
                     </>
                   ) : (
-                    <p className="text-neutral200 font-medium text-md">
+                    <p className="text-neutral200 font-medium text-md group-hover:hidden">
                       Unlisted
                     </p>
                   )}
                 </div>
               </div>
-              
-              <div className="absolute inset-0 w-full h-10 flex items-center justify-center bg-white4 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-white">View</span>
+
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-in-out">
+                <div className="h-10 bg-white4 rounded-lg flex items-center justify-center text-white">
+                  View
+                </div>
               </div>
             </div>
           </div>
@@ -68,4 +74,6 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
       </div>
     </Link>
   );
-}
+};
+
+export default AssetsCard;

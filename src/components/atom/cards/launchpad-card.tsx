@@ -73,16 +73,17 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
 
   return (
     <Link href={`/launchpad/${id}`} className="block w-full">
-      <div className="relative flex flex-col h-auto min-h-[320px] sm:h-[412px] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-[20px] p-4 text-neutral00 transition-transform hover:scale-[1.02]">
-        <div className="relative w-full pb-[100%] sm:pb-0 sm:h-[248px]">
+      <div className="relative flex flex-col backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-[20px] p-4 text-neutral00 transition-transform hover:scale-[1.02] duration-300">
+        <div className="relative w-full flex justify-center items-center">
           <Image
-            fill
+          width={248}
+          height={248}
             src={
               data?.logoKey
                 ? s3ImageUrlBuilder(data.logoKey)
                 : "/launchpads/launch_1.png"
             }
-            className="object-cover rounded-xl"
+            className="object-cover rounded-xl aspect-square"
             alt={`${data.name || "Launchpad"} logo`}
           />
         </div>

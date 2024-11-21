@@ -97,6 +97,8 @@ export default function Header() {
     },
     { title: "Launchpad", pageUrl: "/launchpad" },
     { title: "Collections", pageUrl: "/collections" },
+    // { title: "My assets", pageUrl: "/assets" },
+    // { title: "Inscribe Orders", pageUrl: "/collections" },
   ];
 
   const toggleWalletModal = () => {
@@ -374,6 +376,10 @@ export default function Header() {
                   </button>
                 </div>
               ))}
+              <div className="flex flex-col gap-8 pt-6 border-t border-neutral400">
+                <Link href="/assets" className="text-neutral00 text-lg font-medium">My Assets</Link>
+                <Link href="/orders" className="text-neutral00 text-lg font-medium">Inscribe Orders</Link>
+              </div>
 
               {/* {authState?.authenticated ? (
                 <div className="flex flex-col gap-2">
