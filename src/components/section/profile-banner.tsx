@@ -46,7 +46,6 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
     usdBtc: 0,
   });
   const [rawAddress, setRawAddress] = useState<string>("");
-
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
   const [activeWallet, setActiveWallet] = useState<
     "metamask" | "unisat" | null
@@ -56,9 +55,9 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
 
   const formatPrice = (price: number) => {
     const btcAmount = price;
-    return btcAmount?.toLocaleString('en-US', {
-      minimumFractionDigits:0,
-      maximumFractionDigits: 4
+    return btcAmount?.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 4,
     });
   };
 
@@ -79,7 +78,6 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
     try {
       if (!window.ethereum) throw new Error("MetaMask not installed");
 
-      // Reset any existing wallet state
       if (activeWallet === "unisat") {
         resetWalletState();
       }
@@ -112,7 +110,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       setError(null);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Failed to fetch MetaMask balance",
+        e instanceof Error ? e.message : "Failed to fetch MetaMask balance"
       );
       console.error("MetaMask balance fetch error:", e);
     } finally {
@@ -125,7 +123,6 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
     try {
       if (!window.unisat) throw new Error("Unisat not installed");
 
-      // Reset any existing wallet state
       if (activeWallet === "metamask") {
         resetWalletState();
       }
@@ -156,7 +153,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       setError(null);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Failed to fetch Unisat balance",
+        e instanceof Error ? e.message : "Failed to fetch Unisat balance"
       );
       console.error("Unisat balance fetch error:", e);
     } finally {
@@ -174,7 +171,6 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
     }
   };
 
-  // Set up listeners for both wallet types
   useEffect(() => {
     const setupMetaMaskListeners = () => {
       if (!window.ethereum) return;
@@ -200,7 +196,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       return () => {
         window.ethereum.removeListener(
           "accountsChanged",
-          handleAccountsChanged,
+          handleAccountsChanged
         );
         window.ethereum.removeListener("chainChanged", getMetaMaskBalance);
       };
@@ -232,20 +228,19 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       };
     };
 
-    // Set up listeners for both wallet types
     const cleanupMetaMask = setupMetaMaskListeners();
     const cleanupUnisat = setupUnisatListeners();
 
-    // Cleanup function
     return () => {
       if (cleanupMetaMask) cleanupMetaMask();
       if (cleanupUnisat) cleanupUnisat();
     };
-  }, [activeWallet, authState.walletType]); // Only re-run when activeWallet changes
+  }, [activeWallet, authState.walletType]);
 
   return (
-    <section className="mt-[43.5px]">
-      <div className="relative h-[216px] w-full rounded-3xl overflow-hidden">
+    <section className="mt-[43.5px] w-full">
+      <div className="relative z-10 h-auto min-h-[216px] w-full rounded-3xl overflow-hidden">
+        {/* Banner Background */}
         <div
           className="absolute inset-0"
           style={{
@@ -255,95 +250,127 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
             backgroundRepeat: "no-repeat",
           }}
         />
+        {/* Blur Overlay */}
         <div
-          className="absolute inset-0 bg-neutral500 bg-opacity-[70%] z-50"
+          className="absolute inset-0 bg-neutral500 bg-opacity-[70%] z-10"
           style={{
             backdropFilter: "blur(50px)",
           }}
         />
-        <div className="flex relative top-11 pl-12 pr-12 w-full z-50">
-          <div className="pt-4">
-            <Image
-              width={120}
-              height={120}
-              src={"/profile/proImg.png"}
-              className="aspect-square rounded-[200px]"
-              alt="png"
-            />
-          </div>
-          <div className="w-full flex flex-col justify-between gap-5 pl-6 pr-6 pt-4 pb-4">
-            <div className="flex gap-4 items-center">
-              {/* {authState.address} */}
-              <span className="text-profileTitle font-bold">
-                {formatWalletAddress(authState.address)}
-              </span>{" "}
-              <div className="relative">
-                <Image
-                  src={"/profile/copy.png"}
-                  alt="copy"
-                  width={24}
-                  height={24}
-                  className="w-6 h-6 cursor-pointer"
-                  onClick={handleCopyAddress}
-                />
-                {copySuccess && (
-                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-sm py-1 px-2 rounded">
-                    Copied!
-                  </div>
-                )}
-              </div>
+
+        {/* Main Content Container */}
+        <div className="relative py-12  px-4 sm:px-6 md:px-8 lg:px-12 w-full z-10">
+          <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
+            {/* Profile Image */}
+            <div className="flex-shrink-0">
+              <Image
+                width={120}
+                height={120}
+                src={"/profile/proImg.png"}
+                className="aspect-square rounded-[200px] w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-[120px] lg:h-[120px]"
+                alt="profile"
+                priority
+              />
             </div>
-            <div className="flex justify-between w-full">
-              <div className="flex gap-4">
-                {activeWallet === "metamask" && (
-                  <h2 className="rounded-2xl bg-white4 p-4 flex gap-4 items-center">
-                    <Image
-                      src={"/wallets/Bitcoin.png"}
-                      alt="ethereum"
-                      width={24}
-                      height={24}
-                      className="h-6 w-6"
-                    />
-                    <p className="flex items-center font-bold text-xl text-white">
-                      {formatPrice(balance.eth)} cBTC
-                    </p>
-                    <p className="border-l border-l-white16 pl-4 h-5 text-neutral100 text-md flex items-center">
-                      ${formatPrice(balance.usdEth)}
-                    </p>
-                  </h2>
-                )}
-                {activeWallet === "unisat" && (
-                  <h2 className="rounded-2xl bg-white4 p-4 flex gap-4 items-center">
-                    <Image
-                      src={"/wallets/Bitcoin.png"}
-                      alt="bitcoin"
-                      width={24}
-                      height={24}
-                      className="h-6 w-6"
-                    />
-                    <p className="flex items-center font-bold text-xl text-white">
-                      {formatPrice(balance.btc)} cBTC
-                    </p>
-                    <p className="border-l border-l-white16 pl-4 h-5 text-neutral100 text-md flex items-center">
-                      ${formatPrice(balance.usdBtc)}
-                    </p>
-                  </h2>
-                )}
-              </div>
-              <div className="flex gap-4 items-end">
-                <span className="pt-3 pr-4 pb-3 pl-4 flex gap-3 rounded-xl text-neutral50 bg-white4 items-center">
-                  <p className="text-neutral100 text-md font-medium">
-                    Total items:
-                  </p>
-                  {params.data?.totalCount}
+
+            {/* Profile Content */}
+            <div className="flex-grow w-full flex flex-col gap-4 md:gap-5">
+              {/* Wallet Address and Copy Button */}
+              <div className="flex gap-4 items-center justify-center md:justify-start">
+                <span className="font-bold text-lg sm:text-profileTitle">
+                  {formatWalletAddress(authState.address)}
                 </span>
-                <span className="pt-3 pr-4 pb-3 pl-4 flex gap-3 rounded-xl text-neutral50 bg-white4 items-center">
-                  <p className="text-neutral100 text-md font-medium">
-                    Listed items:
-                  </p>
-                  {params.data?.listCount}
-                </span>
+                <div className="relative">
+                  <Image
+                    src={"/profile/copy.png"}
+                    alt="copy"
+                    width={24}
+                    height={24}
+                    className="w-5 h-5 sm:w-6 sm:h-6 cursor-pointer"
+                    onClick={handleCopyAddress}
+                  />
+                  {copySuccess && (
+                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-sm py-1 px-2 rounded">
+                      Copied!
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* Balance and Items Info */}
+              <div className="flex flex-col lg:flex-row gap-4 w-full">
+                {/* Wallet Balance Section */}
+                <div className="flex flex-wrap justify-center lg:justify-start gap-4">
+                  {activeWallet === "metamask" && (
+                    <div className="rounded-2xl bg-white4 p-3 sm:p-4 flex gap-2 sm:gap-4 items-center">
+                      <Image
+                        src={"/wallets/Bitcoin.png"}
+                        alt="ethereum"
+                        width={24}
+                        height={24}
+                        className="h-5 w-5 sm:h-6 sm:w-6"
+                      />
+                      <p className="flex items-center font-bold text-lg sm:text-xl text-white">
+                        {formatPrice(balance.eth)} cBTC
+                      </p>
+                      <p className="border-l border-l-white16 pl-2 sm:pl-4 h-5 text-neutral100 text-sm sm:text-md flex items-center">
+                        ${formatPrice(balance.usdEth)}
+                      </p>
+                    </div>
+                  )}
+                  {activeWallet === "unisat" && (
+                    <div className="rounded-2xl bg-white4 p-3 sm:p-4 flex gap-2 sm:gap-4 items-center">
+                      <Image
+                        src={"/wallets/Bitcoin.png"}
+                        alt="bitcoin"
+                        width={24}
+                        height={24}
+                        className="h-5 w-5 sm:h-6 sm:w-6"
+                      />
+                      <p className="flex items-center font-bold text-lg sm:text-xl text-white">
+                        {formatPrice(balance.btc)} cBTC
+                      </p>
+                      <p className="border-l border-l-white16 pl-2 sm:pl-4 h-5 text-neutral100 text-sm sm:text-md flex items-center">
+                        ${formatPrice(balance.usdBtc)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Items Count Section */}
+                <div className="flex flex-wrap justify-center lg:justify-end gap-4 items-center lg:ml-auto">
+                  <span className="p-2 sm:pt-3 sm:pr-4 sm:pb-3 sm:pl-4 flex gap-2 sm:gap-3 rounded-xl text-neutral50 bg-white4 items-center">
+                    <p className="text-neutral100 text-sm sm:text-md font-medium">
+                      Total items:
+                    </p>
+                    <span className="text-sm sm:text-base">
+                      {params.data?.totalCount}
+                    </span>
+                  </span>
+                  <span className="p-2 sm:pt-3 sm:pr-4 sm:pb-3 sm:pl-4 flex gap-2 sm:gap-3 rounded-xl text-neutral50 bg-white4 items-center">
+                    <p className="text-neutral100 text-sm sm:text-md font-medium">
+                      Listed items:
+                    </p>
+                    <span className="text-sm sm:text-base">
+                      {params.data?.listCount}
+                    </span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Error Display */}
+              {error && (
+                <div className="text-red-500 text-sm mt-2 text-center md:text-left">
+                  {error}
+                </div>
+              )}
+
+              {/* Loading State */}
+              {isLoading && (
+                <div className="text-neutral100 text-sm mt-2 text-center md:text-left">
+                  Loading...
+                </div>
+              )}
             </div>
           </div>
         </div>
