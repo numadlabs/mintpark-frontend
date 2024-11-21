@@ -97,6 +97,8 @@ export default function Header() {
     },
     { title: "Launchpad", pageUrl: "/launchpad" },
     { title: "Collections", pageUrl: "/collections" },
+    { title: "My assets", pageUrl: "/assets" },
+    { title: "Inscribe Orders", pageUrl: "/collections" },
   ];
 
   const toggleWalletModal = () => {
