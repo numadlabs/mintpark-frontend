@@ -3,11 +3,12 @@ import Image from "next/image";
 import { ScrollArea } from "../ui/scroll-area";
 import { getAllOrders } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowRight2 } from "iconsax-react";
 import OrderDetailModal from "../modal/order-detail-modal";
 import { Input } from "../ui/input";
 import { useAuth } from "../provider/auth-context-provider";
 import OrderDetailSkeleton from "../atom/skeleton/order-detail-skeleton";
+import { ArrowRight2, SearchNormal1 } from "iconsax-react";
+// import { ArrowRight2, SearchNormal1 } from "lucide-react";
 
 interface Order {
   id: string;
@@ -36,7 +37,6 @@ const OrderDetail = () => {
 
   const filteredOrders = useMemo(() => {
     if (!orders.length) return [];
-
     return orders.filter((order: Order) =>
       order?.id?.toLowerCase().includes(searchTerm.toLowerCase()),
     );
@@ -46,74 +46,75 @@ const OrderDetail = () => {
     const date = new Date(dateString);
     const localDate = new Date(date.toLocaleString());
 
-    const year = localDate.getFullYear();
-    const month = String(localDate.getMonth() + 1).padStart(2, "0");
-    const day = String(localDate.getDate()).padStart(2, "0");
-    const hours = String(localDate.getHours()).padStart(2, "0");
-    const minutes = String(localDate.getMinutes()).padStart(2, "0");
-
-    return `${year}/${month}/${day}, ${hours}:${minutes}`;
+    return new Intl.DateTimeFormat("default", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(localDate);
   };
 
   const getStatus = (paymentStatus: string) => {
-    switch (paymentStatus) {
-      case "PENDING":
-        return "Pending";
-      case "IN_QUEUE":
-        return "In queue";
-      case "DONE":
-        return "Minted";
-      case "EXPIRED":
-        return "Closed";
-      default:
-        return "Pending...";
-    }
+    const statusMap = {
+      PENDING: "Pending",
+      IN_QUEUE: "In queue",
+      DONE: "Minted",
+      EXPIRED: "Closed",
+    };
+    return statusMap[paymentStatus as keyof typeof statusMap] || "Pending...";
   };
 
   const getStatusColor = (status: string) => {
-    // Convert the input status to uppercase to match our case conditions
-    const upperStatus = status.toUpperCase();
-    switch (upperStatus) {
-      case "PENDING":
-        return "text-[#B0B0B1]";
-      case "IN_QUEUE":
-        return "text-[#6DB5E5]";
-      case "DONE":
-        return "text-[#2CB59E]";
-      case "EXPIRED":
-        return "text-[#FF5C69]";
-      default:
-        return "text-[#B0B0B1]";
-    }
+    const colorMap = {
+      PENDING: "text-neutral-400",
+      IN_QUEUE: "text-blue-400",
+      DONE: "text-emerald-400",
+      EXPIRED: "text-red-400",
+    };
+    return (
+      colorMap[status.toUpperCase() as keyof typeof colorMap] ||
+      "text-neutral-400"
+    );
   };
 
-  const toggleOrderModal = (order: any) => {
+  const getStatusBackground = (status: string) => {
+    const bgMap = {
+      PENDING: "bg-neutral-400/10",
+      IN_QUEUE: "bg-blue-400/10",
+      DONE: "bg-transparent",
+      EXPIRED: "bg-red-400/10",
+    };
+    return bgMap[status.toUpperCase() as keyof typeof bgMap] || "bg-neutral500";
+  };
+
+  const toggleOrderModal = (order: Order | null) => {
     setSelectedOrder(order);
     setOrderModal(!orderModal);
-    setOrderId(order?.id);
+    if (order) setOrderId(order.id);
   };
 
   return (
-    <div className="container relative m-auto z-50 pt-11 flex flex-col gap-8">
-      <div className="flex w-full gap-4">
-        <div className="flex">
-          <Image
-            src="/collections/search.png"
-            alt="search icon"
-            width={20}
-            height={20}
-            className="w-[17.08px] h-[17.08px] relative left-8 top-4"
-          />
+    <div className="container mx-auto px-4 lg:px-6 relative z-10 pt-4 lg:pt-8 flex flex-col gap-4 lg:gap-6">
+      {/* Search and Refresh Section */}
+      <div className="flex flex-col sm:flex-row w-full gap-4">
+        <div className="flex-1 relative">
+          <SearchNormal1 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 w-5 h-5" />
           <Input
             type="text"
             name="Search"
             placeholder="Search by Order ID"
-            className="w-[813px] h-[48px] rounded-xl pt-[14px] pr-[14px] pb-[14px] pl-10 bg-transparent border border-neutral400 text-neutral200"
+            className="w-full h-12 rounded-xl pl-10 bg-transparent border border-white8 text-neutral-200 
+                     focus:border-neutral-300 focus:ring-1 focus:ring-neutral-300 transition-colors"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="flex justify-center items-center rounded-xl h-12 w-12 border border-neutral400 hover:border-neutral300 cursor-pointer">
+        <button
+          className="flex justify-center items-center rounded-xl h-12 w-12 border border-neutral500 
+                         hover:border-neutral-300 transition-colors duration-200 hover:bg-neutral-800"
+        >
           <Image
             src="/collections/refresh.png"
             alt="refresh"
@@ -121,53 +122,103 @@ const OrderDetail = () => {
             height={24}
             className="w-6 h-6"
           />
-        </div>
+        </button>
       </div>
 
-      <div className="flex flex-col w-full pr-[52px] pl-5 gap-4">
-        <div className="grid grid-cols-4 pl-4 w-full h-[18px]">
+      {/* Orders Table */}
+      <div className="flex flex-col w-full bg-transparent rounded-xl p-4 lg:p-6">
+        {/* Table Headers */}
+        <div className="flex justify-around p-5 md:grid grid-cols-4 gap-4 pb-4 border-b border-neutral-700">
           {["Order ID", "Quantity", "Status", "Date"].map((header) => (
-            <p key={header} className="font-medium text-md text-neutral200">
+            <div
+              key={header}
+              className="font-medium text-sm lg:text-base text-neutral-200"
+            >
               {header}
-            </p>
+            </div>
           ))}
         </div>
+
+        {/* Table Content */}
         {isLoading ? (
           <OrderDetailSkeleton />
         ) : (
-          <ScrollArea className="h-[700px] w-full pb-8 border-t-2 border-neutral500">
-            <div className="flex flex-col w-full pt-4 gap-4">
-              {filteredOrders.map((item: Order) => (
+          <ScrollArea className="h-[calc(100vh-280px)] w-full">
+            <div className="flex flex-col gap-3 pt-4">
+              {filteredOrders.map((order: Order) => (
                 <button
-                  className="bg-gray50 rounded-2xl p-5 relative flex items-center"
-                  key={item.id}
-                  onClick={() => toggleOrderModal(item)}
+                  key={order.id}
+                  onClick={() => toggleOrderModal(order)}
+                  className="group w-full text-left bg-neutral-800/50 hover:bg-neutral-800 
+                           rounded-xl p-4 transition-all duration-200"
                 >
-                  <div className="grid grid-cols-4 w-full h-[18px]">
-                    <p className="font-medium text-md text-start w-[160px] text-neutral200 truncate">
-                      {item.id}
-                    </p>
-                    <p className="font-medium text-md text-start pl-1 text-neutral200">
-                      {item.quantity}
-                    </p>
-                    <p
-                      className={`font-medium text-md text-start pl-2 ${getStatusColor(item.orderStatus)} capitalize truncate`}
-                    >
-                      {getStatus(item.orderStatus)}
-                    </p>
-                    <p className="font-medium text-start pl-3 text-md text-neutral200">
-                      {formatDateTime(item.createdAt)}
-                    </p>
+                  {/* Mobile Layout */}
+                  <div className="md:hidden p-5 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-neutral-200 truncate max-w-[200px]">
+                          {order.id}
+                        </p>
+                        <p className="text-sm text-neutral-400">
+                          Quantity: {order.quantity}
+                        </p>
+                      </div>
+                      <ArrowRight2
+                        className="w-5 h-5 text-neutral-400 group-hover:text-neutral-200 
+                                          group-hover:translate-x-1 transition-all duration-200"
+                      />
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div
+                        className={`py-1 rounded-full text-sm font-medium ${getStatusBackground(order.orderStatus)} 
+                                    ${getStatusColor(order.orderStatus)}`}
+                      >
+                        {getStatus(order.orderStatus)}
+                      </div>
+                      <p className="text-sm text-neutral-400">
+                        {formatDateTime(order.createdAt)}
+                      </p>
+                    </div>
                   </div>
-                  <div className="absolute right-5">
-                    <ArrowRight2 size={16} color="#D7D8D8" />
+
+                  {/* Desktop Layout */}
+                  <div className="hidden md:grid grid-cols-4 gap-4 items-center">
+                    <p className="font-medium text-neutral-200 truncate">
+                      {order.id}
+                    </p>
+                    <p className="text-neutral-200">{order.quantity}</p>
+                    <div
+                      className={`py-1 rounded-full text-sm font-medium w-fit
+                                  ${getStatusBackground(order.orderStatus)} ${getStatusColor(order.orderStatus)}`}
+                    >
+                      {getStatus(order.orderStatus)}
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <p className="text-neutral-200">
+                        {formatDateTime(order.createdAt)}
+                      </p>
+                      <ArrowRight2
+                        className="w-5 h-5 text-neutral-400 group-hover:text-neutral-200 
+                                          group-hover:translate-x-1 transition-all duration-200"
+                      />
+                    </div>
                   </div>
                 </button>
               ))}
             </div>
           </ScrollArea>
         )}
+
+        {/* Empty State */}
+        {!isLoading && filteredOrders.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 text-neutral-400">
+            <p className="text-lg">No orders found</p>
+            <p className="text-sm mt-2">Try adjusting your search criteria</p>
+          </div>
+        )}
       </div>
+
+      {/* Order Detail Modal */}
       {selectedOrder && (
         <OrderDetailModal
           open={orderModal}
