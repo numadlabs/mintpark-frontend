@@ -9,7 +9,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LaunchpadCard from "@/components/atom/cards/launchpad-card";
-import { LaunchDataType } from "@/lib/types";
 import LaunchpadCardSkeleton from "@/components/atom/skeleton/launchpad-skeleton";
 import Autoplay from "embla-carousel-autoplay";
 
@@ -74,7 +73,7 @@ const Launchpad = () => {
           >
             {isLoading
               ? renderSkeletons()
-              : launch.map((item: LaunchDataType) => (
+              : launch.map((item: any) => (
                   <LaunchpadCard id={item.id} key={item.id} data={item} />
                 ))}
           </TabsContent>
@@ -84,7 +83,7 @@ const Launchpad = () => {
           >
             {isLoading
               ? renderSkeletons()
-              : launch.map((item: LaunchDataType) => (
+              : launch.map((item: any) => (
                   <LaunchpadCard id={item.id} key={item.id} data={item} />
                 ))}
           </TabsContent>
@@ -94,7 +93,7 @@ const Launchpad = () => {
           >
             {isLoading
               ? renderSkeletons()
-              : launch.map((item: LaunchDataType) => (
+              : launch.map((item: any) => (
                   <LaunchpadCard id={item.id} key={item.id} data={item} />
                 ))}
           </TabsContent>

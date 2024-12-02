@@ -30,6 +30,7 @@ import { getSigner } from "@/lib/utils";
 import { toast } from "sonner";
 import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { Button } from "@/components/ui/button";
+import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
 
 const stepperData = ["Upload", "Confirm"];
 
@@ -70,7 +71,7 @@ const SingleCollectible = () => {
     mutationFn: createMintCollectible,
   });
 
-  const { data: currentLayer } = useQuery({
+  const { data: currentLayer } = useQuery<CurrentLayerSchema>({
     queryKey: ["currentLayerData", authState.layerId],
     queryFn: () => getLayerById(authState.layerId as string),
     enabled: !!authState.layerId,
@@ -132,14 +133,14 @@ const SingleCollectible = () => {
       // Calculate file sizes and types
       const newFileSizes = Array.from(files).map((file) => file.size);
       const newFileTypeSizes = Array.from(files).map(
-        (file) => file.type.length,
+        (file) => file.type.length
       );
       const newFileTypes = new Set(Array.from(files).map((file) => file.type));
 
       setFileSizes((prevSizes) => [...prevSizes, ...newFileSizes]);
       setFileTypeSizes((prevSizes) => [...prevSizes, ...newFileTypeSizes]);
       setTotalFileSize(
-        (prevSize) => prevSize + newFileSizes.reduce((a, b) => a + b, 0),
+        (prevSize) => prevSize + newFileSizes.reduce((a, b) => a + b, 0)
       );
     }
   };
@@ -160,10 +161,10 @@ const SingleCollectible = () => {
   const handleDelete = (indexToDelete: number) => {
     // Create new arrays without the deleted items
     const newImageFile = Array.from(imageFile).filter(
-      (_, index) => index !== indexToDelete,
+      (_, index) => index !== indexToDelete
     );
     const newImageFiles = imageFiles.filter(
-      (_, index) => index !== indexToDelete,
+      (_, index) => index !== indexToDelete
     );
 
     // Update state with the new arrays directly
@@ -184,6 +185,10 @@ const SingleCollectible = () => {
   };
 
   const handlePay = async () => {
+    if (!currentLayer) {
+      toast.error("Layer information not available");
+      return;
+    }
     setIsLoading(true);
     try {
       const collectionParams: CollectionData = {
@@ -231,11 +236,11 @@ const SingleCollectible = () => {
           } else if (currentLayer.layer === "FRACTAL") {
             console.log(
               response.data.order.fundingAddress,
-              response.data.order.fundingAmount,
+              response.data.order.fundingAmount
             );
             await window.unisat.sendBitcoin(
               response.data.order.fundingAddress,
-              response.data.order.fundingAmount,
+              response.data.order.fundingAmount
             );
           }
           await new Promise((resolve) => setTimeout(resolve, 1000));

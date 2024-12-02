@@ -39,11 +39,11 @@ const PendingListModal: React.FC<ModalProps> = ({
   name,
   collectibleId,
   txid,
-  id
+  id,
 }) => {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const [price, setPrice] = useState<string>('0');
+  const [price, setPrice] = useState<string>("0");
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -61,30 +61,30 @@ const PendingListModal: React.FC<ModalProps> = ({
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
-    
+
     // Return to '0' if input is empty
-    if (newValue === '') {
-      setPrice('0');
+    if (newValue === "") {
+      setPrice("0");
       return;
     }
-    
+
     // Only allow numbers and decimal point
     if (!/^\d*\.?\d*$/.test(newValue)) {
       return;
     }
-    
+
     // Remove leading zeros unless it's a decimal
-    if (newValue.length > 1 && newValue[0] === '0' && newValue[1] !== '.') {
+    if (newValue.length > 1 && newValue[0] === "0" && newValue[1] !== ".") {
       setPrice(String(parseInt(newValue, 10)));
       return;
     }
-    
+
     setPrice(newValue);
   };
 
   const handlePriceBlur = () => {
-    if (price === '' || parseFloat(price) < 0) {
-      setPrice('0');
+    if (price === "" || parseFloat(price) < 0) {
+      setPrice("0");
     }
   };
 
@@ -114,14 +114,14 @@ const PendingListModal: React.FC<ModalProps> = ({
           });
           if (response && response.success) {
             setSuccess(true);
-            toast.success("Successfully.")
+            toast.success("Successfully.");
           }
         }
       } else {
-        toast.error(collectibleRes.error)
+        toast.error(collectibleRes.error);
       }
     } catch (error) {
-      toast.error("error pending list.")
+      toast.error("error pending list.");
       console.error("Error pending list:", error);
     } finally {
       setIsLoading(false);

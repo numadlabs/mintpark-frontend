@@ -1,12 +1,10 @@
-
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import Assets from "./assets";
 import Activity from "./activity";
 
 const ProfileDetail = () => {
-
   return (
-    <div className="mt-8 flex flex-col gap-8">
+    <div className="mt-8 flex flex-col gap-8 w-full">
       <Tabs defaultValue={"Assets"}>
         <TabsList
           defaultValue={"Assets"}
@@ -20,10 +18,10 @@ const ProfileDetail = () => {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="Assets">
-          <Assets detail/>
+          <Assets detail />
         </TabsContent>
         <TabsContent value="Activity">
-          <Activity/>
+          <Activity />
         </TabsContent>
       </Tabs>
     </div>

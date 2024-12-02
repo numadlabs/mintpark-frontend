@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import * as z from "zod";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -20,9 +21,8 @@ export function imageCDN(uniqueIdx: string) {
 }
 
 export function ordinalsImageCDN(uniqueIdx: string) {
-  return `https://ordinals-testnet.fractalbitcoin.io/content/${uniqueIdx}`
+  return `https://ordinals-testnet.fractalbitcoin.io/content/${uniqueIdx}`;
 }
-
 
 import { ethers } from "ethers";
 
@@ -37,12 +37,20 @@ export async function getSigner(): Promise<WalletConnection> {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const account = await signer.getAddress();
-      return {signer}
+      return { signer };
     } catch (error) {
       console.error("Failed to connect wallet:", error);
     }
   } else {
     console.log("Please install MetaMask!");
   }
-  return {  signer: null};
+  return { signer: null };
 }
+
+export const apiResponseSchema = <T extends z.ZodType>(dataSchema: T) =>
+  z.object({
+    status: z.number(),
+    success: z.boolean(),
+    data: z.union([dataSchema, z.null()]),
+    message: z.string(),
+  });

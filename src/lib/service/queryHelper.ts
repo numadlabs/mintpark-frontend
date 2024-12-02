@@ -1,8 +1,22 @@
-import axios from "axios";
 import axiosClient from "../axios";
-import { CollectionType } from "../types";
+import {
+  Collection,
+  CollectionApiResponse,
+  CollectionDetail,
+  CollectionDetailApiResponse,
+  Collectible,
+  CollectibleApiResponse,
+} from "../validations/collection-validation";
+import { Launchschema } from "../validations/launchpad-validation";
+import {
+  LayerSchema,
+  CurrentLayerSchema,
+} from "../validations/layer-validation";
+import { OrderSchema } from "../validations/asset-validation";
+import { AssetSchema, ActivitySchema } from "../validations/asset-validation";
+import { UserSchema } from "../validations/user-schema";
 
-export async function getUserById(id: string) {
+export async function getUserById(id: string): Promise<UserSchema> {
   return axiosClient.get(`/api/v1/users/${id}`).then((response) => {
     if (response.data.success) {
       return response.data.data;
@@ -12,7 +26,7 @@ export async function getUserById(id: string) {
   });
 }
 
-export async function getAllOrders(id: string) {
+export async function getAllOrders(id: string): Promise<OrderSchema> {
   return axiosClient.get(`/api/v1/orders/user/${id}`).then((response) => {
     if (response.data.success) {
       return response.data.data;
@@ -31,7 +45,10 @@ export async function getOrderById(id: string) {
   });
 }
 
-export async function fetchLaunchs(layerId: string, interval: string) {
+export async function fetchLaunchs(
+  layerId: string,
+  interval: string
+): Promise<Launchschema[]> {
   return axiosClient
     .get(`/api/v1/launchpad?layerId=${layerId}&interval=${interval}`)
     .then((response) => {
@@ -91,7 +108,7 @@ export async function getFeeRates(layerId: string) {
     });
 }
 
-export async function getAllLayers() {
+export async function getAllLayers(): Promise<LayerSchema[]> {
   return axiosClient.get(`/api/v1/layers/`).then((response) => {
     if (response.data.success) {
       return response.data.data;
@@ -101,7 +118,7 @@ export async function getAllLayers() {
   });
 }
 
-export async function getLayerById(id: string) {
+export async function getLayerById(id: string): Promise<CurrentLayerSchema> {
   return axiosClient.get(`/api/v1/layers/${id}`).then((response) => {
     if (response.data.success) {
       return response.data.data;
@@ -115,43 +132,52 @@ export async function getListedCollections(
   layerId: string,
   interval: string,
   orderBy: string,
-  orderDirection: string,
-) {
+  orderDirection: string
+): Promise<Collection[]> {
   return axiosClient
-    .get(
-      `/api/v1/collections/listed?layerId=${layerId}&interval=${interval}&orderBy=${orderBy}&orderDirection=${orderDirection}`,
+    .get<CollectionApiResponse>(
+      `/api/v1/collections/listed?layerId=${layerId}&interval=${interval}&orderBy=${orderBy}&orderDirection=${orderDirection}`
+    )
+    .then((response) => {
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      } else {
+        throw new Error(
+          response.data.message || "Failed to fetch listed collections"
+        );
+      }
+    });
+}
+
+export async function getListedCollectionById(
+  collectionId: string
+): Promise<CollectionDetail | null> {
+  return axiosClient
+    .get<CollectionDetailApiResponse>(
+      `/api/v1/collectibles/${collectionId}/collection/listable`
     )
     .then((response) => {
       if (response.data.success) {
         return response.data.data;
       } else {
-        throw new Error(response.data.error);
+        throw new Error(response.data.message);
       }
     });
 }
 
-export async function getListedCollectionById(collectionId: string) {
+export async function getCollectionById(
+  id: string
+): Promise<Collectible[] | null> {
   return axiosClient
-    .get(`/api/v1/collectibles/${collectionId}/collection/listable`)
+    .get<CollectibleApiResponse>(`/api/v1/collectibles/${id}`)
     .then((response) => {
       if (response.data.success) {
         return response.data.data;
       } else {
-        throw new Error(response.data.error);
+        throw new Error(response.data.message);
       }
     });
 }
-
-export async function getCollectionById(id: string) {
-  return axiosClient.get(`/api/v1/collectibles/${id}`).then((response) => {
-    if (response.data.success) {
-      return response.data.data;
-    } else {
-      throw new Error(response.data.error);
-    }
-  });
-}
-
 
 export async function getCollectibleById(id: string) {
   return axiosClient
@@ -163,7 +189,7 @@ export async function getCollectibleById(id: string) {
         throw new Error(response.data.error);
       }
     });
-};
+}
 
 export async function getCollectionsById(id: string) {
   return axiosClient.get(`/api/v1/collections/${id}`).then((response) => {
@@ -175,9 +201,15 @@ export async function getCollectionsById(id: string) {
   });
 }
 
-export async function getListableById(id: string, orderDirection: string, orderBy: string) {
+export async function getListableById(
+  id: string,
+  orderDirection: string,
+  orderBy: string
+): Promise<AssetSchema> {
   return axiosClient
-    .get(`/api/v1/collectibles/${id}/listable?orderDirection=${orderDirection}&orderBy=${orderBy}`)
+    .get(
+      `/api/v1/collectibles/${id}/listable?orderDirection=${orderDirection}&orderBy=${orderBy}`
+    )
     .then((response) => {
       if (response.data.success) {
         return response.data;
@@ -186,7 +218,6 @@ export async function getListableById(id: string, orderDirection: string, orderB
       }
     });
 }
-
 
 export async function checkOrderStatus(id: string, txid?: string) {
   return axiosClient
@@ -212,7 +243,9 @@ export async function getEstimateFee(id: string) {
     });
 }
 
-export async function getCollectibleActivity(id: string) {
+export async function getCollectibleActivity(
+  id: string
+): Promise<ActivitySchema[]> {
   return axiosClient
     .get(`/api/v1/collectibles/${id}/activity`)
     .then((response) => {
