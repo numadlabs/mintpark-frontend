@@ -27,13 +27,15 @@ interface FormData {
 
 const sendEmail = async (
   formData: FormData,
-  formType: "partner" | "launch",
+  formType: "partner" | "launch"
 ) => {
   try {
     const subject =
       formType === "partner" ? "New Partnership Request" : "New Launch Request";
-    const mailtoLink = `mailto:bzao.hover@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\nMessage: ${formData.message}`,
+    const mailtoLink = `mailto:bzao.hover@gmail.com?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(
+      `Name: ${formData.name}\nEmail: ${formData.email}\nMessage: ${formData.message}`
     )}`;
     window.location.href = mailtoLink;
     return true;
@@ -106,7 +108,7 @@ export default function Home() {
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    setFormData: React.Dispatch<React.SetStateAction<FormData>>,
+    setFormData: React.Dispatch<React.SetStateAction<FormData>>
   ) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
@@ -257,7 +259,9 @@ export default function Home() {
                 key={index}
                 className="bg-cover w-full md:w-[384px] rounded-[32px] border border-white4 border-b-0 overflow-hidden"
                 style={{
-                  backgroundImage: `url(https://d1orw8h9a3ark2.cloudfront.net/asset/Service-${index + 1}.png)`,
+                  backgroundImage: `url(https://d1orw8h9a3ark2.cloudfront.net/asset/Service-${
+                    index + 1
+                  }.png)`,
                 }}
               >
                 <Image
@@ -330,7 +334,7 @@ export default function Home() {
                           e,
                           tabValue === "account"
                             ? setPartnerFormData
-                            : setLaunchFormData,
+                            : setLaunchFormData
                         )
                       }
                       className="bg-white8 h-12"
@@ -348,7 +352,7 @@ export default function Home() {
                           e,
                           tabValue === "account"
                             ? setPartnerFormData
-                            : setLaunchFormData,
+                            : setLaunchFormData
                         )
                       }
                       className="bg-white8 h-12"
@@ -366,7 +370,7 @@ export default function Home() {
                           e,
                           tabValue === "account"
                             ? setPartnerFormData
-                            : setLaunchFormData,
+                            : setLaunchFormData
                         )
                       }
                       className="bg-white8 h-[88px] pb-10"
