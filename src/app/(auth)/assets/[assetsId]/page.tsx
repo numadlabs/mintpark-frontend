@@ -123,21 +123,21 @@ export default function AssetsDetails() {
 
   if (isCollectionLoading) {
     return (
-      <Layout>
+      <>
         <Header />
         <AssetDetailSkeleton />
-      </Layout>
+      </>
     );
   }
 
   if (!currentAsset) {
     return (
-      <Layout>
+      <>
         <Header />
         <div className="flex justify-center items-center h-96">
           <p className="text-neutral200">Asset not found</p>
         </div>
-      </Layout>
+      </>
     );
   }
 
