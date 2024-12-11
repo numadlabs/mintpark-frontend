@@ -57,7 +57,7 @@ const OrderPayModal: React.FC<ModalProps> = ({
   const [inscribeModal, setInscribeModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState<"Slow" | "Fast" | "Custom">(
-    "Custom",
+    "Custom"
   );
   const [estimatedFee, setEstimatedFee] = useState<EstimatedFee>({
     networkFee: 0,
@@ -118,6 +118,10 @@ const OrderPayModal: React.FC<ModalProps> = ({
   }, [feeAmountMutation, feeRate, fileSizes, fileTypeSizes]);
 
   const handlePay = async () => {
+    if (!currentLayer) {
+      toast.error("Layer information not available");
+      return false;
+    }
     setIsLoading(true);
     console.log(`Handle pay ${hash}`);
     try {
@@ -129,8 +133,8 @@ const OrderPayModal: React.FC<ModalProps> = ({
           selectedTab === "Slow"
             ? feeRates?.economyFee
             : selectedTab === "Fast"
-              ? feeRates?.fastestFee
-              : feeRate,
+            ? feeRates?.fastestFee
+            : feeRate,
         txid: hash,
         totalFileCount: files.length,
       };
@@ -142,7 +146,7 @@ const OrderPayModal: React.FC<ModalProps> = ({
 
           const { signer } = await getSigner();
           const signedTx = await signer?.sendTransaction(
-            response.data.batchMintTxHex,
+            response.data.batchMintTxHex
           );
           await signedTx?.wait();
           console.log(signedTx);
@@ -150,11 +154,11 @@ const OrderPayModal: React.FC<ModalProps> = ({
         } else if (currentLayer.layer === "FRACTAL") {
           console.log(
             response.data.order.fundingAddress,
-            response.data.order.fundingAmount,
+            response.data.order.fundingAmount
           );
           await window.unisat.sendBitcoin(
             response.data.order.fundingAddress,
-            response.data.order.fundingAmount,
+            response.data.order.fundingAmount
           );
         }
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -181,8 +185,8 @@ const OrderPayModal: React.FC<ModalProps> = ({
       selectedTab === "Slow"
         ? feeRates?.economyFee
         : selectedTab === "Fast"
-          ? feeRates?.fastestFee
-          : feeRate,
+        ? feeRates?.fastestFee
+        : feeRate
     );
   }, [selectedTab]);
 
@@ -194,9 +198,9 @@ const OrderPayModal: React.FC<ModalProps> = ({
 
   const formatPrice = (price: number) => {
     const btcAmount = price;
-    return btcAmount?.toLocaleString('en-US', {
+    return btcAmount?.toLocaleString("en-US", {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 6
+      maximumFractionDigits: 6,
     });
   };
 
@@ -318,7 +322,11 @@ const OrderPayModal: React.FC<ModalProps> = ({
               className="flex items-center justify-center"
             >
               {isLoading ? (
-                <Loader2 className="animate-spin w-full" color="#111315" size={24} />
+                <Loader2
+                  className="animate-spin w-full"
+                  color="#111315"
+                  size={24}
+                />
               ) : (
                 "Pay"
               )}
@@ -347,7 +355,6 @@ const OrderPayModal: React.FC<ModalProps> = ({
 };
 
 export default OrderPayModal;
-
 
 // import React, { useEffect, useState, useCallback } from "react";
 // import {

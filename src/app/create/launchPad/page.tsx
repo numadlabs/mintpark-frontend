@@ -42,6 +42,7 @@ import { Loader2 } from "lucide-react";
 import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
 
 const CollectionDetail = () => {
   const router = useRouter();
@@ -131,7 +132,7 @@ const CollectionDetail = () => {
     });
   };
 
-  const { data: currentLayer } = useQuery({
+  const { data: currentLayer } = useQuery<CurrentLayerSchema>({
     queryKey: ["currentLayerData", authState.layerId],
     queryFn: () => getLayerById(authState.layerId as string),
     enabled: !!authState.layerId,
@@ -139,7 +140,7 @@ const CollectionDetail = () => {
 
   const calculateTimeUntilDate = (
     dateString: string,
-    timeString: string,
+    timeString: string
   ): number => {
     try {
       // Input validation
@@ -175,6 +176,10 @@ const CollectionDetail = () => {
   };
 
   const handleCreateCollection = async () => {
+    if (!currentLayer) {
+      toast.error("Layer information not available");
+      return;
+    }
     setIsLoading(true);
     try {
       const params: CollectionData = {
@@ -271,6 +276,10 @@ const CollectionDetail = () => {
   const files = imageFiles.map((image) => image.file);
 
   const handleMintfeeChange = async () => {
+    if (!currentLayer) {
+      toast.error("Layer information not available");
+      return false;
+    }
     setIsLoading(true);
     try {
       const params: MintFeeType = {
@@ -359,6 +368,10 @@ const CollectionDetail = () => {
   };
 
   const handlePay = async () => {
+    if (!currentLayer) {
+      toast.error("Layer information not available");
+      return false;
+    }
     setIsLoading(true);
     try {
       // Process files in batches of 10
@@ -403,7 +416,7 @@ const CollectionDetail = () => {
         if (hexRes && hexRes.success) {
           const { signer } = await getSigner();
           const signedTx = await signer?.sendTransaction(
-            hexRes.data.batchMintTxHex,
+            hexRes.data.batchMintTxHex
           );
           setInscribeModal(true);
           await signedTx?.wait();
@@ -412,7 +425,7 @@ const CollectionDetail = () => {
       } else if (currentLayer.layer === "FRACTAL") {
         await window.unisat.sendBitcoin(
           response.data.order.fundingAddress,
-          response.data.order.fundingAmount,
+          response.data.order.fundingAmount
         );
         setInscribeModal(true);
       }

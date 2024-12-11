@@ -69,7 +69,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [collectionId, setCollectionId] = useState<string>("");
   const [selectedTab, setSelectedTab] = useState<"Slow" | "Fast" | "Custom">(
-    "Custom",
+    "Custom"
   );
   const [estimatedFee, setEstimatedFee] = useState<EstimatedFee>({
     networkFee: 0,
@@ -135,6 +135,10 @@ const SubmitPayModal: React.FC<ModalProps> = ({
   }, [feeAmountMutation, feeRate, fileSizes, fileTypeSizes]);
 
   const handlePay = async () => {
+    if (!currentLayer) {
+      toast.error("Layer information not available");
+      return false;
+    }
     setIsLoading(true);
     try {
       const collectionParams: CollectionData = {
@@ -171,7 +175,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
           // creator: creator,
           feeRate: 1,
           txid: collectionTxid,
-          collectionId: ""
+          collectionId: "",
         };
 
         const response = await createCollectiblesMutation({ data: params });
@@ -186,11 +190,11 @@ const SubmitPayModal: React.FC<ModalProps> = ({
           } else if (currentLayer.layer === "FRACTAL") {
             console.log(
               response.data.order.fundingAddress,
-              response.data.order.fundingAmount,
+              response.data.order.fundingAmount
             );
             await window.unisat.sendBitcoin(
               response.data.order.fundingAddress,
-              response.data.order.fundingAmount,
+              response.data.order.fundingAmount
             );
           }
           await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -218,8 +222,8 @@ const SubmitPayModal: React.FC<ModalProps> = ({
       selectedTab === "Slow"
         ? feeRates?.economyFee
         : selectedTab === "Fast"
-          ? feeRates?.fastestFee
-          : feeRate,
+        ? feeRates?.fastestFee
+        : feeRate
     );
   }, [selectedTab]);
 
@@ -230,9 +234,9 @@ const SubmitPayModal: React.FC<ModalProps> = ({
   }, [calculateFeeRate, feeRate, fileSizes, fileTypeSizes]);
   const formatPrice = (price: number) => {
     const btcAmount = price;
-    return btcAmount?.toLocaleString('en-US', {
-      minimumFractionDigits:0,
-      maximumFractionDigits: 6
+    return btcAmount?.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 6,
     });
   };
   return (
@@ -352,12 +356,10 @@ const SubmitPayModal: React.FC<ModalProps> = ({
               onClick={handlePay}
               disabled={isLoading}
             >
-              {isLoading ? (
-                // <Loader2 className="animate-spin" color="#111315" size={24} />
-                "Loading"
-              ) : (
-                "Pay"
-              )}
+              {isLoading
+                ? // <Loader2 className="animate-spin" color="#111315" size={24} />
+                  "Loading"
+                : "Pay"}
             </Button>
           </DialogFooter>
           <button

@@ -10,9 +10,10 @@ import ProfileBannerSkeleton from "@/components/atom/skeleton/my-asset-banner-sk
 
 const Assets = () => {
   const { authState } = useAuth();
-  const { data: collectiblelist = [], isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["getListableById", authState.userId, "asc", "recent"],
-    queryFn: () => getListableById(authState?.userId as string, "asc", "recent"),
+    queryFn: () =>
+      getListableById(authState?.userId as string, "asc", "recent"),
     enabled: !!authState?.userId,
   });
 
@@ -21,9 +22,9 @@ const Assets = () => {
       <Header />
       {isLoading ? (
         <ProfileBannerSkeleton />
-      ) : (
-        <ProfileBanner params={collectiblelist} />
-      )}
+      ) : data?.success ? (
+        <ProfileBanner params={data} />
+      ) : null}
       <ProfileDetail />
     </>
   );

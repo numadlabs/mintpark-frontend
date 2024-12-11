@@ -8,7 +8,6 @@ import { Input } from "../ui/input";
 import { useAuth } from "../provider/auth-context-provider";
 import OrderDetailSkeleton from "../atom/skeleton/order-detail-skeleton";
 import { ArrowRight2, SearchNormal1 } from "iconsax-react";
-// import { ArrowRight2, SearchNormal1 } from "lucide-react";
 
 interface Order {
   id: string;
@@ -38,7 +37,7 @@ const OrderDetail = () => {
   const filteredOrders = useMemo(() => {
     if (!orders.length) return [];
     return orders.filter((order: Order) =>
-      order?.id?.toLowerCase().includes(searchTerm.toLowerCase()),
+      order?.id?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [orders, searchTerm]);
 
@@ -170,7 +169,9 @@ const OrderDetail = () => {
                     </div>
                     <div className="flex justify-between items-center">
                       <div
-                        className={`py-1 rounded-full text-sm font-medium ${getStatusBackground(order.orderStatus)} 
+                        className={`py-1 rounded-full text-sm font-medium ${getStatusBackground(
+                          order.orderStatus
+                        )} 
                                     ${getStatusColor(order.orderStatus)}`}
                       >
                         {getStatus(order.orderStatus)}
@@ -189,7 +190,9 @@ const OrderDetail = () => {
                     <p className="text-neutral-200">{order.quantity}</p>
                     <div
                       className={`py-1 rounded-full text-sm font-medium w-fit
-                                  ${getStatusBackground(order.orderStatus)} ${getStatusColor(order.orderStatus)}`}
+                                  ${getStatusBackground(
+                                    order.orderStatus
+                                  )} ${getStatusColor(order.orderStatus)}`}
                     >
                       {getStatus(order.orderStatus)}
                     </div>

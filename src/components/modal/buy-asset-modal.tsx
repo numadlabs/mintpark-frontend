@@ -31,7 +31,7 @@ interface ModalProps {
   networkFee: number;
   serviceFee: number;
   total: number;
-  listId: string;
+  listId: string | null;
 }
 
 const BuyAssetModal: React.FC<ModalProps> = ({

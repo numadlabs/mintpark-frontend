@@ -4,7 +4,7 @@ import Image from "next/image";
 import moment from "moment";
 
 interface PhaseCardItemProps {
-  maxMintPerWallet: string;
+  maxMintPerWallet: number;
   mintPrice: number;
   endsAt: number;
   startsAt: number;
@@ -59,7 +59,13 @@ const PhaseCard: React.FC<PhaseCardItemProps> = ({
         setStatus("Ends in:");
         const duration = moment.duration(endMoment.diff(now));
         setTimeDisplay(
-          `${Math.floor(duration.asDays())}d ${duration.hours().toString().padStart(2, "0")}h ${duration.minutes().toString().padStart(2, "0")}m`,
+          `${Math.floor(duration.asDays())}d ${duration
+            .hours()
+            .toString()
+            .padStart(2, "0")}h ${duration
+            .minutes()
+            .toString()
+            .padStart(2, "0")}m`
         );
         return;
       }
@@ -69,7 +75,13 @@ const PhaseCard: React.FC<PhaseCardItemProps> = ({
         setStatus("Starts in:");
         const duration = moment.duration(startMoment.diff(now));
         setTimeDisplay(
-          `${Math.floor(duration.asDays())}d ${duration.hours().toString().padStart(2, "0")}h ${duration.minutes().toString().padStart(2, "0")}m`,
+          `${Math.floor(duration.asDays())}d ${duration
+            .hours()
+            .toString()
+            .padStart(2, "0")}h ${duration
+            .minutes()
+            .toString()
+            .padStart(2, "0")}m`
         );
       }
     };
@@ -82,7 +94,11 @@ const PhaseCard: React.FC<PhaseCardItemProps> = ({
 
   return (
     <button
-      className={`flex flex-col justify-between border ${isActive ? "border-brand" : "border-white8"} rounded-3xl p-5 gap-4 ${status === "Ended" ? "cursor-not-allowed" : "cursor-pointer"} `}
+      className={`flex flex-col justify-between border ${
+        isActive ? "border-brand" : "border-white8"
+      } rounded-3xl p-5 gap-4 ${
+        status === "Ended" ? "cursor-not-allowed" : "cursor-pointer"
+      } `}
       disabled={status === "Ended" || status === "Starts in:"}
       onClick={onClick}
     >

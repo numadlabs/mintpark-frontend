@@ -1,57 +1,55 @@
 import Image from "next/image";
 import { s3ImageUrlBuilder, ordinalsImageCDN } from "@/lib/utils";
-import { Collectible } from "@/lib/types";
+import { CollectibleSchema } from "@/lib/validations/asset-validation";
 import Link from "next/link";
 
 interface CardProps {
-  data: Collectible;
+  data: CollectibleSchema;
 }
 
 const AssetsCard: React.FC<CardProps> = ({ data }) => {
-  const isListed = data?.price > 0;
+  const isListed = (data?.price ?? 0) > 0;
 
   const formatPrice = (price: number) => {
-    return price?.toLocaleString('en-US', {
+    return price?.toLocaleString("en-US", {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 6
+      maximumFractionDigits: 6,
     });
   };
 
   return (
-    <Link
-      href={`/assets/${data.id}`}
-      className="block w-[280px] h-[394px] transition-transform hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl px-4 pt-4 pb-5"
-    >
-      <div className="flex flex-col h-full">
-        <Image
-          width={248}
-          height={248}
-          src={
-            data.fileKey
-              ? s3ImageUrlBuilder(data.fileKey)
-              : ordinalsImageCDN(data.uniqueIdx)
-          }
-          className="aspect-square rounded-xl"
-          alt={data.name || "Asset image"}
-        />
-
-        <div className="flex flex-col flex-grow">
+    <Link href={`/assets/${data.id}`} className="block w-full ">
+      <div className="flex flex-col w-full transition-transform hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl px-4 pt-4 pb-5">
+        <div className="w-full flex justify-center items-center">
+          <Image
+            width={248}
+            height={248}
+            src={
+              data.fileKey
+                ? s3ImageUrlBuilder(data.fileKey)
+                : ordinalsImageCDN(data.uniqueIdx)
+            }
+            className="aspect-square rounded-xl object-cover"
+            alt={data.name || "Asset image"}
+          />
+        </div>
+        <div className="flex flex-col flex-grow w-full">
           <p className="text-neutral200 font-medium text-md pt-2">
             {data?.collectionName}
           </p>
-          <p className="py-1 text-lg2 text-neutral50 font-bold">
-            {data?.name}
-          </p>
-          
-          <div className="mt-auto pt-4">
+          <p className="py-1 text-lg2 text-neutral50 font-bold">{data?.name}</p>
+
+          <div className="w-full pt-4">
             <div className="relative group">
               <div className="h-10 border-t border-neutral400 group-hover:border-transparent">
                 <div className="flex justify-between py-2">
                   {isListed ? (
                     <>
-                      <p className="text-neutral200 font-medium text-md group-hover:hidden">Price</p>
+                      <p className="text-neutral200 font-medium text-md group-hover:hidden">
+                        Price
+                      </p>
                       <p className="text-neutral50 group-hover:hidden">
-                        {formatPrice(data.price)}
+                        {formatPrice(data.price ?? 0)}
                         <span className="ml-1">cBTC</span>
                       </p>
                     </>

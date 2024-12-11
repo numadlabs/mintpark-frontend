@@ -14,11 +14,11 @@ import { useState } from "react";
 import CollectionSideBar from "../collections/sideBar";
 import AssetsCard from "@/components/atom/cards/assets-card";
 import ColAssetsCards from "@/components/atom/cards/col-assets-card";
-import { Collectible } from "@/lib/types";
 import { getListableById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import AssetsSkeleton from "@/components/atom/skeleton/my-asset-skeleton";
+import { CollectibleSchema } from "@/lib/validations/asset-validation";
 
 export default function Assets({ detail = false }: { detail: boolean }) {
   const [active, setActive] = useState(false);
@@ -27,7 +27,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
 
   const { authState } = useAuth();
 
-  const { data: collectiblelist = [], isLoading } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["getListableById", authState.userId, orderBy, orderDirection],
     queryFn: () =>
       getListableById(authState?.userId as string, orderDirection, orderBy),
@@ -167,13 +167,11 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                     : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                 }`}
               >
-                {collectiblelist.data?.collectibles?.map(
-                  (item: Collectible) => (
-                    <div key={item.id}>
-                      <AssetsCard data={item} />
-                    </div>
-                  )
-                )}
+                {data?.data?.collectibles?.map((item: CollectibleSchema) => (
+                  <div key={item.id}>
+                    <AssetsCard data={item} />
+                  </div>
+                ))}
               </div>
             </TabsContent>
 
@@ -205,13 +203,11 @@ export default function Assets({ detail = false }: { detail: boolean }) {
               </div>
               <ScrollArea className="h-[500px] md:h-[754px] w-full border-t-2 border-neutral500">
                 <div className="flex flex-col w-full pt-4 gap-4">
-                  {collectiblelist.data?.collectibles?.map(
-                    (item: Collectible) => (
-                      <div key={item.id}>
-                        <ColAssetsCards data={item} />
-                      </div>
-                    )
-                  )}
+                  {data?.data?.collectibles?.map((item: CollectibleSchema) => (
+                    <div key={item.id}>
+                      <ColAssetsCards data={item} />
+                    </div>
+                  ))}
                 </div>
               </ScrollArea>
             </TabsContent>

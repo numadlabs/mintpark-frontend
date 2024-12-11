@@ -2,15 +2,15 @@ import React from "react";
 import Image from "next/image";
 import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
-import { Collectible } from "@/lib/types";
 import { useAuth } from "@/components/provider/auth-context-provider";
+import { CollectibleSchema } from "@/lib/validations/asset-validation";
 
 const TruncatedAddress = ({ address }: { address: string | null }) => {
   if (!address) return <span>-</span>;
   return (
-    <span
-      title={address}
-    >{`${address.slice(0, 4)}...${address.slice(-4)}`}</span>
+    <span title={address}>{`${address.slice(0, 4)}...${address.slice(
+      -4
+    )}`}</span>
   );
 };
 
@@ -22,15 +22,15 @@ const getDaysAgo = (createdAt: string) => {
   return diffDays;
 };
 interface cardProps {
-  data: Collectible;
+  data: CollectibleSchema;
 }
 
 const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
   const { citreaPrice } = useAuth();
   const daysAgo = getDaysAgo(data.createdAt);
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: number | null) => {
     const btcAmount = price;
-    return btcAmount.toLocaleString("en-US", {
+    return btcAmount?.toLocaleString("en-US", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 6,
     });
@@ -74,7 +74,9 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
           </div>
           <div className="w-full max-w-[220px] h-[18px]">
             <p
-              className={`font-medium text-lg2 ${(data.floor ?? 0) >= 0 ? "text-success" : "text-errorMsg"}`}
+              className={`font-medium text-lg2 ${
+                (data.floor ?? 0) >= 0 ? "text-success" : "text-errorMsg"
+              }`}
             >
               {(data.floor ?? 0) >= 0 ? "+" : ""}
               {formatPrice(data.floor) ?? 0}%
@@ -87,13 +89,17 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
             </p>
           </div>
           <div
-            className={`w-full max-w-[210px] h-[18px] ${data.price > 0 ? "group" : ""} relative`}
+            className={`w-full max-w-[210px] h-[18px] ${
+              (data?.price ?? 0) > 0 ? "group" : ""
+            } relative`}
           >
             <span className="font-medium text-lg2 flex justify-center text-neutral50">
-              <span className={data.price > 0 ? "group-hover:hidden" : ""}>
+              <span
+                className={(data.price ?? 0) > 0 ? "group-hover:hidden" : ""}
+              >
                 {daysAgo} days ago
               </span>
-              {data.price > 0 && (
+              {(data.price ?? 0) > 0 && (
                 <span className="hidden group-hover:block lg:absolute lg:-top-2 Lg:left-12 text-white bg-white bg-opacity-25 py-2 px-5 rounded-lg cursor-pointer transition-all duration-300 ease-in-out">
                   List
                 </span>

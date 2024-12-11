@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { CollectibleList } from "@/lib/types";
 import { useAuth } from "../provider/auth-context-provider";
+import { AssetSchema } from "@/lib/validations/asset-validation";
 
 interface CardProps {
-  params: {
-    data: CollectibleList;
-  };
+  params: AssetSchema;
 }
 
 interface WalletBalance {
@@ -344,7 +342,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                       Total items:
                     </p>
                     <span className="text-sm sm:text-base">
-                      {params.data?.totalCount}
+                      {params?.data.totalCount}
                     </span>
                   </span>
                   <span className="p-2 sm:pt-3 sm:pr-4 sm:pb-3 sm:pl-4 flex gap-2 sm:gap-3 rounded-xl text-neutral50 bg-white4 items-center">
@@ -352,7 +350,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                       Listed items:
                     </p>
                     <span className="text-sm sm:text-base">
-                      {params.data?.listCount}
+                      {params?.data.listCount}
                     </span>
                   </span>
                 </div>
@@ -362,13 +360,6 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
               {error && (
                 <div className="text-red-500 text-sm mt-2 text-center md:text-left">
                   {error}
-                </div>
-              )}
-
-              {/* Loading State */}
-              {isLoading && (
-                <div className="text-neutral100 text-sm mt-2 text-center md:text-left">
-                  Loading...
                 </div>
               )}
             </div>

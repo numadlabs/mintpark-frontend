@@ -72,7 +72,7 @@ export async function loginHandler({
   return axiosClient
     .post(
       `/api/v1/users/login`,
-      JSON.stringify({ address, signedMessage, layerId, pubkey }),
+      JSON.stringify({ address, signedMessage, layerId, pubkey })
     )
     .then((response) => {
       return response.data;
@@ -150,7 +150,7 @@ export async function createMintCollectible({
     if (file instanceof File) {
       formData.append(`file`, file);
       console.log(
-        `Appending file ${index}: ${file.name}, size: ${file.size}, type: ${file.type}`,
+        `Appending file ${index}: ${file.name}, size: ${file.size}, type: ${file.type}`
       );
     } else {
       console.error(`Invalid file at index ${index}:`, file);
@@ -214,7 +214,7 @@ export async function createCollectiblesToCollection({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
     );
   });
 
@@ -266,7 +266,7 @@ export async function launchCollection({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
     );
   });
 
@@ -323,18 +323,19 @@ export async function createOrderToMint({
   collectionId,
   feeRate,
   launchOfferType,
-  txid
+  txid,
 }: {
   collectionId: string;
   feeRate: number;
   launchOfferType: string;
-  txid?:string
+  txid?: string;
 }) {
   try {
     return axiosClient
       .post(`/api/v1/launchpad/collections/${collectionId}/create-order`, {
         feeRate,
-        launchOfferType,txid
+        launchOfferType,
+        txid,
       })
       .then((response) => {
         return response.data;
@@ -344,13 +345,21 @@ export async function createOrderToMint({
   }
 }
 
-export async function confirmOrder({ orderId, txid, launchItemId }: { orderId: string, txid?: string | undefined, launchItemId: string }) {
+export async function confirmOrder({
+  orderId,
+  txid,
+  launchItemId,
+}: {
+  orderId: string;
+  txid?: string | undefined;
+  launchItemId: string;
+}) {
   try {
     return axiosClient
       .post(`/api/v1/launchpad/invoke-order`, {
         orderId,
         txid,
-        launchItemId
+        launchItemId,
       })
       .then((response) => {
         return response.data;
@@ -520,7 +529,7 @@ export async function generateHex(collectionId: string) {
   // try {
   return axiosClient
     .post(
-      `/api/v1/purchase/${collectionId}/generate`,
+      `/api/v1/purchase/${collectionId}/generate`
       // JSON.stringify({ walletAddress: walletData }),
     )
     .then((response) => {
@@ -544,7 +553,7 @@ export async function createPurchase({
   return axiosClient
     .post(
       `/api/v1/purchase`,
-      JSON.stringify({ buyerId, collectibleId, transactionId }),
+      JSON.stringify({ buyerId, collectibleId, transactionId })
     )
     .then((response) => {
       if (response.data.success) {
@@ -560,12 +569,12 @@ export async function createPurchase({
 
 // Mint Collectible Handler
 export const mintCollectibleHandler = async (
-  payload: MintCollectiblePayload,
+  payload: MintCollectiblePayload
 ): Promise<MintCollectibleResponse> => {
   try {
     const response = await axiosClient.post<MintCollectibleResponse>(
       "/api/v1/collectibles/mint",
-      payload,
+      payload
     );
 
     if (!response.data.success) {
@@ -576,7 +585,7 @@ export const mintCollectibleHandler = async (
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        error.response?.data?.message || "Failed to mint collectible",
+        error.response?.data?.message || "Failed to mint collectible"
       );
     }
     throw error;
@@ -604,15 +613,11 @@ export async function listCollectibleConfirm({
   }
 }
 
-export async function mintFeeOfCitrea({
-  data
-}: {
-  data: MintFeeType
-}) {
+export async function mintFeeOfCitrea({ data }: { data: MintFeeType }) {
   try {
     return axiosClient
       .post(`/api/v1/launchpad/change-mintfee-transaction`, {
-        data
+        data,
       })
       .then((response) => {
         return response.data;
@@ -622,15 +627,11 @@ export async function mintFeeOfCitrea({
   }
 }
 
-export async function generateBuyHexCitrea({
-  id
-}: {
-  id: string;
-}) {
+export async function generateBuyHexCitrea({ id }: { id: string }) {
   try {
     return axiosClient
       .post(`/api/v1/launchpad/${id}/generate-citrea-buy`, {
-        id
+        id,
       })
       .then((response) => {
         return response.data;
@@ -641,14 +642,14 @@ export async function generateBuyHexCitrea({
 }
 
 export async function createApprovalTransaction({
-  collectionId
+  collectionId,
 }: {
-  collectionId: string;
+  collectionId: string | undefined;
 }) {
   try {
     return axiosClient
       .post(`/api/v1/lists/approval`, {
-        collectionId
+        collectionId,
       })
       .then((response) => {
         return response.data;
@@ -661,7 +662,7 @@ export async function createApprovalTransaction({
 export async function listCollectiblesForConfirm({
   collectibleId,
   price,
-  txid
+  txid,
 }: {
   collectibleId: string;
   price: number;
@@ -672,7 +673,7 @@ export async function listCollectiblesForConfirm({
       .post(`/api/v1/lists`, {
         collectibleId,
         price,
-        txid
+        txid,
       })
       .then((response) => {
         return response.data;
@@ -712,7 +713,7 @@ export async function generateBuyHex({
   id,
   feeRate,
 }: {
-  id: string;
+  id: string | null;
   feeRate: number;
 }) {
   try {
@@ -732,7 +733,7 @@ export async function buyListedCollectible({
   id,
   txid,
 }: {
-  id: string;
+  id: string | null;
   txid: string;
 }) {
   try {
