@@ -2,6 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Header from "@/components/layout/header";
 import Layout from "@/components/layout/layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AssetsActivitySkeleton from "./assets-activity-skeleton";
 
 const AssetDetailSkeleton = () => {
   return (
@@ -89,7 +90,7 @@ const AssetDetailSkeleton = () => {
             </div>
 
             {/* Activity Cards Skeleton */}
-            <div className="flex flex-col gap-3 pt-3">
+            {/* <div className="flex flex-col gap-3 pt-3">
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
@@ -116,7 +117,8 @@ const AssetDetailSkeleton = () => {
                   </div>
                 </div>
               ))}
-            </div>
+            </div> */}
+            <AssetsActivitySkeleton/>
           </TabsContent>
           <TabsContent value="more" />
         </div>
