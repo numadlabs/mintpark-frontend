@@ -121,15 +121,18 @@ export type CollectibleDataType = {
   description: string;
   mintLayerType: string;
   feeRate: number;
-  value:string
+  value: string;
 };
 
 export type CollectionData = {
   logo: File;
-  creator: string;
+  // creator: string;
   description: string;
   name: string;
   priceForLaunchpad: number;
+  type: string;
+  userLayerId: string | null;
+  layerId: string | null;
 };
 
 export type FeeRateAmount = {
@@ -205,7 +208,6 @@ export type CollectionDataType = {
   discordUrl: string;
 };
 
-
 export type MintDataType = {
   orderType: string;
   files: File[];
@@ -213,7 +215,7 @@ export type MintDataType = {
   feeRate: number;
   txid?: string;
   totalFileCount: number;
-}
+};
 
 export type MintCollectibleDataType = {
   file: File[];
@@ -223,12 +225,12 @@ export type MintCollectibleDataType = {
   description?: string;
   txid?: string;
   collectionId: string;
-}
+};
 
 export type MintFeeType = {
   collectionTxid: string;
   mintFee: string;
-}
+};
 
 export type LaunchCollectionData = {
   POStartsAt: number;
@@ -239,11 +241,10 @@ export type LaunchCollectionData = {
   isWhiteListed: boolean;
   txid?: string;
   totalFileCount: number;
-}
-
+};
 
 export type CollectibleList = {
-  id:string;
+  id: string;
   collectibles: Collectible[];
   totalCount: number;
   listCount: number;
@@ -274,27 +275,27 @@ type Collection = {
   collectibleCount: string;
 };
 export type LaunchDataType = {
-    id: string;
-    name: string;
-    creator: string;
-    description: string;
-    supply: number;
-    type: string;
-    logoKey: string;
-    layerId: string;
-    launchId: string;
-    wlStartsAt: string;
-    wlEndsAt: string;
-    wlMintPrice: number;
-    wlMaxMintPerWallet: number;
-    poStartsAt: number;
-    poEndsAt: number;
-    poMintPrice: number;
-    poMaxMintPerWallet: number;
-    isWhitelisted: boolean;
-    mintedAmount: number;
-    createdAt: string;
-}
+  id: string;
+  name: string;
+  creator: string;
+  description: string;
+  supply: number;
+  type: string;
+  logoKey: string;
+  layerId: string;
+  launchId: string;
+  wlStartsAt: string;
+  wlEndsAt: string;
+  wlMintPrice: number;
+  wlMaxMintPerWallet: number;
+  poStartsAt: number;
+  poEndsAt: number;
+  poMintPrice: number;
+  poMaxMintPerWallet: number;
+  isWhitelisted: boolean;
+  mintedAmount: number;
+  createdAt: string;
+};
 
 export type ActivityType = {
   activityType: string;
@@ -303,4 +304,35 @@ export type ActivityType = {
   fromAddress: string;
   toAddress: string;
   timestamp: number;
-}
+};
+
+export type OrderType = {
+  collectionId: string;
+  feeRate: number;
+  txid: string;
+  userLayerId: string | null;
+  totalFileSize: number;
+};
+
+export type InscriptionCollectible = {
+  names: string[];
+  files: File[];
+  collectionId: string;
+};
+
+export type LaunchParams = {
+  collectionId: string;
+  isWhitelisted: boolean;
+  poStartsAt: number;
+  poEndsAt?: number;
+  poMintPrice: number;
+  poMaxMintPerWallet: number;
+  userLayerId: string | null;
+};
+
+export type CreateLaunchParams = {
+  names: string[];
+  files: File[];
+  collectionId: string;
+  isLastBatch: boolean;
+};

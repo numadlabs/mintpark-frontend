@@ -28,6 +28,7 @@ interface AuthProps {
     address: string | null;
     layerId: string | null;
     walletType: "unisat" | "metamask" | null;
+    userLayerId: string | null;
   };
   onLogin: () => Promise<void>;
   onLogout: () => void;
@@ -90,9 +91,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     address: null,
     layerId: null,
     walletType: null,
+    userLayerId: null,
   });
 
-  const { data: currentLayer } = useQuery({
+  const { data: currentLayer = [] } = useQuery({
     queryKey: ["currentLayerData", selectedLayerId],
     queryFn: () => getLayerById(selectedLayerId as string),
     enabled: !!selectedLayerId,
@@ -123,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     onError: (error) => {
       console.error("Generate message error:", error);
       toast.error(
-        "Failed to generate message from server. Using fallback message.",
+        "Failed to generate message from server. Using fallback message."
       );
     },
   });
@@ -141,9 +143,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           accessToken: data.data.auth.accessToken,
           userId: data.data.user.id,
           walletType: loginParams?.walletType,
+          userLayerId: data.data.userLayer.id,
+          layerId: selectedLayerId,
         };
         localStorage.setItem("authToken", JSON.stringify(authData));
-        localStorage.setItem("layerId", data.data.user.layerId);
 
         setAuthState((prev) => ({
           ...prev,
@@ -151,9 +154,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           authenticated: true,
           userId: data.data.user.id,
           address: data.data.user.address,
-          layerId: data.data.user.layerId,
+          layerId: selectedLayerId,
           walletType: loginParams?.walletType || null,
+          userLayerId: data.data.userLayer.id,
         }));
+        if (selectedLayerId) {
+          localStorage.setItem("layerId", selectedLayerId);
+        }
         toast.success("Successfully logged in");
       }
     },
@@ -177,6 +184,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
         address: null,
         layerId: currentLayerId, // Preserve layerId
         walletType: null,
+        userLayerId: null,
       });
 
       if (currentLayerId) {
@@ -472,8 +480,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
           loading: false,
           userId: authData.userId,
           address: profileData.address,
-          layerId: storedLayerId || null,
+          layerId: storedLayerId || authData.layerId || null,
           walletType: profileData.walletType,
+          userLayerId: authData.userLayerId,
         });
         setConnectedAddress(profileData.address);
         setConnected(true);

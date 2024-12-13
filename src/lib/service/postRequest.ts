@@ -8,6 +8,7 @@ import {
   MintCollectibleResponse,
   MintFeeType,
   User,
+  OrderType,
 } from "../types";
 import { getAccessToken } from "../auth";
 import {
@@ -16,6 +17,9 @@ import {
   FeeRateAmount,
   CollectionData,
   MintDataType,
+  InscriptionCollectible,
+  LaunchParams,
+  CreateLaunchParams,
 } from "../types";
 import { collectibleFormData, collectiontFormData } from "./formHelper";
 
@@ -47,11 +51,31 @@ export async function createOrder({
   }
 }
 
-export async function createMintCollection({ id }: { id: string }) {
+export async function createMintCollection({
+  collectionId,
+  feeRate,
+  txid,
+  userLayerId,
+  totalFileSize,
+}: {
+  collectionId: string;
+  feeRate: number;
+  txid: string;
+  userLayerId: string;
+  totalFileSize: number;
+}) {
   try {
-    return axiosClient.post(`/api/v1/orders/`).then((response) => {
-      return response.data;
-    });
+    return axiosClient
+      .post(`/api/v1/orders`, {
+        collectionId,
+        feeRate,
+        txid,
+        userLayerId,
+        totalFileSize,
+      })
+      .then((response) => {
+        return response.data;
+      });
   } catch (error) {
     console.log("Error:", error);
   }
@@ -234,6 +258,105 @@ export async function createCollectiblesToCollection({
   const config: AxiosRequestConfig = {
     method: "post",
     url: `/api/v1/orders/collection`,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  };
+
+  try {
+    const response = await axiosClient.request(config);
+    console.log("Server response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error in createCollectiblesToCollection:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error("Server error response:", error.response.data);
+    }
+    throw error;
+  }
+}
+
+export async function insriptionCollectible({
+  data,
+}: {
+  data: InscriptionCollectible;
+}) {
+  const formData = new FormData();
+
+  // Append files
+  data.files.forEach((file, index) => {
+    formData.append(`files`, file);
+    console.log(
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
+    );
+  });
+
+  const namesArray = data.names;
+  formData.append("names", JSON.stringify(namesArray));
+
+  // Append other data
+  formData.append("collectionId", data.collectionId);
+
+  console.log("FormData contents:");
+  // Use Array.from() to convert the iterator to an array
+  Array.from(formData.keys()).forEach((key) => {
+    console.log(key, formData.get(key));
+  });
+
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/collectibles/inscription`,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  };
+
+  try {
+    const response = await axiosClient.request(config);
+    console.log("Server response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error in createCollectiblesToCollection:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error("Server error response:", error.response.data);
+    }
+    throw error;
+  }
+}
+
+export async function createLaunchItems({
+  data,
+}: {
+  data: CreateLaunchParams;
+}) {
+  const formData = new FormData();
+
+  // Append files
+  data.files.forEach((file, index) => {
+    formData.append(`files`, file);
+    console.log(
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
+    );
+  });
+
+  const namesArray = data.names;
+  formData.append("names", JSON.stringify(namesArray));
+
+  // Append other data
+  formData.append("collectionId", data.collectionId);
+  formData.append("isLastBatch", data.isLastBatch.toString());
+
+  console.log("FormData contents:");
+  // Use Array.from() to convert the iterator to an array
+  Array.from(formData.keys()).forEach((key) => {
+    console.log(key, formData.get(key));
+  });
+
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/collectibles/inscription`,
     data: formData,
     headers: {
       "Content-Type": "multipart/form-data",
@@ -759,6 +882,40 @@ export async function createMintHexCollection({
       .post(`/api/v1/orders/collection/hex`, {
         orderId,
       })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function invokeOrderMint({ id }: { id: string }) {
+  try {
+    return axiosClient
+      .post(`/api/v1/orders/${id}/invoke-mint`)
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function createLaunch({
+  data,
+  txid,
+  totalFileSize,
+  feeRate,
+}: {
+  data: LaunchParams;
+  txid: string;
+  totalFileSize: number;
+  feeRate: number;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad`, { data, txid, totalFileSize, feeRate })
       .then((response) => {
         return response.data;
       });
