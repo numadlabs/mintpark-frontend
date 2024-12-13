@@ -170,7 +170,7 @@ const CollectionDetail = () => {
 
   const calculateTimeUntilDate = (
     dateString: string,
-    timeString: string
+    timeString: string,
   ): number => {
     try {
       // Input validation
@@ -372,7 +372,6 @@ const CollectionDetail = () => {
     try {
       const batchSize = 10;
       const totalBatches = Math.ceil(files.length / batchSize);
-      let id;
       const params: LaunchParams = {
         collectionId: collectionId,
         isWhitelisted: false,
@@ -389,9 +388,10 @@ const CollectionDetail = () => {
           totalFileSize: totalFileSize,
           feeRate: 1,
         });
+        console.log("lalraa ", launchRes);
 
-        id = launchRes.launch.id;
         if (launchRes && launchRes.success) {
+          const id = launchRes?.launch?.collectionId;
           for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
             // Get the current batch of files
             const start = batchIndex * batchSize;
@@ -399,7 +399,7 @@ const CollectionDetail = () => {
             const currentBatchFiles = files.slice(start, end);
 
             const names = currentBatchFiles.map(
-              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
+              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
             );
 
             const data: CreateLaunchParams = {
@@ -471,7 +471,7 @@ const CollectionDetail = () => {
         if (response && response.success) {
           await window.unisat.sendBitcoin(
             response.data.order.fundingAddress,
-            Math.ceil(response.data.order.fundingAmount * 10 ** 8)
+            Math.ceil(response.data.order.fundingAmount * 10 ** 8),
           );
 
           orderID = response.data.order.id;
@@ -483,7 +483,7 @@ const CollectionDetail = () => {
             const currentBatchFiles = files.slice(start, end);
 
             const names = currentBatchFiles.map(
-              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
+              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
             );
             const params: InscriptionCollectible = {
               files: currentBatchFiles,
