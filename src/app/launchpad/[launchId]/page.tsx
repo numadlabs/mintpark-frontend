@@ -59,11 +59,11 @@ const Page = () => {
       enabled: !!id,
     });
 
-  const { data: feeRates = [], isLoading: isFeeRatesLoading } = useQuery({
-    queryKey: ["feeRateData"],
-    queryFn: () => getFeeRates(authState?.layerId as string),
-    enabled: !!authState?.layerId,
-  });
+  // const { data: feeRates = [], isLoading: isFeeRatesLoading } = useQuery({
+  //   queryKey: ["feeRateData"],
+  //   queryFn: () => getFeeRates(authState?.layerId as string),
+  //   enabled: !!authState?.layerId,
+  // });
 
   const { data: currentLayer, isLoading: isLayerLoading } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
@@ -90,7 +90,7 @@ const Page = () => {
       let orderRes;
       const response = await createOrderToMintMutation({
         collectionId: id,
-        feeRate: feeRates.fastestFee,
+        feeRate: 1,
         launchOfferType: launchOfferType,
       });
       if (response && response.success) {
@@ -160,7 +160,7 @@ const Page = () => {
     router.push("/collections");
   };
 
-  if (isCollectiblesLoading || isFeeRatesLoading || isLayerLoading) {
+  if (isCollectiblesLoading || isLayerLoading) {
     return <LaunchDetailSkeleton />;
   }
 
@@ -216,7 +216,7 @@ const Page = () => {
     >
       <DetailLayout>
         <Header />
-        {isCollectiblesLoading || isFeeRatesLoading || isLayerLoading ? (
+        {isCollectiblesLoading || isLayerLoading ? (
           <div className="mt-16 sm:mt-20 lg:mt-24 w-full min-h-screen">
             <LaunchDetailSkeleton />
           </div>

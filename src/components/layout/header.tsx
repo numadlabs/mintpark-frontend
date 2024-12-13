@@ -51,8 +51,8 @@ export default function Header() {
 
   const { data: user } = useQuery({
     queryKey: ["userData"],
-    queryFn: () => getUserById(authState?.userId as string),
-    enabled: !!authState?.userId,
+    queryFn: () => getUserById(authState?.userLayerId as string),
+    enabled: !!authState?.userLayerId,
   });
 
   const { data: layers = [] } = useQuery({
@@ -62,7 +62,7 @@ export default function Header() {
     gcTime: Infinity,
   });
 
-  const { data: currentLayer = null } = useQuery({
+  const { data: currentLayer = [] } = useQuery({
     queryKey: ["currentLayerData", id],
     queryFn: () => getLayerById(id as string),
     enabled: !!id,
@@ -266,7 +266,9 @@ export default function Header() {
                       className="object-cover rounded-full"
                     />
                     <span className="text-neutral50 text-md font-medium">
-                      {user?.address ? truncateAddress(user.address) : ""}
+                      {user?.user?.address
+                        ? truncateAddress(user?.user?.address)
+                        : ""}
                     </span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="flex flex-col gap-2 max-w-[215px] w-screen p-2 border border-white4 bg-gray50 mt-4 rounded-2xl backdrop-blur-xl">

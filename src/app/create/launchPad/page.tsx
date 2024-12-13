@@ -17,6 +17,10 @@ import {
   LaunchCollectionData,
   MintFeeType,
   MintDataType,
+  OrderType,
+  InscriptionCollectible,
+  CreateLaunchParams,
+  LaunchParams,
 } from "@/lib/types";
 import TextArea from "@/components/ui/textArea";
 import {
@@ -25,6 +29,11 @@ import {
   createMintHexCollection,
   launchCollection,
   mintFeeOfCitrea,
+  createMintCollection,
+  insriptionCollectible,
+  invokeOrderMint,
+  createLaunchItems,
+  createLaunch,
 } from "@/lib/service/postRequest";
 import useCreateFormState from "@/lib/store/createFormStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -35,7 +44,7 @@ import OrderPayModal from "@/components/modal/order-pay-modal";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
-import { getLayerById } from "@/lib/service/queryHelper";
+import { getLayerById, getUserById } from "@/lib/service/queryHelper";
 import { ethers } from "ethers";
 import { getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
@@ -46,7 +55,7 @@ import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
 
 const CollectionDetail = () => {
   const router = useRouter();
-  const { authState } = useAuth();
+  const { authState, connect } = useAuth();
   const {
     imageFile,
     setImageFile,
@@ -88,6 +97,7 @@ const CollectionDetail = () => {
   const [successModal, setSuccessModal] = useState(false);
   const [inscribeModal, setInscribeModal] = useState(false);
   const [data, setData] = useState<string>("");
+  const [id, setId] = useState<string>("");
 
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
@@ -115,6 +125,26 @@ const CollectionDetail = () => {
     },
   });
 
+  const { mutateAsync: createOrder } = useMutation({
+    mutationFn: createMintCollection,
+  });
+
+  const { mutateAsync: inscriptionMutation } = useMutation({
+    mutationFn: insriptionCollectible,
+  });
+
+  const { mutateAsync: invokeOrderMutation } = useMutation({
+    mutationFn: invokeOrderMint,
+  });
+
+  const { mutateAsync: launchItemsMutation } = useMutation({
+    mutationFn: createLaunchItems,
+  });
+
+  const { mutateAsync: createLaunchMutation } = useMutation({
+    mutationFn: createLaunch,
+  });
+
   const updateFileInfo = (files: File[]) => {
     const newSizes = files.map((file) => file.size);
     setFileSizes((prevSizes) => [...prevSizes, ...newSizes]);
@@ -132,7 +162,7 @@ const CollectionDetail = () => {
     });
   };
 
-  const { data: currentLayer } = useQuery<CurrentLayerSchema>({
+  const { data: currentLayer = [] } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
     queryFn: () => getLayerById(authState.layerId as string),
     enabled: !!authState.layerId,
@@ -180,31 +210,41 @@ const CollectionDetail = () => {
       toast.error("Layer information not available");
       return;
     }
+    if (currentLayer.layer === "CITREA" && !window.ethereum) {
+      toast.error("Please install MetaMask extension to continue");
+      return;
+    }
+    let res = await window.unisat.getNetwork();
+    console.log(res);
+    let acc = await window.unisat.getAccounts();
+    console.log(acc);
     setIsLoading(true);
     try {
       const params: CollectionData = {
-        logo: imageFile[0],
         name: name,
-        creator: creator,
         description: description,
+        logo: imageFile[0],
         priceForLaunchpad: 0.001,
+        type: "INSCRIPTION",
+        userLayerId: authState.userLayerId,
+        layerId: authState.layerId,
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
         console.log("🚀 ~ handleCreateCollection ~ response:", response);
         if (response && response.success) {
-          const { id } = response.data.collection;
+          const { id } = response.data.ordinalCollection;
           const { deployContractTxHex } = response.data;
           setCollectionId(id);
           console.log("create collection success", response);
           toast.success("Create collection success.");
 
-          if (currentLayer.layer === "CITREA") {
-            const { signer } = await getSigner();
-            const signedTx = await signer?.sendTransaction(deployContractTxHex);
-            await signedTx?.wait();
-            if (signedTx?.hash) setTxid(signedTx?.hash);
-          }
+          // if (currentLayer.layer === "CITREA") {
+          //   const { signer } = await getSigner();
+          //   const signedTx = await signer?.sendTransaction(deployContractTxHex);
+          //   await signedTx?.wait();
+          //   if (signedTx?.hash) setTxid(signedTx?.hash);
+          // }
 
           setStep(1);
         }
@@ -229,13 +269,30 @@ const CollectionDetail = () => {
     const files = event.target.files;
 
     if (files) {
-      const newImageFiles: ImageFile[] = Array.from(files).map((file) => ({
+      const filteredFiles = Array.from(files).filter((file) => file.size > 0); // Only process non-empty files
+
+      const newImageFiles: ImageFile[] = filteredFiles.map((file) => ({
         file,
         preview: URL.createObjectURL(file),
       }));
-      // setImageLogo(newImageFiles);
+
       setImageFiles((prevFiles) => [...prevFiles, ...newImageFiles]);
-      updateFileInfo(Array.from(files));
+
+      // Calculate sizes only for valid files
+      const newSizes = filteredFiles.map((file) => file.size);
+      setFileSizes((prevSizes) => [...prevSizes, ...newSizes]);
+
+      const newTotalSize = newSizes.reduce((acc, size) => acc + size, 0);
+      setTotalFileSize((prevTotal) => prevTotal + newTotalSize);
+
+      const newTypes = filteredFiles.map((file) => file.type.length);
+      setFileTypeSizes((prevTypes) => [...prevTypes, ...newTypes]);
+
+      setFileTypes((prevTypes) => {
+        const updatedTypes = new Set(prevTypes);
+        filteredFiles.forEach((file) => updatedTypes.add(file.type));
+        return updatedTypes;
+      });
     }
   };
 
@@ -275,82 +332,98 @@ const CollectionDetail = () => {
 
   const files = imageFiles.map((image) => image.file);
 
-  const handleMintfeeChange = async () => {
-    if (!currentLayer) {
-      toast.error("Layer information not available");
-      return false;
-    }
-    setIsLoading(true);
-    try {
-      const params: MintFeeType = {
-        collectionTxid: txid,
-        mintFee: POMintPrice.toString(),
-      };
-      const response = await mintFeeOfCitreaMutation({ data: params });
-      if (response && response.success) {
-        const { singleMintTxHex } = response.data;
-        console.log("create collection success", response);
-        toast.success("Create collection success.");
+  // const handleMintfeeChange = async () => {
+  //   if (!currentLayer) {
+  //     toast.error("Layer information not available");
+  //     return false;
+  //   }
+  //   setIsLoading(true);
+  //   try {
+  //     const params: MintFeeType = {
+  //       collectionTxid: txid,
+  //       mintFee: POMintPrice.toString(),
+  //     };
+  //     const response = await mintFeeOfCitreaMutation({ data: params });
+  //     if (response && response.success) {
+  //       const { singleMintTxHex } = response.data;
+  //       console.log("create collection success", response);
+  //       toast.success("Create collection success.");
 
-        if (currentLayer.layer === "CITREA") {
-          const { signer } = await getSigner();
-          const signedTx = await signer?.sendTransaction(singleMintTxHex);
-          await signedTx?.wait();
-        }
-        setStep(3);
-      }
-    } catch (error) {
-      toast.error("Error creating launch.");
-      console.error("Error creating launch: ", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //       if (currentLayer.layer === "CITREA") {
+  //         const { signer } = await getSigner();
+  //         const signedTx = await signer?.sendTransaction(singleMintTxHex);
+  //         await signedTx?.wait();
+  //       }
+  //       setStep(3);
+  //     }
+  //   } catch (error) {
+  //     toast.error("Error creating launch.");
+  //     console.error("Error creating launch: ", error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const handleCreateLaunch = async () => {
     setIsLoading(true);
-    const POStartsAt = calculateTimeUntilDate(POStartsAtDate, POStartsAtTime);
-    const POEndsAt = calculateTimeUntilDate(POEndsAtDate, POEndsAtTime);
+    const poStartsAt = calculateTimeUntilDate(POStartsAtDate, POStartsAtTime);
+    const poEndsAt = calculateTimeUntilDate(POEndsAtDate, POEndsAtTime);
 
     try {
       const batchSize = 10;
       const totalBatches = Math.ceil(files.length / batchSize);
-      let response;
-      for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
-        // Get the current batch of files
-        const start = batchIndex * batchSize;
-        const end = Math.min(start + batchSize, files.length);
-        const currentBatchFiles = files.slice(start, end);
-
-        const params: LaunchCollectionData = {
-          files: currentBatchFiles,
-          POStartsAt: POStartsAt,
-          POEndsAt: POEndsAt,
-          POMintPrice: POMintPrice,
-          POMaxMintPerWallet: POMaxMintPerWallet,
-          isWhiteListed: false,
-          txid: txid,
-          totalFileCount: files.length,
-        };
-
-        response = await launchCollectionMutation({
+      let id;
+      const params: LaunchParams = {
+        collectionId: collectionId,
+        isWhitelisted: false,
+        poStartsAt: poStartsAt,
+        poEndsAt: poEndsAt,
+        poMintPrice: POMintPrice,
+        poMaxMintPerWallet: POMaxMintPerWallet,
+        userLayerId: authState.userLayerId,
+      };
+      if (params && totalFileSize) {
+        const launchRes = await createLaunchMutation({
           data: params,
-          collectionId: collectionId,
+          txid: "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e",
+          totalFileSize: totalFileSize,
+          feeRate: 1,
         });
 
-        if (response && response.success) {
-          // Small delay between batches to prevent rate limiting
-          if (batchIndex < totalBatches - 1) {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+        id = launchRes.launch.id;
+        if (launchRes && launchRes.success) {
+          for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+            // Get the current batch of files
+            const start = batchIndex * batchSize;
+            const end = Math.min(start + batchSize, files.length);
+            const currentBatchFiles = files.slice(start, end);
+
+            const names = currentBatchFiles.map(
+              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
+            );
+
+            const data: CreateLaunchParams = {
+              files: currentBatchFiles,
+              names: names,
+              collectionId: id,
+              isLastBatch: batchIndex === totalBatches - 1,
+            };
+
+            const response = await launchItemsMutation({ data: data });
+            if (response && response.success) {
+              // Small delay between batches to prevent rate limiting
+              if (batchIndex < totalBatches - 1) {
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+              }
+            }
+
+            console.log("Batch upload index: ", batchIndex);
           }
         }
-
-        console.log("Batch upload index: ", batchIndex);
+        toggleSuccessModal();
       }
-      toggleSuccessModal();
     } catch (error) {
       console.error("Error creating launch:", error);
-      toast.error("Error creating launch.");
       toast.error("Error creating launch.");
     } finally {
       setIsLoading(false);
@@ -372,62 +445,91 @@ const CollectionDetail = () => {
       toast.error("Layer information not available");
       return false;
     }
+
     setIsLoading(true);
+
+    // Process files in batches of 10
+    const batchSize = 10;
+    const totalBatches = Math.ceil(files.length / batchSize);
+    let orderID;
     try {
-      // Process files in batches of 10
-      const batchSize = 10;
-      const totalBatches = Math.ceil(files.length / batchSize);
-      let response;
-
-      for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
-        // Get the current batch of files
-        const start = batchIndex * batchSize;
-        const end = Math.min(start + batchSize, files.length);
-        const currentBatchFiles = files.slice(start, end);
-
-        const params: MintDataType = {
-          orderType: "COLLECTION",
-          files: currentBatchFiles,
+      // const data: OrderType = {
+      //   collectionId: collectionId,
+      //   feeRate: 1,
+      //   txid: "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e",
+      //   userLayerId: authState.userLayerId,
+      //   totalFileSize: totalFileSize,
+      // };
+      if (collectionId && authState.userLayerId && totalFileSize) {
+        const response = await createOrder({
           collectionId: collectionId,
           feeRate: 1,
-          txid: txid,
-          totalFileCount: files.length, // Total count of all files
-        };
-
-        response = await createCollectiblesMutation({ data: params });
-
+          txid: "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e",
+          userLayerId: authState.userLayerId,
+          totalFileSize: totalFileSize,
+        });
         if (response && response.success) {
-          // Small delay between batches to prevent rate limiting
-          if (batchIndex < totalBatches - 1) {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+          await window.unisat.sendBitcoin(
+            response.data.order.fundingAddress,
+            Math.ceil(response.data.order.fundingAmount * 10 ** 8)
+          );
+
+          orderID = response.data.order.id;
+
+          for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+            // Get the current batch of files
+            const start = batchIndex * batchSize;
+            const end = Math.min(start + batchSize, files.length);
+            const currentBatchFiles = files.slice(start, end);
+
+            const names = currentBatchFiles.map(
+              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
+            );
+            const params: InscriptionCollectible = {
+              files: currentBatchFiles,
+              collectionId: collectionId,
+              names: names, // Total count of all files
+            };
+
+            const colRes = await inscriptionMutation({ data: params });
+
+            if (colRes && colRes.success) {
+              // Small delay between batches to prevent rate limiting
+              if (batchIndex < totalBatches - 1) {
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+              }
+
+              // Store the last successful order ID
+              setData(colRes.data.order.id);
+            }
+
+            console.log("Batch upload index: ", batchIndex);
           }
 
-          // Store the last successful order ID
-          setData(response.data.order.id);
-        }
+          const orderRes = await invokeOrderMutation({ id: orderID });
+          if (orderRes && orderRes.success) {
+            setInscribeModal(true);
+          }
 
-        console.log("Batch upload index: ", batchIndex);
-      }
-
-      if (currentLayer.layer === "CITREA") {
-        const hexRes = await createHexCollectionMutation({
-          orderId: response.data.order.id,
-        });
-        if (hexRes && hexRes.success) {
-          const { signer } = await getSigner();
-          const signedTx = await signer?.sendTransaction(
-            hexRes.data.batchMintTxHex
-          );
-          setInscribeModal(true);
-          await signedTx?.wait();
-          setInscribeModal(true);
+          // if (currentLayer.layer === "CITREA") {
+          //   const hexRes = await invokeOrderMint(orderID);
+          //   if (hexRes && hexRes.success) {
+          //     const { signer } = await getSigner();
+          //     const signedTx = await signer?.sendTransaction(
+          //       hexRes.data.batchMintTxHex
+          //     );
+          //     setInscribeModal(true);
+          //     await signedTx?.wait();
+          //     setInscribeModal(true);
+          //   }
+          // } else if (currentLayer.layer === "FRACTAL") {
+          //   await window.unisat.sendBitcoin(
+          //     response.data.order.fundingAddress,
+          //     response.data.order.fundingAmount
+          //   );
+          //   setInscribeModal(true);
+          // }
         }
-      } else if (currentLayer.layer === "FRACTAL") {
-        await window.unisat.sendBitcoin(
-          response.data.order.fundingAddress,
-          response.data.order.fundingAmount
-        );
-        setInscribeModal(true);
       }
     } catch (error) {
       console.error(error);
@@ -764,7 +866,7 @@ const CollectionDetail = () => {
               <div className="flex flex-row w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
                 <Button
-                  onClick={isChecked ? handleMintfeeChange : () => setStep(3)}
+                  onClick={() => setStep(3)}
                   // isLoading={isLoading}
                   disabled={isLoading}
                   className="flex items-center   border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold  w-full justify-center"
@@ -892,7 +994,9 @@ const CollectionDetail = () => {
         files={files}
         navigateOrders={handleNavigateToOrder}
         navigateToCreate={handleNavigateToCreate}
-        hash={txid}
+        hash={
+          "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e"
+        }
       />
 
       <InscribeOrderModal
@@ -901,7 +1005,9 @@ const CollectionDetail = () => {
         id={data}
         navigateOrders={() => router.push("/orders")}
         navigateToCreate={() => router.push("/create")}
-        txid={txid}
+        txid={
+          "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e"
+        }
       />
       <SuccessModal
         open={successModal}

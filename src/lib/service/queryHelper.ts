@@ -16,8 +16,8 @@ import { OrderSchema } from "../validations/asset-validation";
 import { AssetSchema, ActivitySchema } from "../validations/asset-validation";
 import { UserSchema } from "../validations/user-schema";
 
-export async function getUserById(id: string): Promise<UserSchema> {
-  return axiosClient.get(`/api/v1/users/${id}`).then((response) => {
+export async function getUserById(id: string) {
+  return axiosClient.get(`/api/v1/users/${id}/userLayer`).then((response) => {
     if (response.data.success) {
       return response.data.data;
     } else {
@@ -118,7 +118,7 @@ export async function getAllLayers(): Promise<LayerSchema[]> {
   });
 }
 
-export async function getLayerById(id: string): Promise<CurrentLayerSchema> {
+export async function getLayerById(id: string) {
   return axiosClient.get(`/api/v1/layers/${id}`).then((response) => {
     if (response.data.success) {
       return response.data.data;

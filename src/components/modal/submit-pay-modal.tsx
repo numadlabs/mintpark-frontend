@@ -89,11 +89,11 @@ const SubmitPayModal: React.FC<ModalProps> = ({
     mutationFn: createMintCollectible,
   });
 
-  const { data: feeRates = [] } = useQuery({
-    queryKey: ["feeRateData"],
-    queryFn: () => getFeeRates(authState?.layerId as string),
-    enabled: !!authState?.layerId,
-  });
+  // const { data: feeRates = [] } = useQuery({
+  //   queryKey: ["feeRateData"],
+  //   queryFn: () => getFeeRates(authState?.layerId as string),
+  //   enabled: !!authState?.layerId,
+  // });
 
   const { data: currentLayer } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
@@ -220,9 +220,9 @@ const SubmitPayModal: React.FC<ModalProps> = ({
   useEffect(() => {
     setFeeRate(
       selectedTab === "Slow"
-        ? feeRates?.economyFee
+        ? feeRate
         : selectedTab === "Fast"
-        ? feeRates?.fastestFee
+        ? feeRate
         : feeRate
     );
   }, [selectedTab]);
