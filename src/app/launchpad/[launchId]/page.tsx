@@ -5,7 +5,11 @@ import Header from "@/components/layout/header";
 import { Carousel } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { confirmOrder, generateHex } from "@/lib/service/postRequest";
+import {
+  confirmOrder,
+  createBuyLaunch,
+  generateHex,
+} from "@/lib/service/postRequest";
 import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
@@ -38,8 +42,8 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activePhase, setActivePhase] = useState(null);
 
-  const { mutateAsync: createOrderToMintMutation } = useMutation({
-    mutationFn: createOrderToMint,
+  const { mutateAsync: createBuyLaunchMutation } = useMutation({
+    mutationFn: createBuyLaunch,
   });
 
   const { mutateAsync: confirmOrderMutation } = useMutation({
@@ -75,11 +79,11 @@ const Page = () => {
     activePhase === "public"
       ? "public"
       : activePhase === "guaranteed"
-      ? "guaranteed"
-      : "";
+        ? "guaranteed"
+        : "";
 
   const handleConfirm = async () => {
-    if (!currentLayer) {
+    if (!currentLayer || !authState.userLayerId) {
       toast.error("Layer information not available");
       return false;
     }
@@ -88,32 +92,35 @@ const Page = () => {
       let txid;
       let launchItemId;
       let orderRes;
-      const response = await createOrderToMintMutation({
-        collectionId: id,
+
+      const response = await createBuyLaunchMutation({
+        id: collectibles.launchId,
+        userLayerId: authState.userLayerId,
         feeRate: 1,
-        launchOfferType: launchOfferType,
       });
       if (response && response.success) {
         const orderId = response.data.order.id;
-        launchItemId = response.data.launchedItem.id;
-        const { singleMintTxHex } = response.data;
+        launchItemId = response.data.launchItem.id;
+        // const { singleMintTxHex } = response.data;
 
-        if (currentLayer.layer === "CITREA") {
-          const { signer } = await getSigner();
-          const signedTx = await signer?.sendTransaction(singleMintTxHex);
-          await signedTx?.wait();
-          if (signedTx?.hash) txid = signedTx?.hash;
-        } else if (currentLayer.layer === "FRACTAL") {
-          await window.unisat.sendBitcoin(
-            response.data.order.fundingAddress,
-            response.data.order.fundingAmount
-          );
-        }
+        // if (currentLayer.layer === "CITREA") {
+        //   const { signer } = await getSigner();
+        //   const signedTx = await signer?.sendTransaction(singleMintTxHex);
+        //   await signedTx?.wait();
+        //   if (signedTx?.hash) txid = signedTx?.hash;
+        // } else if (currentLayer.layer === "FRACTAL") {
+        await window.unisat.sendBitcoin(
+          response.data.order.fundingAddress,
+          response.data.order.fundingAmount * 10 ** 8,
+        );
+        // }
         if (orderId) {
           orderRes = await confirmOrderMutation({
             orderId: orderId,
-            txid: txid,
+            // txid: txid,
             launchItemId: launchItemId,
+            userLayerId: authState.userLayerId,
+            feeRate: 1,
           });
           if (orderRes && orderRes.success) {
             toast.success("Success minted.");
@@ -128,7 +135,7 @@ const Page = () => {
         toast.error("Failed to confirm order");
       }
     } catch (error) {
-      toast.error("Failed to create order");
+      toast.error(`Failed to create order ${error}`);
     } finally {
       setIsLoading(false);
     }
@@ -139,7 +146,7 @@ const Page = () => {
   };
 
   const unixToISOString = (
-    unixTimestamp: number | null | undefined
+    unixTimestamp: number | null | undefined,
   ): string => {
     try {
       if (!unixTimestamp) return "";
@@ -196,7 +203,7 @@ const Page = () => {
       ),
     },
   ].filter(
-    (link) => link.url !== null && link.url !== undefined && link.url !== ""
+    (link) => link.url !== null && link.url !== undefined && link.url !== "",
   );
 
   const handleSocialClick = (url: string | undefined) => {
@@ -210,7 +217,7 @@ const Page = () => {
       className="min-h-screen bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage: `url(${s3ImageUrlBuilder(
-          collectibles ? collectibles?.logoKey : "/launchpads/bg_1.jpg"
+          collectibles ? collectibles?.logoKey : "/launchpads/bg_1.jpg",
         )})`,
       }}
     >
