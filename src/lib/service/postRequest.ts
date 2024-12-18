@@ -505,7 +505,7 @@ export async function confirmOrder({
 }) {
   try {
     return axiosClient
-      .post(`/api/v1/launchpad/invoke-order`, {
+      .post(`/api/v1/launchpad/mint`, {
         orderId,
         txid,
         launchItemId,
