@@ -111,6 +111,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
           const response = await buyListedCollectible({
             id: listId,
             txid: signedTx?.hash,
+            userLayerId: authState.userLayerId as string,
           });
           if (response && response.success) {
             setIsSuccess(true);

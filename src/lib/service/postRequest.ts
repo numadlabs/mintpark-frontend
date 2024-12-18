@@ -910,14 +910,17 @@ export async function generateBuyHex({
 export async function buyListedCollectible({
   id,
   txid,
+  userLayerId,
 }: {
   id: string | null;
   txid: string;
+  userLayerId: string;
 }) {
   try {
     return axiosClient
       .post(`/api/v1/lists/${id}/buy`, {
         txid,
+        userLayerId,
       })
       .then((response) => {
         return response.data;
