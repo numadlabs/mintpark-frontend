@@ -99,7 +99,7 @@ export async function loginHandler({
   return axiosClient
     .post(
       `/api/v1/users/login`,
-      JSON.stringify({ address, signedMessage, layerId, pubkey })
+      JSON.stringify({ address, signedMessage, layerId, pubkey }),
     )
     .then((response) => {
       return response.data;
@@ -177,7 +177,7 @@ export async function createMintCollectible({
     if (file instanceof File) {
       formData.append(`file`, file);
       console.log(
-        `Appending file ${index}: ${file.name}, size: ${file.size}, type: ${file.type}`
+        `Appending file ${index}: ${file.name}, size: ${file.size}, type: ${file.type}`,
       );
     } else {
       console.error(`Invalid file at index ${index}:`, file);
@@ -241,7 +241,7 @@ export async function createCollectiblesToCollection({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
     );
   });
 
@@ -291,7 +291,7 @@ export async function insriptionCollectible({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
     );
   });
 
@@ -340,7 +340,7 @@ export async function createLaunchItems({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
     );
   });
 
@@ -392,7 +392,7 @@ export async function launchCollection({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
     );
   });
 
@@ -471,14 +471,37 @@ export async function createOrderToMint({
   }
 }
 
+export async function createBuyLaunch({
+  id,
+  userLayerId,
+  feeRate,
+}: {
+  id: string;
+  userLayerId: string;
+  feeRate: number;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/${id}/buy`, { userLayerId, feeRate })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
 export async function confirmOrder({
   orderId,
   txid,
   launchItemId,
+  userLayerId,
+  feeRate,
 }: {
   orderId: string;
   txid?: string | undefined;
   launchItemId: string;
+  userLayerId: string;
+  feeRate: number;
 }) {
   try {
     return axiosClient
@@ -486,6 +509,8 @@ export async function confirmOrder({
         orderId,
         txid,
         launchItemId,
+        userLayerId,
+        feeRate,
       })
       .then((response) => {
         return response.data;
@@ -655,7 +680,7 @@ export async function generateHex(collectionId: string) {
   // try {
   return axiosClient
     .post(
-      `/api/v1/purchase/${collectionId}/generate`
+      `/api/v1/purchase/${collectionId}/generate`,
       // JSON.stringify({ walletAddress: walletData }),
     )
     .then((response) => {
@@ -679,7 +704,7 @@ export async function createPurchase({
   return axiosClient
     .post(
       `/api/v1/purchase`,
-      JSON.stringify({ buyerId, collectibleId, transactionId })
+      JSON.stringify({ buyerId, collectibleId, transactionId }),
     )
     .then((response) => {
       if (response.data.success) {
@@ -695,12 +720,12 @@ export async function createPurchase({
 
 // Mint Collectible Handler
 export const mintCollectibleHandler = async (
-  payload: MintCollectiblePayload
+  payload: MintCollectiblePayload,
 ): Promise<MintCollectibleResponse> => {
   try {
     const response = await axiosClient.post<MintCollectibleResponse>(
       "/api/v1/collectibles/mint",
-      payload
+      payload,
     );
 
     if (!response.data.success) {
@@ -711,7 +736,7 @@ export const mintCollectibleHandler = async (
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        error.response?.data?.message || "Failed to mint collectible"
+        error.response?.data?.message || "Failed to mint collectible",
       );
     }
     throw error;
