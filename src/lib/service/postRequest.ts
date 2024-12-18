@@ -887,14 +887,17 @@ export async function confirmPendingList({
 export async function generateBuyHex({
   id,
   feeRate,
+  userLayerId,
 }: {
   id: string | null;
   feeRate: number;
+  userLayerId: string;
 }) {
   try {
     return axiosClient
       .post(`/api/v1/lists/${id}/generate-hex`, {
         feeRate,
+        userLayerId,
       })
       .then((response) => {
         return response.data;
