@@ -14,10 +14,6 @@ import CollectiblePreviewCard from "@/components/atom/cards/collectible-preview-
 import {
   ImageFile,
   CollectionData,
-  LaunchCollectionData,
-  MintFeeType,
-  MintDataType,
-  OrderType,
   InscriptionCollectible,
   CreateLaunchParams,
   LaunchParams,
@@ -37,23 +33,25 @@ import {
 } from "@/lib/service/postRequest";
 import useCreateFormState from "@/lib/store/createFormStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import CollectionUploadFile from "@/components/section/collection-upload-file";
 import Toggle from "@/components/ui/toggle";
-import { Calendar2, Clock, Bitcoin } from "iconsax-react";
-import OrderPayModal from "@/components/modal/order-pay-modal";
+import {
+  Calendar2,
+  Clock,
+  Bitcoin,
+  DocumentUpload,
+  DocumentDownload,
+} from "iconsax-react";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
-import { getLayerById, getUserById } from "@/lib/service/queryHelper";
-import { ethers } from "ethers";
-import { getSigner } from "@/lib/utils";
+import { getLayerById } from "@/lib/service/queryHelper";
 import { Loader2 } from "lucide-react";
 import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
+import AddTraitsModal from "@/components/modal/add-traits-modal";
 
-const CollectionDetail = () => {
+const Recursive = () => {
   const router = useRouter();
   const { authState, connect } = useAuth();
   const {
@@ -82,7 +80,7 @@ const CollectionDetail = () => {
     reset,
   } = useCreateFormState();
   const queryClient = useQueryClient();
-  const [step, setStep] = useState<number>(0);
+  const [step, setStep] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [collectionId, setCollectionId] = useState<string>("");
   const [isChecked, setIsChecked] = useState<boolean>(false);
@@ -96,33 +94,11 @@ const CollectionDetail = () => {
   const [fileTypeSizes, setFileTypeSizes] = useState<number[]>([]);
   const [successModal, setSuccessModal] = useState(false);
   const [inscribeModal, setInscribeModal] = useState(false);
+  const [traitModal, setTraitModal] = useState(false);
   const [data, setData] = useState<string>("");
-  const [id, setId] = useState<string>("");
 
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
-  });
-
-  const { mutateAsync: launchCollectionMutation } = useMutation({
-    mutationFn: launchCollection,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["launchData"] });
-    },
-  });
-
-  const { mutateAsync: mintFeeOfCitreaMutation } = useMutation({
-    mutationFn: mintFeeOfCitrea,
-  });
-
-  const { mutateAsync: createCollectiblesMutation } = useMutation({
-    mutationFn: createCollectiblesToCollection,
-  });
-
-  const { mutateAsync: createHexCollectionMutation } = useMutation({
-    mutationFn: createMintHexCollection,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collectionData"] });
-    },
   });
 
   const { mutateAsync: createOrder } = useMutation({
@@ -292,9 +268,8 @@ const CollectionDetail = () => {
     }
   };
 
-  const togglePayModal = () => {
-    setPayModal(!payModal);
-    // reset();
+  const toggleTraitModal = () => {
+    setTraitModal(!traitModal);
   };
 
   const handleToggle = () => {
@@ -327,38 +302,6 @@ const CollectionDetail = () => {
   };
 
   const files = imageFiles.map((image) => image.file);
-
-  // const handleMintfeeChange = async () => {
-  //   if (!currentLayer) {
-  //     toast.error("Layer information not available");
-  //     return false;
-  //   }
-  //   setIsLoading(true);
-  //   try {
-  //     const params: MintFeeType = {
-  //       collectionTxid: txid,
-  //       mintFee: POMintPrice.toString(),
-  //     };
-  //     const response = await mintFeeOfCitreaMutation({ data: params });
-  //     if (response && response.success) {
-  //       const { singleMintTxHex } = response.data;
-  //       console.log("create collection success", response);
-  //       toast.success("Create collection success.");
-
-  //       if (currentLayer.layer === "CITREA") {
-  //         const { signer } = await getSigner();
-  //         const signedTx = await signer?.sendTransaction(singleMintTxHex);
-  //         await signedTx?.wait();
-  //       }
-  //       setStep(3);
-  //     }
-  //   } catch (error) {
-  //     toast.error("Error creating launch.");
-  //     console.error("Error creating launch: ", error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   const handleCreateLaunch = async () => {
     setIsLoading(true);
@@ -457,13 +400,6 @@ const CollectionDetail = () => {
     const batchSize = 10;
     const totalBatches = Math.ceil(files.length / batchSize);
     try {
-      // const data: OrderType = {
-      //   collectionId: collectionId,
-      //   feeRate: 1,
-      //   txid: "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e",
-      //   userLayerId: authState.userLayerId,
-      //   totalFileSize: totalFileSize,
-      // };
       if (collectionId && authState.userLayerId && totalFileSize) {
         const response = await createOrder({
           collectionId: collectionId,
@@ -514,25 +450,6 @@ const CollectionDetail = () => {
           if (orderRes && orderRes.success) {
             setInscribeModal(true);
           }
-
-          // if (currentLayer.layer === "CITREA") {
-          //   const hexRes = await invokeOrderMint(orderID);
-          //   if (hexRes && hexRes.success) {
-          //     const { signer } = await getSigner();
-          //     const signedTx = await signer?.sendTransaction(
-          //       hexRes.data.batchMintTxHex
-          //     );
-          //     setInscribeModal(true);
-          //     await signedTx?.wait();
-          //     setInscribeModal(true);
-          //   }
-          // } else if (currentLayer.layer === "FRACTAL") {
-          //   await window.unisat.sendBitcoin(
-          //     response.data.order.fundingAddress,
-          //     response.data.order.fundingAmount
-          //   );
-          //   setInscribeModal(true);
-          // }
         }
       }
     } catch (error) {
@@ -636,75 +553,50 @@ const CollectionDetail = () => {
           {step == 1 && (
             <div className="w-[592px] items-start flex flex-col gap-16">
               <div className="flex flex-col w-full gap-8">
-                <p className="font-bold text-profileTitle text-neutral50">
-                  Upload your Collection
-                </p>
-                {imageFiles.length !== 0 ? (
-                  <div className="flex flex-row w-full h-full gap-8 overflow-x-auto">
-                    {imageFiles.map((item, index) => (
-                      <div key={index} className="w-full h-full">
-                        <CollectiblePreviewCard
-                          image={item.preview}
-                          key={index}
-                          title={item.file.name}
-                          onDelete={handleDeleteLogo}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <CollectionUploadFile
-                    text="Accepted file types: WEBP (recommended), JPEG, PNG, SVG, and GIF."
-                    handleImageUpload={handleUploadChange}
-                  />
-                )}
-              </div>
-              {/* <div className="flex flex-col w-full gap-8">
-                <div className="flex flex-row items-center justify-between">
+                <div className="flex flex-col gap-4">
                   <p className="font-bold text-profileTitle text-neutral50">
                     Include traits
                   </p>
-                  <Toggle isChecked={isChecked} onChange={handleCheckBox} />
-                </div>
-                <p className="text-neutral100 text-lg2">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin
-                  ac ornare nisi. Aliquam eget semper risus, sed commodo elit.
-                  Curabitur sed congue magna. Donec ultrices dui nec ullamcorper
-                  aliquet. Nunc efficitur mauris id mi venenatis imperdiet.
-                  Integer mauris lectus, pretium eu nibh molestie, rutrum
-                  lobortis tortor. Duis sit amet sem fermentum, consequat est
-                  nec, ultricies justo.
-                </p>
-                <div className="flex flex-row rounded-xl border-neutral400 border w-[443px] gap-3 justify-center items-center py-3">
-                  <DocumentDownload size={24} color="#ffffff" />
-                  <p className="text-lg font-semibold text-neutral50">
-                    Download sample .CSV for correct formatting
+                  <p className="text-lg text-neutral200">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Proin ac ornare nisi. Aliquam eget semper risus, sed commodo
+                    elit. Curabitur sed congue magna. Donec ultrices dui nec
+                    ullamcorper aliquet.
                   </p>
                 </div>
-                <div className={isChecked ? `flex` : `hidden`}>
-                  {jsonData.length !== 0 && jsonMetaData ? (
-                    <FileCard
-                      onDelete={handleDelete}
-                      fileName={jsonMetaData.name}
-                      fileSize={jsonMetaData.size}
-                    />
-                  ) : (
-                    <UploadFile
-                      text="Accepted file types: .JSON"
-                      handleImageUpload={handleJsonUpload}
-                      acceptedFileTypes=".json"
-                    />
-                  )}
+                <Button
+                  className="flex flex-row gap-3 items-center w-fit"
+                  variant={"outline"}
+                  onClick={toggleTraitModal}
+                >
+                  <DocumentUpload size={24} color="#FFFFFF" />
+                  Add traits
+                </Button>
+              </div>
+              <div className="flex flex-col w-full gap-8">
+                <div className="flex flex-col gap-4">
+                  <p className="font-bold text-profileTitle text-neutral50">
+                    Upload JSON file
+                  </p>
+                  <p className="text-lg text-neutral200">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Proin ac ornare nisi. Aliquam eget semper risus, sed commodo
+                    elit. Curabitur sed congue magna. Donec ultrices dui nec
+                    ullamcorper aliquet.
+                  </p>
                 </div>
-              </div> */}
-              {/* {isLoading && (
-                <div>
-                  <progress value={progress.value} max={progress.total} />
-                  <p>{progress.message}</p>
-                  <p>{`${progress.value}/${progress.total} NFTs minted`}</p>
-                </div>
-              )} */}
-              {/* <div className="text-red-500">{error}</div> */}
+                <Button
+                  className="flex flex-row gap-3 items-center w-fit"
+                  variant={"outline"}
+                >
+                  <DocumentDownload size={24} color="#FFFFFF" />
+                  Download sample .CSV for correct formatting
+                </Button>
+                <UploadFile
+                  text="Accepted file types: JSON file"
+                  handleImageUpload={handleUploadImage}
+                />
+              </div>
               <div className="flex flex-row w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
                 <Button
@@ -989,19 +881,6 @@ const CollectionDetail = () => {
           )}
         </div>
       </div>
-      <OrderPayModal
-        open={payModal}
-        onClose={togglePayModal}
-        fileTypeSizes={fileTypeSizes}
-        id={collectionId}
-        fileSizes={fileSizes}
-        files={files}
-        navigateOrders={handleNavigateToOrder}
-        navigateToCreate={handleNavigateToCreate}
-        hash={
-          "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e"
-        }
-      />
 
       <InscribeOrderModal
         open={inscribeModal}
@@ -1018,8 +897,9 @@ const CollectionDetail = () => {
         onClose={toggleSuccessModal}
         handleCreate={handleCreate}
       />
+      <AddTraitsModal onClose={toggleTraitModal} open={traitModal} />
     </Layout>
   );
 };
 
-export default CollectionDetail;
+export default Recursive;
