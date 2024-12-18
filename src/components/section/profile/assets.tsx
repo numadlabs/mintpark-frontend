@@ -30,7 +30,12 @@ export default function Assets({ detail = false }: { detail: boolean }) {
   const { data, isLoading } = useQuery({
     queryKey: ["getListableById", authState.userId, orderBy, orderDirection],
     queryFn: () =>
-      getListableById(authState?.userId as string, orderDirection, orderBy),
+      getListableById(
+        authState?.userId as string,
+        orderDirection,
+        orderBy,
+        authState.userLayerId as string,
+      ),
     enabled: !!authState?.userId,
   });
 
