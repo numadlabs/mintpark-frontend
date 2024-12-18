@@ -53,7 +53,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
 
-const CollectionDetail = () => {
+const Ipfs = () => {
   const router = useRouter();
   const { authState, connect } = useAuth();
   const {
@@ -1022,4 +1022,4 @@ const CollectionDetail = () => {
   );
 };
 
-export default CollectionDetail;
+export default Ipfs;

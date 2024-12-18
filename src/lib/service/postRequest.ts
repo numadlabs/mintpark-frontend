@@ -57,12 +57,14 @@ export async function createMintCollection({
   txid,
   userLayerId,
   totalFileSize,
+  totalCollectibleCount,
 }: {
   collectionId: string;
   feeRate: number;
   txid: string;
   userLayerId: string;
   totalFileSize: number;
+  totalCollectibleCount: number;
 }) {
   try {
     return axiosClient
@@ -72,6 +74,7 @@ export async function createMintCollection({
         txid,
         userLayerId,
         totalFileSize,
+        totalCollectibleCount,
       })
       .then((response) => {
         return response.data;
@@ -356,7 +359,7 @@ export async function createLaunchItems({
 
   const config: AxiosRequestConfig = {
     method: "post",
-    url: `/api/v1/collectibles/inscription`,
+    url: `/api/v1/launchpad/inscription`,
     data: formData,
     headers: {
       "Content-Type": "multipart/form-data",
@@ -891,6 +894,7 @@ export async function createMintHexCollection({
 }
 
 export async function invokeOrderMint({ id }: { id: string }) {
+  console.log("last id ", id);
   try {
     return axiosClient
       .post(`/api/v1/orders/${id}/invoke-mint`)
