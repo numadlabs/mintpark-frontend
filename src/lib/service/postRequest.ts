@@ -794,13 +794,37 @@ export async function generateBuyHexCitrea({ id }: { id: string }) {
 
 export async function createApprovalTransaction({
   collectionId,
+  userLayerId,
 }: {
   collectionId: string | undefined;
+  userLayerId: string;
 }) {
   try {
     return axiosClient
       .post(`/api/v1/lists/approval`, {
         collectionId,
+        userLayerId,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function checkAndCreateRegister({
+  collectionId,
+  userLayerId,
+}: {
+  collectionId: string | undefined;
+  userLayerId: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists/checkRegistration`, {
+        collectionId,
+        userLayerId,
       })
       .then((response) => {
         return response.data;
@@ -863,14 +887,17 @@ export async function confirmPendingList({
 export async function generateBuyHex({
   id,
   feeRate,
+  userLayerId,
 }: {
   id: string | null;
   feeRate: number;
+  userLayerId: string;
 }) {
   try {
     return axiosClient
       .post(`/api/v1/lists/${id}/generate-hex`, {
         feeRate,
+        userLayerId,
       })
       .then((response) => {
         return response.data;

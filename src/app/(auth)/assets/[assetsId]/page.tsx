@@ -20,17 +20,23 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import PendingListModal from "@/components/modal/pending-list-modal";
 import moment from "moment";
-import { createApprovalTransaction } from "@/lib/service/postRequest";
+import {
+  checkAndCreateRegister,
+  createApprovalTransaction,
+} from "@/lib/service/postRequest";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import ActivityCard from "@/components/atom/cards/activity-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AssetDetailSkeleton from "@/components/atom/skeleton/asset-detail-skeleton";
 import { Collectible } from "@/lib/validations/collection-validation";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 export default function AssetsDetails() {
   const queryClient = useQueryClient();
   const params = useParams();
+  const { authState } = useAuth();
+
   const id = params.assetsId as string;
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,6 +44,14 @@ export default function AssetsDetails() {
 
   const { mutateAsync: createApprovalMutation } = useMutation({
     mutationFn: createApprovalTransaction,
+    // onSuccess: () => {
+    //   queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
+    //   queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
+    // },
+  });
+
+  const { mutateAsync: checkAndCreateRegisterMutation } = useMutation({
+    mutationFn: checkAndCreateRegister,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
       queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
@@ -89,6 +103,7 @@ export default function AssetsDetails() {
     try {
       const response = await createApprovalMutation({
         collectionId: currentAsset.collectionId,
+        userLayerId: authState.userLayerId as string,
       });
 
       if (response?.success) {
@@ -99,12 +114,28 @@ export default function AssetsDetails() {
           const signedTx = await signer?.sendTransaction(transaction);
           await signedTx?.wait();
           if (signedTx?.hash) setTxid(signedTx.hash);
-          toggleModal();
-        } else if (isApproved === true) {
-          toggleModal();
-        } else {
-          toast.error("Unknown issue");
         }
+        // else if (isApproved === true) {
+        const registerRes = await checkAndCreateRegisterMutation({
+          collectionId: currentAsset.collectionId,
+          userLayerId: authState.userLayerId as string,
+        });
+        if (registerRes.success) {
+          if (!registerRes.data.isRegistered) {
+            const { signer } = await getSigner();
+            const signedTx = await signer?.sendTransaction(
+              registerRes.data.registrationTx,
+            );
+            await signedTx?.wait();
+          }
+          toast.success("Asset listed successfully");
+        } else {
+          return toast.error("Error registering asset");
+        }
+        toggleModal();
+        // } else {
+        //   toast.error("Unknown issue");
+        // }
       }
     } catch (error) {
       toast.error("Error listing asset");
