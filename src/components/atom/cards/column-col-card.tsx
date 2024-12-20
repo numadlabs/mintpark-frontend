@@ -29,11 +29,11 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
         <div className="flex items-center gap-3 sm:gap-4 lg:gap-5 sm:w-[220px] lg:w-[376px]">
           <div className="relative w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 flex-shrink-0">
             <Image
-            width={248}
-            height={248}
+              width={248}
+              height={248}
               src={s3ImageUrlBuilder(data.logoKey)}
               className="rounded-lg object-cover"
-              alt={`${data.name || 'Collection'} logo`}
+              alt={`${data.name || "Collection"} logo`}
             />
           </div>
           <p className="text-neutral50 font-medium text-base sm:text-lg lg:text-xl truncate">
@@ -86,7 +86,7 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
             {data.listedCount}
           </span>
           <span className="font-medium text-sm sm:text-lg lg:text-lg2 text-neutral50">
-            {data.totalOwnerCount}
+            {data?.ownerCount ? data?.ownerCount : 0}
           </span>
         </div>
       </div>

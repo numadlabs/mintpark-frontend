@@ -56,6 +56,7 @@ const CollectionDetailPage = () => {
     const data = searchParams.get("data");
     if (data) {
       try {
+        //todo collection data g end api duudaj avna params aar damjuulahgui
         const parsedData = JSON.parse(data) as CollectionDataType;
         setCollectionData(parsedData);
       } catch (error) {
@@ -85,7 +86,7 @@ const CollectionDetailPage = () => {
       ),
     },
   ].filter(
-    (link) => link.url !== null && link.url !== undefined && link.url !== ""
+    (link) => link.url !== null && link.url !== undefined && link.url !== "",
   );
 
   const handleSocialClick = (url: string | undefined) => {
@@ -95,6 +96,7 @@ const CollectionDetailPage = () => {
     // window.location.href = validUrl;
   };
 
+  //todo buh ene function iig ustgaj utils aas duudah. 20 udaa neg code oo copy hiisen bn!!!
   const formatPrice = (price: number) => {
     const btcAmount = price;
     return btcAmount?.toLocaleString("en-US", {
@@ -392,10 +394,7 @@ const CollectionDetailPage = () => {
                     <div className="flex flex-col w-full pt-4 gap-4">
                       {collection?.collectibles?.map((item: any) => (
                         <div key={item.id}>
-                          <ColDetailCards
-                            data={item}
-                            totalOwnerCount={collection?.totalOwnerCount}
-                          />
+                          <ColDetailCards data={item} totalOwnerCount={item} />
                         </div>
                       ))}
                     </div>

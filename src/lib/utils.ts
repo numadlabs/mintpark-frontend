@@ -54,3 +54,11 @@ export const apiResponseSchema = <T extends z.ZodType>(dataSchema: T) =>
     data: z.union([dataSchema, z.null()]),
     message: z.string(),
   });
+
+export const formatPrice = (price: number) => {
+  const btcAmount = price;
+  return btcAmount.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 8,
+  });
+};
