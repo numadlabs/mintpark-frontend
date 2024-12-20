@@ -204,7 +204,7 @@ export type CollectionDataType = {
   ownedBy: string;
   collectionId: string;
   listId: string;
-  totalOwnerCount: number;
+  ownerCount: number;
   websiteUrl: string;
   twitterUrl: string;
   discordUrl: string;

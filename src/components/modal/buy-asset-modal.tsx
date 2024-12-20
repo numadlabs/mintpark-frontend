@@ -9,7 +9,12 @@ import { Loader2, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { getSigner, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
+import {
+  formatPrice,
+  getSigner,
+  ordinalsImageCDN,
+  s3ImageUrlBuilder,
+} from "@/lib/utils";
 import { Input } from "../ui/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -29,9 +34,9 @@ interface ModalProps {
   name: string;
   uniqueIdx: string;
   price: number;
-  networkFee: number;
-  serviceFee: number;
-  total: number;
+  // networkFee: number;
+  // serviceFee: number;
+  // total: number;
   listId: string | null;
 }
 
@@ -134,13 +139,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
       setIsLoading(false);
     }
   };
-  const formatPrice = (price: number) => {
-    const btcAmount = price;
-    return btcAmount?.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 6,
-    });
-  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>

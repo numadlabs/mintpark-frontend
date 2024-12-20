@@ -83,6 +83,9 @@ const Page = () => {
         : "";
 
   const handleConfirm = async () => {
+    if (!authState.authenticated)
+      return toast.error("Please connect wallet first");
+
     if (!currentLayer || !authState.userLayerId) {
       toast.error("Layer information not available");
       return false;

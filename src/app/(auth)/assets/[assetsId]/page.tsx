@@ -15,7 +15,12 @@ import {
   getCollectibleActivity,
   getCollectionById,
 } from "@/lib/service/queryHelper";
-import { getSigner, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
+import {
+  formatPrice,
+  getSigner,
+  ordinalsImageCDN,
+  s3ImageUrlBuilder,
+} from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import PendingListModal from "@/components/modal/pending-list-modal";
@@ -145,12 +150,12 @@ export default function AssetsDetails() {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return price.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 4,
-    });
-  };
+  // const formatPrice = (price: number) => {
+  //   return price.toLocaleString("en-US", {
+  //     minimumFractionDigits: 0,
+  //     maximumFractionDigits: 4,
+  //   });
+  // };
 
   if (isCollectionLoading) {
     return (

@@ -206,6 +206,7 @@ const CollectionDetail = () => {
   };
 
   const handleCreateCollection = async () => {
+    if (!authState.authenticated) toast.error("Please connect wallet first");
     if (!currentLayer) {
       toast.error("Layer information not available");
       return;
