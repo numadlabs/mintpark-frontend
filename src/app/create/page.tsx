@@ -4,17 +4,27 @@ import React, { useState } from "react";
 import Header from "@/components/layout/header";
 import Image from "next/image";
 import Options from "@/components/section/options";
-import { Gallery, Stop, BuyCrypto } from "iconsax-react";
+import { Stop, BuyCrypto } from "iconsax-react";
 import ButtonLg from "@/components/ui/buttonLg";
 import Layout from "@/components/layout/layout";
-import { Button } from "@/components/ui/button";
-
+import SelectColModal from "@/components/modal/select-col-modal";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+
+// Define an interface for the data items
+interface CreateOption {
+  id: number;
+  icon: React.ElementType;
+  title: string;
+  text: string;
+  pageUrl: string | null;
+  action?: () => void;
+}
 
 const Create = () => {
   const router = useRouter();
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleOptionClick = (id: number) => {
@@ -33,25 +43,28 @@ const Create = () => {
       const selectedData = data.find((item) => item.id === selectedOption);
       if (selectedData) {
         setIsLoading(true);
-        router.push(selectedData.pageUrl);
+        if (selectedData.pageUrl) {
+          router.push(selectedData.pageUrl);
+        } else if (selectedData.action) {
+          selectedData.action();
+          setIsLoading(false);
+        }
       }
     }
   };
 
-  const data = [
-    // {
-    //   id: 1,
-    //   icon: Gallery,
-    //   title: "Collection",
-    //   text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    //   pageUrl: "/create/collection",
-    // },
+  const toggleModal = () => {
+    setShowModal(!showModal);
+  };
+
+  const data: CreateOption[] = [
     {
       id: 4,
       icon: BuyCrypto,
       title: "Collection",
       text: "A group of NFTs, best for brands and projects.",
-      pageUrl: "/create/launchPad",
+      pageUrl: null,
+      action: toggleModal,
     },
     {
       id: 2,
@@ -59,14 +72,8 @@ const Create = () => {
       title: "Single Collectible",
       text: "Solo NFTs for unique creations and spin offs.",
       pageUrl: "/create/collectible",
+      action: undefined,
     },
-    // {
-    //   id: 3,
-    //   icon: BuyCrypto,
-    //   title: "Token",
-    //   text: "Fungible assets for in-app currency or governance.",
-    //   pageUrl: "/create/token",
-    // },
   ];
 
   return (
@@ -114,13 +121,18 @@ const Create = () => {
             isLoading={isLoading}
           >
             {isLoading ? (
-              <Loader2 className="animate-spin w-full" color="#111315" size={24} />
+              <Loader2
+                className="animate-spin w-full"
+                color="#111315"
+                size={24}
+              />
             ) : (
               "Continue"
             )}
           </ButtonLg>
         </div>
       </div>
+      <SelectColModal open={showModal} onClose={toggleModal} />
     </Layout>
   );
 };

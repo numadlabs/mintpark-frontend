@@ -193,10 +193,12 @@ const SingleCollectible = () => {
     try {
       const collectionParams: CollectionData = {
         logo: files[0],
-        name: name,
-        creator: creator,
         description: description,
+        name: name,
         priceForLaunchpad: 0.001,
+        type: "INSCRIPTION",
+        userLayerId: authState.userLayerId,
+        layerId: authState.layerId,
       };
       if (collectionParams) {
         let collectionTxid;

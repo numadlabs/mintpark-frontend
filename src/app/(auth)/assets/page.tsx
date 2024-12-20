@@ -13,7 +13,12 @@ const Assets = () => {
   const { data, isLoading } = useQuery({
     queryKey: ["getListableById", authState.userId, "asc", "recent"],
     queryFn: () =>
-      getListableById(authState?.userId as string, "asc", "recent"),
+      getListableById(
+        authState?.userId as string,
+        "asc",
+        "recent",
+        authState.userLayerId as string,
+      ),
     enabled: !!authState?.userId,
   });
 

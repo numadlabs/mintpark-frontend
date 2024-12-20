@@ -7,7 +7,7 @@ import { clearToken, getAccessToken, getRefreshToken, saveToken } from "./auth";
 
 export const BACKEND_URL =
   process.env.NODE_ENV === "development"
-    ? "http://127.0.0.1:3001" // development api
+    ? "http://localhost:3001" // development api
     : "https://mintpark-production-0006d54da9fb.herokuapp.com";
 
 const instance = axios.create({

@@ -48,12 +48,12 @@ import { getLayerById, getUserById } from "@/lib/service/queryHelper";
 import { ethers } from "ethers";
 import { getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-import InscribeOrderModal from "@/components/modal/insribe-order-modal";
+// import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
 
-const CollectionDetail = () => {
+const Inscription = () => {
   const router = useRouter();
   const { authState, connect } = useAuth();
   const {
@@ -170,7 +170,7 @@ const CollectionDetail = () => {
 
   const calculateTimeUntilDate = (
     dateString: string,
-    timeString: string
+    timeString: string,
   ): number => {
     try {
       // Input validation
@@ -235,12 +235,12 @@ const CollectionDetail = () => {
           console.log("create collection success", response);
           toast.success("Create collection success.");
 
-          // if (currentLayer.layer === "CITREA") {
-          //   const { signer } = await getSigner();
-          //   const signedTx = await signer?.sendTransaction(deployContractTxHex);
-          //   await signedTx?.wait();
-          //   if (signedTx?.hash) setTxid(signedTx?.hash);
-          // }
+          if (currentLayer.layer === "CITREA") {
+            const { signer } = await getSigner();
+            const signedTx = await signer?.sendTransaction(deployContractTxHex);
+            await signedTx?.wait();
+            if (signedTx?.hash) setTxid(signedTx?.hash);
+          }
 
           setStep(1);
         }
@@ -382,7 +382,7 @@ const CollectionDetail = () => {
         // Launch the collection
         const launchResponse = await createLaunchMutation({
           data: params,
-          txid: "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e",
+          txid: txid,
           totalFileSize: totalFileSize,
           feeRate: 1,
         });
@@ -401,7 +401,7 @@ const CollectionDetail = () => {
           const currentBatchFiles = files.slice(start, end);
 
           const names = currentBatchFiles.map(
-            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
+            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
           );
 
           const launchItemsData: CreateLaunchParams = {
@@ -428,7 +428,7 @@ const CollectionDetail = () => {
     } catch (error) {
       console.error("Error creating launch:", error);
       toast.error(
-        error instanceof Error ? error.message : "Error creating launch"
+        error instanceof Error ? error.message : "Error creating launch",
       );
     } finally {
       setIsLoading(false);
@@ -457,28 +457,26 @@ const CollectionDetail = () => {
     const batchSize = 10;
     const totalBatches = Math.ceil(files.length / batchSize);
     try {
-      // const data: OrderType = {
-      //   collectionId: collectionId,
-      //   feeRate: 1,
-      //   txid: "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e",
-      //   userLayerId: authState.userLayerId,
-      //   totalFileSize: totalFileSize,
-      // };
       if (collectionId && authState.userLayerId && totalFileSize) {
         const response = await createOrder({
           collectionId: collectionId,
           feeRate: 1,
-          txid: "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e",
+          txid: txid,
           userLayerId: authState.userLayerId,
           totalFileSize: totalFileSize,
+          totalCollectibleCount: files.length,
         });
         if (response && response.success) {
+          let id;
           await window.unisat.sendBitcoin(
             response.data.order.fundingAddress,
-            Math.ceil(response.data.order.fundingAmount * 10 ** 8)
+            Math.ceil(response.data.order.fundingAmount),
           );
 
-          const orderID = response.data.order.id;
+          id = response.data.order.id;
+          setData(response.data.order.id);
+
+          await new Promise((resolve) => setTimeout(resolve, 2000));
 
           for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
             // Get the current batch of files
@@ -487,7 +485,7 @@ const CollectionDetail = () => {
             const currentBatchFiles = files.slice(start, end);
 
             const names = currentBatchFiles.map(
-              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
+              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
             );
             const params: InscriptionCollectible = {
               files: currentBatchFiles,
@@ -503,36 +501,19 @@ const CollectionDetail = () => {
                 await new Promise((resolve) => setTimeout(resolve, 1000));
               }
 
-              // Store the last successful order ID
-              setData(colRes.data.order.id);
+              // // Store the last successful order ID
+              // setData(colRes.data.order.id);
             }
 
             console.log("Batch upload index: ", batchIndex);
           }
 
-          const orderRes = await invokeOrderMutation({ id: orderID });
+          const orderRes = await invokeOrderMutation({
+            id: response.data.order.id,
+          });
           if (orderRes && orderRes.success) {
-            setInscribeModal(true);
+            toggleSuccessModal();
           }
-
-          // if (currentLayer.layer === "CITREA") {
-          //   const hexRes = await invokeOrderMint(orderID);
-          //   if (hexRes && hexRes.success) {
-          //     const { signer } = await getSigner();
-          //     const signedTx = await signer?.sendTransaction(
-          //       hexRes.data.batchMintTxHex
-          //     );
-          //     setInscribeModal(true);
-          //     await signedTx?.wait();
-          //     setInscribeModal(true);
-          //   }
-          // } else if (currentLayer.layer === "FRACTAL") {
-          //   await window.unisat.sendBitcoin(
-          //     response.data.order.fundingAddress,
-          //     response.data.order.fundingAmount
-          //   );
-          //   setInscribeModal(true);
-          // }
         }
       }
     } catch (error) {
@@ -1003,16 +984,14 @@ const CollectionDetail = () => {
         }
       />
 
-      <InscribeOrderModal
+      {/* <InscribeOrderModal
         open={inscribeModal}
         onClose={() => setInscribeModal(false)}
         id={data}
         navigateOrders={() => router.push("/orders")}
         navigateToCreate={() => router.push("/create")}
-        txid={
-          "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e"
-        }
-      />
+        txid={txid}
+      /> */}
       <SuccessModal
         open={successModal}
         onClose={toggleSuccessModal}
@@ -1022,4 +1001,4 @@ const CollectionDetail = () => {
   );
 };
 
-export default CollectionDetail;
+export default Inscription;

@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 import { Check } from "lucide-react";
 import { id } from "ethers";
+import { useAuth } from "../provider/auth-context-provider";
 
 interface ModalProps {
   open: boolean;
@@ -46,6 +47,8 @@ const BuyAssetModal: React.FC<ModalProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const params = useParams();
+  const { authState } = useAuth();
+
   const id = params.detailId as string;
   const router = useRouter();
   const [isSuccess, setIsSuccess] = useState(false);
@@ -96,6 +99,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
       const pendingRes = await generateBuyHexMutation({
         id: listId,
         feeRate: 1,
+        userLayerId: authState.userLayerId as string,
       });
       if (pendingRes && pendingRes.success) {
         let txid;
@@ -107,6 +111,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
           const response = await buyListedCollectible({
             id: listId,
             txid: signedTx?.hash,
+            userLayerId: authState.userLayerId as string,
           });
           if (response && response.success) {
             setIsSuccess(true);

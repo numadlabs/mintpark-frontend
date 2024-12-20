@@ -8,6 +8,7 @@ import {
   MintCollectibleResponse,
   MintFeeType,
   User,
+  OrderType,
 } from "../types";
 import { getAccessToken } from "../auth";
 import {
@@ -16,6 +17,9 @@ import {
   FeeRateAmount,
   CollectionData,
   MintDataType,
+  InscriptionCollectible,
+  LaunchParams,
+  CreateLaunchParams,
 } from "../types";
 import { collectibleFormData, collectiontFormData } from "./formHelper";
 
@@ -47,11 +51,34 @@ export async function createOrder({
   }
 }
 
-export async function createMintCollection({ id }: { id: string }) {
+export async function createMintCollection({
+  collectionId,
+  feeRate,
+  txid,
+  userLayerId,
+  totalFileSize,
+  totalCollectibleCount,
+}: {
+  collectionId: string;
+  feeRate: number;
+  txid: string;
+  userLayerId: string;
+  totalFileSize: number;
+  totalCollectibleCount: number;
+}) {
   try {
-    return axiosClient.post(`/api/v1/orders/`).then((response) => {
-      return response.data;
-    });
+    return axiosClient
+      .post(`/api/v1/orders`, {
+        collectionId,
+        feeRate,
+        txid,
+        userLayerId,
+        totalFileSize,
+        totalCollectibleCount,
+      })
+      .then((response) => {
+        return response.data;
+      });
   } catch (error) {
     console.log("Error:", error);
   }
@@ -72,7 +99,7 @@ export async function loginHandler({
   return axiosClient
     .post(
       `/api/v1/users/login`,
-      JSON.stringify({ address, signedMessage, layerId, pubkey })
+      JSON.stringify({ address, signedMessage, layerId, pubkey }),
     )
     .then((response) => {
       return response.data;
@@ -150,7 +177,7 @@ export async function createMintCollectible({
     if (file instanceof File) {
       formData.append(`file`, file);
       console.log(
-        `Appending file ${index}: ${file.name}, size: ${file.size}, type: ${file.type}`
+        `Appending file ${index}: ${file.name}, size: ${file.size}, type: ${file.type}`,
       );
     } else {
       console.error(`Invalid file at index ${index}:`, file);
@@ -214,7 +241,7 @@ export async function createCollectiblesToCollection({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
     );
   });
 
@@ -253,6 +280,105 @@ export async function createCollectiblesToCollection({
   }
 }
 
+export async function insriptionCollectible({
+  data,
+}: {
+  data: InscriptionCollectible;
+}) {
+  const formData = new FormData();
+
+  // Append files
+  data.files.forEach((file, index) => {
+    formData.append(`files`, file);
+    console.log(
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+    );
+  });
+
+  const namesArray = data.names;
+  formData.append("names", JSON.stringify(namesArray));
+
+  // Append other data
+  formData.append("collectionId", data.collectionId);
+
+  console.log("FormData contents:");
+  // Use Array.from() to convert the iterator to an array
+  Array.from(formData.keys()).forEach((key) => {
+    console.log(key, formData.get(key));
+  });
+
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/collectibles/inscription`,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  };
+
+  try {
+    const response = await axiosClient.request(config);
+    console.log("Server response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error in createCollectiblesToCollection:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error("Server error response:", error.response.data);
+    }
+    throw error;
+  }
+}
+
+export async function createLaunchItems({
+  data,
+}: {
+  data: CreateLaunchParams;
+}) {
+  const formData = new FormData();
+
+  // Append files
+  data.files.forEach((file, index) => {
+    formData.append(`files`, file);
+    console.log(
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+    );
+  });
+
+  const namesArray = data.names;
+  formData.append("names", JSON.stringify(namesArray));
+
+  // Append other data
+  formData.append("collectionId", data.collectionId);
+  formData.append("isLastBatch", data.isLastBatch.toString());
+
+  console.log("FormData contents:");
+  // Use Array.from() to convert the iterator to an array
+  Array.from(formData.keys()).forEach((key) => {
+    console.log(key, formData.get(key));
+  });
+
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/launchpad/inscription`,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  };
+
+  try {
+    const response = await axiosClient.request(config);
+    console.log("Server response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error in createCollectiblesToCollection:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error("Server error response:", error.response.data);
+    }
+    throw error;
+  }
+}
+
 export async function launchCollection({
   data,
   collectionId,
@@ -266,7 +392,7 @@ export async function launchCollection({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
     );
   });
 
@@ -345,21 +471,46 @@ export async function createOrderToMint({
   }
 }
 
+export async function createBuyLaunch({
+  id,
+  userLayerId,
+  feeRate,
+}: {
+  id: string;
+  userLayerId: string;
+  feeRate: number;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/${id}/buy`, { userLayerId, feeRate })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
 export async function confirmOrder({
   orderId,
   txid,
   launchItemId,
+  userLayerId,
+  feeRate,
 }: {
   orderId: string;
   txid?: string | undefined;
   launchItemId: string;
+  userLayerId: string;
+  feeRate: number;
 }) {
   try {
     return axiosClient
-      .post(`/api/v1/launchpad/invoke-order`, {
+      .post(`/api/v1/launchpad/mint`, {
         orderId,
         txid,
         launchItemId,
+        userLayerId,
+        feeRate,
       })
       .then((response) => {
         return response.data;
@@ -529,7 +680,7 @@ export async function generateHex(collectionId: string) {
   // try {
   return axiosClient
     .post(
-      `/api/v1/purchase/${collectionId}/generate`
+      `/api/v1/purchase/${collectionId}/generate`,
       // JSON.stringify({ walletAddress: walletData }),
     )
     .then((response) => {
@@ -553,7 +704,7 @@ export async function createPurchase({
   return axiosClient
     .post(
       `/api/v1/purchase`,
-      JSON.stringify({ buyerId, collectibleId, transactionId })
+      JSON.stringify({ buyerId, collectibleId, transactionId }),
     )
     .then((response) => {
       if (response.data.success) {
@@ -569,12 +720,12 @@ export async function createPurchase({
 
 // Mint Collectible Handler
 export const mintCollectibleHandler = async (
-  payload: MintCollectiblePayload
+  payload: MintCollectiblePayload,
 ): Promise<MintCollectibleResponse> => {
   try {
     const response = await axiosClient.post<MintCollectibleResponse>(
       "/api/v1/collectibles/mint",
-      payload
+      payload,
     );
 
     if (!response.data.success) {
@@ -585,7 +736,7 @@ export const mintCollectibleHandler = async (
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        error.response?.data?.message || "Failed to mint collectible"
+        error.response?.data?.message || "Failed to mint collectible",
       );
     }
     throw error;
@@ -643,13 +794,37 @@ export async function generateBuyHexCitrea({ id }: { id: string }) {
 
 export async function createApprovalTransaction({
   collectionId,
+  userLayerId,
 }: {
   collectionId: string | undefined;
+  userLayerId: string;
 }) {
   try {
     return axiosClient
       .post(`/api/v1/lists/approval`, {
         collectionId,
+        userLayerId,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function checkAndCreateRegister({
+  collectionId,
+  userLayerId,
+}: {
+  collectionId: string | undefined;
+  userLayerId: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists/checkRegistration`, {
+        collectionId,
+        userLayerId,
       })
       .then((response) => {
         return response.data;
@@ -712,14 +887,17 @@ export async function confirmPendingList({
 export async function generateBuyHex({
   id,
   feeRate,
+  userLayerId,
 }: {
   id: string | null;
   feeRate: number;
+  userLayerId: string;
 }) {
   try {
     return axiosClient
       .post(`/api/v1/lists/${id}/generate-hex`, {
         feeRate,
+        userLayerId,
       })
       .then((response) => {
         return response.data;
@@ -732,14 +910,17 @@ export async function generateBuyHex({
 export async function buyListedCollectible({
   id,
   txid,
+  userLayerId,
 }: {
   id: string | null;
   txid: string;
+  userLayerId: string;
 }) {
   try {
     return axiosClient
       .post(`/api/v1/lists/${id}/buy`, {
         txid,
+        userLayerId,
       })
       .then((response) => {
         return response.data;
@@ -759,6 +940,41 @@ export async function createMintHexCollection({
       .post(`/api/v1/orders/collection/hex`, {
         orderId,
       })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function invokeOrderMint({ id }: { id: string }) {
+  console.log("last id ", id);
+  try {
+    return axiosClient
+      .post(`/api/v1/orders/${id}/invoke-mint`)
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function createLaunch({
+  data,
+  txid,
+  totalFileSize,
+  feeRate,
+}: {
+  data: LaunchParams;
+  txid: string;
+  totalFileSize: number;
+  feeRate: number;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad`, { data, txid, totalFileSize, feeRate })
       .then((response) => {
         return response.data;
       });

@@ -73,11 +73,11 @@ const OrderPayModal: React.FC<ModalProps> = ({
     mutationFn: createCollectiblesToCollection,
   });
 
-  const { data: feeRates = [] } = useQuery({
-    queryKey: ["feeRateData"],
-    queryFn: () => getFeeRates(authState?.layerId as string),
-    enabled: !!authState?.layerId,
-  });
+  // const { data: feeRates = [] } = useQuery({
+  //   queryKey: ["feeRateData"],
+  //   queryFn: () => getFeeRates(authState?.layerId as string),
+  //   enabled: !!authState?.layerId,
+  // });
 
   const { data: currentLayer } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
@@ -131,9 +131,9 @@ const OrderPayModal: React.FC<ModalProps> = ({
         collectionId: id,
         feeRate:
           selectedTab === "Slow"
-            ? feeRates?.economyFee
+            ? feeRate
             : selectedTab === "Fast"
-            ? feeRates?.fastestFee
+            ? feeRate
             : feeRate,
         txid: hash,
         totalFileCount: files.length,
@@ -183,9 +183,9 @@ const OrderPayModal: React.FC<ModalProps> = ({
   useEffect(() => {
     setFeeRate(
       selectedTab === "Slow"
-        ? feeRates?.economyFee
+        ? feeRate
         : selectedTab === "Fast"
-        ? feeRates?.fastestFee
+        ? feeRate
         : feeRate
     );
   }, [selectedTab]);
