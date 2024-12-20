@@ -157,7 +157,7 @@ const CollectionDetailPage = () => {
                       {collectionData?.name}
                     </h3>
                     <h2 className="text-lg md:text-lg2 font-medium text-neutral100 text-center md:text-left">
-                      by {collectionData?.creator}
+                      by {collectionData?.creatorName}
                     </h2>
                   </div>
                   {links.length > 0 && (
@@ -230,7 +230,11 @@ const CollectionDetailPage = () => {
                       <div className="flex items-center justify-center md:justify-start mt-2">
                         <Profile2User color="#d3f85a" />
                         <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
-                          <span>{collection?.totalOwnerCount}</span>
+                          <span>
+                            {collectionData?.ownerCount
+                              ? collectionData?.ownerCount
+                              : 0}
+                          </span>
                         </p>
                       </div>
                     </div>

@@ -16,10 +16,10 @@ import {
   getCollectionById,
 } from "@/lib/service/queryHelper";
 import {
-  formatPrice,
   getSigner,
   ordinalsImageCDN,
   s3ImageUrlBuilder,
+  formatPrice,
 } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { useState } from "react";

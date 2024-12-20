@@ -183,7 +183,7 @@ export type ExtendedLayerType = LayerType & { comingSoon?: boolean };
 
 export type CollectionDataType = {
   id: string;
-  creator: string;
+  creatorName: string;
   description: string;
   floor: number;
   layerId: string;
