@@ -111,7 +111,7 @@ const Page = () => {
         // } else if (currentLayer.layer === "FRACTAL") {
         await window.unisat.sendBitcoin(
           response.data.order.fundingAddress,
-          response.data.order.fundingAmount,
+          Math.ceil(response.data.order.fundingAmount),
         );
         // }
         if (orderId) {
