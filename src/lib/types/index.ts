@@ -179,6 +179,8 @@ export type LayerType = {
   network: string;
 };
 
+export type ExtendedLayerType = LayerType & { comingSoon?: boolean };
+
 export type CollectionDataType = {
   id: string;
   creator: string;

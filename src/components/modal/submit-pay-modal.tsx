@@ -69,7 +69,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [collectionId, setCollectionId] = useState<string>("");
   const [selectedTab, setSelectedTab] = useState<"Slow" | "Fast" | "Custom">(
-    "Custom"
+    "Custom",
   );
   const [estimatedFee, setEstimatedFee] = useState<EstimatedFee>({
     networkFee: 0,
@@ -144,9 +144,14 @@ const SubmitPayModal: React.FC<ModalProps> = ({
       const collectionParams: CollectionData = {
         logo: files[0],
         name: name,
-        creator: creator,
+        // creator: creator,
         description: description,
         priceForLaunchpad: 0,
+        userLayerId: authState.userLayerId,
+        layerId: authState.layerId,
+
+        //todo get correct type for this modal
+        type: "INSCRIPTION",
       };
       if (collectionParams) {
         let collectionTxid;
@@ -190,11 +195,11 @@ const SubmitPayModal: React.FC<ModalProps> = ({
           } else if (currentLayer.layer === "FRACTAL") {
             console.log(
               response.data.order.fundingAddress,
-              response.data.order.fundingAmount
+              response.data.order.fundingAmount,
             );
             await window.unisat.sendBitcoin(
               response.data.order.fundingAddress,
-              response.data.order.fundingAmount
+              Math.ceil(response.data.order.fundingAmount),
             );
           }
           await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -222,8 +227,8 @@ const SubmitPayModal: React.FC<ModalProps> = ({
       selectedTab === "Slow"
         ? feeRate
         : selectedTab === "Fast"
-        ? feeRate
-        : feeRate
+          ? feeRate
+          : feeRate,
     );
   }, [selectedTab]);
 

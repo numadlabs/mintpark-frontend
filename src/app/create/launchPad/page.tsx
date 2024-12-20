@@ -170,7 +170,7 @@ const CollectionDetail = () => {
 
   const calculateTimeUntilDate = (
     dateString: string,
-    timeString: string
+    timeString: string,
   ): number => {
     try {
       // Input validation
@@ -401,7 +401,7 @@ const CollectionDetail = () => {
           const currentBatchFiles = files.slice(start, end);
 
           const names = currentBatchFiles.map(
-            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
+            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
           );
 
           const launchItemsData: CreateLaunchParams = {
@@ -428,7 +428,7 @@ const CollectionDetail = () => {
     } catch (error) {
       console.error("Error creating launch:", error);
       toast.error(
-        error instanceof Error ? error.message : "Error creating launch"
+        error instanceof Error ? error.message : "Error creating launch",
       );
     } finally {
       setIsLoading(false);
@@ -471,11 +471,12 @@ const CollectionDetail = () => {
           txid: "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e",
           userLayerId: authState.userLayerId,
           totalFileSize: totalFileSize,
+          totalCollectibleCount: files.length,
         });
         if (response && response.success) {
           await window.unisat.sendBitcoin(
             response.data.order.fundingAddress,
-            Math.ceil(response.data.order.fundingAmount * 10 ** 8)
+            Math.ceil(response.data.order.fundingAmount * 10 ** 8),
           );
 
           const orderID = response.data.order.id;
@@ -487,7 +488,7 @@ const CollectionDetail = () => {
             const currentBatchFiles = files.slice(start, end);
 
             const names = currentBatchFiles.map(
-              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
+              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
             );
             const params: InscriptionCollectible = {
               files: currentBatchFiles,

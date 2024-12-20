@@ -28,10 +28,11 @@ import {
   getLayerById,
 } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
-import { LayerType } from "@/lib/types";
+import { ExtendedLayerType, LayerType } from "@/lib/types";
 import { toast } from "sonner";
 import Badge from "../atom/badge";
-import { MenuIcon } from "lucide-react";
+import { Loader2, MenuIcon } from "lucide-react";
+import XLogo from "../icon/xlogo";
 
 declare global {
   interface Window {
@@ -55,30 +56,54 @@ export default function Header() {
     enabled: !!authState?.userLayerId,
   });
 
-  const { data: layers = [] } = useQuery({
+  const { data: dynamicLayers = [] } = useQuery({
     queryKey: ["layerData"],
     queryFn: () => getAllLayers(),
     staleTime: Infinity,
     gcTime: Infinity,
   });
 
-  const { data: currentLayer = [] } = useQuery({
+  const { data: currentLayer, isLoading: isLayersLoading } = useQuery({
     queryKey: ["currentLayerData", id],
     queryFn: () => getLayerById(id as string),
     enabled: !!id,
   });
 
+  // Initialize default layer
   useEffect(() => {
-    if (!currentLayer) {
-      const citreaLayer = layers.find((l: LayerType) => l.layer === "CITREA");
-      if (citreaLayer) {
-        setDefaultLayer(`${citreaLayer.layer}-${citreaLayer.network}`);
-        setSelectedLayerId(citreaLayer.id);
+    const initializeDefaultLayer = () => {
+      if (currentLayer) {
+        const layerString = `${currentLayer.layer}-${currentLayer.network}`;
+        setDefaultLayer(layerString);
+      } else if (dynamicLayers.length > 0) {
+        const citreaLayer = dynamicLayers.find(
+          (l: LayerType) => l.layer === "CITREA",
+        );
+        if (citreaLayer) {
+          const layerString = `${citreaLayer.layer}-${citreaLayer.network}`;
+          setDefaultLayer(layerString);
+          setSelectedLayerId(citreaLayer.id);
+        }
       }
-    } else {
-      setDefaultLayer(`${currentLayer.layer}-${currentLayer.network}`);
-    }
-  }, [currentLayer, layers, setSelectedLayerId]);
+    };
+
+    initializeDefaultLayer();
+  }, [currentLayer, dynamicLayers, setSelectedLayerId]);
+
+  // Add static options
+  const staticLayers: (LayerType & { comingSoon?: boolean })[] = [
+    {
+      id: "static-1",
+      layer: "NUBIT",
+      name: "Nubit Testnet",
+      network: "TESTNET",
+      // createdAt: new Date().toISOString(),
+      // updatedAt: new Date().toISOString(),
+      comingSoon: true,
+    },
+  ];
+
+  const layers: ExtendedLayerType[] = [...dynamicLayers, ...staticLayers];
 
   const routesData = [
     {
@@ -111,6 +136,8 @@ export default function Header() {
         return "/wallets/Fractal.png";
       case "CITREA":
         return "/wallets/Citrea.png";
+      case "NUBIT":
+        return "/wallets/nubit.webp";
       default:
         return "/wallets/Citrea.png";
     }
@@ -123,14 +150,14 @@ export default function Header() {
   const handleLayerSelect = (value: string) => {
     const [layer, network] = value.split("-");
     const selectedLayer = layers.find(
-      (l: LayerType) => l.layer === layer && l.network === network
+      (l: LayerType) => l.layer === layer && l.network === network,
     );
 
     if (selectedLayer) {
       if (authState.authenticated) {
         onLogout();
         toast.info(
-          "Logged out due to layer change. Please reconnect your wallet."
+          "Logged out due to layer change. Please reconnect your wallet.",
         );
       }
       localStorage.setItem("layerId", selectedLayer.id);
@@ -157,7 +184,7 @@ export default function Header() {
   const handleNavigation = (
     pageUrl: string,
     requiresAuth?: boolean,
-    disabled?: boolean
+    disabled?: boolean,
   ) => {
     if (disabled) {
       toast.info("This feature is coming soon!");
@@ -169,6 +196,10 @@ export default function Header() {
     }
     router.push(pageUrl);
     setMobileMenuOpen(false);
+  };
+
+  const handleTwitterClick = () => {
+    window.open("https://x.com/mintpark_io", "_blank");
   };
 
   return (
@@ -195,7 +226,7 @@ export default function Header() {
                         handleNavigation(
                           item.pageUrl,
                           item.requiresAuth,
-                          item.disabled
+                          item.disabled,
                         )
                       }
                     />
@@ -207,13 +238,27 @@ export default function Header() {
 
             {/* Desktop Controls */}
             <div className="hidden md2:flex flex-row overflow-hidden items-center gap-4">
+              <button
+                onClick={handleTwitterClick}
+                className="flex items-center gap-2 whitespace-nowrap justify-center h-10 px-4 bg-white16 hover:bg-white16 duration-300 transition-all rounded-xl"
+              >
+                <XLogo size={20} className="h-5 w-5 text-white" />
+                <span className="text-neutral50 text-md font-medium">
+                  Follow us
+                </span>
+              </button>
               <Select onValueChange={handleLayerSelect} value={defaultLayer}>
                 <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
                   <SelectValue
                     placeholder="Select layer"
                     defaultValue={defaultLayer}
                   >
-                    {defaultLayer && (
+                    {isLayersLoading ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
+                        <span>Loading...</span>
+                      </div>
+                    ) : defaultLayer ? (
                       <div className="flex flex-row gap-2 items-center w-max">
                         <Image
                           src={getLayerImage(defaultLayer.split("-")[0])}
@@ -226,16 +271,22 @@ export default function Header() {
                           .map(capitalizeFirstLetter)
                           .join(" ")}
                       </div>
+                    ) : (
+                      <span>Select layer</span>
                     )}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent className="mt-4 flex flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
                   <SelectGroup className="flex flex-col gap-2">
-                    {layers.map((layer: LayerType) => (
+                    {layers.map((layer: ExtendedLayerType) => (
                       <SelectItem
                         key={layer.id}
                         value={`${layer.layer}-${layer.network}`}
-                        className="hover:bg-white8 duration-300 transition-all flex flex-row items-center gap-2 w-[170px] cursor-pointer"
+                        className={`flex flex-row items-center gap-2 w-[170px] ${
+                          layer.comingSoon
+                            ? "opacity-80 cursor-not-allowed"
+                            : "hover:bg-white8 duration-300 transition-all cursor-pointer"
+                        }`}
                       >
                         <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
                           <Image
@@ -244,9 +295,16 @@ export default function Header() {
                             width={24}
                             height={24}
                           />
-                          {`${capitalizeFirstLetter(
-                            layer.layer
-                          )} ${capitalizeFirstLetter(layer.network)}`}
+                          <div className="flex items-center gap-2">
+                            {`${capitalizeFirstLetter(
+                              layer.layer,
+                            )} ${capitalizeFirstLetter(layer.network)}`}
+                            {layer.comingSoon && (
+                              <span className="text-xs bg-white8 px-2 py-1 rounded-full">
+                                Soon
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </SelectItem>
                     ))}
@@ -364,7 +422,7 @@ export default function Header() {
                       handleNavigation(
                         item.pageUrl,
                         item.requiresAuth,
-                        item.disabled
+                        item.disabled,
                       )
                     }
                   >
