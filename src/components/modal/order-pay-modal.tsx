@@ -57,7 +57,7 @@ const OrderPayModal: React.FC<ModalProps> = ({
   const [inscribeModal, setInscribeModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTab, setSelectedTab] = useState<"Slow" | "Fast" | "Custom">(
-    "Custom"
+    "Custom",
   );
   const [estimatedFee, setEstimatedFee] = useState<EstimatedFee>({
     networkFee: 0,
@@ -133,8 +133,8 @@ const OrderPayModal: React.FC<ModalProps> = ({
           selectedTab === "Slow"
             ? feeRate
             : selectedTab === "Fast"
-            ? feeRate
-            : feeRate,
+              ? feeRate
+              : feeRate,
         txid: hash,
         totalFileCount: files.length,
       };
@@ -146,7 +146,7 @@ const OrderPayModal: React.FC<ModalProps> = ({
 
           const { signer } = await getSigner();
           const signedTx = await signer?.sendTransaction(
-            response.data.batchMintTxHex
+            response.data.batchMintTxHex,
           );
           await signedTx?.wait();
           console.log(signedTx);
@@ -154,11 +154,11 @@ const OrderPayModal: React.FC<ModalProps> = ({
         } else if (currentLayer.layer === "FRACTAL") {
           console.log(
             response.data.order.fundingAddress,
-            response.data.order.fundingAmount
+            response.data.order.fundingAmount,
           );
           await window.unisat.sendBitcoin(
             response.data.order.fundingAddress,
-            response.data.order.fundingAmount
+            Math.ceil(response.data.order.fundingAmount),
           );
         }
         await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -185,8 +185,8 @@ const OrderPayModal: React.FC<ModalProps> = ({
       selectedTab === "Slow"
         ? feeRate
         : selectedTab === "Fast"
-        ? feeRate
-        : feeRate
+          ? feeRate
+          : feeRate,
     );
   }, [selectedTab]);
 

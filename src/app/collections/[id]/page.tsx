@@ -56,6 +56,7 @@ const CollectionDetailPage = () => {
     const data = searchParams.get("data");
     if (data) {
       try {
+        //todo collection data g end api duudaj avna params aar damjuulahgui
         const parsedData = JSON.parse(data) as CollectionDataType;
         setCollectionData(parsedData);
       } catch (error) {
@@ -85,7 +86,7 @@ const CollectionDetailPage = () => {
       ),
     },
   ].filter(
-    (link) => link.url !== null && link.url !== undefined && link.url !== ""
+    (link) => link.url !== null && link.url !== undefined && link.url !== "",
   );
 
   const handleSocialClick = (url: string | undefined) => {
@@ -95,6 +96,7 @@ const CollectionDetailPage = () => {
     // window.location.href = validUrl;
   };
 
+  //todo buh ene function iig ustgaj utils aas duudah. 20 udaa neg code oo copy hiisen bn!!!
   const formatPrice = (price: number) => {
     const btcAmount = price;
     return btcAmount?.toLocaleString("en-US", {
@@ -155,7 +157,7 @@ const CollectionDetailPage = () => {
                       {collectionData?.name}
                     </h3>
                     <h2 className="text-lg md:text-lg2 font-medium text-neutral100 text-center md:text-left">
-                      by {collectionData?.creator}
+                      by {collectionData?.creatorName}
                     </h2>
                   </div>
                   {links.length > 0 && (
@@ -228,7 +230,11 @@ const CollectionDetailPage = () => {
                       <div className="flex items-center justify-center md:justify-start mt-2">
                         <Profile2User color="#d3f85a" />
                         <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
-                          <span>{collection?.totalOwnerCount}</span>
+                          <span>
+                            {collectionData?.ownerCount
+                              ? collectionData?.ownerCount
+                              : 0}
+                          </span>
                         </p>
                       </div>
                     </div>
@@ -392,10 +398,7 @@ const CollectionDetailPage = () => {
                     <div className="flex flex-col w-full pt-4 gap-4">
                       {collection?.collectibles?.map((item: any) => (
                         <div key={item.id}>
-                          <ColDetailCards
-                            data={item}
-                            totalOwnerCount={collection?.totalOwnerCount}
-                          />
+                          <ColDetailCards data={item} totalOwnerCount={item} />
                         </div>
                       ))}
                     </div>

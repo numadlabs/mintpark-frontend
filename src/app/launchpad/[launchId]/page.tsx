@@ -83,6 +83,9 @@ const Page = () => {
         : "";
 
   const handleConfirm = async () => {
+    if (!authState.authenticated)
+      return toast.error("Please connect wallet first");
+
     if (!currentLayer || !authState.userLayerId) {
       toast.error("Layer information not available");
       return false;
@@ -111,7 +114,7 @@ const Page = () => {
         // } else if (currentLayer.layer === "FRACTAL") {
         await window.unisat.sendBitcoin(
           response.data.order.fundingAddress,
-          response.data.order.fundingAmount,
+          Math.ceil(response.data.order.fundingAmount),
         );
         // }
         if (orderId) {

@@ -27,6 +27,8 @@ export const collectibleSchema = z.object({
   uniqueIdx: z.string(),
   createdAt: z.string(),
   fileKey: z.string(),
+  highResolutionImageUrl: z.string(),
+
   collectionId: z.string(),
   collectionName: z.string(),
   listedAt: z.string().nullable(),

@@ -27,13 +27,6 @@ declare global {
   }
 }
 
-const formatWalletAddress = (address: string | null): string => {
-  if (!address || address === "Connect Wallet") return "Connect Wallet";
-  const prefix = address.slice(0, 4);
-  const suffix = address.slice(-4);
-  return `${prefix}...${suffix}`;
-};
-
 const ProfileBanner: React.FC<CardProps> = ({ params }) => {
   const { authState } = useAuth();
   const [walletAddress, setWalletAddress] = useState<string>("Connect Wallet");
@@ -69,6 +62,13 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       usdBtc: 0,
     });
     setError(null);
+  };
+
+  const formatWalletAddress = (address: string | null): string => {
+    if (!address) return "Connect Wallet";
+    const prefix = address.slice(0, 4);
+    const suffix = address.slice(-4);
+    return `${prefix}...${suffix}`;
   };
 
   const getMetaMaskBalance = async () => {
@@ -108,7 +108,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       setError(null);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Failed to fetch MetaMask balance"
+        e instanceof Error ? e.message : "Failed to fetch MetaMask balance",
       );
       console.error("MetaMask balance fetch error:", e);
     } finally {
@@ -151,7 +151,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       setError(null);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Failed to fetch Unisat balance"
+        e instanceof Error ? e.message : "Failed to fetch Unisat balance",
       );
       console.error("Unisat balance fetch error:", e);
     } finally {
@@ -173,7 +173,6 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
     const setupMetaMaskListeners = () => {
       if (!window.ethereum) return;
       if (authState.walletType == "metamask") {
-        console.log("triggered eth");
         getMetaMaskBalance();
       }
 
@@ -194,7 +193,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       return () => {
         window.ethereum.removeListener(
           "accountsChanged",
-          handleAccountsChanged
+          handleAccountsChanged,
         );
         window.ethereum.removeListener("chainChanged", getMetaMaskBalance);
       };

@@ -15,7 +15,12 @@ import {
   getCollectibleActivity,
   getCollectionById,
 } from "@/lib/service/queryHelper";
-import { getSigner, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
+import {
+  getSigner,
+  ordinalsImageCDN,
+  s3ImageUrlBuilder,
+  formatPrice,
+} from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import PendingListModal from "@/components/modal/pending-list-modal";
@@ -128,7 +133,6 @@ export default function AssetsDetails() {
             );
             await signedTx?.wait();
           }
-          toast.success("Asset listed successfully");
         } else {
           return toast.error("Error registering asset");
         }
@@ -145,12 +149,12 @@ export default function AssetsDetails() {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return price.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 4,
-    });
-  };
+  // const formatPrice = (price: number) => {
+  //   return price.toLocaleString("en-US", {
+  //     minimumFractionDigits: 0,
+  //     maximumFractionDigits: 4,
+  //   });
+  // };
 
   if (isCollectionLoading) {
     return (
@@ -171,6 +175,7 @@ export default function AssetsDetails() {
       </>
     );
   }
+  //todo tur fileKey gd yvsan imageUrl bolgoj oorchloh
 
   return (
     <Layout>
@@ -182,9 +187,9 @@ export default function AssetsDetails() {
               width={560}
               height={560}
               src={
-                currentAsset.fileKey
-                  ? s3ImageUrlBuilder(currentAsset.fileKey)
-                  : ordinalsImageCDN(currentAsset.uniqueIdx)
+                currentAsset.highResolutionImageUrl
+                  ? currentAsset.highResolutionImageUrl
+                  : s3ImageUrlBuilder(currentAsset.fileKey)
               }
               className="aspect-square rounded-xl"
               alt={`${currentAsset.name} logo`}
@@ -194,9 +199,9 @@ export default function AssetsDetails() {
             width={560}
             height={560}
             src={
-              currentAsset.fileKey
-                ? s3ImageUrlBuilder(currentAsset.fileKey)
-                : ordinalsImageCDN(currentAsset.uniqueIdx)
+              currentAsset.highResolutionImageUrl
+                ? currentAsset.highResolutionImageUrl
+                : s3ImageUrlBuilder(currentAsset.fileKey)
             }
             className="aspect-square rounded-xl absolute z-50"
             alt={`${currentAsset.name} logo`}
@@ -332,7 +337,11 @@ export default function AssetsDetails() {
                   <ActivityCard
                     key={item.id}
                     data={item}
-                    fileKey={currentAsset.fileKey}
+                    fileKey={
+                      currentAsset.highResolutionImageUrl
+                        ? currentAsset.highResolutionImageUrl
+                        : s3ImageUrlBuilder(currentAsset.fileKey)
+                    }
                     collectionName={currentAsset.collectionName}
                   />
                 ))}
@@ -345,7 +354,11 @@ export default function AssetsDetails() {
       <PendingListModal
         open={isVisible}
         onClose={toggleModal}
-        fileKey={currentAsset.fileKey}
+        fileKey={
+          currentAsset.highResolutionImageUrl
+            ? currentAsset.highResolutionImageUrl
+            : s3ImageUrlBuilder(currentAsset.fileKey)
+        }
         uniqueIdx={currentAsset.uniqueIdx}
         name={currentAsset.name}
         collectionName={currentAsset.collectionName}

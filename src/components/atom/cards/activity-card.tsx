@@ -16,6 +16,7 @@ const ActivityCard: React.FC<cardProps> = ({
   data,
   collectionName,
 }) => {
+  console.log("🚀 ~ fileKey:", fileKey);
   const truncateAddress = (address: string) => {
     if (address?.length <= 10) return address;
     return `${address?.slice(0, 4)}...${address?.slice(-4)}`;
@@ -47,11 +48,12 @@ const ActivityCard: React.FC<cardProps> = ({
     });
   };
 
+  //todo tur fileKey gd yvsan imageUrl bolgoj oorchloh
   return (
     <div className="flex flex-row items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap">
       <div className="flex flex-row items-center gap-3 max-w-[360px] w-full">
         <Image
-          src={s3ImageUrlBuilder(fileKey)}
+          src={fileKey}
           sizes="100%"
           alt="image"
           width={48}
@@ -70,12 +72,20 @@ const ActivityCard: React.FC<cardProps> = ({
       </div>
       <div className="max-w-[200px] w-full flex flex-col gap-1">
         <p className="text-md text-neutral50 font-medium">
-          {(data?.activityType === "MINTED" || data?.activityType === "TRANSFER") ? "-" : data?.price / 10 ** 18}{" "}
-          {(data?.activityType === "MINTED" || data?.activityType === "TRANSFER") ? "" : "cBTC"}
+          {data?.activityType === "MINTED" || data?.activityType === "TRANSFER"
+            ? "-"
+            : data?.price / 10 ** 18}{" "}
+          {data?.activityType === "MINTED" || data?.activityType === "TRANSFER"
+            ? ""
+            : "cBTC"}
         </p>
         <p className="text-sm text-neutral200 font-medium">
-          {(data?.activityType === "MINTED" || data?.activityType === "TRANSFER") ? "" : "$"}{" "}
-          {(data?.activityType === "MINTED" || data?.activityType === "TRANSFER") ? "" : formatPrice(data?.price * 65000 / 10 ** 18)}
+          {data?.activityType === "MINTED" || data?.activityType === "TRANSFER"
+            ? ""
+            : "$"}{" "}
+          {data?.activityType === "MINTED" || data?.activityType === "TRANSFER"
+            ? ""
+            : formatPrice((data?.price * 65000) / 10 ** 18)}
         </p>
       </div>
       <div className="max-w-[260px] w-full gap-2 flex flex-row items-center">

@@ -23,13 +23,13 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
       onClick={handleNav}
       className="w-full transition-transform duration-300 hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br collection from-gradientStart to-transparent border border-neutral400 rounded-xl p-3 sm:p-4 flex flex-col justify-between items-center"
     >
-        <Image
-          width={248}
-          height={248}
-          src={s3ImageUrlBuilder(data?.logoKey)}
-          className="object-cover aspect-square rounded-xl"
-          alt={`${data.name || "Collection"} image`}
-        />
+      <Image
+        width={248}
+        height={248}
+        src={s3ImageUrlBuilder(data?.logoKey)}
+        className="object-cover aspect-square rounded-xl"
+        alt={`${data.name || "Collection"} image`}
+      />
 
       <div className="pt-3 sm:pt-4 grid gap-3 sm:gap-4 w-full">
         <p className="text-xl font-bold text-start text-neutral00 line-clamp-1 px-1">
@@ -63,7 +63,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
           <div className="flex items-center">
             <Profile2User size={16} className="text-brand" />
             <p className="ml-2 font-medium text-sm sm:text-md text-neutral50">
-              <span>{data?.totalOwnerCount}</span> owners
+              <span>{data?.ownerCount ? data?.ownerCount : 0}</span> owners
             </p>
           </div>
           <div className="flex items-center">

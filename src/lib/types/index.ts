@@ -179,9 +179,11 @@ export type LayerType = {
   network: string;
 };
 
+export type ExtendedLayerType = LayerType & { comingSoon?: boolean };
+
 export type CollectionDataType = {
   id: string;
-  creator: string;
+  creatorName: string;
   description: string;
   floor: number;
   layerId: string;
@@ -197,12 +199,13 @@ export type CollectionDataType = {
   price: number;
   createdAt: string;
   collectionName: string;
+  highResolutionImageUrl: string;
   fileKey: string;
   floorDifference: number;
   ownedBy: string;
   collectionId: string;
   listId: string;
-  totalOwnerCount: number;
+  ownerCount: number;
   websiteUrl: string;
   twitterUrl: string;
   discordUrl: string;

@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
+import { formatPrice, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
 import { useAuth } from "@/components/provider/auth-context-provider";
 
@@ -15,7 +15,8 @@ interface ColDetailCardsProps {
     ownedBy: string | null;
     createdAt: string;
     collectionId: string;
-    id:string; // Change this to string as we'll pass an ISO date string
+    id: string; // Change this to string as we'll pass an ISO date string
+    highResolutionImageUrl: string;
   };
   totalOwnerCount: number;
 }
@@ -37,16 +38,13 @@ const getDaysAgo = (createdAt: string) => {
   return diffDays;
 };
 
-const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data, totalOwnerCount }) => {
-  const {citreaPrice} = useAuth()
+const ColDetailCards: React.FC<ColDetailCardsProps> = ({
+  data,
+  totalOwnerCount,
+}) => {
+  const { citreaPrice } = useAuth();
   const daysAgo = getDaysAgo(data.createdAt);
-  const formatPrice = (price: number) => {
-    const btcAmount = price;
-    return btcAmount.toLocaleString('en-US', {
-      minimumFractionDigits:0,
-      maximumFractionDigits: 6
-    });
-  };
+
   return (
     <>
       <Link
@@ -58,9 +56,9 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data, totalOwnerCount }
             width={64}
             height={64}
             src={
-              data.fileKey
-                ? s3ImageUrlBuilder(data.fileKey)
-                : ordinalsImageCDN(data.uniqueIdx)
+              data.highResolutionImageUrl
+                ? data.highResolutionImageUrl
+                : s3ImageUrlBuilder(data.fileKey as string)
             }
             className="aspect-square rounded-lg"
             alt={`${data.name} image`}
@@ -79,17 +77,17 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data, totalOwnerCount }
               {" "}
               <p className="font-medium text-sm text-neutral200">
                 <span className="mr-1">$</span>
-                {formatPrice((data.price) * citreaPrice)}
+                {formatPrice(data.price * citreaPrice)}
                 <span className="">k</span>
               </p>
             </p>
           </div>
           <div className="w-full max-w-[200px] h-[18px]">
             <p
-              className={`font-medium text-lg2 ${((data.floorDifference ?? 0) )>= 0 ? "text-green-500" : "text-red-500"}`}
+              className={`font-medium text-lg2 ${(data.floorDifference ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}
             >
-              {((data.floorDifference ?? 0) >= 0) ? "+" : "-"}
-              {formatPrice((data.floorDifference) ?? 0)}%
+              {(data.floorDifference ?? 0) >= 0 ? "+" : "-"}
+              {formatPrice(data.floorDifference ?? 0)}%
             </p>
           </div>
           <div className="w-full max-w-[200px] h-[18px]">
