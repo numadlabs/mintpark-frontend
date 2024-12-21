@@ -170,28 +170,28 @@ const Page = () => {
   }
 
   const links = [
+    // {
+    //   url: "collectionsData?.websiteUrl",
+    //   isIcon: true,
+    //   icon: (
+    //     <Global
+    //       size={24}
+    //       className="sm:size-8 lg:size-8 hover:text-brand text-neutral00"
+    //     />
+    //   ),
+    // },
+    // {
+    //   url: "collectionsData?.discordUrl",
+    //   isIcon: false,
+    //   icon: (
+    //     <DiscordIcon
+    //       size={24}
+    //       className="sm:size-8 lg:size-8 hover:text-brand text-neutral00"
+    //     />
+    //   ),
+    // },
     {
-      url: "collectionsData?.websiteUrl",
-      isIcon: true,
-      icon: (
-        <Global
-          size={24}
-          className="sm:size-8 lg:size-8 hover:text-brand text-neutral00"
-        />
-      ),
-    },
-    {
-      url: "collectionsData?.discordUrl",
-      isIcon: false,
-      icon: (
-        <DiscordIcon
-          size={24}
-          className="sm:size-8 lg:size-8 hover:text-brand text-neutral00"
-        />
-      ),
-    },
-    {
-      url: "collectionsData?.twitterUrl",
+      url: "https://x.com/mintpark_io",
       isIcon: false,
       icon: (
         <ThreadIcon
