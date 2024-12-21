@@ -103,7 +103,15 @@ export default function Header() {
     },
   ];
 
-  const layers: ExtendedLayerType[] = [...dynamicLayers, ...staticLayers];
+  // Filter out Bitcoin Testnet from dynamicLayers
+  const filteredDynamicLayers = dynamicLayers.filter(
+    (layer) => !(layer.layer === "BITCOIN" && layer.network === "TESTNET"),
+  );
+
+  const layers: ExtendedLayerType[] = [
+    ...filteredDynamicLayers,
+    ...staticLayers,
+  ];
 
   const routesData = [
     {
