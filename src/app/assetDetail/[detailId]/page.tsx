@@ -108,9 +108,12 @@ export default function AssetDetail() {
                 width={560}
                 height={560}
                 src={
-                  currentAsset.fileKey
-                    ? s3ImageUrlBuilder(currentAsset.fileKey)
-                    : ordinalsImageCDN(currentAsset.uniqueIdx)
+                  currentAsset.highResolutionImageUrl
+                    ? currentAsset.highResolutionImageUrl
+                    : s3ImageUrlBuilder(currentAsset.fileKey)
+                  // currentAsset.fileKey
+                  //   ? s3ImageUrlBuilder(currentAsset.fileKey)
+                  //   : ordinalsImageCDN(currentAsset.uniqueIdx)
                 }
                 className="aspect-square rounded-xl relative z-20 md:h-full w-full h-[360px]"
                 alt={`${currentAsset.name} logo`}
@@ -120,9 +123,9 @@ export default function AssetDetail() {
               width={560}
               height={560}
               src={
-                currentAsset.fileKey
-                  ? s3ImageUrlBuilder(currentAsset.fileKey)
-                  : ordinalsImageCDN(currentAsset.uniqueIdx)
+                currentAsset.highResolutionImageUrl
+                  ? currentAsset.highResolutionImageUrl
+                  : s3ImageUrlBuilder(currentAsset.fileKey)
               }
               className="aspect-square rounded-xl absolute z-20 w-[360px] h-[320px] md:h-[340px] lg:w-full lg:h-full top-0"
               alt={`${currentAsset.name} logo`}
@@ -270,7 +273,11 @@ export default function AssetDetail() {
                         <ActivityCard
                           key={item.id}
                           data={item}
-                          fileKey={currentAsset.fileKey}
+                          fileKey={
+                            currentAsset.highResolutionImageUrl
+                              ? currentAsset.highResolutionImageUrl
+                              : s3ImageUrlBuilder(currentAsset.fileKey)
+                          }
                           collectionName={currentAsset.collectionName}
                         />
                       ))}
@@ -286,7 +293,11 @@ export default function AssetDetail() {
       <BuyAssetModal
         open={isVisible}
         onClose={toggleModal}
-        fileKey={currentAsset.fileKey}
+        fileKey={
+          currentAsset.highResolutionImageUrl
+            ? currentAsset.highResolutionImageUrl
+            : s3ImageUrlBuilder(currentAsset.fileKey)
+        }
         uniqueIdx={currentAsset.uniqueIdx}
         name={currentAsset.name}
         collectionName={currentAsset.collectionName}

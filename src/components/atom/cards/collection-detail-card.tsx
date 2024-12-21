@@ -7,9 +7,9 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
   const isListed = data.price > 0;
 
   const formatPrice = (price: number) => {
-    return price.toLocaleString('en-US', {
+    return price.toLocaleString("en-US", {
       minimumFractionDigits: 0,
-      maximumFractionDigits: 6
+      maximumFractionDigits: 6,
     });
   };
 
@@ -23,9 +23,9 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
           width={248}
           height={248}
           src={
-            data.fileKey
-              ? s3ImageUrlBuilder(data.fileKey)
-              : ordinalsImageCDN(data.uniqueIdx)
+            data.highResolutionImageUrl
+              ? data.highResolutionImageUrl
+              : s3ImageUrlBuilder(data.fileKey)
           }
           className="aspect-square rounded-xl"
           alt={data.name || "Collection image"}
@@ -35,17 +35,17 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
           <p className="text-neutral200 font-medium text-md pt-2">
             {data.collectionName}
           </p>
-          <p className="py-1 text-lg2 text-neutral50 font-bold">
-            {data.name}
-          </p>
-          
+          <p className="py-1 text-lg2 text-neutral50 font-bold">{data.name}</p>
+
           <div className="mt-auto">
             <div className="relative group">
               <div className="h-10 border-t border-neutral400 group-hover:border-transparent">
                 <div className="flex justify-between py-4 group-hover:opacity-0 transition-opacity">
                   {isListed ? (
                     <>
-                      <p className="text-neutral200 font-medium text-md">Price</p>
+                      <p className="text-neutral200 font-medium text-md">
+                        Price
+                      </p>
                       <p className="text-neutral50">
                         {formatPrice(data.price)}
                         <span className="ml-1">cBTC</span>
@@ -58,7 +58,7 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
                   )}
                 </div>
               </div>
-              
+
               <div className="absolute inset-0 w-full h-10 flex items-center justify-center bg-white4 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
                 <span className="text-white">View</span>
               </div>

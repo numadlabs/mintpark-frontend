@@ -16,6 +16,7 @@ interface ColDetailCardsProps {
     createdAt: string;
     collectionId: string;
     id: string; // Change this to string as we'll pass an ISO date string
+    highResolutionImageUrl: string;
   };
   totalOwnerCount: number;
 }
@@ -55,9 +56,9 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({
             width={64}
             height={64}
             src={
-              data.fileKey
-                ? s3ImageUrlBuilder(data.fileKey)
-                : ordinalsImageCDN(data.uniqueIdx)
+              data.highResolutionImageUrl
+                ? data.highResolutionImageUrl
+                : s3ImageUrlBuilder(data.fileKey as string)
             }
             className="aspect-square rounded-lg"
             alt={`${data.name} image`}

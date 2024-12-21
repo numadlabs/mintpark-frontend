@@ -9,7 +9,7 @@ const TruncatedAddress = ({ address }: { address: string | null }) => {
   if (!address) return <span>-</span>;
   return (
     <span title={address}>{`${address.slice(0, 4)}...${address.slice(
-      -4
+      -4,
     )}`}</span>
   );
 };
@@ -46,9 +46,9 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
             width={64}
             height={64}
             src={
-              data.fileKey
-                ? s3ImageUrlBuilder(data.fileKey)
-                : ordinalsImageCDN(data.uniqueIdx)
+              data.highResolutionImageUrl
+                ? data.highResolutionImageUrl
+                : s3ImageUrlBuilder(data.fileKey)
             }
             className="aspect-square rounded-lg"
             alt={`${data.name} image`}

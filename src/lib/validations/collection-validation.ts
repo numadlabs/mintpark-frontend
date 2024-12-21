@@ -53,6 +53,7 @@ export const collectibleSchema = z.object({
   collectionId: z.string(),
   description: z.string(),
   collectionName: z.string(),
+  highResolutionImageUrl: z.string(),
   price: z.number(),
   floor: z.number().nullable(),
   floorDifference: z.number(),

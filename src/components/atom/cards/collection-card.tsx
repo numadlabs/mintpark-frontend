@@ -18,7 +18,6 @@ const formatPrice = (price: number) => {
 };
 
 const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
-  console.log("🚀 ~ data:", data);
   return (
     <button
       onClick={handleNav}
