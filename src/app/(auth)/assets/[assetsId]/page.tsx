@@ -133,7 +133,6 @@ export default function AssetsDetails() {
             );
             await signedTx?.wait();
           }
-          toast.success("Asset listed successfully");
         } else {
           return toast.error("Error registering asset");
         }
