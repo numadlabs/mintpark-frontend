@@ -199,6 +199,7 @@ export type CollectionDataType = {
   price: number;
   createdAt: string;
   collectionName: string;
+  highResolutionImageUrl: string;
   fileKey: string;
   floorDifference: number;
   ownedBy: string;

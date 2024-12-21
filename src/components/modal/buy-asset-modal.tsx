@@ -163,11 +163,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                 <Image
                   width={160}
                   height={160}
-                  src={
-                    fileKey
-                      ? s3ImageUrlBuilder(fileKey)
-                      : ordinalsImageCDN(uniqueIdx)
-                  }
+                  src={fileKey}
                   className="aspect-square rounded-xl"
                   alt={`logo`}
                 />
@@ -200,11 +196,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                 <Image
                   width={160}
                   height={160}
-                  src={
-                    fileKey
-                      ? s3ImageUrlBuilder(fileKey)
-                      : ordinalsImageCDN(uniqueIdx)
-                  }
+                  src={fileKey}
                   className="aspect-square rounded-xl"
                   alt={`logo`}
                 />

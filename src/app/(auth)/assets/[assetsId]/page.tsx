@@ -176,6 +176,7 @@ export default function AssetsDetails() {
       </>
     );
   }
+  //todo tur fileKey gd yvsan imageUrl bolgoj oorchloh
 
   return (
     <Layout>
@@ -187,9 +188,9 @@ export default function AssetsDetails() {
               width={560}
               height={560}
               src={
-                currentAsset.fileKey
-                  ? s3ImageUrlBuilder(currentAsset.fileKey)
-                  : ordinalsImageCDN(currentAsset.uniqueIdx)
+                currentAsset.highResolutionImageUrl
+                  ? currentAsset.highResolutionImageUrl
+                  : s3ImageUrlBuilder(currentAsset.fileKey)
               }
               className="aspect-square rounded-xl"
               alt={`${currentAsset.name} logo`}
@@ -199,9 +200,9 @@ export default function AssetsDetails() {
             width={560}
             height={560}
             src={
-              currentAsset.fileKey
-                ? s3ImageUrlBuilder(currentAsset.fileKey)
-                : ordinalsImageCDN(currentAsset.uniqueIdx)
+              currentAsset.highResolutionImageUrl
+                ? currentAsset.highResolutionImageUrl
+                : s3ImageUrlBuilder(currentAsset.fileKey)
             }
             className="aspect-square rounded-xl absolute z-50"
             alt={`${currentAsset.name} logo`}
@@ -337,7 +338,11 @@ export default function AssetsDetails() {
                   <ActivityCard
                     key={item.id}
                     data={item}
-                    fileKey={currentAsset.fileKey}
+                    fileKey={
+                      currentAsset.highResolutionImageUrl
+                        ? currentAsset.highResolutionImageUrl
+                        : s3ImageUrlBuilder(currentAsset.fileKey)
+                    }
                     collectionName={currentAsset.collectionName}
                   />
                 ))}
@@ -350,7 +355,11 @@ export default function AssetsDetails() {
       <PendingListModal
         open={isVisible}
         onClose={toggleModal}
-        fileKey={currentAsset.fileKey}
+        fileKey={
+          currentAsset.highResolutionImageUrl
+            ? currentAsset.highResolutionImageUrl
+            : s3ImageUrlBuilder(currentAsset.fileKey)
+        }
         uniqueIdx={currentAsset.uniqueIdx}
         name={currentAsset.name}
         collectionName={currentAsset.collectionName}

@@ -25,9 +25,9 @@ const AssetsCard: React.FC<CardProps> = ({ data }) => {
             width={248}
             height={248}
             src={
-              data.fileKey
-                ? s3ImageUrlBuilder(data.fileKey)
-                : ordinalsImageCDN(data.uniqueIdx)
+              data.highResolutionImageUrl
+                ? data.highResolutionImageUrl
+                : s3ImageUrlBuilder(data.fileKey)
             }
             className="aspect-square rounded-xl object-cover"
             alt={data.name || "Asset image"}
