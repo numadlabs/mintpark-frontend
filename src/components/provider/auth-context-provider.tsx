@@ -125,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
     onError: (error) => {
       console.error("Generate message error:", error);
       toast.error(
-        "Failed to generate message from server. Using fallback message."
+        "Failed to generate message from server. Using fallback message.",
       );
     },
   });
@@ -361,7 +361,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({
       let connectionResult;
       let walletType: "unisat" | "metamask";
 
-      if (layerType === "FRACTAL") {
+      if (layerType === "BITCOIN") {
         connectionResult = await connectUnisat();
         walletType = "unisat";
       } else if (layerType === "CITREA") {
