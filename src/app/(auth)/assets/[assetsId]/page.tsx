@@ -237,7 +237,7 @@ export default function AssetsDetails() {
                     variant="primary"
                     className="w-60 h-12 bg-brand500 flex justify-center items-center"
                     onClick={HandleList}
-                    disabled={isLoading}
+                    disabled
                   >
                     {isLoading ? (
                       <Loader2

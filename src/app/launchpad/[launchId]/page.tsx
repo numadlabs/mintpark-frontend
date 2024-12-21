@@ -106,11 +106,6 @@ const Page = () => {
         launchItemId = response.data.launchItem.id;
         // const { singleMintTxHex } = response.data;
 
-        // if (currentLayer.layer === "CITREA") {
-        //   const { signer } = await getSigner();
-        //   const signedTx = await signer?.sendTransaction(singleMintTxHex);
-        //   await signedTx?.wait();
-        //   if (signedTx?.hash) txid = signedTx?.hash;
         // } else if (currentLayer.layer === "FRACTAL") {
         await window.unisat.sendBitcoin(
           response.data.order.fundingAddress,
@@ -135,7 +130,7 @@ const Page = () => {
       } else {
         // toast.error(response.error);
         //Todo end error zaaj bna ene hesgiin code-iig neg harj vzeh
-        toast.error("Failed to confirm order");
+        toast.error(`Failed to create order ${response.error}`);
       }
     } catch (error) {
       toast.error(`Failed to create order ${error}`);
