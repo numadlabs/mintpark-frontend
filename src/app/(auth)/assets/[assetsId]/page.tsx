@@ -79,6 +79,8 @@ export default function AssetsDetails() {
 
   const currentAsset = collectionData?.[0];
 
+  // TODO: iim function uudiig bugdiig ni lib ees duudah. Dahin ashiglaarai. DO NOT REPEAT YOURSELF
+
   const formatTimeAgo = (dateString: string) => {
     const now = moment();
     const createdDate = moment(dateString);
@@ -175,7 +177,7 @@ export default function AssetsDetails() {
       </>
     );
   }
-  //todo tur fileKey gd yvsan imageUrl bolgoj oorchloh
+  //todo tur fileKey gd yvsan imageUrl bolgoj oorchloh. PendingListModal, ActivityCard
 
   return (
     <Layout>

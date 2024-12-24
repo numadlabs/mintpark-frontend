@@ -56,6 +56,7 @@ export default function AssetDetail() {
     enabled: !!id,
   });
 
+  // TODO: iim function uudiig bugdiig ni lib ees duudah. Dahin ashiglaarai. DO NOT REPEAT YOURSELF
   const formatDaysAgo = (dateString: string) => {
     const createdDate = new Date(dateString);
     const currentDate = new Date();
@@ -96,6 +97,8 @@ export default function AssetDetail() {
       </Layout>
     );
   }
+
+  //todo assetDetail, asset gsn 2 dynamic page bn ali ni ali gj oilgogdodguie
 
   return (
     <Layout>

@@ -55,6 +55,8 @@ const SingleCollectible = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [submitModal, setSubmitModal] = useState(false);
   const [fileSizes, setFileSizes] = useState<number[]>([]);
+  //TODO: ashiglaagui state uud ustgah
+
   const [totalFileSize, setTotalFileSize] = useState<number>(0);
   const [fileTypeSizes, setFileTypeSizes] = useState<number[]>([]);
   const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
@@ -76,6 +78,8 @@ const SingleCollectible = () => {
     queryFn: () => getLayerById(authState.layerId as string),
     enabled: !!authState.layerId,
   });
+
+  //TODO: ashiglaagui function ustgah
 
   const updateFileInfo = (files: File[]) => {
     const newSizes = files.map((file) => file.size);

@@ -41,7 +41,7 @@ module.exports = {
       smallTitles: ["16px", "22px"],
       profileTitle: ["28px", "36px"],
       headText: ["88px", "88px"],
-      // memeBtn:["17px","24px"]
+      // memeBtn:["17px","24px"]∑
     },
     extend: {
       backdropBlur: {
@@ -143,7 +143,7 @@ module.exports = {
       "2xl": "1536px",
       "3xl": "1920px",
       "4xl": "2048px",
-    }
+    },
   },
   variants: {
     extend: {

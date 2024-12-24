@@ -71,3 +71,33 @@ export interface JsonDataItem {
   meta: Meta;
   // Add other properties that exist in your JSON data
 }
+
+export interface WalletConfig {
+  type: "unisat" | "metamask";
+  chainId?: string;
+  name: string;
+  icon: string;
+  networks: {
+    [key: string]: {
+      chainId?: string;
+      rpcUrls?: string[];
+      blockExplorerUrls?: string[];
+      chainName?: string;
+    };
+  };
+}
+
+export interface WalletState {
+  address: string | null;
+  connected: boolean;
+  chainId?: string;
+  walletType: "unisat" | "metamask" | null;
+}
+
+export interface Layer {
+  id: string;
+  name: string;
+  layer: string;
+  network: string;
+  currencyId: string;
+}

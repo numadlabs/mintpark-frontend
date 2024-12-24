@@ -52,6 +52,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
+//TODO: het urt code bn split hgerei
 
 const Inscription = () => {
   const router = useRouter();
@@ -87,6 +88,7 @@ const Inscription = () => {
   const [collectionId, setCollectionId] = useState<string>("");
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [payModal, setPayModal] = useState(false);
+  //TODO: ashiglaagui state uud ustgah
   const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [fileSizes, setFileSizes] = useState<number[]>([]);
@@ -102,6 +104,8 @@ const Inscription = () => {
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
   });
+
+  //TODO: ashiglaagui mutation uud ustgah
 
   const { mutateAsync: launchCollectionMutation } = useMutation({
     mutationFn: launchCollection,

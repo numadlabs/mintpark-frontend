@@ -56,7 +56,7 @@ const CollectionDetailPage = () => {
     const data = searchParams.get("data");
     if (data) {
       try {
-        //todo collection data g end api duudaj avna params aar damjuulahgui
+        //todo collection data g id ashiglan tanstack query eer api duudaj avna. Params aar damjuulahgui
         const parsedData = JSON.parse(data) as CollectionDataType;
         setCollectionData(parsedData);
       } catch (error) {
