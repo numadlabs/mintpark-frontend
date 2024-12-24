@@ -25,17 +25,18 @@ interface FormData {
   message: string;
 }
 
+//email ajilladag bolgoh. Bolku bol backend deer rate limiter tei endpoint garguulah.
 const sendEmail = async (
   formData: FormData,
-  formType: "partner" | "launch"
+  formType: "partner" | "launch",
 ) => {
   try {
     const subject =
       formType === "partner" ? "New Partnership Request" : "New Launch Request";
     const mailtoLink = `mailto:bzao.hover@gmail.com?subject=${encodeURIComponent(
-      subject
+      subject,
     )}&body=${encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\nMessage: ${formData.message}`
+      `Name: ${formData.name}\nEmail: ${formData.email}\nMessage: ${formData.message}`,
     )}`;
     window.location.href = mailtoLink;
     return true;
@@ -108,7 +109,7 @@ export default function Home() {
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    setFormData: React.Dispatch<React.SetStateAction<FormData>>
+    setFormData: React.Dispatch<React.SetStateAction<FormData>>,
   ) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
@@ -334,7 +335,7 @@ export default function Home() {
                           e,
                           tabValue === "account"
                             ? setPartnerFormData
-                            : setLaunchFormData
+                            : setLaunchFormData,
                         )
                       }
                       className="bg-white8 h-12"
@@ -352,7 +353,7 @@ export default function Home() {
                           e,
                           tabValue === "account"
                             ? setPartnerFormData
-                            : setLaunchFormData
+                            : setLaunchFormData,
                         )
                       }
                       className="bg-white8 h-12"
@@ -370,7 +371,7 @@ export default function Home() {
                           e,
                           tabValue === "account"
                             ? setPartnerFormData
-                            : setLaunchFormData
+                            : setLaunchFormData,
                         )
                       }
                       className="bg-white8 h-[88px] pb-10"

@@ -32,6 +32,7 @@ const Launchpad = () => {
       .map((_, index) => <LaunchpadCardSkeleton key={`skeleton-${index}`} />);
   };
 
+  //todo ashiglaagui bol ustgah
   const plugin = useRef(Autoplay({ delay: 10000, stopOnInteraction: true }));
 
   return (

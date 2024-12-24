@@ -26,12 +26,14 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb)); */
-    background-color: #111315;
+  background-color: #111315;
   font-family: "Bai Jamjuree", sans-serif;
 }
-@font-face{
+//TODO: font duudaj bgag  lib dotroos duuddag bolgoh
+
+@font-face {
   font-family: artpast;
-  src: url('../app/fonts/Artpast-51L5a.otf')
+  src: url("../app/fonts/Artpast-51L5a.otf");
 }
 .artpast {
   font-family: artpast;
@@ -61,10 +63,9 @@ body {
   fill: #D3F85A;
 } */
 .iconHover .iconHover:hover {
-  fill: #FFEE32;
-  
+  fill: #ffee32;
 }
-.headHover .headHover:hover{
-  color: #FFEE32;
+.headHover .headHover:hover {
+  color: #ffee32;
   box-shadow: "0 60px 103px 1px rgba(211, 248, 90, 0.5)";
 }

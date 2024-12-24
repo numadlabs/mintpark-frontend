@@ -1,3 +1,5 @@
+import { WalletConfig } from "@/types";
+
 export const rpcUrl = "http://seed2.coordinate.mara.technology",
   rpcPort = 18332;
 
@@ -22,6 +24,32 @@ export const RPC_USERNAME = "coordinate";
 export const RPC_PASSWORD = "coordinate";
 
 export const FEERATE = 1;
+
+export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
+  BITCOIN: {
+    type: "unisat",
+    name: "Bitcoin",
+    icon: "/wallets/Bitcoin.png",
+    networks: {
+      TESTNET: {},
+      MAINNET: {},
+    },
+  },
+  CITREA: {
+    type: "metamask",
+    chainId: "0x13FB", // 5115 in hex
+    name: "Citrea",
+    icon: "/wallets/Citrea.png",
+    networks: {
+      TESTNET: {
+        chainId: "0x13FB",
+        chainName: "Citrea Testnet",
+        rpcUrls: ["https://rpc.testnet.citrea.xyz"],
+        blockExplorerUrls: ["https://explorer.testnet.citrea.xyz"],
+      },
+    },
+  },
+};
 
 export const exampleJson = [
   {

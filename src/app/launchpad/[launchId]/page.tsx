@@ -169,6 +169,7 @@ const Page = () => {
     return <LaunchDetailSkeleton />;
   }
 
+  //TODO: static url iig dynamic bolgoh
   const links = [
     // {
     //   url: "collectionsData?.websiteUrl",

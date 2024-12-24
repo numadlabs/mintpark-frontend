@@ -30,7 +30,7 @@ const background = [
 // type Bg = {
 //   image: string;
 // };
-
+//todo: ashiglaagui bol ustgah
 export default function Page() {
   const [current, setCurrent] = useState(1);
   const [active, setActive] = useState(false);

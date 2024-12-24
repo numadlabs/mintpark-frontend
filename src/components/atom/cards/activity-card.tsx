@@ -11,6 +11,8 @@ interface cardProps {
   collectionName: string;
 }
 
+//todo tur fileKey gd yvsan imageUrl bolgoj oorchloh.
+
 const ActivityCard: React.FC<cardProps> = ({
   fileKey,
   data,
@@ -48,7 +50,6 @@ const ActivityCard: React.FC<cardProps> = ({
     });
   };
 
-  //todo tur fileKey gd yvsan imageUrl bolgoj oorchloh
   return (
     <div className="flex flex-row items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap">
       <div className="flex flex-row items-center gap-3 max-w-[360px] w-full">

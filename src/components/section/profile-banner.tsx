@@ -44,6 +44,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // TODO: iim function uudiig bugdiig ni lib ees duudah. Dahin ashiglaarai. DO NOT REPEAT YOURSELF
   const formatPrice = (price: number) => {
     const btcAmount = price;
     return btcAmount?.toLocaleString("en-US", {

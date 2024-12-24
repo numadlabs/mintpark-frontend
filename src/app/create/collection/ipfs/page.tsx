@@ -53,6 +53,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
 
+//TODO: het urt code bn split hgerei
+
 const Ipfs = () => {
   const router = useRouter();
   const { authState, connect } = useAuth();
@@ -87,6 +89,8 @@ const Ipfs = () => {
   const [collectionId, setCollectionId] = useState<string>("");
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [payModal, setPayModal] = useState(false);
+  //TODO: ashiglaagui state uud ustgah
+
   const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [fileSizes, setFileSizes] = useState<number[]>([]);
@@ -464,6 +468,8 @@ const Ipfs = () => {
       //   userLayerId: authState.userLayerId,
       //   totalFileSize: totalFileSize,
       // };
+      // TODO: ene static txid ogsong dynamic bolgoh
+
       if (collectionId && authState.userLayerId && totalFileSize) {
         const response = await createOrder({
           collectionId: collectionId,
