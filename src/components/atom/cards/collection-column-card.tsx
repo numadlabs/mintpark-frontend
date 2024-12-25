@@ -44,8 +44,8 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
         {/* Price Info */}
         <div className="grid grid-cols-3 gap-2 sm:gap-4 lg:gap-6 sm:w-[340px] lg:w-[468px]">
           {/* Floor Price */}
-          <div className="text-right">
-            <p className="font-medium text-sm sm:text-lg lg:text-lg2 text-neutral50">
+          <div className="text-right pr-2">
+            <p className="font-medium text-sm sm:text-lg lg:text-lg text-neutral50">
               {formatPrice(data.floor)}
               <span className="ml-1 text-xs sm:text-sm">cBTC</span>
             </p>
@@ -56,36 +56,36 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
 
           {/* Volume */}
           <div className="text-right">
-            <p className="font-medium text-sm sm:text-lg lg:text-lg2 text-neutral50">
+            <p className="font-medium text-sm sm:text-lg lg:text-lg text-neutral50">
               {formatPrice(data.volume)}
               <span className="ml-1 text-xs sm:text-sm">cBTC</span>
             </p>
-            <span className="font-medium text-xs sm:text-sm lg:text-md text-neutral200">
+            <span className="font-medium text-xs sm:text-sm lg:text-md  text-neutral200">
               ${formatPrice(data.volume * citreaPrice)}k
             </span>
           </div>
 
           {/* Market Cap */}
           <div className="text-right">
-            <p className="font-medium text-sm sm:text-lg lg:text-lg2 text-neutral50">
+            <p className="font-medium text-sm sm:text-lg lg:text-lg text-neutral50">
               {formatPrice(data.marketCap)}
               <span className="ml-1 text-xs sm:text-sm">cBTC</span>
             </p>
-            <span className="font-medium text-xs sm:text-sm lg:text-md text-neutral200">
+            <span className="font-medium text-xs sm:text-sm  lg:text-md text-neutral200">
               ${formatPrice(data.marketCap * citreaPrice)}k
             </span>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-2 sm:gap-4 text-center sm:w-[200px] lg:w-[324px]">
-          <span className="font-medium text-sm sm:text-lg lg:text-lg2 text-neutral50">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 text-right sm:w-[200px] lg:w-[324px]">
+          <span className="font-medium text-sm sm:text-lg lg:text-lg text-neutral50">
             {data.soldCount}
           </span>
-          <span className="font-medium text-sm sm:text-lg lg:text-lg2 text-neutral50">
+          <span className="font-medium text-sm sm:text-lg lg:text-lg text-neutral50">
             {data.listedCount}
           </span>
-          <span className="font-medium text-sm sm:text-lg lg:text-lg2 text-neutral50">
+          <span className="font-medium text-sm sm:text-lg lg:text-lg text-neutral50">
             {data?.ownerCount ? data?.ownerCount : 0}
           </span>
         </div>
@@ -135,7 +135,7 @@ export default ColumColCard;
 //         </div>
 //         <div className="w-[468px] h-[42px] flex justify-around items-center">
 //           <div className="text-right items-center grid gap-1">
-//             <p className="font-medium text-lg2 text-neutral50">
+//             <p className="font-medium text-lg text-neutral50">
 //               ${formatPrice(data.floor)}
 //               <span className="ml-1">cBTC</span>
 //             </p>
@@ -145,7 +145,7 @@ export default ColumColCard;
 //             </span>
 //           </div>
 //           <div className="text-right grid gap-1">
-//             <p className="font-medium text-lg2 text-neutral50">
+//             <p className="font-medium text-lg text-neutral50">
 //               ${formatPrice(data.volume)}
 //               <span className="ml-1">cBTC</span>
 //             </p>
@@ -154,7 +154,7 @@ export default ColumColCard;
 //             </span>
 //           </div>
 //           <div className="text-right grid gap-1">
-//             <p className="font-medium text-lg2 text-neutral50">
+//             <p className="font-medium text-lg text-neutral50">
 //               ${formatPrice(data.marketCap)}
 //               <span className="ml-1">cBTC</span>
 //             </p>
@@ -164,13 +164,13 @@ export default ColumColCard;
 //           </div>
 //         </div>
 //         <div className="w-[324px] h-5 flex justify-around">
-//           <span className="font-medium text-lg2 text-neutral50">
+//           <span className="font-medium text-lg text-neutral50">
 //             {data.soldCount}
 //           </span>
-//           <span className="font-medium text-lg2 text-neutral50">
+//           <span className="font-medium text-lg text-neutral50">
 //             {data.listedCount}
 //           </span>
-//           <span className="font-medium text-lg2 text-neutral50">
+//           <span className="font-medium text-lg text-neutral50">
 //             <span>{data.totalOwnerCount}</span>
 //           </span>
 //         </div>

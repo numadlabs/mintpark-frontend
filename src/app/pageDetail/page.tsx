@@ -56,7 +56,7 @@ export default function Page() {
               <span className="">
                 <p className="h-1 w-[120px] rounded bg-brand"></p>
               </span>
-              <p className="font-normal text-lg2 pt-7 text-neutral50">
+              <p className="font-normal text-lg pt-7 text-neutral50">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin
                 ac ornare nisi. Aliquam eget semper risus, sed commodo elit.
                 Curabitur sed congue magna. Donec ultrices dui nec ullamcorper

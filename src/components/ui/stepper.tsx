@@ -21,7 +21,7 @@ const Stepper: React.FC<StepperProps> = ({ step, title, currentStep }) => {
           {step + 1}
         </div>
         <p
-          className={`text-lg2 font-bold ${
+          className={`text-lg font-bold ${
             currentStep === step ? "text-brand" : "text-neutral50"
           } `}
         >

@@ -258,7 +258,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
             <p className="text-neutral200 text-md font-medium">
               Wallet address to receive the assets:
             </p>
-            <p className="text-lg2 text-neutral50 font-medium">
+            <p className="text-lg text-neutral50 font-medium">
               {authState?.address}
             </p>
           </div>
@@ -286,7 +286,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
                       </p>
                       {tab !== "Custom" && (
                         <div className="flex flex-row gap-1 items-center">
-                          <p className="text-lg2 text-neutral50 font-bold">
+                          <p className="text-lg text-neutral50 font-bold">
                             {tab === "Slow" ? "1" : "2"}
                           </p>
                           <p className="text-md text-neutral100 font-medium">
@@ -318,27 +318,27 @@ const SubmitPayModal: React.FC<ModalProps> = ({
                   <div className="h-[1px] w-full bg-white8" />
                   <div className="flex flex-col gap-5 p-4 w-full bg-white4 rounded-2xl">
                     <div className="flex flex-row justify-between items-center">
-                      <p className="text-lg2 text-neutral100 font-medium">
+                      <p className="text-lg text-neutral100 font-medium">
                         Network Fee
                       </p>
-                      <p className="text-lg2 text-neutral50 font-bold">
+                      <p className="text-lg text-neutral50 font-bold">
                         {formatPrice(estimatedFee.networkFee)} Sats
                       </p>
                     </div>
                     <div className="flex flex-row justify-between items-center">
-                      <p className="text-lg2 text-neutral100 font-medium">
+                      <p className="text-lg text-neutral100 font-medium">
                         Service Fee
                       </p>
-                      <p className="text-lg2 text-neutral50 font-bold">
+                      <p className="text-lg text-neutral50 font-bold">
                         {formatPrice(estimatedFee.serviceFee)} Sats
                       </p>
                     </div>
                   </div>
                   <div className="flex flex-row justify-between items-center w-full bg-white4 rounded-2xl p-4">
-                    <p className="text-lg2 text-neutral100 font-medium">
+                    <p className="text-lg text-neutral100 font-medium">
                       Total Amount
                     </p>
-                    <p className="text-lg2 text-brand font-bold">
+                    <p className="text-lg text-brand font-bold">
                       {formatPrice(estimatedFee.totalFee)} Sats
                     </p>
                   </div>

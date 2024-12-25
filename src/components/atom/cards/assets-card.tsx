@@ -37,7 +37,7 @@ const AssetsCard: React.FC<CardProps> = ({ data }) => {
           <p className="text-neutral200 font-medium text-md pt-2">
             {data?.collectionName}
           </p>
-          <p className="py-1 text-lg2 text-neutral50 font-bold">{data?.name}</p>
+          <p className="py-1 text-lg text-neutral50 font-bold">{data?.name}</p>
 
           <div className="w-full pt-4">
             <div className="relative group">

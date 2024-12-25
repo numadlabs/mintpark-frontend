@@ -59,7 +59,7 @@ const CollectionSideBar: React.FC = () => {
 
   return (
     <div className="w-full">
-      <h2 className="font-bold text-lg2 text-neutral00 pb-4 border-b border-neutral500">
+      <h2 className="font-bold text-lg text-neutral00 pb-4 border-b border-neutral500">
         Availability
       </h2>
       <RadioGroup
@@ -80,7 +80,7 @@ const CollectionSideBar: React.FC = () => {
             <RadioGroupItem value={option.value} id={option.value} />
             <Label
               htmlFor={option.value}
-              className="w-full font-bold text-lg2 pt-3 pb-3"
+              className="w-full font-bold text-lg pt-3 pb-3"
             >
               {option.label} {option.count && <span>({option.count})</span>}
             </Label>
@@ -88,7 +88,7 @@ const CollectionSideBar: React.FC = () => {
         ))}
       </RadioGroup>
 
-      <h2 className="font-bold text-lg2 text-neutral00 pt-7 pb-4 border-b border-neutral00">
+      <h2 className="font-bold text-lg text-neutral00 pt-7 pb-4 border-b border-neutral00">
         Traits
       </h2>
       <div className="pt-4 px-3 text-neutral00">

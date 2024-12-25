@@ -59,7 +59,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
         </div>
         <div className="flex justify-end items-center w-full text-start">
           <div className="w-full max-w-[300px] grid gap-1 h-[18px]">
-            <p className="font-medium text-lg2 text-neutral50">
+            <p className="font-medium text-lg text-neutral50">
               {formatPrice(data.floor)}
               <span className="ml-1">cBTC</span>
             </p>
@@ -74,7 +74,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
           </div>
           <div className="w-full max-w-[220px] h-[18px]">
             <p
-              className={`font-medium text-lg2 ${
+              className={`font-medium text-lg ${
                 (data.floor ?? 0) >= 0 ? "text-success" : "text-errorMsg"
               }`}
             >
@@ -83,7 +83,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
             </p>
           </div>
           <div className="w-full max-w-[160px] h-[18px]">
-            <p className="font-medium text-lg2 text-neutral50">
+            <p className="font-medium text-lg text-neutral50">
               <TruncatedAddress address={data.id} />
               {/* this is OwnedBy */}
             </p>
@@ -93,7 +93,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
               (data?.price ?? 0) > 0 ? "group" : ""
             } relative`}
           >
-            <span className="font-medium text-lg2 flex justify-center text-neutral50">
+            <span className="font-medium text-lg flex justify-center text-neutral50">
               <span
                 className={(data.price ?? 0) > 0 ? "group-hover:hidden" : ""}
               >

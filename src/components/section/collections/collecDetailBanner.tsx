@@ -68,7 +68,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                     <h3 className="text-3xl font-bold text-neutral50">
                       {data.name} 
                     </h3>
-                    <h2 className="text-lg2 font-medium text-neutral100">
+                    <h2 className="text-lg font-medium text-neutral100">
                       by NumadLabs
                     </h2>
                   </div>
@@ -108,7 +108,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                 </div>
                 <div className="flex justify-around relative right-14 top-9">
                   <div className="pl-1">
-                    <h2 className="font-medium text-lg2 text-neutral100">
+                    <h2 className="font-medium text-lg text-neutral100">
                       Floor price
                     </h2>
                     <div className="flex mt-2">
@@ -126,7 +126,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                     </div>
                   </div>
                   <div className="border-l border-l-neutral300 pl-7">
-                    <h2 className="font-medium text-lg2 text-neutral100">
+                    <h2 className="font-medium text-lg text-neutral100">
                       Total volume
                     </h2>
                     <div className="flex mt-2">
@@ -144,7 +144,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                     </div>
                   </div>
                   <div className="border-l border-l-neutral300 pl-7">
-                    <h2 className="font-medium text-lg2 text-neutral100">
+                    <h2 className="font-medium text-lg text-neutral100">
                       Owners
                     </h2>
                     <div className="flex mt-2">
@@ -155,7 +155,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
                     </div>
                   </div>
                   <div className="border-l border-l-neutral300 pl-7">
-                    <h2 className="font-medium text-lg2 text-neutral100">
+                    <h2 className="font-medium text-lg text-neutral100">
                       Items
                     </h2>
                     <div className="flex mt-2">
@@ -170,7 +170,7 @@ const CollecDetailBanner = ({ data }: { data: CollectionDataType }) => {
               </div>
             </div>
           </div>
-          <p className="pl-12 pr-12 text-lg2 font-normal text-neutral100">
+          <p className="pl-12 pr-12 text-lg font-normal text-neutral100">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac
             ornare nisi. Aliquam eget semper risus, sed commodo elit. Curabitur
             sed congue magna. Donec ultrices dui nec ullamcorper aliquet. Nunc

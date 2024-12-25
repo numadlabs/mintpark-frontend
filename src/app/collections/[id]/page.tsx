@@ -156,7 +156,7 @@ const CollectionDetailPage = () => {
                     <h3 className="text-2xl md:text-3xl font-bold text-neutral50 text-center md:text-left">
                       {collectionData?.name}
                     </h3>
-                    <h2 className="text-lg md:text-lg2 font-medium text-neutral100 text-center md:text-left">
+                    <h2 className="text-lg md:text-lg font-medium text-neutral100 text-center md:text-left">
                       by {collectionData?.creatorName}
                     </h2>
                   </div>
