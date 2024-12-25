@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import ColumColCard from "@/components/atom/cards/column-col-card";
+import ColumColCard from "@/components/atom/cards/collection-column-card";
 import {
   Select,
   SelectContent,
@@ -242,14 +242,14 @@ export default function Collections({ searchParams }: CollectionsProps) {
                   </div>
                 ) : (
                   <div className="w-full">
-                    <div className="hidden sm:grid grid-cols-[2fr_3fr_2fr] gap-4 px-4 pb-4 text-neutral200 font-medium text-sm sm:text-md">
+                    <div className="hidden sm:grid grid-cols-[2fr_3fr_2fr] gap-6 px-4 pb-4 text-neutral200 font-medium text-sm sm:text-md">
                       <div>Name</div>
-                      <div className="grid grid-cols-3 text-center">
+                      <div className="grid grid-cols-3 text-right">
                         <span>Floor price</span>
                         <span>Volume</span>
                         <span>Market cap</span>
                       </div>
-                      <div className="grid grid-cols-3 text-center">
+                      <div className="grid grid-cols-3 text-right">
                         <span>Sales</span>
                         <span>Listed</span>
                         <span>Owners</span>

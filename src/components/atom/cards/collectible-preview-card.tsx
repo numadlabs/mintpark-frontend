@@ -26,7 +26,7 @@ const CollectiblePreviewCard: React.FC<cardProps> = ({
           className="object-contain w-full h-full"
         />
       </div>
-      <div className="pt-4 font-medium text-lg2 text-neutral00">{title}</div>
+      <div className="pt-4 font-medium text-lg text-neutral00">{title}</div>
       <button
         className="rounded-xl bg-neutral400 w-8 h-8 flex items-center justify-center absolute -top-3 -right-3"
         onClick={onDelete}

@@ -651,7 +651,7 @@ const Inscription = () => {
                   </p>
                   <Toggle isChecked={isChecked} onChange={handleCheckBox} />
                 </div>
-                <p className="text-neutral100 text-lg2">
+                <p className="text-neutral100 text-lg">
                   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin
                   ac ornare nisi. Aliquam eget semper risus, sed commodo elit.
                   Curabitur sed congue magna. Donec ultrices dui nec ullamcorper
@@ -894,7 +894,7 @@ const Inscription = () => {
                       By {creator}
                     </p>
                   </div>
-                  <p className="text-neutral100 text-lg2">{description}</p>
+                  <p className="text-neutral100 text-lg">{description}</p>
                 </div>
               </div>
               <div className="relative flex flex-row w-full h-auto gap-8 overflow-x-auto">

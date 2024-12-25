@@ -32,7 +32,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
       />
 
       <div className="pt-3 sm:pt-4 grid gap-3 sm:gap-4 w-full">
-        <p className="text-xl font-bold text-start text-neutral00 line-clamp-1 px-1">
+        <p className="text-xl font-bold text-start text-neutral00 line-clamp-1">
           {data.name}
         </p>
 

@@ -142,7 +142,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         <div className="h-[1px] w-full bg-white8" />
         <div className="flex flex-col gap-3 border border-white8 rounded-2xl w-full px-5 pt-4 pb-5">
           <p className="text-neutral200 text-md font-medium">Order ID:</p>
-          <p className="text-lg2 text-neutral50 font-medium">{orders?.id}</p>
+          <p className="text-lg text-neutral50 font-medium">{orders?.id}</p>
         </div>
         <div className="grid grid-cols-2 gap-4 items-center w-full">
           <div className="border border-white8 rounded-2xl w-full px-5 pt-4 pb-5 flex flex-col gap-3">
@@ -161,21 +161,21 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         <div className="h-[1px] w-full bg-white8" />
         {/* <div className="flex flex-col gap-5 p-4 w-full bg-white4 rounded-2xl">
           <div className="flex flex-row justify-between items-center">
-            <p className="text-lg2 text-neutral100 font-medium">Network Fee</p>
-            <p className="text-lg2 text-neutral50 font-bold">
+            <p className="text-lg text-neutral100 font-medium">Network Fee</p>
+            <p className="text-lg text-neutral50 font-bold">
               {(orders?.networkFee)?.toFixed(4)} Sats
             </p>
           </div>
           <div className="flex flex-row justify-between items-center">
-            <p className="text-lg2 text-neutral100 font-medium">Service Fee</p>
-            <p className="text-lg2 text-neutral50 font-bold">
+            <p className="text-lg text-neutral100 font-medium">Service Fee</p>
+            <p className="text-lg text-neutral50 font-bold">
               {(orders?.serviceFee)?.toFixed(4)} Sats
             </p>
           </div>
         </div> */}
         <div className="flex flex-row justify-between items-center -4 w-full bg-white4 rounded-2xl p-4">
-          <p className="text-lg2 text-neutral100 font-medium">Total Amount</p>
-          <p className="text-lg2 text-brand font-bold">
+          <p className="text-lg text-neutral100 font-medium">Total Amount</p>
+          <p className="text-lg text-brand font-bold">
             {formatPrice(totalFee)} cBTC
           </p>
         </div>

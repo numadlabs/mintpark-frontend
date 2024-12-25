@@ -155,7 +155,7 @@ export default function Home() {
                 Art{" "}
               </span>
             </div>
-            <div className="text-neutral100 font-medium text-center text-base md:text-lg2 px-4">
+            <div className="text-neutral100 font-medium text-center text-base md:text-lg px-4">
               Turn your creativity into collectibles. Join the revolution of
               digital ownership {!isMobile && <br />} and showcase your unique
               art to the world.
@@ -444,7 +444,7 @@ export default function Home() {
                   <AccordionTrigger className="text-neutral00 font-medium text-base md:text-xl px-4">
                     {item.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-neutral100 font-normal text-sm md:text-lg2 px-4">
+                  <AccordionContent className="text-neutral100 font-normal text-sm md:text-lg px-4">
                     {item.answer}
                   </AccordionContent>
                 </AccordionItem>
@@ -507,7 +507,7 @@ const styles = {
     ".artpast": {
       fontSize: "2rem",
     },
-    ".text-lg2": {
+    ".text-lg": {
       fontSize: "1rem",
     },
     ".service-card": {
@@ -519,7 +519,7 @@ const styles = {
     ".artpast": {
       fontSize: "2.5rem",
     },
-    ".text-lg2": {
+    ".text-lg": {
       fontSize: "1.125rem",
     },
   },
@@ -528,7 +528,7 @@ const styles = {
     ".artpast": {
       fontSize: "3rem",
     },
-    ".text-lg2": {
+    ".text-lg": {
       fontSize: "1.25rem",
     },
   },
@@ -682,7 +682,7 @@ const styles = {
 //                   Art{" "}
 //                 </span>
 //               </div>
-//               <div className="text-neutral100 font-medium text-center text-lg2">
+//               <div className="text-neutral100 font-medium text-center text-lg">
 //                 Turn your creativity into collectibles. Join the revolution of
 //                 digital ownership <br /> and showcase your unique art to the
 //                 world.
@@ -952,7 +952,7 @@ const styles = {
 //                   <AccordionTrigger className="text-neutral00 font-medium text-xl">
 //                     What is the Creator Program, and how does it work?
 //                   </AccordionTrigger>
-//                   <AccordionContent className="text-neutral100 font-normal text-lg2">
+//                   <AccordionContent className="text-neutral100 font-normal text-lg">
 //                     Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 //                     Morbi volutpat convallis velit at bibendum. Suspendisse
 //                     pulvinar, ligula volutpat scelerisque semper, eros sem
@@ -968,7 +968,7 @@ const styles = {
 //                   <AccordionTrigger className="text-neutral00 font-medium text-xl">
 //                     What is a cross-chain marketplace, and why does it matter?
 //                   </AccordionTrigger>
-//                   <AccordionContent className="text-neutral100 font-normal text-lg2">
+//                   <AccordionContent className="text-neutral100 font-normal text-lg">
 //                     A Bitcoin cross-chain marketplace enables seamless trading
 //                     of digital assets across different Bitcoin Layer 2networks,
 //                     unifying liquidity and access while reducing fragmentation
@@ -982,7 +982,7 @@ const styles = {
 //                   <AccordionTrigger className="text-neutral00 font-medium text-xl">
 //                     What wallets and payment methods are supported?
 //                   </AccordionTrigger>
-//                   <AccordionContent className="text-neutral100 font-normal text-lg2">
+//                   <AccordionContent className="text-neutral100 font-normal text-lg">
 //                     We support industry-standard EVM wallets like MetaMask and
 //                     WalletConnect.
 //                   </AccordionContent>
@@ -994,7 +994,7 @@ const styles = {
 //                   <AccordionTrigger className="text-neutral00 font-medium text-xl">
 //                     What is &quot;Collectible as a Service&quot; (CaaS)?
 //                   </AccordionTrigger>
-//                   <AccordionContent className="text-neutral100 font-normal text-lg2">
+//                   <AccordionContent className="text-neutral100 font-normal text-lg">
 //                     Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 //                     Morbi volutpat convallis velit at bibendum. Suspendisse
 //                     pulvinar, ligula volutpat scelerisque semper, eros sem

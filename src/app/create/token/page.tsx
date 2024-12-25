@@ -268,7 +268,7 @@ const SingleToken = () => {
                       Total supply:{supply}
                     </p>
                   </div>
-                  <p className="text-neutral100 text-lg2">
+                  <p className="text-neutral100 text-lg">
                     <a href={txUrl} target="_blank" className="text-blue-600">
                       {txUrl}
                     </a>

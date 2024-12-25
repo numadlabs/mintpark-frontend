@@ -246,7 +246,7 @@ export default function Header() {
 
             {/* Desktop Controls */}
             <div className="hidden md2:flex flex-row overflow-hidden items-center gap-4">
-              <button
+              {/* <button
                 onClick={handleTwitterClick}
                 className="flex items-center gap-2 whitespace-nowrap justify-center h-10 px-4 bg-white16 hover:bg-white16 duration-300 transition-all rounded-xl"
               >
@@ -254,7 +254,7 @@ export default function Header() {
                 <span className="text-neutral50 text-md font-medium">
                   Follow us
                 </span>
-              </button>
+              </button> */}
               <Select onValueChange={handleLayerSelect} value={defaultLayer}>
                 <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
                   <SelectValue

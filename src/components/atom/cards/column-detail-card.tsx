@@ -69,7 +69,7 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({
         </div>
         <div className="flex justify-end items-center w-full text-start">
           <div className="w-full max-w-[200px] grid gap-1">
-            <p className="font-medium text-lg2 text-neutral50">
+            <p className="font-medium text-lg text-neutral50">
               {formatPrice(data.price)}
               <span className="ml-1">cBTC</span>
             </p>
@@ -84,21 +84,21 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({
           </div>
           <div className="w-full max-w-[200px] h-[18px]">
             <p
-              className={`font-medium text-lg2 ${(data.floorDifference ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}
+              className={`font-medium text-lg ${(data.floorDifference ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}
             >
               {(data.floorDifference ?? 0) >= 0 ? "+" : "-"}
               {formatPrice(data.floorDifference ?? 0)}%
             </p>
           </div>
           <div className="w-full max-w-[200px] h-[18px]">
-            <p className="font-medium text-lg2 ml-10 text-neutral50">
+            <p className="font-medium text-lg ml-10 text-neutral50">
               {totalOwnerCount}
             </p>
           </div>
           <div
             className={`w-full max-w-[200px] h-[18px] ${data.price > 0 ? "group" : ""} relative`}
           >
-            <span className="font-medium text-lg2 flex justify-center text-neutral50">
+            <span className="font-medium text-lg flex justify-center text-neutral50">
               <span className={data.price > 0 ? "group-hover:hidden" : ""}>
                 {daysAgo} days ago
               </span>

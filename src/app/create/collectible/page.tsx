@@ -283,7 +283,7 @@ const SingleCollectible = () => {
                     <p className="text-profileTitle text-neutral50 font-bold">
                       Upload your Collectible
                     </p>
-                    <p className="text-neutral200 text-lg2">
+                    <p className="text-neutral200 text-lg">
                       The NFT you wish to spawn into existence.
                     </p>
                   </div>
