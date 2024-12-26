@@ -27,8 +27,9 @@ import {
   getAllLayers,
   getLayerById,
 } from "@/lib/service/queryHelper";
+import { truncateAddress, capitalizeFirstLetter } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { ExtendedLayerType, LayerType } from "@/lib/types";
+import { ExtendedLayerType, LayerType, } from "@/lib/types";
 import { toast } from "sonner";
 import Badge from "../atom/badge";
 import { Loader2, MenuIcon } from "lucide-react";
@@ -131,10 +132,7 @@ export default function Header() {
     setWalletModal(!walletModal);
   };
 
-  const truncateAddress = (address: string) => {
-    if (address.length <= 10) return address;
-    return `${address.slice(0, 4)}...${address.slice(-4)}`;
-  };
+
 
   const getLayerImage = (layer: string) => {
     switch (layer) {
@@ -151,9 +149,9 @@ export default function Header() {
     }
   };
 
-  const capitalizeFirstLetter = (string: string) => {
-    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
-  };
+
+
+  
 
   const handleLayerSelect = (value: string) => {
     const [layer, network] = value.split("-");
@@ -338,7 +336,7 @@ export default function Header() {
                     </span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="flex flex-col gap-2 max-w-[215px] w-screen p-2 border border-white4 bg-gray50 mt-4 rounded-2xl backdrop-blur-xl">
-                    <Link href="/assets">
+                    <Link href="/my-assets">
                       <DropdownMenuItem className="flex flex-row justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
                         <div className="flex flex-row items-center gap-2">
                           <Wallet2 size={24} color="#D7D8D8" />

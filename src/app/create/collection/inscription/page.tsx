@@ -14,21 +14,13 @@ import CollectiblePreviewCard from "@/components/atom/cards/collectible-preview-
 import {
   ImageFile,
   CollectionData,
-  LaunchCollectionData,
-  MintFeeType,
-  MintDataType,
-  OrderType,
   InscriptionCollectible,
   CreateLaunchParams,
   LaunchParams,
 } from "@/lib/types";
 import TextArea from "@/components/ui/textArea";
 import {
-  createCollectiblesToCollection,
   createCollection,
-  createMintHexCollection,
-  launchCollection,
-  mintFeeOfCitrea,
   createMintCollection,
   insriptionCollectible,
   invokeOrderMint,
@@ -45,13 +37,10 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
 import { getLayerById, getUserById } from "@/lib/service/queryHelper";
-import { ethers } from "ethers";
 import { getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
-// import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
 //TODO: het urt code bn split hgerei
 
 const Inscription = () => {
@@ -88,45 +77,19 @@ const Inscription = () => {
   const [collectionId, setCollectionId] = useState<string>("");
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [payModal, setPayModal] = useState(false);
-  //TODO: ashiglaagui state uud ustgah
   const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [fileSizes, setFileSizes] = useState<number[]>([]);
-  const [logoImage, setImageLogo] = useState<ImageFile | null>(null);
+
   const stepperData = ["Details", "Upload", "Launch", "Confirm"];
   const [totalFileSize, setTotalFileSize] = useState<number>(0);
   const [fileTypeSizes, setFileTypeSizes] = useState<number[]>([]);
   const [successModal, setSuccessModal] = useState(false);
-  const [inscribeModal, setInscribeModal] = useState(false);
   const [data, setData] = useState<string>("");
   const [id, setId] = useState<string>("");
 
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
-  });
-
-  //TODO: ashiglaagui mutation uud ustgah
-
-  const { mutateAsync: launchCollectionMutation } = useMutation({
-    mutationFn: launchCollection,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["launchData"] });
-    },
-  });
-
-  const { mutateAsync: mintFeeOfCitreaMutation } = useMutation({
-    mutationFn: mintFeeOfCitrea,
-  });
-
-  const { mutateAsync: createCollectiblesMutation } = useMutation({
-    mutationFn: createCollectiblesToCollection,
-  });
-
-  const { mutateAsync: createHexCollectionMutation } = useMutation({
-    mutationFn: createMintHexCollection,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collectionData"] });
-    },
   });
 
   const { mutateAsync: createOrder } = useMutation({
@@ -174,7 +137,7 @@ const Inscription = () => {
 
   const calculateTimeUntilDate = (
     dateString: string,
-    timeString: string,
+    timeString: string
   ): number => {
     try {
       // Input validation
@@ -308,7 +271,7 @@ const Inscription = () => {
 
   const handleDeleteLogo = () => {
     setImageFile([]); // Clear the imageFile array
-    setImageLogo(null);
+    // setImageLogo(null);
   };
 
   const handleBack = () => {
@@ -331,39 +294,7 @@ const Inscription = () => {
   };
 
   const files = imageFiles.map((image) => image.file);
-
-  // const handleMintfeeChange = async () => {
-  //   if (!currentLayer) {
-  //     toast.error("Layer information not available");
-  //     return false;
-  //   }
-  //   setIsLoading(true);
-  //   try {
-  //     const params: MintFeeType = {
-  //       collectionTxid: txid,
-  //       mintFee: POMintPrice.toString(),
-  //     };
-  //     const response = await mintFeeOfCitreaMutation({ data: params });
-  //     if (response && response.success) {
-  //       const { singleMintTxHex } = response.data;
-  //       console.log("create collection success", response);
-  //       toast.success("Create collection success.");
-
-  //       if (currentLayer.layer === "CITREA") {
-  //         const { signer } = await getSigner();
-  //         const signedTx = await signer?.sendTransaction(singleMintTxHex);
-  //         await signedTx?.wait();
-  //       }
-  //       setStep(3);
-  //     }
-  //   } catch (error) {
-  //     toast.error("Error creating launch.");
-  //     console.error("Error creating launch: ", error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
+  
   const handleCreateLaunch = async () => {
     setIsLoading(true);
     const poStartsAt = calculateTimeUntilDate(POStartsAtDate, POStartsAtTime);
@@ -405,7 +336,7 @@ const Inscription = () => {
           const currentBatchFiles = files.slice(start, end);
 
           const names = currentBatchFiles.map(
-            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
+            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
           );
 
           const launchItemsData: CreateLaunchParams = {
@@ -432,7 +363,7 @@ const Inscription = () => {
     } catch (error) {
       console.error("Error creating launch:", error);
       toast.error(
-        error instanceof Error ? error.message : "Error creating launch",
+        error instanceof Error ? error.message : "Error creating launch"
       );
     } finally {
       setIsLoading(false);
@@ -474,7 +405,7 @@ const Inscription = () => {
           let id;
           await window.unisat.sendBitcoin(
             response.data.order.fundingAddress,
-            Math.ceil(response.data.order.fundingAmount),
+            Math.ceil(response.data.order.fundingAmount)
           );
 
           id = response.data.order.id;
@@ -489,7 +420,7 @@ const Inscription = () => {
             const currentBatchFiles = files.slice(start, end);
 
             const names = currentBatchFiles.map(
-              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
+              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
             );
             const params: InscriptionCollectible = {
               files: currentBatchFiles,
@@ -644,52 +575,6 @@ const Inscription = () => {
                   />
                 )}
               </div>
-              {/* <div className="flex flex-col w-full gap-8">
-                <div className="flex flex-row items-center justify-between">
-                  <p className="font-bold text-profileTitle text-neutral50">
-                    Include traits
-                  </p>
-                  <Toggle isChecked={isChecked} onChange={handleCheckBox} />
-                </div>
-                <p className="text-neutral100 text-lg">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin
-                  ac ornare nisi. Aliquam eget semper risus, sed commodo elit.
-                  Curabitur sed congue magna. Donec ultrices dui nec ullamcorper
-                  aliquet. Nunc efficitur mauris id mi venenatis imperdiet.
-                  Integer mauris lectus, pretium eu nibh molestie, rutrum
-                  lobortis tortor. Duis sit amet sem fermentum, consequat est
-                  nec, ultricies justo.
-                </p>
-                <div className="flex flex-row rounded-xl border-neutral400 border w-[443px] gap-3 justify-center items-center py-3">
-                  <DocumentDownload size={24} color="#ffffff" />
-                  <p className="text-lg font-semibold text-neutral50">
-                    Download sample .CSV for correct formatting
-                  </p>
-                </div>
-                <div className={isChecked ? `flex` : `hidden`}>
-                  {jsonData.length !== 0 && jsonMetaData ? (
-                    <FileCard
-                      onDelete={handleDelete}
-                      fileName={jsonMetaData.name}
-                      fileSize={jsonMetaData.size}
-                    />
-                  ) : (
-                    <UploadFile
-                      text="Accepted file types: .JSON"
-                      handleImageUpload={handleJsonUpload}
-                      acceptedFileTypes=".json"
-                    />
-                  )}
-                </div>
-              </div> */}
-              {/* {isLoading && (
-                <div>
-                  <progress value={progress.value} max={progress.total} />
-                  <p>{progress.message}</p>
-                  <p>{`${progress.value}/${progress.total} NFTs minted`}</p>
-                </div>
-              )} */}
-              {/* <div className="text-red-500">{error}</div> */}
               <div className="flex flex-row w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
                 <Button
@@ -987,15 +872,6 @@ const Inscription = () => {
           "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e"
         }
       />
-
-      {/* <InscribeOrderModal
-        open={inscribeModal}
-        onClose={() => setInscribeModal(false)}
-        id={data}
-        navigateOrders={() => router.push("/orders")}
-        navigateToCreate={() => router.push("/create")}
-        txid={txid}
-      /> */}
       <SuccessModal
         open={successModal}
         onClose={toggleSuccessModal}

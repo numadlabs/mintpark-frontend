@@ -15,7 +15,7 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
 
   return (
     <Link
-      href={`/assetDetail/${data.id}`}
+      href={`/assets/${data.id}`}
       className="block w-full h-[394px] transition-transform duration-300 hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl px-4 pt-4 pb-5"
     >
       <div className="flex flex-col h-full gap-4 justify-center items-center">

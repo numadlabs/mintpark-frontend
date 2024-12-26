@@ -60,6 +60,7 @@ export const collectibleSchema = z.object({
   ownedBy: z.string().nullable(),
   listedAt: z.date().nullable(),
   listId: z.string().nullable(),
+  inscriptionId: z.string(),
 });
 
 // Schema for the complete API response

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "../provider/auth-context-provider";
 import { AssetSchema } from "@/lib/validations/asset-validation";
+import { formatPriceBtc, formatPriceUsd } from "@/lib/utils";
 
 interface CardProps {
   params: AssetSchema;
@@ -28,7 +29,7 @@ declare global {
 }
 
 const ProfileBanner: React.FC<CardProps> = ({ params }) => {
-  const { authState } = useAuth();
+  const { authState, citreaPrice } = useAuth();
   const [walletAddress, setWalletAddress] = useState<string>("Connect Wallet");
   const [balance, setBalance] = useState<WalletBalance>({
     eth: 0,
@@ -43,16 +44,6 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
   >(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  // TODO: iim function uudiig bugdiig ni lib ees duudah. Dahin ashiglaarai. DO NOT REPEAT YOURSELF
-  const formatPrice = (price: number) => {
-    const btcAmount = price;
-    return btcAmount?.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 4,
-    });
-  };
-
   const resetWalletState = () => {
     setWalletAddress("Connect Wallet");
     setRawAddress("");
@@ -95,7 +86,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       setWalletAddress(accounts[0].slice(0, 6) + "..." + accounts[0].slice(-4));
 
       const ethAmount = Number(BigInt(balance)) / 1e18;
-      const usdAmount = ethAmount * 3500; // Example rate - replace with real price feed
+      const usdAmount = ethAmount *  citreaPrice; // Example rate - replace with real price feed
 
       setBalance((prev) => ({
         ...prev,
@@ -309,10 +300,10 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                         className="h-5 w-5 sm:h-6 sm:w-6"
                       />
                       <p className="flex items-center font-bold text-lg sm:text-xl text-white">
-                        {formatPrice(balance.eth)} cBTC
+                        {formatPriceBtc(balance.eth)} cBTC
                       </p>
                       <p className="border-l border-l-white16 pl-2 sm:pl-4 h-5 text-neutral100 text-sm sm:text-md flex items-center">
-                        ${formatPrice(balance.usdEth)}
+                        ${formatPriceUsd(balance.usdEth)}
                       </p>
                     </div>
                   )}
@@ -326,10 +317,10 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                         className="h-5 w-5 sm:h-6 sm:w-6"
                       />
                       <p className="flex items-center font-bold text-lg sm:text-xl text-white">
-                        {formatPrice(balance.btc)} cBTC
+                        {formatPriceBtc(balance.btc)} cBTC
                       </p>
                       <p className="border-l border-l-white16 pl-2 sm:pl-4 h-5 text-neutral100 text-sm sm:text-md flex items-center">
-                        ${formatPrice(balance.usdBtc)}
+                        ${formatPriceUsd(balance.usdBtc)}
                       </p>
                     </div>
                   )}

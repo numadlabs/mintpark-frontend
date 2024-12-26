@@ -17,14 +17,13 @@ import {
 } from "@/lib/service/queryHelper";
 import {
   getSigner,
-  ordinalsImageCDN,
   s3ImageUrlBuilder,
   formatPrice,
+  formatTimeAgo
 } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import PendingListModal from "@/components/modal/pending-list-modal";
-import moment from "moment";
 import {
   checkAndCreateRegister,
   createApprovalTransaction,
@@ -49,10 +48,6 @@ export default function AssetsDetails() {
 
   const { mutateAsync: createApprovalMutation } = useMutation({
     mutationFn: createApprovalTransaction,
-    // onSuccess: () => {
-    //   queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
-    //   queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
-    // },
   });
 
   const { mutateAsync: checkAndCreateRegisterMutation } = useMutation({
@@ -78,23 +73,6 @@ export default function AssetsDetails() {
   });
 
   const currentAsset = collectionData?.[0];
-
-  // TODO: iim function uudiig bugdiig ni lib ees duudah. Dahin ashiglaarai. DO NOT REPEAT YOURSELF
-
-  const formatTimeAgo = (dateString: string) => {
-    const now = moment();
-    const createdDate = moment(dateString);
-    const duration = moment.duration(now.diff(createdDate));
-    const minutes = duration.asMinutes();
-
-    if (minutes < 60) {
-      return `${Math.floor(minutes)}m`;
-    } else if (minutes < 1440) {
-      return `${Math.floor(minutes / 60)}h`;
-    } else {
-      return `${Math.floor(minutes / 1440)}d`;
-    }
-  };
 
   const toggleModal = () => {
     setIsVisible(!isVisible);
@@ -139,9 +117,6 @@ export default function AssetsDetails() {
           return toast.error("Error registering asset");
         }
         toggleModal();
-        // } else {
-        //   toast.error("Unknown issue");
-        // }
       }
     } catch (error) {
       toast.error("Error listing asset");
@@ -151,12 +126,6 @@ export default function AssetsDetails() {
     }
   };
 
-  // const formatPrice = (price: number) => {
-  //   return price.toLocaleString("en-US", {
-  //     minimumFractionDigits: 0,
-  //     maximumFractionDigits: 4,
-  //   });
-  // };
 
   if (isCollectionLoading) {
     return (
@@ -177,8 +146,6 @@ export default function AssetsDetails() {
       </>
     );
   }
-  //todo tur fileKey gd yvsan imageUrl bolgoj oorchloh. PendingListModal, ActivityCard
-
   return (
     <Layout>
       <Header />
@@ -339,7 +306,7 @@ export default function AssetsDetails() {
                   <ActivityCard
                     key={item.id}
                     data={item}
-                    fileKey={
+                    imageUrl={
                       currentAsset.highResolutionImageUrl
                         ? currentAsset.highResolutionImageUrl
                         : s3ImageUrlBuilder(currentAsset.fileKey)
@@ -356,7 +323,7 @@ export default function AssetsDetails() {
       <PendingListModal
         open={isVisible}
         onClose={toggleModal}
-        fileKey={
+        imageUrl={
           currentAsset.highResolutionImageUrl
             ? currentAsset.highResolutionImageUrl
             : s3ImageUrlBuilder(currentAsset.fileKey)
