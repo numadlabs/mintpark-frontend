@@ -2,27 +2,20 @@ import React from "react";
 import Image from "next/image";
 import { TickCircle, ArrowRight } from "iconsax-react";
 import { ActivityType } from "@/lib/types";
-import { s3ImageUrlBuilder } from "@/lib/utils";
+import { truncateAddress,formatPrice } from "@/lib/utils";
 import moment from "moment";
 
 interface cardProps {
-  fileKey: string;
+  imageUrl:string;
   data: ActivityType;
   collectionName: string;
 }
-
-//todo tur fileKey gd yvsan imageUrl bolgoj oorchloh.
-
 const ActivityCard: React.FC<cardProps> = ({
-  fileKey,
+  imageUrl,
   data,
   collectionName,
 }) => {
-  console.log("🚀 ~ fileKey:", fileKey);
-  const truncateAddress = (address: string) => {
-    if (address?.length <= 10) return address;
-    return `${address?.slice(0, 4)}...${address?.slice(-4)}`;
-  };
+  console.log("🚀 ~ imageUrl:", imageUrl);
 
   const getFormattedTime = (timestamp?: number) => {
     if (!timestamp) return "-";
@@ -42,19 +35,13 @@ const ActivityCard: React.FC<cardProps> = ({
     }
   };
 
-  const formatPrice = (price: number) => {
-    const btcAmount = price;
-    return btcAmount?.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 6,
-    });
-  };
+
 
   return (
     <div className="flex flex-row items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap">
       <div className="flex flex-row items-center gap-3 max-w-[360px] w-full">
         <Image
-          src={fileKey}
+          src={imageUrl}
           sizes="100%"
           alt="image"
           width={48}

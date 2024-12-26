@@ -176,7 +176,7 @@ const Page = () => {
     //   isIcon: true,
     //   icon: (
     //     <Global
-    //       size={24}
+    //       size={32}
     //       className="sm:size-8 lg:size-8 hover:text-brand text-neutral00"
     //     />
     //   ),
@@ -186,7 +186,7 @@ const Page = () => {
     //   isIcon: false,
     //   icon: (
     //     <DiscordIcon
-    //       size={24}
+    //       size={32}
     //       className="sm:size-8 lg:size-8 hover:text-brand text-neutral00"
     //     />
     //   ),

@@ -25,6 +25,7 @@ export function ordinalsImageCDN(uniqueIdx: string) {
 }
 
 import { ethers } from "ethers";
+import moment from "moment";
 
 interface WalletConnection {
   // provider: ethers.BrowserProvider | null;
@@ -59,6 +60,61 @@ export const formatPrice = (price: number) => {
   const btcAmount = price;
   return btcAmount.toLocaleString("en-US", {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 8,
+    maximumFractionDigits: 6,
   });
+};
+export const formatPriceBtc = (price: number) => {
+  const btcAmount = price;
+  return btcAmount?.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 4,
+  });
+};
+
+
+export const formatPriceUsd = (price: number) => {
+  const btcAmount = price;
+  return btcAmount?.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  });
+};
+
+export const formatDaysAgo = (dateString: string) => {
+  const createdDate = new Date(dateString);
+  const currentDate = new Date();
+  const diffTime = Math.abs(currentDate.getTime() - createdDate.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) {
+    return "Today";
+  } else if (diffDays === 1) {
+    return "1 day ago";
+  } else {
+    return `${diffDays} days ago`;
+  }
+};
+
+export const formatTimeAgo = (dateString: string) => {
+  const now = moment();
+  const createdDate = moment(dateString);
+  const duration = moment.duration(now.diff(createdDate));
+  const minutes = duration.asMinutes();
+
+  if (minutes < 60) {
+    return `${Math.floor(minutes)}m`;
+  } else if (minutes < 1440) {
+    return `${Math.floor(minutes / 60)}h`;
+  } else {
+    return `${Math.floor(minutes / 1440)}d`;
+  }
+};
+
+export const truncateAddress = (address: string) => {
+  if (address.length <= 10) return address;
+  return `${address.slice(0, 4)}...${address.slice(-4)}`;
+};
+
+export const capitalizeFirstLetter = (string: string) => {
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 };

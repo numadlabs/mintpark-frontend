@@ -19,7 +19,7 @@ import ThreadIcon from "@/components/icon/thread";
 import ColDetailCard from "@/components/atom/cards/collection-detail-card";
 import ColDetailCards from "@/components/atom/cards/column-detail-card";
 import { getListedCollectionById } from "@/lib/service/queryHelper";
-import { s3ImageUrlBuilder } from "@/lib/utils";
+import { s3ImageUrlBuilder,formatPrice  } from "@/lib/utils";
 import { CollectionDataType } from "@/lib/types";
 import CollectionSideBar from "@/components/section/collections/sideBar";
 import CollectionDetailSkeleton from "@/components/atom/skeleton/collection-detail-skeleton";
@@ -95,16 +95,6 @@ const CollectionDetailPage = () => {
     window.open(validUrl, "_blank", "noopener,noreferrer");
     // window.location.href = validUrl;
   };
-
-  //todo buh ene function iig ustgaj utils aas duudah. 20 udaa neg code oo copy hiisen bn!!!
-  const formatPrice = (price: number) => {
-    const btcAmount = price;
-    return btcAmount?.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 8,
-    });
-  };
-
   const isLoading = isParamsLoading || (!!id && isQueryLoading);
 
   if (isLoading) {

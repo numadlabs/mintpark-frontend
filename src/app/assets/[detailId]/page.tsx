@@ -14,9 +14,14 @@ import {
 import {
   getCollectibleActivity,
   getCollectionById,
-  getEstimateFee,
 } from "@/lib/service/queryHelper";
-import { formatPrice, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
+import {
+  formatPrice,
+  ordinalsImageCDN,
+  s3ImageUrlBuilder,
+  formatDaysAgo,
+  truncateAddress,
+} from "@/lib/utils";
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import BuyAssetModal from "@/components/modal/buy-asset-modal";
@@ -26,6 +31,7 @@ import AssetDetailSkeleton from "@/components/atom/skeleton/asset-detail-skeleto
 import { Collectible } from "@/lib/validations/collection-validation";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { toast } from "sonner";
+import Link from "next/link";
 
 export default function AssetDetail() {
   const params = useParams();
@@ -43,34 +49,11 @@ export default function AssetDetail() {
   });
 
   const currentAsset = collectionData?.[0];
-
-  // const { data: estimateFee } = useQuery({
-  //   queryKey: ["feeData"],
-  //   queryFn: () => getEstimateFee(currentAsset?.listId ?? ""),
-  //   enabled: !!currentAsset?.listId,
-  // });
-
   const { data: activity = [] } = useQuery({
     queryKey: ["acitivtyData", id],
     queryFn: () => getCollectibleActivity(id),
     enabled: !!id,
   });
-
-  // TODO: iim function uudiig bugdiig ni lib ees duudah. Dahin ashiglaarai. DO NOT REPEAT YOURSELF
-  const formatDaysAgo = (dateString: string) => {
-    const createdDate = new Date(dateString);
-    const currentDate = new Date();
-    const diffTime = Math.abs(currentDate.getTime() - createdDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      return "Today";
-    } else if (diffDays === 1) {
-      return "1 day ago";
-    } else {
-      return `${diffDays} days ago`;
-    }
-  };
 
   const toggleModal = () => {
     if (!authState.authenticated)
@@ -97,8 +80,6 @@ export default function AssetDetail() {
       </Layout>
     );
   }
-
-  //todo assetDetail, asset gsn 2 dynamic page bn ali ni ali gj oilgogdodguie
 
   return (
     <Layout>
@@ -182,6 +163,21 @@ export default function AssetDetail() {
                   Detail
                 </AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-6">
+                {currentAsset.inscriptionId && (
+                  <div className="flex justify-between">
+                    <h1 className="font-medium text-md text-neutral200">
+                      Original Asset (Inscription ID)
+                    </h1>
+                    <Link
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      href={`https://testnet4.ordinals.com/${currentAsset.inscriptionId}`}
+                      className="font-medium cursor-pointer text-md hover:underline text-neutral50"
+                    >
+                      {truncateAddress(currentAsset.inscriptionId)}
+                    </Link>
+                  </div>
+                )}
                   <div className="flex justify-between">
                     <h1 className="font-medium text-md text-neutral200">
                       Owned by
@@ -276,7 +272,7 @@ export default function AssetDetail() {
                         <ActivityCard
                           key={item.id}
                           data={item}
-                          fileKey={
+                          imageUrl={
                             currentAsset.highResolutionImageUrl
                               ? currentAsset.highResolutionImageUrl
                               : s3ImageUrlBuilder(currentAsset.fileKey)
@@ -305,9 +301,6 @@ export default function AssetDetail() {
         name={currentAsset.name}
         collectionName={currentAsset.collectionName}
         price={currentAsset.price}
-        // serviceFee={estimateFee?.estimation?.serviceFee}
-        // networkFee={estimateFee?.estimation?.networkFee}
-        // total={estimateFee?.estimation?.total}
         listId={currentAsset.listId}
       />
     </Layout>
