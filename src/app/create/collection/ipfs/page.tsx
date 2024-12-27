@@ -45,8 +45,6 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
 import { getLayerById, getUserById } from "@/lib/service/queryHelper";
-import { ethers } from "ethers";
-import { getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { toast } from "sonner";
