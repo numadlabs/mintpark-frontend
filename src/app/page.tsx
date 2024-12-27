@@ -18,6 +18,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { serviceData } from "@/lib/constants";
 
 interface FormData {
   name: string;
@@ -28,15 +29,15 @@ interface FormData {
 //email ajilladag bolgoh. Bolku bol backend deer rate limiter tei endpoint garguulah.
 const sendEmail = async (
   formData: FormData,
-  formType: "partner" | "launch",
+  formType: "partner" | "launch"
 ) => {
   try {
     const subject =
       formType === "partner" ? "New Partnership Request" : "New Launch Request";
     const mailtoLink = `mailto:bzao.hover@gmail.com?subject=${encodeURIComponent(
-      subject,
+      subject
     )}&body=${encodeURIComponent(
-      `Name: ${formData.name}\nEmail: ${formData.email}\nMessage: ${formData.message}`,
+      `Name: ${formData.name}\nEmail: ${formData.email}\nMessage: ${formData.message}`
     )}`;
     window.location.href = mailtoLink;
     return true;
@@ -109,7 +110,7 @@ export default function Home() {
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    setFormData: React.Dispatch<React.SetStateAction<FormData>>,
+    setFormData: React.Dispatch<React.SetStateAction<FormData>>
   ) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
@@ -145,27 +146,27 @@ export default function Home() {
   return (
     <Layout>
       <Header />
-      <section className="w-full flex flex-col gap-12 md:gap-[200px] mt-12 md:mt-[100px] px-4 md:px-8">
+      <section className="w-full flex flex-col gap-[56px] md:gap-[100px] 2xl:gap-[200px] mt-12 md:mt-[100px]">
         {/* Hero Section */}
         <div className="w-full flex flex-col items-center gap-8 md:gap-12">
           <div className="flex flex-col gap-6 md:gap-8 items-center">
-            <div className="font-normal text-3xl md:text-headText artpast text-white text-center">
+            <div className="font-normal text-blueTitle md:text-headText artpast text-white text-center">
               Empower Your{" "}
-              <span className="font-normal text-3xl md:text-headText artpast text-brand">
+              <span className="font-normal text-blueTitle md:text-headText artpast text-brand">
                 Art{" "}
               </span>
             </div>
-            <div className="text-neutral100 font-medium text-center text-base md:text-lg px-4">
+            <div className="text-neutral100 font-medium text-center text-sm md:text-lg px-4">
               Turn your creativity into collectibles. Join the revolution of
               digital ownership {!isMobile && <br />} and showcase your unique
               art to the world.
             </div>
           </div>
-          <div className="flex flex-col md:flex-row gap-4 md:gap-8 w-full items-center md:justify-center">
+          <div className="flex flex-row gap-4 md:gap-8 w-full items-center md:justify-center">
             <div className="relative w-full md:w-auto">
               <Button
                 variant="outline"
-                className="w-full md:w-[176px] h-12 cursor-not-allowed"
+                className="w-full md:w-[200px] h-12 cursor-not-allowed"
                 onClick={handleNavigation}
                 disabled
               >
@@ -177,7 +178,7 @@ export default function Home() {
               </div>
             </div>
             <Link href="/collections" className="w-full md:w-auto">
-              <Button variant="primary" className="w-full md:w-[176px] h-12">
+              <Button variant="primary" className="w-full md:w-[200px] h-12">
                 Browse
               </Button>
             </Link>
@@ -202,10 +203,10 @@ export default function Home() {
           className="absolute z-50 top-[475px] sm:top-[568px]"
         /> */}
 
-        <div className="relative w-full mx-auto max-w-[1216px] px-4 sm:px-6 lg:px-8">
+        <div className="relative w-full mx-auto">
           <div className="relative z-10">
             {/* Blurred background banner */}
-            <div className="relative h-[180px] sm:h-[240px] md:h-[300px] lg:h-[360px] blur-[35px] sm:blur-[45px] md:blur-[55px] rounded-[32px] opacity-35 scale-110 overflow-hidden">
+            <div className="relative h-64 md:h-[360px] 2xl:h-[540px] blur-[35px] sm:blur-[45px] md:blur-[55px] rounded-[32px] opacity-35 scale-110 overflow-hidden">
               <Image
                 src="/homePage/homeBanner.png"
                 alt="banner background"
@@ -231,34 +232,15 @@ export default function Home() {
         </div>
 
         {/* Services Section */}
-        <div className="flex flex-col gap-8 md:gap-12">
+        <div className="flex flex-col gap-8 md:gap-12 w-full justify-center items-center">
           <h1 className="font-bold text-center text-neutral00 text-3xl md:text-5xl">
             Our service
           </h1>
           <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-            {[
-              {
-                image: "service1",
-                title: "Launch Collection",
-                description:
-                  "Create unique digital art on chain today backed by bitcoin",
-              },
-              {
-                image: "service2",
-                title: "Trade",
-                description:
-                  "Maximize value through seamless NFT market operations",
-              },
-              {
-                image: "service3",
-                title: "Bridge between layer-2s",
-                description:
-                  "Transfer assets seamlessly across Bitcoin Layer networks",
-              },
-            ].map((service, index) => (
+            {serviceData.map((service, index) => (
               <div
                 key={index}
-                className="bg-cover w-full md:w-[384px] rounded-[32px] border border-white4 border-b-0 overflow-hidden"
+                className="bg-cover w-full md:max-w-[384px] rounded-[32px] border border-white4 border-b-0 overflow-hidden"
                 style={{
                   backgroundImage: `url(https://d1orw8h9a3ark2.cloudfront.net/asset/Service-${
                     index + 1
@@ -335,7 +317,7 @@ export default function Home() {
                           e,
                           tabValue === "account"
                             ? setPartnerFormData
-                            : setLaunchFormData,
+                            : setLaunchFormData
                         )
                       }
                       className="bg-white8 h-12"
@@ -353,7 +335,7 @@ export default function Home() {
                           e,
                           tabValue === "account"
                             ? setPartnerFormData
-                            : setLaunchFormData,
+                            : setLaunchFormData
                         )
                       }
                       className="bg-white8 h-12"
@@ -371,7 +353,7 @@ export default function Home() {
                           e,
                           tabValue === "account"
                             ? setPartnerFormData
-                            : setLaunchFormData,
+                            : setLaunchFormData
                         )
                       }
                       className="bg-white8 h-[88px] pb-10"
