@@ -18,15 +18,16 @@ interface ColDetailCardsProps {
     id: string; // Change this to string as we'll pass an ISO date string
     highResolutionImageUrl: string;
   };
-  totalOwnerCount: number;
 }
 
-const TruncatedAddress = ({ address }: { address: string | null }) => {
+const TruncatedAddress: React.FC<{ address: string | null }> = ({
+  address,
+}) => {
   if (!address) return <span>-</span>;
   return (
-    <span
-      title={address}
-    >{`${address.slice(0, 4)}...${address.slice(-4)}`}</span>
+    <span title={address}>{`${address.slice(0, 4)}...${address.slice(
+      -4
+    )}`}</span>
   );
 };
 
@@ -38,10 +39,7 @@ const getDaysAgo = (createdAt: string) => {
   return diffDays;
 };
 
-const ColDetailCards: React.FC<ColDetailCardsProps> = ({
-  data,
-  totalOwnerCount,
-}) => {
+const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
   const { citreaPrice } = useAuth();
   const daysAgo = getDaysAgo(data.createdAt);
 
@@ -84,7 +82,11 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({
           </div>
           <div className="w-full max-w-[200px] h-[18px]">
             <p
-              className={`font-medium text-lg ${(data.floorDifference ?? 0) >= 0 ? "text-green-500" : "text-red-500"}`}
+              className={`font-medium text-lg ${
+                (data.floorDifference ?? 0) >= 0
+                  ? "text-green-500"
+                  : "text-red-500"
+              }`}
             >
               {(data.floorDifference ?? 0) >= 0 ? "+" : "-"}
               {formatPrice(data.floorDifference ?? 0)}%
@@ -92,11 +94,13 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({
           </div>
           <div className="w-full max-w-[200px] h-[18px]">
             <p className="font-medium text-lg ml-10 text-neutral50">
-              {totalOwnerCount}
+              <TruncatedAddress address={data.ownedBy} />
             </p>
           </div>
           <div
-            className={`w-full max-w-[200px] h-[18px] ${data.price > 0 ? "group" : ""} relative`}
+            className={`w-full max-w-[200px] h-[18px] ${
+              data.price > 0 ? "group" : ""
+            } relative`}
           >
             <span className="font-medium text-lg flex justify-center text-neutral50">
               <span className={data.price > 0 ? "group-hover:hidden" : ""}>
