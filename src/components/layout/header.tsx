@@ -29,7 +29,7 @@ import {
 } from "@/lib/service/queryHelper";
 import { truncateAddress, capitalizeFirstLetter } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { ExtendedLayerType, LayerType, } from "@/lib/types";
+import { ExtendedLayerType, LayerType } from "@/lib/types";
 import { toast } from "sonner";
 import Badge from "../atom/badge";
 import { Loader2, MenuIcon } from "lucide-react";
@@ -78,7 +78,7 @@ export default function Header() {
         setDefaultLayer(layerString);
       } else if (dynamicLayers.length > 0) {
         const citreaLayer = dynamicLayers.find(
-          (l: LayerType) => l.layer === "CITREA",
+          (l: LayerType) => l.layer === "CITREA"
         );
         if (citreaLayer) {
           const layerString = `${citreaLayer.layer}-${citreaLayer.network}`;
@@ -106,7 +106,7 @@ export default function Header() {
 
   // Filter out Bitcoin Testnet from dynamicLayers
   const filteredDynamicLayers = dynamicLayers.filter(
-    (layer) => !(layer.layer === "BITCOIN" && layer.network === "TESTNET"),
+    (layer) => !(layer.layer === "BITCOIN" && layer.network === "TESTNET")
   );
 
   const layers: ExtendedLayerType[] = [
@@ -132,8 +132,6 @@ export default function Header() {
     setWalletModal(!walletModal);
   };
 
-
-
   const getLayerImage = (layer: string) => {
     switch (layer) {
       case "BITCOIN":
@@ -149,21 +147,17 @@ export default function Header() {
     }
   };
 
-
-
-  
-
   const handleLayerSelect = (value: string) => {
     const [layer, network] = value.split("-");
     const selectedLayer = layers.find(
-      (l: LayerType) => l.layer === layer && l.network === network,
+      (l: LayerType) => l.layer === layer && l.network === network
     );
 
     if (selectedLayer) {
       if (authState.authenticated) {
         onLogout();
         toast.info(
-          "Logged out due to layer change. Please reconnect your wallet.",
+          "Logged out due to layer change. Please reconnect your wallet."
         );
       }
       localStorage.setItem("layerId", selectedLayer.id);
@@ -190,7 +184,7 @@ export default function Header() {
   const handleNavigation = (
     pageUrl: string,
     requiresAuth?: boolean,
-    disabled?: boolean,
+    disabled?: boolean
   ) => {
     if (disabled) {
       toast.info("This feature is coming soon!");
@@ -223,7 +217,7 @@ export default function Header() {
                 />
               </Link>
               {/* Desktop Navigation */}
-              <div className="hidden md2:flex flex-row gap-2 text-neutral00">
+              <div className="hidden lg:flex flex-row gap-2 text-neutral00">
                 {routesData.map((item, index) => (
                   <div key={index} className="relative">
                     <HeaderItem
@@ -232,7 +226,7 @@ export default function Header() {
                         handleNavigation(
                           item.pageUrl,
                           item.requiresAuth,
-                          item.disabled,
+                          item.disabled
                         )
                       }
                     />
@@ -243,7 +237,7 @@ export default function Header() {
             </div>
 
             {/* Desktop Controls */}
-            <div className="hidden md2:flex flex-row overflow-hidden items-center gap-4">
+            <div className="hidden lg:flex flex-row overflow-hidden items-center gap-4">
               {/* <button
                 onClick={handleTwitterClick}
                 className="flex items-center gap-2 whitespace-nowrap justify-center h-10 px-4 bg-white16 hover:bg-white16 duration-300 transition-all rounded-xl"
@@ -303,7 +297,7 @@ export default function Header() {
                           />
                           <div className="flex items-center gap-2">
                             {`${capitalizeFirstLetter(
-                              layer.layer,
+                              layer.layer
                             )} ${capitalizeFirstLetter(layer.network)}`}
                             {layer.comingSoon && (
                               <span className="text-xs bg-white8 px-2 py-1 rounded-full">
@@ -377,7 +371,7 @@ export default function Header() {
 
             {/* Mobile Menu Button */}
             <button
-              className="md2:hidden p-2 text-neutral50"
+              className="lg:hidden p-2 text-neutral50"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <MenuIcon size={24} />
@@ -388,7 +382,7 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md2:hidden fixed inset-0 z-50 bg-neutral500 bg-opacity-95 backdrop-blur-lg">
+        <div className="lg:hidden fixed inset-0 z-50 bg-neutral500 bg-opacity-95 backdrop-blur-lg">
           <div className="flex flex-col p-4 space-y-4">
             <div className="flex justify-between items-center">
               <Link href={"/"}>
@@ -428,7 +422,7 @@ export default function Header() {
                       handleNavigation(
                         item.pageUrl,
                         item.requiresAuth,
-                        item.disabled,
+                        item.disabled
                       )
                     }
                   >
