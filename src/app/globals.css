@@ -29,11 +29,10 @@ body {
   background-color: #111315;
   font-family: "Bai Jamjuree", sans-serif;
 }
-//TODO: font duudaj bgag  lib dotroos duuddag bolgoh
 
 @font-face {
   font-family: artpast;
-  src: url("../app/fonts/Artpast-51L5a.otf");
+  src: url("../lib/fonts/Artpast-51L5a.otf");
 }
 .artpast {
   font-family: artpast;

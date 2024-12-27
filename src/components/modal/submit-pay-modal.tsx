@@ -5,7 +5,7 @@ import {
   DialogHeader,
   DialogFooter,
 } from "../ui/dialog";
-import { Loader2, X } from "lucide-react";
+import { X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
@@ -25,7 +25,7 @@ import {
 } from "@/lib/types";
 import { toast } from "sonner";
 import InscribeOrderModal from "./insribe-order-modal";
-import { getFeeRates, getLayerById } from "@/lib/service/queryHelper";
+import { getLayerById } from "@/lib/service/queryHelper";
 import { useRouter } from "next/navigation";
 import { getSigner } from "@/lib/utils";
 
@@ -89,12 +89,6 @@ const SubmitPayModal: React.FC<ModalProps> = ({
     mutationFn: createMintCollectible,
   });
 
-  // const { data: feeRates = [] } = useQuery({
-  //   queryKey: ["feeRateData"],
-  //   queryFn: () => getFeeRates(authState?.layerId as string),
-  //   enabled: !!authState?.layerId,
-  // });
-
   const { data: currentLayer } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
     queryFn: () => getLayerById(authState.layerId as string),
@@ -149,8 +143,6 @@ const SubmitPayModal: React.FC<ModalProps> = ({
         priceForLaunchpad: 0,
         userLayerId: authState.userLayerId,
         layerId: authState.layerId,
-
-        //todo get correct type for this modal
         type: "INSCRIPTION",
       };
       if (collectionParams) {
@@ -175,7 +167,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
         const params: MintCollectibleDataType = {
           // orderType: "COLLECTIBLE",
           file: files,
-          // description: description,
+          
           // name: name,
           // creator: creator,
           feeRate: 1,
