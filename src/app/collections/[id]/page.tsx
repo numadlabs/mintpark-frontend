@@ -19,7 +19,7 @@ import ThreadIcon from "@/components/icon/thread";
 import ColDetailCard from "@/components/atom/cards/collection-detail-card";
 import ColDetailCards from "@/components/atom/cards/column-detail-card";
 import { getListedCollectionById } from "@/lib/service/queryHelper";
-import { s3ImageUrlBuilder,formatPrice  } from "@/lib/utils";
+import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
 import { CollectionDataType } from "@/lib/types";
 import CollectionSideBar from "@/components/section/collections/sideBar";
 import CollectionDetailSkeleton from "@/components/atom/skeleton/collection-detail-skeleton";
@@ -86,7 +86,7 @@ const CollectionDetailPage = () => {
       ),
     },
   ].filter(
-    (link) => link.url !== null && link.url !== undefined && link.url !== "",
+    (link) => link.url !== null && link.url !== undefined && link.url !== ""
   );
 
   const handleSocialClick = (url: string | undefined) => {
@@ -388,7 +388,7 @@ const CollectionDetailPage = () => {
                     <div className="flex flex-col w-full pt-4 gap-4">
                       {collection?.collectibles?.map((item: any) => (
                         <div key={item.id}>
-                          <ColDetailCards data={item} totalOwnerCount={item} />
+                          <ColDetailCards data={item} />
                         </div>
                       ))}
                     </div>
