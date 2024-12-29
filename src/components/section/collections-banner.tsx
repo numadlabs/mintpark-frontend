@@ -3,7 +3,7 @@ import React from "react";
 
 const CollectionsBanner = () => {
   return (
-    <div className="relative h-[320px] w-full mt-4 sm:mt-8 lg:mt-12">
+    <div className="relative h-[320px] px-4 lg:px-0 w-full mt-4 sm:mt-8 lg:mt-12">
       <div className="w-full h-full relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden">
         <Image
           src="/banner.png"

@@ -85,7 +85,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
       <Tabs
         value={selectedInterval}
         onValueChange={setSelectedInterval}
-        className="mt-4 sm:mt-6 lg:mt-8 mb-6 sm:mb-8 lg:mb-10 border-hidden"
+        className="mt-4 px-4 lg:px-0 sm:mt-6 lg:mt-8 mb-6 sm:mb-8 lg:mb-10 border-hidden"
       >
         <section className="flex flex-col justify-between md:flex-row gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-7">
           {detail ? (
@@ -122,12 +122,12 @@ export default function Collections({ searchParams }: CollectionsProps) {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <TabsList className="h-12 text-neutral50 p-1 border border-neutral400 rounded-xl gap-1 whitespace-nowrap">
+              <TabsList className="h-12 w-full flex justify-around text-neutral50 p-1 border border-neutral400 rounded-xl gap-1 whitespace-nowrap">
                 {intervals.map((interval) => (
                   <TabsTrigger
                     key={interval}
                     value={interval}
-                    className="w-[46px] sm:w-[59px] h-10 font-semibold text-[15px] rounded-lg border-hidden"
+                    className="w-[63.8px] sm:w-[59px] h-10 font-semibold text-[15px] rounded-lg border-hidden"
                   >
                     {interval}
                   </TabsTrigger>
@@ -136,7 +136,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
+          <div className="flex sm:flex-row gap-4 sm:items-center">
             <Select
               value={selectedOrder}
               onValueChange={(value) => setSelectedOrder(value)}
@@ -226,19 +226,23 @@ export default function Collections({ searchParams }: CollectionsProps) {
             {!detail && (
               <div>
                 {viewType === "grid" ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 3xl:grid-cols-6 gap-6 sm:gap-6 lg:gap-8">
-                    {isLoading
-                      ? Array(8)
-                          .fill(null)
-                          .map((_, index) => <CollectionSkeleton key={index} />)
-                      : collectionArray?.map((item: any) => (
-                          <div key={item.id}>
-                            <CollectionCard
-                              data={item}
-                              handleNav={() => handleNavigation(item)}
-                            />
-                          </div>
-                        ))}
+                  <div className="flex justify-start w-full">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-6 sm:p-0 gap-4 sm:gap-6">
+                      {isLoading
+                        ? Array(8)
+                            .fill(null)
+                            .map((_, index) => (
+                              <CollectionSkeleton key={index} />
+                            ))
+                        : collectionArray?.map((item: any) => (
+                            <div key={item.id}>
+                              <CollectionCard
+                                data={item}
+                                handleNav={() => handleNavigation(item)}
+                              />
+                            </div>
+                          ))}
+                    </div>
                   </div>
                 ) : (
                   <div className="w-full">

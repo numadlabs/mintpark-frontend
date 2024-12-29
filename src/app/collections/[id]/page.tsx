@@ -349,8 +349,8 @@ const CollectionDetailPage = () => {
                   <div
                     className={`grid gap-4 md:gap-6 lg:gap-8 ${
                       active
-                        ? "grid-cols-2 sm:grid-cols-2  md:grid-cols-3  md2:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 3xl:grid-cols-6"
-                        : "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 md2:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4  3xl:grid-cols-6"
+                        ? "grid-cols-2 sm:grid-cols-2  md:grid-cols-3  md2:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 3xl:grid-cols-6 sm:gap-6"
+                        : "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 md2:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4  3xl:grid-cols-6 sm:gap-6"
                     }`}
                   >
                     {collection?.collectibles?.map((item: any) => (
