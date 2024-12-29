@@ -19,6 +19,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { serviceData } from "@/lib/constants";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface FormData {
   name: string;
@@ -232,39 +238,52 @@ export default function Home() {
         </div>
 
         {/* Services Section */}
-        <div className="flex flex-col gap-8 md:gap-12 w-full justify-center items-center">
-          <h1 className="font-bold text-center text-neutral00 text-3xl md:text-5xl">
+        <div className="w-full max-w-6xl mx-auto px-4">
+          <h2 className="font-bold text-center text-neutral00 text-3xl md:text-5xl mb-8 md:mb-12">
             Our service
-          </h1>
-          <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-            {serviceData.map((service, index) => (
-              <div
-                key={index}
-                className="bg-cover w-full md:max-w-[384px] rounded-[32px] border border-white4 border-b-0 overflow-hidden"
-                style={{
-                  backgroundImage: `url(https://d1orw8h9a3ark2.cloudfront.net/asset/Service-${
-                    index + 1
-                  }.png)`,
-                }}
-              >
-                <Image
-                  src={`/homePage/${service.image}.png`}
-                  alt={service.title}
-                  width={384}
-                  height={228}
-                  className="w-full"
-                />
-                <div className="text-center flex flex-col gap-4 p-6 md:p-8">
-                  <h1 className="font-bold text-2xl md:text-aboutUs text-neutral00">
-                    {service.title}
-                  </h1>
-                  <p className="font-medium text-sm md:text-md px-14 md:px-10 text-neutral100">
-                    {service.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+          </h2>
+
+          <Carousel
+            opts={{
+              align: "start",
+              loop: false,
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-4 flex">
+              {serviceData.map((service, index) => (
+                <CarouselItem
+                  key={index}
+                  className="basis-[85%] md:basis-[60%] lg:basis-1/3"
+                >
+                  <Card
+                    className="overflow-hidden rounded-3xl border border-white4 border-b-0 h-full"
+                    style={{
+                      backgroundImage: `url(https://d1orw8h9a3ark2.cloudfront.net/asset/${service.image}.png)`,
+                      backgroundSize: "cover",
+                    }}
+                  >
+                    <div className="relative h-48 md:h-56">
+                      <Image
+                        src={`/homePage/${service.image}.png`}
+                        alt={service.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-6 md:p-8 text-center flex flex-col gap-4">
+                      <h3 className="font-bold text-2xl md:text-3xl text-neutral00">
+                        {service.title}
+                      </h3>
+                      <p className="font-medium text-sm md:text-base text-neutral100">
+                        {service.description}
+                      </p>
+                    </div>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
         </div>
 
         {/* Contact Forms Section */}
