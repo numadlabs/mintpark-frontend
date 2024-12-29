@@ -226,7 +226,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
             {!detail && (
               <div>
                 {viewType === "grid" ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-6 lg:gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 3xl:grid-cols-6 gap-6 sm:gap-6 lg:gap-8">
                     {isLoading
                       ? Array(8)
                           .fill(null)
@@ -242,7 +242,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                   </div>
                 ) : (
                   <div className="w-full">
-                    <div className="hidden sm:grid grid-cols-[2fr_3fr_2fr] gap-6 px-4 pb-4 text-neutral200 font-medium text-sm sm:text-md">
+                    <div className="hidden sm:grid grid-cols-[2fr_3fr_2fr]  gap-6 px-4 pb-4 text-neutral200 font-medium text-sm sm:text-md">
                       <div>Name</div>
                       <div className="grid grid-cols-3 text-right">
                         <span>Floor price</span>

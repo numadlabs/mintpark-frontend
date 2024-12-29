@@ -66,7 +66,7 @@ const Launchpad = () => {
 
           <TabsContent
             value="all"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 xl:gap-10"
+            className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 3xl:grid-cols-6 gap-4 sm:gap-6 lg:gap-8 xl:gap-10"
           >
             {isLoading
               ? renderSkeletons()
@@ -76,7 +76,7 @@ const Launchpad = () => {
           </TabsContent>
           <TabsContent
             value="live"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 xl:gap-10"
+            className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 3xl:grid-cols-6  gap-4 sm:gap-6 lg:gap-8 xl:gap-10"
           >
             {isLoading
               ? renderSkeletons()
@@ -86,7 +86,7 @@ const Launchpad = () => {
           </TabsContent>
           <TabsContent
             value="past"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 xl:gap-10"
+            className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-6  gap-4 sm:gap-6 lg:gap-8 xl:gap-10"
           >
             {isLoading
               ? renderSkeletons()

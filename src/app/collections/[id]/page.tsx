@@ -17,7 +17,7 @@ import { Global, Notepad, Profile2User } from "iconsax-react";
 import DiscordIcon from "@/components/icon/hoverIcon";
 import ThreadIcon from "@/components/icon/thread";
 import ColDetailCard from "@/components/atom/cards/collection-detail-card";
-import ColDetailCards from "@/components/atom/cards/column-detail-card";
+import ColDetailCards from "@/components/atom/cards/collection-detail-column-card";
 import { getListedCollectionById } from "@/lib/service/queryHelper";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
 import { CollectionDataType } from "@/lib/types";
@@ -349,8 +349,8 @@ const CollectionDetailPage = () => {
                   <div
                     className={`grid gap-4 md:gap-6 lg:gap-8 ${
                       active
-                        ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-                        : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                        ? "grid-cols-2 sm:grid-cols-2  md:grid-cols-3  md2:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 3xl:grid-cols-6"
+                        : "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 md2:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4  3xl:grid-cols-6"
                     }`}
                   >
                     {collection?.collectibles?.map((item: any) => (
@@ -363,7 +363,7 @@ const CollectionDetailPage = () => {
 
                 <TabsContent value="ColCard">
                   <div className="hidden md:flex h-[34px] pr-8 pb-4 pl-4">
-                    <div className="w-[392px]">
+                    <div className="w-[324px]">
                       <p className="font-medium text-md text-neutral200">
                         Item
                       </p>

@@ -49,7 +49,7 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
         className="flex w-full justify-between items-center gap-24 bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-4"
         href={`/assets/${data.id}`}
       >
-        <div className="flex w-[392px] h-16 gap-5">
+        <div className="flex w-[324px] h-16 gap-5">
           <Image
             width={64}
             height={64}
@@ -65,7 +65,7 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
             {data.name}
           </p>
         </div>
-        <div className="flex justify-end items-center w-full text-start">
+        <div className="flex justify-end items-center w-full text-start 3xl:justify-around 3xl:pl-8">
           <div className="w-full max-w-[200px] grid gap-1">
             <p className="font-medium text-lg text-neutral50">
               {formatPrice(data.price)}
@@ -93,7 +93,7 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
             </p>
           </div>
           <div className="w-full max-w-[200px] h-[18px]">
-            <p className="font-medium text-lg ml-10 text-neutral50">
+            <p className="font-medium text-lg ml-10 3xl:ml-9 text-neutral50">
               <TruncatedAddress address={data.ownedBy} />
             </p>
           </div>
@@ -102,7 +102,7 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
               data.price > 0 ? "group" : ""
             } relative`}
           >
-            <span className="font-medium text-lg flex justify-center text-neutral50">
+            <span className="font-medium text-lg flex justify-center  3xl:mr-10 text-neutral50">
               <span className={data.price > 0 ? "group-hover:hidden" : ""}>
                 {daysAgo} days ago
               </span>
