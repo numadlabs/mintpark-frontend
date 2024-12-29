@@ -84,7 +84,7 @@ export default function AssetDetail() {
   return (
     <Layout>
       <Header />
-      <div className="flex flex-col w-full gap-32">
+      <div className="flex flex-col w-full gap-32 p-10 3xl:px-[312px]">
         <div className="md:grid grid-cols-2 flex flex-col gap-16 justify-between pt-16 relative z-20">
           <div className="w-full h-full relative flex items-center justify-center">
             <div className="z-10 w-full h-full blur-[90px] opacity-35 scale-120">
@@ -99,7 +99,7 @@ export default function AssetDetail() {
                   //   ? s3ImageUrlBuilder(currentAsset.fileKey)
                   //   : ordinalsImageCDN(currentAsset.uniqueIdx)
                 }
-                className="aspect-square rounded-xl relative z-20 md:h-full w-full h-[360px]"
+                className="aspect-square rounded-xl relative z-20 md:h-full 3xl:h-[560px] 3xl:w-[560px] w-full h-[560px]"
                 alt={`${currentAsset.name} logo`}
               />
             </div>
@@ -163,21 +163,21 @@ export default function AssetDetail() {
                   Detail
                 </AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-6">
-                {currentAsset.inscriptionId && (
-                  <div className="flex justify-between">
-                    <h1 className="font-medium text-md text-neutral200">
-                      Original Asset (Inscription ID)
-                    </h1>
-                    <Link
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      href={`https://testnet4.ordinals.com/${currentAsset.inscriptionId}`}
-                      className="font-medium cursor-pointer text-md hover:underline text-neutral50"
-                    >
-                      {truncateAddress(currentAsset.inscriptionId)}
-                    </Link>
-                  </div>
-                )}
+                  {currentAsset.inscriptionId && (
+                    <div className="flex justify-between">
+                      <h1 className="font-medium text-md text-neutral200">
+                        Original Asset (Inscription ID)
+                      </h1>
+                      <Link
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href={`https://testnet4.ordinals.com/${currentAsset.inscriptionId}`}
+                        className="font-medium cursor-pointer text-md hover:underline text-neutral50"
+                      >
+                        {truncateAddress(currentAsset.inscriptionId)}
+                      </Link>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <h1 className="font-medium text-md text-neutral200">
                       Owned by
@@ -233,37 +233,22 @@ export default function AssetDetail() {
             </TabsList>
             <TabsContent value="activity" className="w-full">
               <div className="overflow-x-auto">
-                <div className="inline-block min-w-full">
-                  <div className="overflow-hidden">
+                <div className="inline-block w-full">
+                  <div className="overflow-hidden w-full">
                     <div className="flex flex-row items-center px-3 pb-4 justify-between border-b border-neutral500">
-                      <div
-                        style={{ width: "360px" }}
-                        className="text-neutral200 text-md font-medium whitespace-nowrap"
-                      >
+                      <div className="text-neutral200 text-md font-medium whitespace-nowrap">
                         Item
                       </div>
-                      <div
-                        style={{ width: "220px" }}
-                        className="text-neutral200 text-md font-medium whitespace-nowrap"
-                      >
+                      <div className="text-neutral200 text-md font-medium whitespace-nowrap">
                         Event
                       </div>
-                      <div
-                        style={{ width: "200px" }}
-                        className="text-neutral200 text-md font-medium whitespace-nowrap"
-                      >
+                      <div className="text-neutral200 text-md font-medium whitespace-nowrap">
                         Price
                       </div>
-                      <div
-                        style={{ width: "260px" }}
-                        className="text-neutral200 text-md font-medium whitespace-nowrap"
-                      >
+                      <div className="text-neutral200 text-md font-medium whitespace-nowrap">
                         Address
                       </div>
-                      <div
-                        style={{ width: "152px" }}
-                        className="text-neutral200 text-md font-medium whitespace-nowrap"
-                      >
+                      <div className="text-neutral200 text-md font-medium whitespace-nowrap">
                         Date
                       </div>
                     </div>

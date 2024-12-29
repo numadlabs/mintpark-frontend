@@ -227,19 +227,49 @@ const Page = () => {
             <LaunchDetailSkeleton />
           </div>
         ) : (
-          <div className="">
-            <section className="flex flex-col justify-center h-full sm:h-[80vh] items-center md2:grid grid-cols-3 gap-6 lg:gap-8 mb-8">
+          <div className="3xl:px-[312px]">
+            <section className="flex flex-col justify-center h-full sm:h-[100vh]  md2:h-[80vh] items-center md2:grid grid-cols-3 gap-6 lg:gap-8 mb-8">
               {/* Left Column - Collection Info */}
               <div className="flex flex-col gap-4 sm:gap-6 order-2">
                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold capitalize text-neutral50">
                   {collectibles?.name}
                 </h1>
-                <div className="hidden sm:block">
+                <div className="sm:block">
                   <p className="h-1 w-[120px] rounded bg-brand shadow-shadowBrands"></p>
                 </div>
                 <p className="text-base sm:text-lg lg:text-lg text-neutral100 line-clamp-4 sm:line-clamp-none">
                   {collectibles?.description}
                 </p>
+                <div className="space-y-2 sm:space-y-3 block md2:hidden">
+                  <div className="flex h-2 sm:h-3 border rounded-lg border-1 border-neutral400">
+                    <Progress
+                      value={
+                        (collectibles?.mintedAmount / collectibles?.supply) *
+                        100
+                      }
+                      className={`w-full h-full ${
+                        collectibles?.mintedAmount === 0 ? "" : ""
+                      }`}
+                    />
+                  </div>
+                    <div className="flex justify-between items-center py-1 text-sm sm:text-base  text-neutral100">
+                      <span className="font-medium text-lg text-neutral100">
+                        Total minted
+                      </span>
+                      <h2>
+                        <span className="text-neutral50 font-medium text-lg">
+                          {collectibles?.mintedAmount}
+                        </span>
+                        <span className="text-brand font-medium text-lg">
+                          {" "}
+                          /{" "}
+                        </span>
+                        <span className="text-neutral100 font-medium text-lg">
+                          {collectibles?.supply}
+                        </span>{" "}
+                      </h2>
+                  </div>
+                </div>
                 <div className="flex gap-4 sm:gap-8 mt-2">
                   {links.length > 0 && (
                     <div className="flex gap-4 sm:gap-6">
@@ -273,7 +303,7 @@ const Page = () => {
                   </Carousel>
                 </div>
 
-                <div className="space-y-2 sm:space-y-3">
+                <div className="space-y-2 sm:space-y-3 hidden md2:block">
                   <div className="flex h-2 sm:h-3 border rounded-lg border-1 border-neutral400">
                     <Progress
                       value={
@@ -285,28 +315,28 @@ const Page = () => {
                       }`}
                     />
                   </div>
-                  <div className="flex justify-between items-center py-1 text-sm sm:text-base text-neutral100">
-                    <span className="font-medium text-lg text-neutral100">
-                      Total minted
-                    </span>
-                    <h2>
-                      <span className="text-neutral50 font-medium text-lg">
-                        {collectibles?.mintedAmount}
+                    <div className="flex justify-between items-center py-1 text-sm sm:text-base  text-neutral100">
+                      <span className="font-medium text-lg text-neutral100">
+                        Total minted
                       </span>
-                      <span className="text-brand font-medium text-lg">
-                        {" "}
-                        /{" "}
-                      </span>
-                      <span className="text-neutral100 font-medium text-lg">
-                        {collectibles?.supply}
-                      </span>{" "}
-                    </h2>
+                      <h2>
+                        <span className="text-neutral50 font-medium text-lg">
+                          {collectibles?.mintedAmount}
+                        </span>
+                        <span className="text-brand font-medium text-lg">
+                          {" "}
+                          /{" "}
+                        </span>
+                        <span className="text-neutral100 font-medium text-lg">
+                          {collectibles?.supply}
+                        </span>{" "}
+                      </h2>
                   </div>
                 </div>
               </div>
 
               {/* Right Column - Phases and Button */}
-              <div className="flex flex-col gap-4 sm:gap-6 lg:gap-8 order-3">
+              <div className="flex flex-col gap-4 sm:gap-6 w-full lg:gap-8 order-3">
                 <ScrollArea className="flex-grow">
                   <div className="flex flex-col gap-4">
                     <PhaseCard

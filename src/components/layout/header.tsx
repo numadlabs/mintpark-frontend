@@ -205,7 +205,7 @@ export default function Header() {
   return (
     <>
       <div className="h-[72px] w-full flex justify-center bg-neutral500 bg-opacity-50 backdrop-blur-4xl mt-5 rounded-3xl">
-        <div className="flex flex-row justify-between items-center max-w-[1216px] w-full">
+        <div className="flex flex-row justify-between items-center max-w-[1920px] w-full">
           <div className="flex flex-row justify-between items-center w-full pl-6 pr-4 h-full">
             <div className="flex gap-12">
               <Link href={"/"}>
