@@ -28,17 +28,17 @@ const ConnectWalletModal: React.FC<modalProps> = ({ open, onClose }) => {
         <Tabs defaultValue="Bitcoin">
           <TabsList>
             <div className="grid grid-cols-3 gap-3 items-center">
-              <TabsTrigger value="Bitcoin" className="max-w-[104px] w-screen">
+              <TabsTrigger value="Bitcoin" className="max-w-[104px] w-full">
                 <Avatar className="w-8 h-8">
                   <AvatarImage src="/wallets/Bitcoin.png" alt="bitcoin" sizes="100%" />
                 </Avatar>
               </TabsTrigger>
-              <TabsTrigger value="Citrea" className="max-w-[104px] w-screen">
+              <TabsTrigger value="Citrea" className="max-w-[104px] w-full">
                 <Avatar className="w-8 h-8">
                   <AvatarImage src="/wallets/Citrea.png" alt="bitcoin" sizes="100%" />
                 </Avatar>
               </TabsTrigger>
-              <TabsTrigger value="Fractal" className="max-w-[104px] w-screen">
+              <TabsTrigger value="Fractal" className="max-w-[104px] w-full">
                 <Avatar className="w-8 h-8">
                   <AvatarImage src="/wallets/Fractal.png" alt="bitcoin" sizes="100%" />
                 </Avatar>

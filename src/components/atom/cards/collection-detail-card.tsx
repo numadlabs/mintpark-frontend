@@ -1,17 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CollectionDataType } from "@/lib/types";
-import { s3ImageUrlBuilder} from "@/lib/utils";
+import { s3ImageUrlBuilder,formatPrice} from "@/lib/utils";
 
 export default function ColDetailCard({ data }: { data: CollectionDataType }) {
   const isListed = data.price > 0;
-
-  const formatPrice = (price: number) => {
-    return price.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 6,
-    });
-  };
 
   return (
     <Link
