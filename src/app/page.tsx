@@ -24,7 +24,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Add } from "iconsax-react";
 
 interface FormData {
   name: string;
@@ -212,7 +212,7 @@ export default function Home() {
         <div className="relative w-full mx-auto">
           <div className="relative z-10">
             {/* Blurred background banner */}
-            <div className="relative h-64 md:h-[360px] 2xl:h-[540px] blur-[35px] sm:blur-[45px] md:blur-[55px] rounded-[32px] opacity-35 scale-110 overflow-hidden">
+            <div className="relative h-60 md:h-[360px] 3xl:h-[540px] blur-[35px] sm:blur-[45px] md:blur-[55px] rounded-[32px] opacity-35 scale-110 overflow-hidden">
               <Image
                 src="/homePage/homeBanner.png"
                 alt="banner background"
@@ -287,124 +287,128 @@ export default function Home() {
         </div>
 
         {/* Contact Forms Section */}
-        <div className="bg-[url('/homePage/contactBg.png')] bg-cover min-h-[488px] w-full p-6 md:p-12 flex flex-col md:flex-row justify-between rounded-[32px] border border-white4 border-b-0 gap-8">
-          <div className="flex flex-col gap-6 items-start justify-end">
-            <span className="font-bold text-3xl md:text-5xl">
-              Let&apos;s Build <br />
-              <span className="text-brand">Success</span> Together
-            </span>
-            <p className="text-neutral100 font-medium text-base md:text-lg">
-              Have a project in mind? Drop us a message, and let&apos;s explore
-              the possibilities.
-            </p>
+        <div className="w-full items-center justify-center flex">
+          <div className="bg-[url('/homePage/contactBg.png')] items-center max-w-[1216px] w-full bg-cover min-h-[480px] p-6 pt-12 pb-8 md:px-12 md:pb-12 flex flex-col md:flex-row justify-between rounded-[32px] border border-white4 border-b-0 gap-8">
+            <div className="flex flex-col gap-2 sm:gap-6 items-start justify-end">
+              <span className="font-bold text-xl sm:text-3xl md:text-5xl flex flex-row sm:flex-col gap-1.5">
+                Let&apos;s Build <br />
+                <div className="flex flex-row gap-1.5">
+                  <span className="text-brand">Success</span> Together
+                </div>
+              </span>
+              <p className="text-neutral100 font-medium text-sm sm:text-lg">
+                Have a project in mind? Drop us a message, and let&apos;s
+                explore the possibilities.
+              </p>
+            </div>
+
+            <Tabs
+              defaultValue="account"
+              className="w-full md:w-[480px] flex flex-col gap-6 md:gap-10 border-hidden"
+            >
+              <TabsList className="grid w-full grid-cols-2 p-1 border border-white8 rounded-[40px] bg-white8">
+                <TabsTrigger
+                  value="account"
+                  className="text-sm md:text-md2 rounded-3xl border border-transparent"
+                >
+                  Partner with Us
+                </TabsTrigger>
+                <TabsTrigger
+                  value="password"
+                  className="text-sm md:text-md2 border rounded-3xl border-transparent"
+                >
+                  Launch with Us
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Form Content - Same for both tabs */}
+              {["account", "password"].map((tabValue) => (
+                <TabsContent key={tabValue} value={tabValue}>
+                  <Card className="border-hidden flex flex-col gap-4">
+                    <CardContent className="flex flex-col gap-4 p-0">
+                      <Input
+                        id="name"
+                        placeholder="Your company name"
+                        value={
+                          tabValue === "account"
+                            ? partnerFormData.name
+                            : launchFormData.name
+                        }
+                        onChange={(e) =>
+                          handleInputChange(
+                            e,
+                            tabValue === "account"
+                              ? setPartnerFormData
+                              : setLaunchFormData
+                          )
+                        }
+                        className="bg-white8 h-12"
+                      />
+                      <Input
+                        id="email"
+                        placeholder="Email"
+                        value={
+                          tabValue === "account"
+                            ? partnerFormData.email
+                            : launchFormData.email
+                        }
+                        onChange={(e) =>
+                          handleInputChange(
+                            e,
+                            tabValue === "account"
+                              ? setPartnerFormData
+                              : setLaunchFormData
+                          )
+                        }
+                        className="bg-white8 h-12"
+                      />
+                      <Input
+                        id="message"
+                        placeholder="Message"
+                        value={
+                          tabValue === "account"
+                            ? partnerFormData.message
+                            : launchFormData.message
+                        }
+                        onChange={(e) =>
+                          handleInputChange(
+                            e,
+                            tabValue === "account"
+                              ? setPartnerFormData
+                              : setLaunchFormData
+                          )
+                        }
+                        className="bg-white8 h-[88px] pb-10"
+                      />
+                    </CardContent>
+                    <CardFooter className="p-0">
+                      <Button
+                        variant="primary"
+                        className="w-full"
+                        disabled={
+                          tabValue === "account"
+                            ? !isPartnerFormValid
+                            : !isLaunchFormValid
+                        }
+                        onClick={
+                          tabValue === "account"
+                            ? handlePartnerSubmit
+                            : handleLaunchSubmit
+                        }
+                      >
+                        Send
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </TabsContent>
+              ))}
+            </Tabs>
           </div>
-
-          <Tabs
-            defaultValue="account"
-            className="w-full md:w-[480px] flex flex-col gap-6 md:gap-10 border-hidden"
-          >
-            <TabsList className="grid w-full grid-cols-2 p-1 border border-white8 rounded-[40px] bg-white8">
-              <TabsTrigger
-                value="account"
-                className="text-sm md:text-md2 rounded-3xl border border-transparent"
-              >
-                Partner with Us
-              </TabsTrigger>
-              <TabsTrigger
-                value="password"
-                className="text-sm md:text-md2 border rounded-3xl border-transparent"
-              >
-                Launch with Us
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Form Content - Same for both tabs */}
-            {["account", "password"].map((tabValue) => (
-              <TabsContent key={tabValue} value={tabValue}>
-                <Card className="border-hidden flex flex-col gap-4">
-                  <CardContent className="flex flex-col gap-4">
-                    <Input
-                      id="name"
-                      placeholder="Your company name"
-                      value={
-                        tabValue === "account"
-                          ? partnerFormData.name
-                          : launchFormData.name
-                      }
-                      onChange={(e) =>
-                        handleInputChange(
-                          e,
-                          tabValue === "account"
-                            ? setPartnerFormData
-                            : setLaunchFormData
-                        )
-                      }
-                      className="bg-white8 h-12"
-                    />
-                    <Input
-                      id="email"
-                      placeholder="Email"
-                      value={
-                        tabValue === "account"
-                          ? partnerFormData.email
-                          : launchFormData.email
-                      }
-                      onChange={(e) =>
-                        handleInputChange(
-                          e,
-                          tabValue === "account"
-                            ? setPartnerFormData
-                            : setLaunchFormData
-                        )
-                      }
-                      className="bg-white8 h-12"
-                    />
-                    <Input
-                      id="message"
-                      placeholder="Message"
-                      value={
-                        tabValue === "account"
-                          ? partnerFormData.message
-                          : launchFormData.message
-                      }
-                      onChange={(e) =>
-                        handleInputChange(
-                          e,
-                          tabValue === "account"
-                            ? setPartnerFormData
-                            : setLaunchFormData
-                        )
-                      }
-                      className="bg-white8 h-[88px] pb-10"
-                    />
-                  </CardContent>
-                  <CardFooter>
-                    <Button
-                      variant="primary"
-                      className="w-full"
-                      disabled={
-                        tabValue === "account"
-                          ? !isPartnerFormValid
-                          : !isLaunchFormValid
-                      }
-                      onClick={
-                        tabValue === "account"
-                          ? handlePartnerSubmit
-                          : handleLaunchSubmit
-                      }
-                    >
-                      Send
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </TabsContent>
-            ))}
-          </Tabs>
         </div>
 
         {/* FAQ Section */}
         <div className="flex flex-col items-center gap-8 md:gap-12 w-full">
-          <h1 className="font-bold text-center text-neutral00 text-3xl md:text-5xl px-4">
+          <h1 className="font-bold text-center text-neutral00 text-xl sm:text-3xl md:text-5xl px-4">
             Frequently Asked Questions
           </h1>
           <div className="w-full max-w-[800px] px-4">
@@ -442,10 +446,10 @@ export default function Home() {
                   value={`item-${index + 1}`}
                   className="border border-b-neutral500 py-3"
                 >
-                  <AccordionTrigger className="text-neutral00 font-medium text-base md:text-xl px-4">
+                  <AccordionTrigger className="text-neutral00 text-start font-medium text-md md:text-xl px-4">
                     {item.question}
                   </AccordionTrigger>
-                  <AccordionContent className="text-neutral100 font-normal text-sm md:text-lg px-4">
+                  <AccordionContent className="text-neutral100 font-normal text-md md:text-lg px-4">
                     {item.answer}
                   </AccordionContent>
                 </AccordionItem>
