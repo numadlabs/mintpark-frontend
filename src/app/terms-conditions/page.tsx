@@ -8,11 +8,11 @@ const TermsConditions = () => {
       <Layout>
         <Header />
         <section className="mt-[43.5px] grid gap-16">
-          <div className="relative h-[216px] w-full rounded-3xl overflow-hidden">
+          <div className="relative h-[156px] sm:h-[216px] w-full rounded-3xl overflow-hidden">
             <div
               className="absolute inset-0"
               style={{
-                backgroundImage: `url(${"/footer/privacy.webp"})`,
+                backgroundImage: `url(${"/footer/terms.webp"})`,
                 backgroundPosition: "center",
                 backgroundSize: "cover",
                 backgroundRepeat: "no-repeat",
@@ -25,23 +25,22 @@ const TermsConditions = () => {
               }}
             />
             <div className="relative w-full h-full flex flex-col justify-center gap-12 z-50">
-              <div className="flex flex-col items-center justify-center pt-8 pb-8 gap-6">
-                <h1 className="font-bold text-logoSize text-neutral50">
+              <div className="flex flex-col items-center justify-center pt-8 pb-8 gap-4 sm:gap-6">
+                <h1 className="font-bold text-2xl sm:text-logoSize text-neutral50">
                   Terms and Conditions
                 </h1>
-                <p className="font-normal text-lg text-neutral100">
+                <p className="font-normal text-sm sm:text-lg text-neutral100">
                   Last updated: Oct 31, 2024
                 </p>
               </div>
             </div>
-            <div></div>
           </div>
           <div className="flex flex-col items-center justify-center gap-12 pb-40 w-full">
-            <div className="w-[592px] flex flex-col gap-4">
-              <h1 className="font-medium text-xl text-neutral50 ">
+            <div className="max-w-[592px] w-full flex flex-col gap-4">
+              <h1 className="font-medium text-lg sm:text-xl text-neutral50 ">
                 Introduction
               </h1>
-              <p className="text-neutral200 font-medium text-lg">
+              <p className="text-neutral200 font-medium text-md sm:text-lg">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi
                 porttitor nec leo nec dignissim. Vestibulum volutpat nulla non
                 diam elementum, non posuere nisi condimentum. Phasellus luctus
@@ -49,11 +48,11 @@ const TermsConditions = () => {
                 felis vitae nisi pulvinar tincidunt sodales non libero.{" "}
               </p>
             </div>
-            <div className="w-[592px] flex flex-col gap-4">
-              <h1 className="font-medium text-xl text-neutral50 ">
+            <div className="max-w-[592px] w-full flex flex-col gap-4">
+              <h1 className="font-medium text-lg sm:text-xl text-neutral50 ">
                 Introduction
               </h1>
-              <p className="text-neutral200 font-medium text-lg">
+              <p className="text-neutral200 font-medium text-md sm:text-lg">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi
                 porttitor nec leo nec dignissim. Vestibulum volutpat nulla non
                 diam elementum, non posuere nisi condimentum. Phasellus luctus
@@ -72,11 +71,9 @@ const TermsConditions = () => {
                 tellus euismod
               </p>
             </div>
-            <div className="w-[592px] flex flex-col gap-4">
-              <h1 className="font-medium text-xl text-neutral50 ">
-                Introduction
-              </h1>
-              <p className="text-neutral200 font-medium text-lg">
+            <div className="max-w-[592px] w-full flex flex-col gap-4">
+              <h1 className="font-medium  text-neutral50 ">Introduction</h1>
+              <p className="text-neutral200 font-medium text-md sm:text-lg">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi
                 porttitor nec leo nec dignissim. Vestibulum volutpat nulla non
                 diam elementum, non posuere nisi condimentum. Phasellus luctus

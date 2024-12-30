@@ -5,28 +5,30 @@ import Link from "next/link";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { CollectibleSchema } from "@/lib/validations/asset-validation";
 
-const TruncatedAddress = ({ address }: { address: string | null }) => {
-  if (!address) return <span>-</span>;
-  return (
-    <span title={address}>{`${address.slice(0, 4)}...${address.slice(
-      -4,
-    )}`}</span>
-  );
-};
-
-const getDaysAgo = (createdAt: string) => {
-  const createdDate = new Date(createdAt);
-  const now = new Date();
-  const diffTime = Math.abs(now.getTime() - createdDate.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  return diffDays;
-};
 interface cardProps {
   data: CollectibleSchema;
 }
 
 const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
   const { citreaPrice } = useAuth();
+
+  const TruncatedAddress = ({ address }: { address: string | null }) => {
+    if (!address) return <span>-</span>;
+    return (
+      <span title={address}>{`${address.slice(0, 4)}...${address.slice(
+        -4
+      )}`}</span>
+    );
+  };
+
+  const getDaysAgo = (createdAt: string) => {
+    const createdDate = new Date(createdAt);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - createdDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   const daysAgo = getDaysAgo(data.createdAt);
   const formatPrice = (price: number | null) => {
     const btcAmount = price;
@@ -38,7 +40,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
   return (
     <>
       <Link
-        className="flex w-full justify-between items-center gap-24 bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-4"
+        className="flex min-w-[1216px] w-full justify-between items-center gap-24 bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-4"
         href={`/assets/${data.id}`}
       >
         <div className="flex w-[392px] h-16 gap-5">
@@ -58,7 +60,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
           </p>
         </div>
         <div className="flex justify-end items-center w-full text-start">
-          <div className="w-full max-w-[300px] grid gap-1 h-[18px]">
+          <div className="w-[300px] grid gap-1 h-[18px]">
             <p className="font-medium text-lg text-neutral50">
               {formatPrice(data.floor)}
               <span className="ml-1">cBTC</span>
@@ -72,7 +74,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
               </p>
             </p>
           </div>
-          <div className="w-full max-w-[220px] h-[18px]">
+          <div className="w-[220px] h-[18px]">
             <p
               className={`font-medium text-lg ${
                 (data.floor ?? 0) >= 0 ? "text-success" : "text-errorMsg"
@@ -82,14 +84,14 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
               {formatPrice(data.floor) ?? 0}%
             </p>
           </div>
-          <div className="w-full max-w-[160px] h-[18px]">
+          <div className="w-[160px] h-[18px]">
             <p className="font-medium text-lg text-neutral50">
               <TruncatedAddress address={data.id} />
               {/* this is OwnedBy */}
             </p>
           </div>
           <div
-            className={`w-full max-w-[210px] h-[18px] ${
+            className={`w-[210px] h-[18px] ${
               (data?.price ?? 0) > 0 ? "group" : ""
             } relative`}
           >
