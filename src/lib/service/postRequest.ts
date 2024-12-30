@@ -105,6 +105,48 @@ export async function loginHandler({
       return response.data;
     });
 }
+
+export async function loginWalletLink({
+  address,
+  signedMessage,
+  layerId,
+  pubkey,
+}: {
+  address: string;
+  signedMessage: string;
+  layerId: string;
+  pubkey?: string;
+}) {
+  return axiosClient
+    .post(
+      `/api/v1/users/link-account`,
+      JSON.stringify({ address, signedMessage, layerId, pubkey }),
+    )
+    .then((response) => {
+      return response.data;
+    });
+}
+
+export async function linkAccountToAnotherUser({
+  address,
+  signedMessage,
+  layerId,
+  pubkey,
+}: {
+  address: string;
+  signedMessage: string;
+  layerId: string;
+  pubkey?: string;
+}) {
+  return axiosClient
+    .post(
+      `/api/v1/users/link-account-to-another-user`,
+      JSON.stringify({ address, signedMessage, layerId, pubkey }),
+    )
+    .then((response) => {
+      return response.data;
+    });
+}
 export async function profileUpdateHandler({ userData }: { userData: User }) {
   try {
     return axiosClient

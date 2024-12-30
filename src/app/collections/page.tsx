@@ -64,7 +64,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
         id as string,
         selectedInterval.toLowerCase(),
         orderConfig.orderBy,
-        orderConfig.orderDirection
+        orderConfig.orderDirection,
       ),
     enabled: !!id,
   });
@@ -150,7 +150,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                     {key
                       .split("-")
                       .map(
-                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
                       )
                       .join(" ")}
                   </SelectItem>

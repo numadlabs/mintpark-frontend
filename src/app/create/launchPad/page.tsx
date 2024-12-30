@@ -44,7 +44,7 @@ import OrderPayModal from "@/components/modal/order-pay-modal";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
-import { getLayerById, getUserById } from "@/lib/service/queryHelper";
+import { getLayerById } from "@/lib/service/queryHelper";
 import { ethers } from "ethers";
 import { getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
@@ -55,7 +55,7 @@ import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
 
 const CollectionDetail = () => {
   const router = useRouter();
-  const { authState, connect } = useAuth();
+  const { authState } = useAuth();
   const {
     imageFile,
     setImageFile,

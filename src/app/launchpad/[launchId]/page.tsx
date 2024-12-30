@@ -65,8 +65,8 @@ const Page = () => {
 
   // const { data: feeRates = [], isLoading: isFeeRatesLoading } = useQuery({
   //   queryKey: ["feeRateData"],
-  //   queryFn: () => getFeeRates(authState?.layerId as string),
-  //   enabled: !!authState?.layerId,
+  //   queryFn: () => getFeeRates(authState?.userLayerId as string),
+  //   enabled: !!authState?.userLayerId,
   // });
 
   const { data: currentLayer, isLoading: isLayerLoading } = useQuery({

@@ -22,11 +22,7 @@ import {
 import ConnectWalletModal from "../modal/connect-wallet-modal";
 import { Wallet2, I3Dcube, Logout, ArrowRight2 } from "iconsax-react";
 import { Button } from "../ui/button";
-import {
-  getUserById,
-  getAllLayers,
-  getLayerById,
-} from "@/lib/service/queryHelper";
+import { getAllLayers, getLayerById } from "@/lib/service/queryHelper";
 import { truncateAddress, capitalizeFirstLetter } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { ExtendedLayerType, LayerType } from "@/lib/types";
@@ -34,6 +30,8 @@ import { toast } from "sonner";
 import Badge from "../atom/badge";
 import { Loader2, MenuIcon } from "lucide-react";
 import XLogo from "../icon/xlogo";
+import useWalletAuth from "@/lib/hooks/useWalletAuth";
+import { WalletConnectionModal } from "../modal/wallet-connect-modal";
 
 declare global {
   interface Window {
@@ -45,17 +43,15 @@ export default function Header() {
   const router = useRouter();
   const [walletModal, setWalletModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
+
   const [defaultLayer, setDefaultLayer] = useState<string>("CITREA-mainnet");
 
-  const { connect, authState, onLogout, selectedLayerId, setSelectedLayerId } =
-    useAuth();
-  const id = authState?.layerId;
 
-  const { data: user } = useQuery({
-    queryKey: ["userData"],
-    queryFn: () => getUserById(authState?.userLayerId as string),
-    enabled: !!authState?.userLayerId,
-  });
+  const { authState, onLogout, selectedLayerId, setSelectedLayerId, getWalletForLayer } =
+    useAuth();
+  const id = authState?.userLayerId;
+
 
   const { data: dynamicLayers = [] } = useQuery({
     queryKey: ["layerData"],
@@ -104,13 +100,14 @@ export default function Header() {
     },
   ];
 
-  // Filter out Bitcoin Testnet from dynamicLayers
-  const filteredDynamicLayers = dynamicLayers.filter(
-    (layer) => !(layer.layer === "BITCOIN" && layer.network === "TESTNET")
-  );
+  // // Filter out Bitcoin Testnet from dynamicLayers
+  // const filteredDynamicLayers = dynamicLayers.filter(
+  //   (layer) => !(layer.layer === "BITCOIN" && layer.network === "TESTNET")
+  // );
 
   const layers: ExtendedLayerType[] = [
-    ...filteredDynamicLayers,
+    // ...filteredDynamicLayers,
+    ...dynamicLayers,
     ...staticLayers,
   ];
 
@@ -166,14 +163,6 @@ export default function Header() {
     }
   };
 
-  const handleConnect = () => {
-    if (selectedLayerId) {
-      connect();
-    } else {
-      toast.error("Please select a layer before connecting");
-    }
-  };
-
   const handleLogOut = () => {
     if (authState.authenticated) {
       onLogout();
@@ -202,6 +191,9 @@ export default function Header() {
     window.open("https://x.com/mintpark_io", "_blank");
   };
 
+  const currentWallet = selectedLayerId ? getWalletForLayer(selectedLayerId) : undefined;
+
+  //todo authenticated uyd dahij wallet holboh talaar evteihen UX bodoh
   return (
     <>
       <div className="h-[72px] w-full flex justify-center bg-neutral500 bg-opacity-50 backdrop-blur-4xl mt-5 rounded-3xl">
@@ -323,10 +315,8 @@ export default function Header() {
                       height={24}
                       className="object-cover rounded-full"
                     />
-                    <span className="text-neutral50 text-md font-medium">
-                      {user?.user?.address
-                        ? truncateAddress(user?.user?.address)
-                        : ""}
+                <span className="text-neutral50">
+                      {currentWallet && truncateAddress(currentWallet.address)}
                     </span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="flex flex-col gap-2 max-w-[215px] w-full p-2 border border-white4 bg-gray50 mt-4 rounded-2xl backdrop-blur-xl">
@@ -361,7 +351,7 @@ export default function Header() {
                 <Button
                   variant={"secondary"}
                   size={"lg"}
-                  onClick={handleConnect}
+                  onClick={() => setWalletModalOpen(true)}
                   className="min-w-[170px]"
                 >
                   Connect Wallet
@@ -477,6 +467,10 @@ export default function Header() {
       )}
 
       <ConnectWalletModal open={walletModal} onClose={toggleWalletModal} />
+      <WalletConnectionModal
+        open={walletModalOpen}
+        onClose={() => setWalletModalOpen(false)}
+      />
     </>
   );
 }

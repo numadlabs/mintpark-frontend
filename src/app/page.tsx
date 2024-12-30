@@ -6,7 +6,10 @@ import Layout from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import { useAuth } from "@/components/provider/auth-context-provider";
+import {
+  useAuth,
+  useWalletAuth,
+} from "@/components/provider/auth-context-provider";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";

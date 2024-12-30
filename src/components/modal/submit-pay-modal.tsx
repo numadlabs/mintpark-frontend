@@ -167,7 +167,6 @@ const SubmitPayModal: React.FC<ModalProps> = ({
         const params: MintCollectibleDataType = {
           // orderType: "COLLECTIBLE",
           file: files,
-          
           // name: name,
           // creator: creator,
           feeRate: 1,
