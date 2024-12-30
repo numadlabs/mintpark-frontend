@@ -333,9 +333,10 @@ const CollectionDetailPage = () => {
           </div>
 
           {/* Content */}
+
           <div
             className={`flex-grow ${
-              active ? "w-[calc(100%-280px)]" : "w-full"
+              active ? "w-[calc(100%-380px)]" : "sm:w-full"
             }`}
           >
             <AnimatePresence mode="wait">
@@ -361,30 +362,32 @@ const CollectionDetailPage = () => {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="ColCard">
-                  <div className="hidden md:flex h-[34px] pr-8 pb-4 pl-4">
-                    <div className="w-[324px]">
-                      <p className="font-medium text-md text-neutral200">
-                        Item
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-4 pl-5 w-full text-center">
-                      <p className="font-medium text-md text-neutral200">
-                        Price
-                      </p>
-                      <p className="font-medium text-md text-neutral200">
-                        Floor difference
-                      </p>
-                      <p className="font-medium text-md text-neutral200">
-                        Owner
-                      </p>
-                      <p className="font-medium text-md text-neutral200">
-                        Listed time
-                      </p>
+                <TabsContent value="ColCard" className="w-full">
+                  <div className="w-full overflow-x-auto border-b border-neutral400">
+                    <div className="w-full min-w-[1216px] h-[34px] pr-8 pb-4 pl-4">
+                      <div className="w-[324px]">
+                        <p className="font-medium text-md text-neutral200">
+                          Item
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-4 pl-5 w-full text-center">
+                        <p className="font-medium text-md text-neutral200">
+                          Price
+                        </p>
+                        <p className="font-medium text-md text-neutral200">
+                          Floor difference
+                        </p>
+                        <p className="font-medium text-md text-neutral200">
+                          Owner
+                        </p>
+                        <p className="font-medium text-md text-neutral200">
+                          Listed time
+                        </p>
+                      </div>
                     </div>
                   </div>
 
-                  <ScrollArea className="h-[754px] w-full border-t-2 border-neutral500">
+                  <ScrollArea className="h-[754px] w-full border-t-2 overflow-x-auto border-neutral500">
                     <div className="flex flex-col w-full pt-4 gap-4">
                       {collection?.collectibles?.map((item: any) => (
                         <div key={item.id}>

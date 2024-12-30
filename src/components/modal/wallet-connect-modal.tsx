@@ -31,11 +31,11 @@ interface WalletConnectionModalProps {
 export function WalletConnectionModal({
   open,
   onClose,
-  // layers,
-}: WalletConnectionModalProps) {
+}: // layers,
+WalletConnectionModalProps) {
   const [showLinkAlert, setShowLinkAlert] = useState(false);
   const [currentLayer, setCurrentLayer] = useState<ExtendedLayerType | null>(
-    null,
+    null
   );
 
   const {
@@ -113,7 +113,7 @@ export function WalletConnectionModal({
   const filteredLayers = [
     ...layers.filter(
       (layer: ExtendedLayerType) =>
-        !(layer.layer === "BITCOIN" && layer.network === "TESTNET"),
+        !(layer.layer === "BITCOIN" && layer.network === "TESTNET")
     ),
     ...staticLayers,
   ];
@@ -132,7 +132,7 @@ export function WalletConnectionModal({
     try {
       await connectWallet(layer.id, authState.authenticated);
       toast.success(
-        `${authState.authenticated ? "Linked" : "Connected to"} ${layer.layer}`,
+        `${authState.authenticated ? "Linked" : "Connected to"} ${layer.layer}`
       );
     } catch (error) {
       if (error instanceof Error && error.message === "WALLET_ALREADY_LINKED") {
@@ -140,7 +140,9 @@ export function WalletConnectionModal({
         setShowLinkAlert(true);
       } else {
         toast.error(
-          `Failed to ${authState.authenticated ? "link" : "connect"} wallet. ${error}`,
+          `Failed to ${
+            authState.authenticated ? "link" : "connect"
+          } wallet. ${error}`
         );
       }
     }
@@ -156,83 +158,81 @@ export function WalletConnectionModal({
     }
   };
 
-  //alert iin UI goy bolgoh
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-[425px] bg-neutral500 border border-white4">
-          <div className="grid gap-6 py-4">
+        <DialogContent className="w-[384px] max-h-[490px] bg-neutral500 border border-white4">
+          <div className="grid gap-6 text-center">
             <div className="flex flex-col gap-4">
-              <h2 className="text-2xl font-semibold text-neutral00">
-                Manage Wallets
+              <h2 className="text-xl font-bold text-neutral00">
+                Connect wallets
               </h2>
-              <p className="text-neutral50">
-                Connect or disconnect your wallets for each network
-              </p>
-            </div>
+              <p className="w-full h-[1px] bg-white8"></p>
+              <div className="flex justify-around gap-4">
+                {layers.map((layer: ExtendedLayerType) => {
+                  const connected = isWalletConnected(layer.id);
 
-            <div className="grid gap-4">
-              {layers.map((layer: ExtendedLayerType) => {
-                const connected = isWalletConnected(layer.id);
-
-                return (
-                  <Button
-                    key={layer.id}
-                    variant="outline"
-                    className={`flex items-center justify-between p-4 ${
-                      layer.comingSoon
-                        ? "opacity-50 cursor-not-allowed"
-                        : "hover:bg-white8"
-                    }`}
-                    onClick={() => !layer.comingSoon && handleConnection(layer)}
-                    disabled={layer.comingSoon || authState.loading}
-                  >
-                    <div className="flex items-center gap-3">
-                      <Image
-                        src={getLayerImage(layer.layer)}
-                        alt={layer.layer}
-                        width={32}
-                        height={32}
-                      />
-                      <div className="flex flex-col items-start">
-                        <span className="font-medium text-neutral00">
-                          {layer.layer}
-                        </span>
-                        <span className="text-sm text-neutral50">
-                          {layer.network}
-                        </span>
+                  return (
+                    <Button
+                      key={layer.id}
+                      variant="outline"
+                      className={`flex justify-center rounded-2xl border w-[104px] h-[56px] border-white8 px-2 py-3 ${
+                        layer.comingSoon
+                          ? "opacity-50 cursor-not-allowed"
+                          : "hover:bg-white8"
+                      }`}
+                      onClick={() =>
+                        !layer.comingSoon && handleConnection(layer)
+                      }
+                      disabled={layer.comingSoon || authState.loading}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Image
+                          src={getLayerImage(layer.layer)}
+                          alt={layer.layer}
+                          width={32}
+                          height={32}
+                        />
+                        {/* <div className="flex flex-col items-start">
+                          <span className="font-medium text-neutral00">
+                            {layer.layer}
+                          </span>
+                          <span className="text-sm text-neutral50">
+                            {layer.network}
+                          </span>
+                        </div> */}
                       </div>
-                    </div>
-                    {layer.comingSoon ? (
-                      <span className="text-xs bg-white8 px-2 py-1 rounded-full">
-                        Soon
-                      </span>
-                    ) : authState.loading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : connected ? (
-                      <span className="text-xs bg-green-500 text-white px-2 py-1 rounded-full">
-                        Connected
-                      </span>
-                    ) : null}
-                  </Button>
-                );
-              })}
+                      {layer.comingSoon ? (
+                        <span className="text-xs bg-white8 px-2 py-1 rounded-full">
+                          Soon
+                        </span>
+                      ) : authState.loading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : connected ? (
+                        <span className="text-xs absolute ml-24 mb-14 bg-green-500 text-white px-2 py-1 rounded-full">
+                          Connected
+                        </span>
+                      ) : null}
+                    </Button>
+                  );
+                })}
+              </div>
+              <p className="w-full h-[1px] bg-white8"></p>
             </div>
 
             <div className="flex flex-col gap-2 text-sm text-neutral50">
-              <p>
-                By connecting a wallet, you agree to our Terms of Service and
-                Privacy Policy
+              <p className="font-medium text-md text-neutral100">
+              Choose wallet to Log In or Sign Up
               </p>
             </div>
           </div>
         </DialogContent>
       </Dialog>
       <AlertDialog open={showLinkAlert} onOpenChange={setShowLinkAlert}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Wallet Already Linked</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent className="border rounded-2xl border-white8">
+          <AlertDialogHeader className="grid gap-4">
+            <AlertDialogTitle className="text-xl text-white font-bold">Wallet Already Linked</AlertDialogTitle>
+            <AlertDialogDescription className="font-semibold text-white text-md2">
               This wallet is already linked to another account. Would you like
               to move it to your current account instead?
             </AlertDialogDescription>

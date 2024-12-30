@@ -204,7 +204,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
             </div>
             <div className="flex-grow">
               <TabsContent value="ColCard">
-                <div className="hidden sm:grid grid-cols-4 gap-4 px-4 pb-4 text-neutral200 font-medium text-sm sm:text-md">
+                <div className="sm:grid grid-cols-4 gap-4 px-4 pb-4 text-neutral200 font-medium text-sm sm:text-md">
                   <div>Item</div>
                   <div className="text-center">Price</div>
                   <div className="text-center">Floor difference</div>
@@ -245,8 +245,8 @@ export default function Collections({ searchParams }: CollectionsProps) {
                     </div>
                   </div>
                 ) : (
-                  <div className="w-full">
-                    <div className="hidden sm:grid grid-cols-[2fr_3fr_2fr]  gap-6 px-4 pb-4 text-neutral200 font-medium text-sm sm:text-md">
+                  <div className="w-full min-w-[1216px]">
+                    <div className="sm:grid grid-cols-[2fr_3fr_2fr]  gap-6 px-4 pb-4 text-neutral200 font-medium text-sm sm:text-md">
                       <div>Name</div>
                       <div className="grid grid-cols-3 text-right">
                         <span>Floor price</span>
@@ -259,7 +259,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                         <span>Owners</span>
                       </div>
                     </div>
-                    <div className="h-[500px] sm:h-[600px] lg:h-[754px] border-t-2 border-neutral500 w-full overflow-y-auto">
+                    <div className="h-[500px] sm:h-[600px] lg:h-[754px] border-t-2 border-neutral500 w-full min-w-[1216px] overflow-y-auto">
                       <div className="flex flex-col gap-4 pt-4 ">
                         {collectionArray?.map((item: any) => (
                           <div key={item.id}>
