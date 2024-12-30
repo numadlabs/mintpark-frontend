@@ -86,7 +86,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       setWalletAddress(accounts[0].slice(0, 6) + "..." + accounts[0].slice(-4));
 
       const ethAmount = Number(BigInt(balance)) / 1e18;
-      const usdAmount = ethAmount *  citreaPrice; // Example rate - replace with real price feed
+      const usdAmount = ethAmount * citreaPrice; // Example rate - replace with real price feed
 
       setBalance((prev) => ({
         ...prev,
@@ -100,7 +100,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       setError(null);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Failed to fetch MetaMask balance",
+        e instanceof Error ? e.message : "Failed to fetch MetaMask balance"
       );
       console.error("MetaMask balance fetch error:", e);
     } finally {
@@ -143,7 +143,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       setError(null);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Failed to fetch Unisat balance",
+        e instanceof Error ? e.message : "Failed to fetch Unisat balance"
       );
       console.error("Unisat balance fetch error:", e);
     } finally {
@@ -185,7 +185,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       return () => {
         window.ethereum.removeListener(
           "accountsChanged",
-          handleAccountsChanged,
+          handleAccountsChanged
         );
         window.ethereum.removeListener("chainChanged", getMetaMaskBalance);
       };
@@ -249,24 +249,24 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
 
         {/* Main Content Container */}
         <div className="relative py-12  px-4 sm:px-6 md:px-8 lg:px-12 w-full z-10">
-          <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
+          <div className="flex flex-col md:flex-row gap-6 xl:gap-10 items-center md:items-end">
             {/* Profile Image */}
             <div className="flex-shrink-0">
               <Image
                 width={120}
                 height={120}
                 src={"/profile/proImg.png"}
-                className="aspect-square rounded-[200px] w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-[120px] lg:h-[120px]"
+                className="aspect-square rounded-[200px] w-24 h-24 md:w-[120px] md:h-[120px]"
                 alt="profile"
                 priority
               />
             </div>
 
             {/* Profile Content */}
-            <div className="flex-grow w-full flex flex-col gap-4 md:gap-5">
+            <div className="w-full flex flex-col gap-4 md:gap-5">
               {/* Wallet Address and Copy Button */}
               <div className="flex gap-4 items-center justify-center md:justify-start">
-                <span className="font-bold text-lg sm:text-profileTitle">
+                <span className="font-bold text-xl sm:text-profileTitle">
                   {formatWalletAddress(authState.address)}
                 </span>
                 <div className="relative">
@@ -287,22 +287,25 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
               </div>
 
               {/* Balance and Items Info */}
-              <div className="flex flex-col lg:flex-row gap-4 w-full">
+              <div className="flex flex-col md:flex-row gap-4 justify-between w-full">
                 {/* Wallet Balance Section */}
-                <div className="flex flex-wrap justify-center lg:justify-start gap-4">
+                <div className="flex gap-4">
                   {activeWallet === "metamask" && (
-                    <div className="rounded-2xl bg-white4 p-3 sm:p-4 flex gap-2 sm:gap-4 items-center">
-                      <Image
-                        src={"/wallets/Bitcoin.png"}
-                        alt="ethereum"
-                        width={24}
-                        height={24}
-                        className="h-5 w-5 sm:h-6 sm:w-6"
-                      />
-                      <p className="flex items-center font-bold text-lg sm:text-xl text-white">
-                        {formatPriceBtc(balance.eth)} cBTC
-                      </p>
-                      <p className="border-l border-l-white16 pl-2 sm:pl-4 h-5 text-neutral100 text-sm sm:text-md flex items-center">
+                    <div className="rounded-2xl bg-white4 p-3 sm:p-4 flex gap-4 items-center w-full justify-center md:justify-start">
+                      <div className="flex flex-row items-center gap-2 md:gap-3">
+                        <Image
+                          src={"/wallets/Bitcoin.png"}
+                          alt="ethereum"
+                          width={24}
+                          height={24}
+                          className="h-5 w-5 sm:h-6 sm:w-6"
+                        />
+                        <p className="flex items-center font-bold text-lg md:text-xl text-white">
+                          {formatPriceBtc(balance.eth)} cBTC
+                        </p>
+                      </div>
+                      <div className="h-6 w-[1px] bg-white16" />
+                      <p className="h-5 text-neutral100 text-md flex items-center">
                         ${formatPriceUsd(balance.usdEth)}
                       </p>
                     </div>
@@ -327,22 +330,18 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                 </div>
 
                 {/* Items Count Section */}
-                <div className="flex flex-wrap justify-center lg:justify-end gap-4 items-center lg:ml-auto">
-                  <span className="p-2 sm:pt-3 sm:pr-4 sm:pb-3 sm:pl-4 flex gap-2 sm:gap-3 rounded-xl text-neutral50 bg-white4 items-center">
+                <div className="grid grid-cols-2 md:flex flex-row md:flex-col lg:flex-row justify-center lg:justify-end gap-4 items-center lg:ml-auto">
+                  <span className="py-3 px-4 items-center justify-center flex gap-2 sm:gap-3 rounded-xl text-neutral50 bg-white4">
                     <p className="text-neutral100 text-sm sm:text-md font-medium">
                       Total items:
                     </p>
-                    <span className="text-sm sm:text-base">
-                      {params?.data.totalCount}
-                    </span>
+                    <span className="text-md">{params?.data.totalCount}</span>
                   </span>
-                  <span className="p-2 sm:pt-3 sm:pr-4 sm:pb-3 sm:pl-4 flex gap-2 sm:gap-3 rounded-xl text-neutral50 bg-white4 items-center">
+                  <span className="py-3 px-4 flex justify-center gap-2 sm:gap-3 rounded-xl text-neutral50 bg-white4 items-center">
                     <p className="text-neutral100 text-sm sm:text-md font-medium">
                       Listed items:
                     </p>
-                    <span className="text-sm sm:text-base">
-                      {params?.data.listCount}
-                    </span>
+                    <span className="text-md">{params?.data.listCount}</span>
                   </span>
                 </div>
               </div>

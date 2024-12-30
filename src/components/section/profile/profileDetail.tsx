@@ -8,12 +8,12 @@ const ProfileDetail = () => {
       <Tabs defaultValue={"Assets"}>
         <TabsList
           defaultValue={"Assets"}
-          className="grid grid-cols-2 gap-1 p-1 max-w-[196px] w-full border border-neutral400 rounded-xl"
+          className="grid grid-cols-2 gap-1 p-1 w-full md:w-[196px] border border-neutral400 rounded-xl"
         >
-          <TabsTrigger value="Assets" className="rounded-lg border-0">
+          <TabsTrigger value="Assets" className="rounded-lg border-0 w-full">
             Assets
           </TabsTrigger>
-          <TabsTrigger value="Activity" className="rounded-lg border-0">
+          <TabsTrigger value="Activity" className="rounded-lg border-0 w-full">
             Activity
           </TabsTrigger>
         </TabsList>

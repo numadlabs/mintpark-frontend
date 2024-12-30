@@ -17,7 +17,7 @@ const Assets = () => {
         authState?.userId as string,
         "asc",
         "recent",
-        authState.userLayerId as string,
+        authState.userLayerId as string
       ),
     enabled: !!authState?.userId,
   });

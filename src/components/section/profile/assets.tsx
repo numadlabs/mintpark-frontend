@@ -19,6 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import AssetsSkeleton from "@/components/atom/skeleton/my-asset-skeleton";
 import { CollectibleSchema } from "@/lib/validations/asset-validation";
+import { SearchNormal } from "iconsax-react";
 
 export default function Assets({ detail = false }: { detail: boolean }) {
   const [active, setActive] = useState(false);
@@ -34,7 +35,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
         authState?.userId as string,
         orderDirection,
         orderBy,
-        authState.userLayerId as string,
+        authState.userLayerId as string
       ),
     enabled: !!authState?.userId,
   });
@@ -67,11 +68,11 @@ export default function Assets({ detail = false }: { detail: boolean }) {
     <>
       <Tabs
         defaultValue="All"
-        className="mt-10 md:mt-20 mb-6 md:mb-10 border-hidden px-4 md:px-0"
+        className="mt-8 mb-6 md:mb-10 border-hidden px-4 md:px-0"
       >
-        <section className="flex flex-col md:flex-row justify-between mb-4 md:mb-7 gap-4">
+        <section className="flex flex-col md:flex-row gap-4 mb-4 md:mb-7">
           {detail ? (
-            <section className="flex flex-col md:flex-row justify-between w-full md:w-auto gap-4">
+            <section className="flex flex-row justify-between w-full gap-4">
               <Image
                 src={"/collections/sort.png"}
                 alt="burger"
@@ -83,31 +84,26 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                     : "bg-neutral600 border border-neutral500 hover:border-neutral400"
                 }`}
               />
-              <div className="flex w-full md:w-auto">
-                <Image
-                  src={"/collections/search.png"}
-                  alt="search"
-                  width={20}
-                  height={20}
-                  className="w-[17.08px] h-[17.08px] relative left-8 top-4"
-                />
+              <div className="relative w-full">
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                  <SearchNormal size={20} color="#D7D8D8" />
+                </div>
                 <input
-                  type="email"
-                  name="Search"
+                  type="text"
                   placeholder="Search ID"
-                  className="w-full md:w-[813px] h-[48px] rounded-xl pt-[14px] pr-[14px] pb-[14px] pl-10 bg-transparent border border-neutral400 text-neutral200"
+                  className="w-full h-12 rounded-xl pl-10 pr-4 bg-transparent border border-neutral400 text-neutral200"
                 />
               </div>
             </section>
           ) : null}
 
-          <div className="flex flex-col sm:flex-row justify-between text-center items-start w-full sm:w-[330px] h-auto sm:h-[48px] gap-4">
+          <div className="flex flex-row justify-between text-center items-start w-full md:w-[330px] h-auto sm:h-[48px] gap-4">
             <Select defaultValue="recent" onValueChange={handleOrderChange}>
-              <SelectTrigger className="w-full sm:w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50 pt-2 pr-4 pb-2 pl-5">
+              <SelectTrigger className="w-full md:w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50 pt-2 pr-4 pb-2 pl-5">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent
-                className="w-full sm:w-[225px] h-40 rounded-xl text-center bg-neutral600 bg-opacity-[70%] text-neutral50 border-neutral400"
+                className="w-full md:w-[225px] h-40 rounded-xl text-center bg-neutral600 bg-opacity-[70%] text-neutral50 border-neutral400"
                 style={{
                   backdropFilter: "blur(30px)",
                 }}
@@ -166,10 +162,10 @@ export default function Assets({ detail = false }: { detail: boolean }) {
 
             <TabsContent value="All">
               <div
-                className={`grid w-full gap-4 md:gap-10 ${
+                className={`grid w-full gap-4 sm:gap-6 ${
                   active
                     ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                    : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6"
                 }`}
               >
                 {data?.data?.collectibles?.map((item: CollectibleSchema) => (
@@ -181,40 +177,42 @@ export default function Assets({ detail = false }: { detail: boolean }) {
             </TabsContent>
 
             <TabsContent value="ColCard" className="w-full">
-              <div className="hidden md:flex h-[34px] pr-8 pb-4 pl-4">
-                <div className="w-[392px] h-[18px]">
-                  <p className="font-medium text-md text-neutral200">Item</p>
-                </div>
-                <div className="grid grid-cols-4 w-full text-center">
-                  <div className="max-w-[200px] h-[18px]">
-                    <p className="font-medium text-md text-neutral200 pr-7">
-                      Price
-                    </p>
+              <div className="w-full overflow-x-auto border-b border-neutral400">
+                <div className="min-w-[1216px] w-full border-b border-neutral400 flex h-[34px] pr-8 pb-4 pl-4">
+                  <div className="w-[392px] h-[18px]">
+                    <p className="font-medium text-md text-neutral200">Item</p>
                   </div>
-                  <div className="max-w-[200px] h-[18px]">
-                    <p className="font-medium text-md text-neutral200">
-                      Floor difference
-                    </p>
-                  </div>
-                  <div className="max-w-[200px] h-[18px]">
-                    <p className="font-medium text-md text-neutral200">Owner</p>
-                  </div>
-                  <div className="max-w-[200px] h-[18px]">
-                    <p className="font-medium text-md text-neutral200 pl-10">
-                      Listed time
-                    </p>
+                  <div className="grid grid-cols-4 w-full text-center">
+                    <div className="w-[200px] h-[18px]">
+                      <p className="font-medium text-md text-neutral200 pr-7">
+                        Price
+                      </p>
+                    </div>
+                    <div className="w-[200px] h-[18px]">
+                      <p className="font-medium text-md text-neutral200">
+                        Floor difference
+                      </p>
+                    </div>
+                    <div className="w-[200px] h-[18px]">
+                      <p className="font-medium text-md text-neutral200">
+                        Owner
+                      </p>
+                    </div>
+                    <div className="w-[200px] h-[18px]">
+                      <p className="font-medium text-md text-neutral200 pl-10">
+                        Listed time
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
-              <ScrollArea className="h-[500px] md:h-[754px] w-full border-t-2 border-neutral500">
-                <div className="flex flex-col w-full pt-4 gap-4">
-                  {data?.data?.collectibles?.map((item: CollectibleSchema) => (
-                    <div key={item.id}>
-                      <ColAssetsCards data={item} />
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
+              <div className="flex flex-col w-full pt-4 gap-4 overflow-x-auto">
+                {data?.data.collectibles.map((item: CollectibleSchema) => (
+                  <div key={item.id}>
+                    <ColAssetsCards data={item} />
+                  </div>
+                ))}
+              </div>
             </TabsContent>
           </section>
         )}
