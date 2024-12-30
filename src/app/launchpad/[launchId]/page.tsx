@@ -129,7 +129,6 @@ const Page = () => {
         }
       } else {
         // toast.error(response.error);
-        //Todo end error zaaj bna ene hesgiin code-iig neg harj vzeh
         toast.error(`Failed to create order ${response.error}`);
       }
     } catch (error) {
@@ -169,7 +168,6 @@ const Page = () => {
     return <LaunchDetailSkeleton />;
   }
 
-  //TODO: static url iig dynamic bolgoh
   const links = [
     // {
     //   url: "collectionsData?.websiteUrl",
@@ -227,10 +225,10 @@ const Page = () => {
             <LaunchDetailSkeleton />
           </div>
         ) : (
-          <div className="3xl:px-[312px]">
+          <div className="3xl:px-[312px] pt-[56px] md:pt-0">
             <section className="flex flex-col justify-center h-full sm:h-full  md2:h-[80vh] items-center md2:grid grid-cols-3 gap-8 lg:gap-8 mb-8">
               {/* Left Column - Collection Info */}
-              <div className="flex flex-col gap-8 sm:gap-6 order-2">
+              <div className="flex w-full flex-col gap-8 sm:gap-6 order-2">
                 <div className="block md2:hidden">
                   <div className="flex gap-4 sm:gap-8">
                     {links.length > 0 && (
@@ -259,7 +257,7 @@ const Page = () => {
                     {collectibles?.description}
                   </p>
                 </div>
-                <div className="space-y-2 sm:space-y-3 block md2:hidden">
+                <div className="space-y-2 sm:space-y-3  block md2:hidden">
                   <div className="flex h-2 sm:h-3 border rounded-lg border-1 border-neutral400">
                     <Progress
                       value={
@@ -309,7 +307,7 @@ const Page = () => {
               </div>
 
               {/* Middle Column - Image and Progress */}
-              <div className="flex flex-col gap-4 sm:gap-6  order-1 md2:order-2">
+              <div className="flex flex-col gap-4 sm:gap-6 w-full  order-1 md2:order-2">
                 <div className="w-full aspect-square relative rounded-2xl sm:rounded-3xl overflow-hidden max-h-[384px]">
                   <Carousel className="w-full justify-center items-center flex">
                     {collectibles?.logoKey && (
@@ -317,7 +315,7 @@ const Page = () => {
                         width={384}
                         height={384}
                         src={s3ImageUrlBuilder(collectibles?.logoKey)}
-                        className="object-cover"
+                        className="object-cover rounded-2xl"
                         alt={collectibles?.name || "Collection image"}
                       />
                     )}

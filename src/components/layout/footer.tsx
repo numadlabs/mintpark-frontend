@@ -15,8 +15,8 @@ export default function Footer() {
   const handleCollections = () => router.push("/collections");
 
   return (
-    <footer className="w-full mt-40 bg-background border-t border-t-neutral500">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <footer className="w-full max-w-[19200px] mt-40 bg-background border-t border-t-neutral500">
+      <div className="max-w-[1920px] mx-auto  px-4 sm:px-[112px] 3xl:px-10 py-16">
         <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Logo and Copyright Section */}
           <div className="flex flex-col justify-between">

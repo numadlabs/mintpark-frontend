@@ -51,7 +51,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
 
-//TODO: het urt code bn split hgerei
+
 
 const Ipfs = () => {
   const router = useRouter();

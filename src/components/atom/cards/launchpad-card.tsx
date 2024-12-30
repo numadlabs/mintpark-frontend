@@ -80,7 +80,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
 
   return (
     <Link href={`/launchpad/${id}`} className="block w-full">
-      <div className="relative h-[274px] w-[163.5px] md:h-[412px] md:w-[280px] flex flex-col backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-[20px] p-4 text-neutral00 transition-transform hover:scale-[1.02] duration-300">
+      <div className="relative h-[274px] w-[163.5px] sm:h-[298px] md:h-[412px] md:w-[280px] flex flex-col backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-[20px] p-4 text-neutral00 transition-transform hover:scale-[1.02] duration-300">
         <div className="relative w-full flex justify-center items-center">
           <Image
             width={248}
@@ -96,7 +96,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
         </div>
 
         <div className="flex-1 w-full text-neutral00">
-          <p className="pt-3 pb-3 text-lg sm:text-xl font-bold text-neutral50 line-clamp-2">
+          <p className="pt-3 pb-3 text-lg sm:text-lg md:text-lg font-bold text-neutral50 line-clamp-2">
             {data?.name}
           </p>
           <div className="flex justify-between py-2 sm:py-3">

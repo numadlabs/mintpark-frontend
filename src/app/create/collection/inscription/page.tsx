@@ -42,7 +42,7 @@ import { getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-//TODO: het urt code bn split hgerei
+
 
 const Inscription = () => {
   const router = useRouter();
