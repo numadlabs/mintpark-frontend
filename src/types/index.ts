@@ -78,12 +78,7 @@ export interface WalletConfig {
   name: string;
   icon: string;
   networks: {
-    [key: string]: {
-      chainId?: string;
-      rpcUrls?: string[];
-      blockExplorerUrls?: string[];
-      chainName?: string;
-    };
+    [key: string]: NetworkConfig;
   };
 }
 
@@ -94,10 +89,72 @@ export interface WalletState {
   walletType: "unisat" | "metamask" | null;
 }
 
+// export interface Layer {
+//   id: string;
+//   name: string;
+//   layer: string;
+//   network: string;
+//   currencyId: string;
+// }
+
+export interface NetworkConfig {
+  chainId?: string;
+  chainName?: string;
+  rpcUrls?: string[];
+  blockExplorerUrls?: string[];
+}
+
+export interface WalletStorage {
+  address: string;
+  signature: string;
+  walletType: "unisat" | "metamask";
+  layerId: string;
+  expiry: number;
+}
+
+export interface AuthTokens {
+  accessToken: string | null;
+  refreshToken: string | null;
+}
+
+export interface WalletState {
+  primaryWallet: {
+    address: string | null;
+    type: "EVM" | "BITCOIN" | null;
+    layerId: string | null;
+  };
+  secondaryWallet: {
+    address: string | null;
+    type: "EVM" | "BITCOIN" | null;
+    layerId: string | null;
+  };
+}
+
+export interface AuthState {
+  authenticated: boolean;
+  loading: boolean;
+  userLayerId: string | null;
+  userId: string | null;
+  layerId: string | null;
+  primaryWallet: WalletInfo;
+  secondaryWallet: WalletInfo;
+  // hasAlreadyBeenLinkedToAnotherUser
+  tokens: {
+    accessToken: string | null;
+    refreshToken: string | null;
+  };
+}
+
+export interface WalletInfo {
+  address: string | null;
+  type: "EVM" | "BITCOIN" | null;
+  layerId: string | null;
+}
+
 export interface Layer {
   id: string;
-  name: string;
+  type: "EVM" | "BITCOIN";
+  chainId?: string;
   layer: string;
   network: string;
-  currencyId: string;
 }

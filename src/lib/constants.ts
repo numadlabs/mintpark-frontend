@@ -23,6 +23,14 @@ export const USED_UTXO_KEY = "used_utxo";
 export const RPC_USERNAME = "coordinate";
 export const RPC_PASSWORD = "coordinate";
 
+export const STORAGE_KEYS = {
+  AUTH_TOKENS: "auth_tokens",
+  SELECTED_LAYER: "layerId",
+  WALLET_STATE: "wallet-storage",
+  ACCESS_TOKEN: "accessToken",
+  REFRESH_TOKEN: "refreshToken",
+} as const;
+
 export const FEERATE = 1;
 
 export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
@@ -31,7 +39,12 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
     name: "Bitcoin",
     icon: "/wallets/Bitcoin.png",
     networks: {
-      TESTNET: {},
+      TESTNET: {
+        chainId: "btc-testnet",
+        chainName: "Bitcoin Testnet",
+        rpcUrls: [],
+        blockExplorerUrls: ["https://testnet.blockchain.info"],
+      },
       MAINNET: {},
     },
   },

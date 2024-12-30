@@ -44,7 +44,7 @@ import OrderPayModal from "@/components/modal/order-pay-modal";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
-import { getLayerById, getUserById } from "@/lib/service/queryHelper";
+import { getLayerById } from "@/lib/service/queryHelper";
 import { Loader2 } from "lucide-react";
 import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { toast } from "sonner";
@@ -55,7 +55,7 @@ import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
 
 const Ipfs = () => {
   const router = useRouter();
-  const { authState, connect } = useAuth();
+  const { authState } = useAuth();
   const {
     imageFile,
     setImageFile,
@@ -131,9 +131,9 @@ const Ipfs = () => {
   };
 
   const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
+    queryKey: ["currentLayerData", authState.userLayerId],
+    queryFn: () => getLayerById(authState.userLayerId as string),
+    enabled: !!authState.userLayerId,
   });
 
   const calculateTimeUntilDate = (
@@ -191,7 +191,7 @@ const Ipfs = () => {
         priceForLaunchpad: 0.001,
         type: "INSCRIPTION",
         userLayerId: authState.userLayerId,
-        layerId: authState.layerId,
+        layerId: authState.userLayerId,
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });

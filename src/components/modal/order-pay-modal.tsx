@@ -75,8 +75,8 @@ const OrderPayModal: React.FC<ModalProps> = ({
 
   // const { data: feeRates = [] } = useQuery({
   //   queryKey: ["feeRateData"],
-  //   queryFn: () => getFeeRates(authState?.layerId as string),
-  //   enabled: !!authState?.layerId,
+  //   queryFn: () => getFeeRates(authState?.userLayerId as string),
+  //   enabled: !!authState?.userLayerId,
   // });
 
   const { data: currentLayer } = useQuery({
@@ -434,8 +434,8 @@ export default OrderPayModal;
 
 //   const { data: feeRates = [] } = useQuery({
 //     queryKey: ["feeRateData"],
-//     queryFn: () => getFeeRates(authState?.layerId as string),
-//     enabled: !!authState?.layerId,
+//     queryFn: () => getFeeRates(authState?.userLayerId as string),
+//     enabled: !!authState?.userLayerId,
 //   });
 
 //   const { data: currentLayer } = useQuery({
