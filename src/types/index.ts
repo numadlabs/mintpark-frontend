@@ -136,8 +136,8 @@ export interface AuthState {
   userLayerId: string | null;
   userId: string | null;
   layerId: string | null;
-  primaryWallet: WalletInfo;
-  secondaryWallet: WalletInfo;
+  // primaryWallet: WalletInfo;
+  // secondaryWallet: WalletInfo;
   // hasAlreadyBeenLinkedToAnotherUser
   tokens: {
     accessToken: string | null;
@@ -153,8 +153,8 @@ export interface WalletInfo {
 
 export interface Layer {
   id: string;
-  type: "EVM" | "BITCOIN";
-  chainId?: string;
+  name: string;
   layer: string;
   network: string;
+  currencyId: string;
 }

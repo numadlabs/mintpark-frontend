@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { CollectionDataType } from "@/lib/types";
-import { s3ImageUrlBuilder } from "@/lib/utils";
+import { getPriceData, s3ImageUrlBuilder } from "@/lib/utils";
 import { useAuth } from "@/components/provider/auth-context-provider";
 
 interface CardProps {
@@ -10,8 +10,9 @@ interface CardProps {
 }
 
 const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
-  const { citreaPrice } = useAuth();
+  const citreaPrice = getPriceData();
 
+  //todo end bas function uldsen bn
   const formatPrice = (price: number) => {
     return price.toLocaleString("en-US", {
       minimumFractionDigits: 0,

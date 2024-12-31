@@ -101,6 +101,7 @@ const Page = () => {
         userLayerId: authState.userLayerId,
         feeRate: 1,
       });
+
       if (response && response.success) {
         const orderId = response.data.order.id;
         launchItemId = response.data.launchItem.id;
@@ -111,6 +112,8 @@ const Page = () => {
           response.data.order.fundingAddress,
           Math.ceil(response.data.order.fundingAmount)
         );
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
         // }
         if (orderId) {
           orderRes = await confirmOrderMutation({

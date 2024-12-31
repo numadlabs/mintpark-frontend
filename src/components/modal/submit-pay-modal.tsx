@@ -61,7 +61,9 @@ const SubmitPayModal: React.FC<ModalProps> = ({
   navigateToCreate,
 }) => {
   const router = useRouter();
-  const { authState } = useAuth();
+  const { authState, getAddressforCurrentLayer } = useAuth();
+  const connectedWallet = getAddressforCurrentLayer();
+
   const [feeRate, setFeeRate] = useState<number>(1);
   const [data, setData] = useState<string>("");
   const [inscribeModal, setInscribeModal] = useState(false);
@@ -250,7 +252,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
               Wallet address to receive the assets:
             </p>
             <p className="text-lg text-neutral50 font-medium">
-              {authState?.address}
+              {connectedWallet?.address}
             </p>
           </div>
           <div className="h-[1px] w-full bg-white8" />

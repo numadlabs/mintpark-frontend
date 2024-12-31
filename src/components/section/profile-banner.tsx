@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "../provider/auth-context-provider";
 import { AssetSchema } from "@/lib/validations/asset-validation";
-import { formatPriceBtc, formatPriceUsd } from "@/lib/utils";
+import { formatPriceBtc, formatPriceUsd, getPriceData } from "@/lib/utils";
 
 interface CardProps {
   params: AssetSchema;
@@ -29,8 +29,11 @@ declare global {
 }
 
 const ProfileBanner: React.FC<CardProps> = ({ params }) => {
-  const { authState, citreaPrice } = useAuth();
-  const [walletAddress, setWalletAddress] = useState<string>("Connect Wallet");
+  const { authState, getAddressforCurrentLayer } = useAuth();
+  const citreaPrice = getPriceData();
+  const connectedWallet = getAddressforCurrentLayer();
+
+  // const [walletAddress, setWalletAddress] = useState<string>("Connect Wallet");
   const [balance, setBalance] = useState<WalletBalance>({
     eth: 0,
     btc: 0,
@@ -44,8 +47,9 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
   >(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  //todo ygd connect wallet gj default ogood bn?
   const resetWalletState = () => {
-    setWalletAddress("Connect Wallet");
+    // setWalletAddress("Connect Wallet");
     setRawAddress("");
     setBalance({
       eth: 0,
@@ -83,7 +87,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       });
 
       setRawAddress(accounts[0]);
-      setWalletAddress(accounts[0].slice(0, 6) + "..." + accounts[0].slice(-4));
+      // setWalletAddress(accounts[0].slice(0, 6) + "..." + accounts[0].slice(-4));
 
       const ethAmount = Number(BigInt(balance)) / 1e18;
       const usdAmount = ethAmount * citreaPrice; // Example rate - replace with real price feed
@@ -100,7 +104,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       setError(null);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Failed to fetch MetaMask balance"
+        e instanceof Error ? e.message : "Failed to fetch MetaMask balance",
       );
       console.error("MetaMask balance fetch error:", e);
     } finally {
@@ -121,7 +125,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       if (!accounts[0]) throw new Error("No account found");
 
       setRawAddress(accounts[0]);
-      setWalletAddress(accounts[0].slice(0, 6) + "..." + accounts[0].slice(-4));
+      // setWalletAddress(accounts[0].slice(0, 6) + "..." + accounts[0].slice(-4));
 
       const res = await window.unisat.getBalance();
       if (!res || typeof res.total !== "number") {
@@ -143,7 +147,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
       setError(null);
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Failed to fetch Unisat balance"
+        e instanceof Error ? e.message : "Failed to fetch Unisat balance",
       );
       console.error("Unisat balance fetch error:", e);
     } finally {
@@ -161,70 +165,70 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
     }
   };
 
-  useEffect(() => {
-    const setupMetaMaskListeners = () => {
-      if (!window.ethereum) return;
-      if (authState.walletType == "metamask") {
-        getMetaMaskBalance();
-      }
+  // useEffect(() => {
+  //   const setupMetaMaskListeners = () => {
+  //     if (!window.ethereum) return;
+  //     if (authState.walletType == "metamask") {
+  //       getMetaMaskBalance();
+  //     }
 
-      const handleAccountsChanged = (accounts: string[]) => {
-        if (activeWallet === "metamask") {
-          if (accounts.length === 0) {
-            resetWalletState();
-            setActiveWallet(null);
-          } else {
-            getMetaMaskBalance();
-          }
-        }
-      };
+  //     const handleAccountsChanged = (accounts: string[]) => {
+  //       if (activeWallet === "metamask") {
+  //         if (accounts.length === 0) {
+  //           resetWalletState();
+  //           setActiveWallet(null);
+  //         } else {
+  //           getMetaMaskBalance();
+  //         }
+  //       }
+  //     };
 
-      window.ethereum.on("accountsChanged", handleAccountsChanged);
-      window.ethereum.on("chainChanged", getMetaMaskBalance);
+  //     window.ethereum.on("accountsChanged", handleAccountsChanged);
+  //     window.ethereum.on("chainChanged", getMetaMaskBalance);
 
-      return () => {
-        window.ethereum.removeListener(
-          "accountsChanged",
-          handleAccountsChanged
-        );
-        window.ethereum.removeListener("chainChanged", getMetaMaskBalance);
-      };
-    };
+  //     return () => {
+  //       window.ethereum.removeListener(
+  //         "accountsChanged",
+  //         handleAccountsChanged,
+  //       );
+  //       window.ethereum.removeListener("chainChanged", getMetaMaskBalance);
+  //     };
+  //   };
 
-    const setupUnisatListeners = () => {
-      if (!window.unisat) return;
-      if (authState.walletType == "unisat") {
-        getUnisatBalance();
-      }
+  //   const setupUnisatListeners = () => {
+  //     if (!window.unisat) return;
+  //     if (authState.walletType == "unisat") {
+  //       getUnisatBalance();
+  //     }
 
-      const handleAccountsChanged = (accounts: string[]) => {
-        if (activeWallet === "unisat") {
-          if (accounts.length === 0) {
-            resetWalletState();
-            setActiveWallet(null);
-          } else {
-            getUnisatBalance();
-          }
-        }
-      };
+  //     const handleAccountsChanged = (accounts: string[]) => {
+  //       if (activeWallet === "unisat") {
+  //         if (accounts.length === 0) {
+  //           resetWalletState();
+  //           setActiveWallet(null);
+  //         } else {
+  //           getUnisatBalance();
+  //         }
+  //       }
+  //     };
 
-      window.unisat.on("accountsChanged", handleAccountsChanged);
-      window.unisat.on("networkChanged", getUnisatBalance);
+  //     window.unisat.on("accountsChanged", handleAccountsChanged);
+  //     window.unisat.on("networkChanged", getUnisatBalance);
 
-      return () => {
-        window.unisat.removeListener("accountsChanged", handleAccountsChanged);
-        window.unisat.removeListener("networkChanged", getUnisatBalance);
-      };
-    };
+  //     return () => {
+  //       window.unisat.removeListener("accountsChanged", handleAccountsChanged);
+  //       window.unisat.removeListener("networkChanged", getUnisatBalance);
+  //     };
+  //   };
 
-    const cleanupMetaMask = setupMetaMaskListeners();
-    const cleanupUnisat = setupUnisatListeners();
+  //   const cleanupMetaMask = setupMetaMaskListeners();
+  //   const cleanupUnisat = setupUnisatListeners();
 
-    return () => {
-      if (cleanupMetaMask) cleanupMetaMask();
-      if (cleanupUnisat) cleanupUnisat();
-    };
-  }, [activeWallet, authState.walletType]);
+  //   return () => {
+  //     if (cleanupMetaMask) cleanupMetaMask();
+  //     if (cleanupUnisat) cleanupUnisat();
+  //   };
+  // }, [activeWallet, authState.walletType]);
 
   return (
     <section className="mt-[43.5px] w-full">
@@ -267,7 +271,8 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
               {/* Wallet Address and Copy Button */}
               <div className="flex gap-4 items-center justify-center md:justify-start">
                 <span className="font-bold text-xl sm:text-profileTitle">
-                  {formatWalletAddress(authState.address)}
+                  {connectedWallet &&
+                    formatWalletAddress(connectedWallet.address)}
                 </span>
                 <div className="relative">
                   <Image

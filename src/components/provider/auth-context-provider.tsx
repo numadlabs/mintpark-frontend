@@ -545,30 +545,12 @@ import React, { createContext, useContext, useEffect } from "react";
 import useWalletStore, {
   ConnectedWallet,
   Wallet,
+  WalletStore,
 } from "@/lib/hooks/useWalletAuth";
 import { AuthState, AuthTokens, Layer } from "@/types";
 import { initializeAxios } from "@/lib/axios";
 
-interface AuthContextType {
-  authState: AuthState;
-  selectedLayerId: string | null;
-  setSelectedLayerId: (id: string) => void;
-  connectPrimary: () => Promise<void>;
-  connectSecondary: () => Promise<void>;
-  switchWallets: () => Promise<void>;
-  onLogout: () => void;
-  setLayers: (layers: Layer[]) => void;
-
-  connectedWallets: ConnectedWallet[];
-  connectWallet: (layerId: string, isLinking: boolean) => Promise<void>;
-  disconnectWallet: (layerId: string) => Promise<void>;
-  isWalletConnected: (layerId: string) => boolean;
-  getWalletForLayer: (layerId: string) => ConnectedWallet | undefined;
-  proceedWithLinking:() => void;
-
-}
-
-const WalletAuthContext = createContext<AuthContextType | null>(null);
+const WalletAuthContext = createContext<WalletStore | null>(null);
 
 export const WalletAuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -579,13 +561,15 @@ export const WalletAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     initializeAxios(store.onLogout);
   }, []);
 
-  const value: AuthContextType = {
+  const value: WalletStore = {
     authState: store.authState,
     selectedLayerId: store.selectedLayerId,
     setSelectedLayerId: store.setSelectedLayerId,
-    connectPrimary: store.connectPrimary,
-    connectSecondary: store.connectSecondary,
-    switchWallets: store.switchWallets,
+    //todo layers iig store context dotroos ashiglah. API req 1 l udaa yvuulj hadgalj avna
+    layers: store.layers,
+    // connectPrimary: store.connectPrimary,
+    // connectSecondary: store.connectSecondary,
+    // switchWallets: store.switchWallets,
     onLogout: store.onLogout,
     setLayers: store.setLayers,
 
@@ -594,6 +578,7 @@ export const WalletAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     disconnectWallet: store.disconnectWallet,
     isWalletConnected: store.isWalletConnected,
     getWalletForLayer: store.getWalletForLayer,
+    getAddressforCurrentLayer: store.getAddressforCurrentLayer,
     proceedWithLinking: store.proceedWithLinking,
   };
 

@@ -39,11 +39,7 @@ export function WalletConnectionModal({
   );
 
   const {
-    connectPrimary,
-    connectSecondary,
     authState,
-    selectedLayerId,
-    setSelectedLayerId,
     setLayers,
 
     proceedWithLinking,

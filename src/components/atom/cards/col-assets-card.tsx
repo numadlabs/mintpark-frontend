@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
+import { getPriceData, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { CollectibleSchema } from "@/lib/validations/asset-validation";
@@ -10,13 +10,14 @@ interface cardProps {
 }
 
 const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
-  const { citreaPrice } = useAuth();
+  const citreaPrice = getPriceData();
 
+  //todo end function uud uldsen bn
   const TruncatedAddress = ({ address }: { address: string | null }) => {
     if (!address) return <span>-</span>;
     return (
       <span title={address}>{`${address.slice(0, 4)}...${address.slice(
-        -4
+        -4,
       )}`}</span>
     );
   };

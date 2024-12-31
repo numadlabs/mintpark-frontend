@@ -8,7 +8,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   useAuth,
-  useWalletAuth,
 } from "@/components/provider/auth-context-provider";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -27,7 +26,6 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import { Add } from "iconsax-react";
 
 interface FormData {
   name: string;
