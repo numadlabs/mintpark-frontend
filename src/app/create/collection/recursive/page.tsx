@@ -53,7 +53,7 @@ import AddTraitsModal from "@/components/modal/add-traits-modal";
 
 const Recursive = () => {
   const router = useRouter();
-  const { authState, connect } = useAuth();
+  const { authState } = useAuth();
   const {
     imageFile,
     setImageFile,
@@ -146,7 +146,7 @@ const Recursive = () => {
 
   const calculateTimeUntilDate = (
     dateString: string,
-    timeString: string,
+    timeString: string
   ): number => {
     try {
       // Input validation
@@ -344,7 +344,7 @@ const Recursive = () => {
           const currentBatchFiles = files.slice(start, end);
 
           const names = currentBatchFiles.map(
-            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
+            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
           );
 
           const launchItemsData: CreateLaunchParams = {
@@ -371,7 +371,7 @@ const Recursive = () => {
     } catch (error) {
       console.error("Error creating launch:", error);
       toast.error(
-        error instanceof Error ? error.message : "Error creating launch",
+        error instanceof Error ? error.message : "Error creating launch"
       );
     } finally {
       setIsLoading(false);
@@ -412,7 +412,7 @@ const Recursive = () => {
         if (response && response.success) {
           await window.unisat.sendBitcoin(
             response.data.order.fundingAddress,
-            Math.ceil(response.data.order.fundingAmount * 10 ** 8),
+            Math.ceil(response.data.order.fundingAmount * 10 ** 8)
           );
 
           const orderID = response.data.order.id;
@@ -424,7 +424,7 @@ const Recursive = () => {
             const currentBatchFiles = files.slice(start, end);
 
             const names = currentBatchFiles.map(
-              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
+              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
             );
             const params: InscriptionCollectible = {
               files: currentBatchFiles,

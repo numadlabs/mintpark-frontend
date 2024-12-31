@@ -32,7 +32,7 @@ export interface ConnectedWallet {
   network: string;
 }
 
-interface WalletStore {
+export interface WalletStore {
   connectedWallets: ConnectedWallet[];
   authState: AuthState;
   layers: Layer[];
@@ -40,10 +40,6 @@ interface WalletStore {
 
   // Actions
   setSelectedLayerId: (id: string) => void;
-  setTokens: (tokens: { accessToken: string; refreshToken: string }) => void;
-  clearTokens: () => void;
-  connectPrimary: () => Promise<void>;
-  connectSecondary: () => Promise<void>;
 
   connectWallet: (layerId: string, isLinking?: boolean) => Promise<void>;
   disconnectWallet: (layerId: string) => Promise<void>;
@@ -51,10 +47,8 @@ interface WalletStore {
   getWalletForLayer: (layerId: string) => ConnectedWallet | undefined;
 
   setLayers: (layers: Layer[]) => void;
-
-  switchWallets: () => Promise<void>;
-  proceedWithLinking:() => void;
-
+  proceedWithLinking: () => void;
+  getAddressforCurrentLayer: () => ConnectedWallet | undefined;
   onLogout: () => void;
 }
 
@@ -70,8 +64,8 @@ const initialAuthState: AuthState = {
   userLayerId: null,
   layerId: null,
   userId: null,
-  primaryWallet: initialWalletInfo,
-  secondaryWallet: initialWalletInfo,
+  // primaryWallet: initialWalletInfo,
+  // secondaryWallet: initialWalletInfo,
   tokens: {
     accessToken: null,
     refreshToken: null,
@@ -121,31 +115,31 @@ const useWalletStore = create<WalletStore>()(
       setSelectedLayerId: (id: string) => {
         set({ selectedLayerId: id });
       },
-      setTokens: (tokens) => {
-        set((state) => ({
-          authState: {
-            ...state.authState,
-            tokens: {
-              accessToken: tokens.accessToken,
-              refreshToken: tokens.refreshToken,
-            },
-          },
-        }));
-        localStorage.setItem("auth_tokens", JSON.stringify(tokens));
-      },
+      // setTokens: (tokens) => {
+      //   set((state) => ({
+      //     authState: {
+      //       ...state.authState,
+      //       tokens: {
+      //         accessToken: tokens.accessToken,
+      //         refreshToken: tokens.refreshToken,
+      //       },
+      //     },
+      //   }));
+      //   localStorage.setItem("auth_tokens", JSON.stringify(tokens));
+      // },
 
-      clearTokens: () => {
-        set((state) => ({
-          authState: {
-            ...state.authState,
-            tokens: {
-              accessToken: null,
-              refreshToken: null,
-            },
-          },
-        }));
-        localStorage.removeItem("auth_tokens");
-      },
+      // clearTokens: () => {
+      //   set((state) => ({
+      //     authState: {
+      //       ...state.authState,
+      //       tokens: {
+      //         accessToken: null,
+      //         refreshToken: null,
+      //       },
+      //     },
+      //   }));
+      //   localStorage.removeItem("auth_tokens");
+      // },
 
       connectWallet: async (layerId: string, isLinking: boolean = false) => {
         const { layers, connectedWallets, authState } = get();
@@ -237,6 +231,8 @@ const useWalletStore = create<WalletStore>()(
               authenticated: true,
               userLayerId: response.data.userLayer.id,
               userId: response.data.user.id,
+              //todo current layer id yahu
+              layerId,
               tokens: response.data.tokens,
               loading: false,
             },
@@ -332,172 +328,180 @@ const useWalletStore = create<WalletStore>()(
         const { connectedWallets } = get();
         return connectedWallets.find((w) => w.layerId === layerId);
       },
-
-      connectPrimary: async () => {
-        const { selectedLayerId } = get();
+      getAddressforCurrentLayer: () => {
+        const { selectedLayerId, connectedWallets } = get();
         if (!selectedLayerId) throw new Error("No layer selected");
+        const layer = get().layers.find((l) => l.id === selectedLayerId);
+        if (!layer) throw new Error("Layer not found");
 
-        set((state) => ({
-          authState: { ...state.authState, loading: true },
-        }));
-
-        try {
-          const layer = get().layers.find((l) => {
-            return l.id === selectedLayerId;
-          });
-          console.log("🚀 ~ connectPrimary: ~ layer:", layer);
-          if (!layer) throw new Error("Layer not found");
-
-          let address: string;
-          let message: string;
-          let pubkey: string | undefined;
-          if (layer.layer === "CITREA") {
-            address = await connectMetamask(layer.chainId);
-          } else if (layer.layer === "BITCOIN") {
-            address = await connectUnisat();
-          } else {
-            throw new Error("Unsupported layer type");
-          }
-
-          const msgResponse = await generateMessageHandler({ address });
-          message = msgResponse.data.message;
-          let signedMessage = await window.ethereum.request({
-            method: "personal_sign",
-            params: [message, address],
-          });
-
-          const response = await loginHandler({
-            address: address,
-            layerId: selectedLayerId,
-            signedMessage,
-            pubkey,
-          });
-          console.log("login res", response);
-          saveToken(response.data.auth);
-
-          set((state) => ({
-            authState: {
-              ...state.authState,
-              authenticated: true,
-              layerId: layer.id,
-              userLayerId: response.data.userLayer.id,
-              userId: response.data.user.id,
-              primaryWallet: {
-                address,
-                type: layer.type,
-                layerId: selectedLayerId,
-              },
-              tokens: response.data.tokens,
-              loading: false,
-            },
-          }));
-        } catch (error) {
-          set((state) => ({
-            authState: { ...state.authState, loading: false },
-          }));
-          console.error("Primary wallet connection failed:", error);
-          throw error;
-        }
+        return connectedWallets.find((w) => w.layerId === layer.id);
       },
 
-      connectSecondary: async () => {
-        const { selectedLayerId, authState } = get();
-        if (!selectedLayerId) throw new Error("No layer selected");
-        if (!authState.tokens.accessToken)
-          throw new Error("No access token found");
+      // connectPrimary: async () => {
+      //   const { selectedLayerId } = get();
+      //   if (!selectedLayerId) throw new Error("No layer selected");
 
-        set((state) => ({
-          authState: { ...state.authState, loading: true },
-        }));
+      //   set((state) => ({
+      //     authState: { ...state.authState, loading: true },
+      //   }));
 
-        try {
-          const layer = get().layers.find((l) => l.id === selectedLayerId);
-          if (!layer) throw new Error("Layer not found");
+      //   try {
+      //     const layer = get().layers.find((l) => {
+      //       return l.id === selectedLayerId;
+      //     });
+      //     console.log("🚀 ~ connectPrimary: ~ layer:", layer);
+      //     if (!layer) throw new Error("Layer not found");
 
-          let address: string;
-          if (layer.type === "EVM") {
-            address = await connectMetamask(layer.chainId);
-          } else if (layer.type === "BITCOIN") {
-            address = await connectUnisat();
-          } else {
-            throw new Error("Unsupported layer type");
-          }
+      //     let address: string;
+      //     let message: string;
+      //     let pubkey: string | undefined;
+      //     if (layer.layer === "CITREA") {
+      //       address = await connectMetamask(layer.chainId);
+      //     } else if (layer.layer === "BITCOIN") {
+      //       address = await connectUnisat();
+      //     } else {
+      //       throw new Error("Unsupported layer type");
+      //     }
 
-          const response = await axios.post(
-            "/api/auth/connect-secondary",
-            {
-              address,
-              layerId: selectedLayerId,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${authState.tokens.accessToken}`,
-              },
-            },
-          );
+      //     const msgResponse = await generateMessageHandler({ address });
+      //     message = msgResponse.data.message;
+      //     let signedMessage = await window.ethereum.request({
+      //       method: "personal_sign",
+      //       params: [message, address],
+      //     });
 
-          set((state) => ({
-            authState: {
-              ...state.authState,
-              secondaryWallet: {
-                address,
-                type: layer.type,
-                layerId: selectedLayerId,
-              },
-              loading: false,
-            },
-          }));
-        } catch (error) {
-          set((state) => ({
-            authState: { ...state.authState, loading: false },
-          }));
-          console.error("Secondary wallet connection failed:", error);
-          throw error;
-        }
-      },
-      switchWallets: async () => {
-        const { authState } = get();
-        if (!authState.secondaryWallet.address) {
-          throw new Error("No secondary wallet to switch with");
-        }
+      //     const response = await loginHandler({
+      //       address: address,
+      //       layerId: selectedLayerId,
+      //       signedMessage,
+      //       pubkey,
+      //     });
+      //     console.log("login res", response);
+      //     saveToken(response.data.auth);
 
-        set((state) => ({
-          authState: { ...state.authState, loading: true },
-        }));
+      //     set((state) => ({
+      //       authState: {
+      //         ...state.authState,
+      //         authenticated: true,
+      //         layerId: layer.id,
+      //         userLayerId: response.data.userLayer.id,
+      //         userId: response.data.user.id,
+      //         primaryWallet: {
+      //           address,
+      //           type: layer.type,
+      //           layerId: selectedLayerId,
+      //         },
+      //         tokens: response.data.tokens,
+      //         loading: false,
+      //       },
+      //     }));
+      //   } catch (error) {
+      //     set((state) => ({
+      //       authState: { ...state.authState, loading: false },
+      //     }));
+      //     console.error("Primary wallet connection failed:", error);
+      //     throw error;
+      //   }
+      // },
 
-        try {
-          const response = await axios.post(
-            "/api/auth/switch-wallets",
-            {
-              primaryAddress: authState.secondaryWallet.address,
-              primaryLayerId: authState.secondaryWallet.layerId,
-              secondaryAddress: authState.primaryWallet.address,
-              secondaryLayerId: authState.primaryWallet.layerId,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${authState.tokens.accessToken}`,
-              },
-            },
-          );
+      // connectSecondary: async () => {
+      //   const { selectedLayerId, authState } = get();
+      //   if (!selectedLayerId) throw new Error("No layer selected");
+      //   if (!authState.tokens.accessToken)
+      //     throw new Error("No access token found");
 
-          set((state) => ({
-            authState: {
-              ...state.authState,
-              primaryWallet: state.authState.secondaryWallet,
-              secondaryWallet: state.authState.primaryWallet,
-              tokens: response.data.tokens,
-              loading: false,
-            },
-          }));
-        } catch (error) {
-          set((state) => ({
-            authState: { ...state.authState, loading: false },
-          }));
-          console.error("Wallet switch failed:", error);
-          throw error;
-        }
-      },
+      //   set((state) => ({
+      //     authState: { ...state.authState, loading: true },
+      //   }));
+
+      //   try {
+      //     const layer = get().layers.find((l) => l.id === selectedLayerId);
+      //     if (!layer) throw new Error("Layer not found");
+
+      //     let address: string;
+      //     if (layer.type === "EVM") {
+      //       address = await connectMetamask(layer.chainId);
+      //     } else if (layer.type === "BITCOIN") {
+      //       address = await connectUnisat();
+      //     } else {
+      //       throw new Error("Unsupported layer type");
+      //     }
+
+      //     const response = await axios.post(
+      //       "/api/auth/connect-secondary",
+      //       {
+      //         address,
+      //         layerId: selectedLayerId,
+      //       },
+      //       {
+      //         headers: {
+      //           Authorization: `Bearer ${authState.tokens.accessToken}`,
+      //         },
+      //       },
+      //     );
+
+      //     set((state) => ({
+      //       authState: {
+      //         ...state.authState,
+      //         secondaryWallet: {
+      //           address,
+      //           type: layer.type,
+      //           layerId: selectedLayerId,
+      //         },
+      //         loading: false,
+      //       },
+      //     }));
+      //   } catch (error) {
+      //     set((state) => ({
+      //       authState: { ...state.authState, loading: false },
+      //     }));
+      //     console.error("Secondary wallet connection failed:", error);
+      //     throw error;
+      //   }
+      // },
+      // switchWallets: async () => {
+      //   const { authState } = get();
+      //   if (!authState.secondaryWallet.address) {
+      //     throw new Error("No secondary wallet to switch with");
+      //   }
+
+      //   set((state) => ({
+      //     authState: { ...state.authState, loading: true },
+      //   }));
+
+      //   try {
+      //     const response = await axios.post(
+      //       "/api/auth/switch-wallets",
+      //       {
+      //         primaryAddress: authState.secondaryWallet.address,
+      //         primaryLayerId: authState.secondaryWallet.layerId,
+      //         secondaryAddress: authState.primaryWallet.address,
+      //         secondaryLayerId: authState.primaryWallet.layerId,
+      //       },
+      //       {
+      //         headers: {
+      //           Authorization: `Bearer ${authState.tokens.accessToken}`,
+      //         },
+      //       },
+      //     );
+
+      //     set((state) => ({
+      //       authState: {
+      //         ...state.authState,
+      //         primaryWallet: state.authState.secondaryWallet,
+      //         secondaryWallet: state.authState.primaryWallet,
+      //         tokens: response.data.tokens,
+      //         loading: false,
+      //       },
+      //     }));
+      //   } catch (error) {
+      //     set((state) => ({
+      //       authState: { ...state.authState, loading: false },
+      //     }));
+      //     console.error("Wallet switch failed:", error);
+      //     throw error;
+      //   }
+      // },
 
       onLogout: () => {
         set({

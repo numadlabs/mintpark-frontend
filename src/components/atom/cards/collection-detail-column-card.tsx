@@ -1,6 +1,11 @@
 import React from "react";
 import Image from "next/image";
-import { formatPrice, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
+import {
+  formatPrice,
+  getPriceData,
+  ordinalsImageCDN,
+  s3ImageUrlBuilder,
+} from "@/lib/utils";
 import Link from "next/link";
 import { useAuth } from "@/components/provider/auth-context-provider";
 
@@ -26,7 +31,7 @@ const TruncatedAddress: React.FC<{ address: string | null }> = ({
   if (!address) return <span>-</span>;
   return (
     <span title={address}>{`${address.slice(0, 4)}...${address.slice(
-      -4
+      -4,
     )}`}</span>
   );
 };
@@ -40,7 +45,7 @@ const getDaysAgo = (createdAt: string) => {
 };
 
 const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
-  const { citreaPrice } = useAuth();
+  const citreaPrice = getPriceData();
   const daysAgo = getDaysAgo(data.createdAt);
 
   return (

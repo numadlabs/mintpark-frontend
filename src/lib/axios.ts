@@ -9,8 +9,8 @@ import { toast } from "sonner";
 
 export const BACKEND_URL =
   process.env.NODE_ENV === "development"
-    // ? "http://localhost:3001" // development api
-    ? "https://mintpark-staging-e569c5c4d83c.herokuapp.com/" // development api
+    ? "http://localhost:3001" // development api
+    // ? "https://mintpark-staging-e569c5c4d83c.herokuapp.com/" // development api
     : "https://mintpark-production-0006d54da9fb.herokuapp.com";
 
 const instance = axios.create({
@@ -24,11 +24,15 @@ export const initializeAxios = (logoutHandler: () => void) => {
       if (token) {
         config.headers["Authorization"] = "Bearer " + token;
       }
+
+      // Only set multipart/form-data when data is actually FormData
       if (config.data instanceof FormData) {
         config.headers["Content-Type"] = "multipart/form-data";
-      } else {
+      } else if (config.data) { // Only set application/json when there's actual data
         config.headers["Content-Type"] = "application/json";
       }
+      // Don't set Content-Type for GET requests or requests without data
+
       return config;
     },
     (error) => {

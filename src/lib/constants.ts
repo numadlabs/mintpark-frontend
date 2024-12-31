@@ -29,6 +29,7 @@ export const STORAGE_KEYS = {
   WALLET_STATE: "wallet-storage",
   ACCESS_TOKEN: "accessToken",
   REFRESH_TOKEN: "refreshToken",
+  CITREA_PRICE_KEY:"CITREA_PRICE"
 } as const;
 
 export const FEERATE = 1;

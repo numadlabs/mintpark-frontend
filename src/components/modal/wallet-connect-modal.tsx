@@ -39,11 +39,7 @@ WalletConnectionModalProps) {
   );
 
   const {
-    connectPrimary,
-    connectSecondary,
     authState,
-    selectedLayerId,
-    setSelectedLayerId,
     setLayers,
 
     proceedWithLinking,

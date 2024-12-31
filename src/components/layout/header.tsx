@@ -23,7 +23,11 @@ import ConnectWalletModal from "../modal/connect-wallet-modal";
 import { Wallet2, I3Dcube, Logout, ArrowRight2 } from "iconsax-react";
 import { Button } from "../ui/button";
 import { getAllLayers, getLayerById } from "@/lib/service/queryHelper";
-import { truncateAddress, capitalizeFirstLetter } from "@/lib/utils";
+import {
+  truncateAddress,
+  capitalizeFirstLetter,
+  storePriceData,
+} from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { ExtendedLayerType, LayerType } from "@/lib/types";
 import { toast } from "sonner";
@@ -32,6 +36,7 @@ import { Loader2, MenuIcon } from "lucide-react";
 import XLogo from "../icon/xlogo";
 import useWalletAuth from "@/lib/hooks/useWalletAuth";
 import { WalletConnectionModal } from "../modal/wallet-connect-modal";
+import { STORAGE_KEYS } from "@/lib/constants";
 
 declare global {
   interface Window {
@@ -47,11 +52,14 @@ export default function Header() {
 
   const [defaultLayer, setDefaultLayer] = useState<string>("CITREA-mainnet");
 
-
-  const { authState, onLogout, selectedLayerId, setSelectedLayerId, getWalletForLayer } =
-    useAuth();
+  const {
+    authState,
+    onLogout,
+    selectedLayerId,
+    setSelectedLayerId,
+    getWalletForLayer,
+  } = useAuth();
   const id = authState?.userLayerId;
-
 
   const { data: dynamicLayers = [] } = useQuery({
     queryKey: ["layerData"],
@@ -72,9 +80,12 @@ export default function Header() {
       if (currentLayer) {
         const layerString = `${currentLayer.layer}-${currentLayer.network}`;
         setDefaultLayer(layerString);
+        if (currentLayer.price) {
+          storePriceData(currentLayer.price);
+        }
       } else if (dynamicLayers.length > 0) {
         const citreaLayer = dynamicLayers.find(
-          (l: LayerType) => l.layer === "CITREA"
+          (l: LayerType) => l.layer === "CITREA",
         );
         if (citreaLayer) {
           const layerString = `${citreaLayer.layer}-${citreaLayer.network}`;
@@ -147,14 +158,14 @@ export default function Header() {
   const handleLayerSelect = (value: string) => {
     const [layer, network] = value.split("-");
     const selectedLayer = layers.find(
-      (l: LayerType) => l.layer === layer && l.network === network
+      (l: LayerType) => l.layer === layer && l.network === network,
     );
 
     if (selectedLayer) {
       if (authState.authenticated) {
         onLogout();
         toast.info(
-          "Logged out due to layer change. Please reconnect your wallet."
+          "Logged out due to layer change. Please reconnect your wallet.",
         );
       }
       localStorage.setItem("layerId", selectedLayer.id);
@@ -173,7 +184,7 @@ export default function Header() {
   const handleNavigation = (
     pageUrl: string,
     requiresAuth?: boolean,
-    disabled?: boolean
+    disabled?: boolean,
   ) => {
     if (disabled) {
       toast.info("This feature is coming soon!");
@@ -191,7 +202,9 @@ export default function Header() {
     window.open("https://x.com/mintpark_io", "_blank");
   };
 
-  const currentWallet = selectedLayerId ? getWalletForLayer(selectedLayerId) : undefined;
+  const currentWallet = selectedLayerId
+    ? getWalletForLayer(selectedLayerId)
+    : undefined;
 
   //todo authenticated uyd dahij wallet holboh talaar evteihen UX bodoh
   return (
@@ -218,7 +231,7 @@ export default function Header() {
                         handleNavigation(
                           item.pageUrl,
                           item.requiresAuth,
-                          item.disabled
+                          item.disabled,
                         )
                       }
                     />
@@ -289,7 +302,7 @@ export default function Header() {
                           />
                           <div className="flex items-center gap-2">
                             {`${capitalizeFirstLetter(
-                              layer.layer
+                              layer.layer,
                             )} ${capitalizeFirstLetter(layer.network)}`}
                             {layer.comingSoon && (
                               <span className="text-xs bg-white8 px-2 py-1 rounded-full">
@@ -315,7 +328,7 @@ export default function Header() {
                       height={24}
                       className="object-cover rounded-full"
                     />
-                <span className="text-neutral50">
+                    <span className="text-neutral50">
                       {currentWallet && truncateAddress(currentWallet.address)}
                     </span>
                   </DropdownMenuTrigger>
@@ -412,7 +425,7 @@ export default function Header() {
                       handleNavigation(
                         item.pageUrl,
                         item.requiresAuth,
-                        item.disabled
+                        item.disabled,
                       )
                     }
                   >
