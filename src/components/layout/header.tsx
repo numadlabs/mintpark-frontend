@@ -19,7 +19,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import ConnectWalletModal from "../modal/connect-wallet-modal";
 import { Wallet2, I3Dcube, Logout, ArrowRight2 } from "iconsax-react";
 import { Button } from "../ui/button";
 import { getAllLayers, getLayerById } from "@/lib/service/queryHelper";
@@ -85,7 +84,7 @@ export default function Header() {
         }
       } else if (dynamicLayers.length > 0) {
         const citreaLayer = dynamicLayers.find(
-          (l: LayerType) => l.layer === "CITREA",
+          (l: LayerType) => l.layer === "CITREA"
         );
         if (citreaLayer) {
           const layerString = `${citreaLayer.layer}-${citreaLayer.network}`;
@@ -158,17 +157,16 @@ export default function Header() {
   const handleLayerSelect = (value: string) => {
     const [layer, network] = value.split("-");
     const selectedLayer = layers.find(
-      (l: LayerType) => l.layer === layer && l.network === network,
+      (l: LayerType) => l.layer === layer && l.network === network
     );
 
     if (selectedLayer) {
       if (authState.authenticated) {
         onLogout();
         toast.info(
-          "Logged out due to layer change. Please reconnect your wallet.",
+          "Logged out due to layer change. Please reconnect your wallet."
         );
       }
-      localStorage.setItem("layerId", selectedLayer.id);
       setSelectedLayerId(selectedLayer.id);
       setDefaultLayer(value);
     }
@@ -184,7 +182,7 @@ export default function Header() {
   const handleNavigation = (
     pageUrl: string,
     requiresAuth?: boolean,
-    disabled?: boolean,
+    disabled?: boolean
   ) => {
     if (disabled) {
       toast.info("This feature is coming soon!");
@@ -231,7 +229,7 @@ export default function Header() {
                         handleNavigation(
                           item.pageUrl,
                           item.requiresAuth,
-                          item.disabled,
+                          item.disabled
                         )
                       }
                     />
@@ -302,7 +300,7 @@ export default function Header() {
                           />
                           <div className="flex items-center gap-2">
                             {`${capitalizeFirstLetter(
-                              layer.layer,
+                              layer.layer
                             )} ${capitalizeFirstLetter(layer.network)}`}
                             {layer.comingSoon && (
                               <span className="text-xs bg-white8 px-2 py-1 rounded-full">
@@ -319,7 +317,7 @@ export default function Header() {
 
               {authState?.authenticated ? (
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[128px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
+                  <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[136px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
                     <Image
                       src={"/Avatar.png"}
                       alt="image"
@@ -425,7 +423,7 @@ export default function Header() {
                       handleNavigation(
                         item.pageUrl,
                         item.requiresAuth,
-                        item.disabled,
+                        item.disabled
                       )
                     }
                   >
@@ -478,8 +476,6 @@ export default function Header() {
           </div>
         </div>
       )}
-
-      <ConnectWalletModal open={walletModal} onClose={toggleWalletModal} />
       <WalletConnectionModal
         open={walletModalOpen}
         onClose={() => setWalletModalOpen(false)}

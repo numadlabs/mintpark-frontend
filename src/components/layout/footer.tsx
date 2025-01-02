@@ -36,8 +36,8 @@ export default function Footer() {
               </h1>
               <div className="flex flex-col gap-6">
                 <button
-                  onClick={handleCreate}
-                  className="font-medium text-md text-neutral200 hover:text-neutral00 text-left transition-all duration-300 ease-out"
+                  className="hidden md:block font-medium text-md text-neutral200 text-left transition-all duration-300 ease-out cursor-not-allowed"
+                  disabled
                 >
                   Create
                 </button>
