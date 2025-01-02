@@ -6,9 +6,7 @@ import Layout from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  useAuth,
-} from "@/components/provider/auth-context-provider";
+import { useAuth } from "@/components/provider/auth-context-provider";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -290,7 +288,7 @@ export default function Home() {
         {/* Contact Forms Section */}
         <div className="w-full items-center justify-center flex">
           <div className="bg-[url('/homePage/contactBg.png')] items-center max-w-[1216px] w-full bg-cover min-h-[480px] p-6 pt-12 pb-8 md:px-12 md:pb-12 flex flex-col md:flex-row justify-between rounded-[32px] border border-white4 border-b-0 gap-8">
-            <div className="flex flex-col gap-2 sm:gap-6 items-start justify-end">
+            <div className="flex flex-col gap-2 sm:gap-6 w-full md:w-auto">
               <span className="font-bold text-xl sm:text-3xl md:text-5xl flex flex-row sm:flex-col gap-1.5">
                 Let&apos;s Build <br />
                 <div className="flex flex-row gap-1.5">

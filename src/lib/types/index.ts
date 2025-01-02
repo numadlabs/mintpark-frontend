@@ -339,3 +339,12 @@ export type CreateLaunchParams = {
   collectionId: string;
   isLastBatch: boolean;
 };
+
+export type LayerTypes = {
+  id: string;
+  name: string;
+  layer: string;
+  network: string;
+  currencyId: string;
+  comingSoon?: boolean;
+};
