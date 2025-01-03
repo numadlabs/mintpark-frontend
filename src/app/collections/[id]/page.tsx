@@ -280,44 +280,48 @@ const CollectionDetailPage = () => {
               />
             </div>
 
-            <Select>
-              <SelectTrigger className="w-full md:w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50">
-                <SelectValue placeholder="Volume" />
-              </SelectTrigger>
-              <SelectContent className="w-full md:w-60 rounded-xl bg-neutral600 bg-opacity-70 border-neutral400 backdrop-blur-lg pb-2 px-2">
-                <SelectItem value="highest">Highest volume</SelectItem>
-                <SelectItem value="lowest">Lowest volume</SelectItem>
-                <SelectItem value="highestFloor">
-                  Highest floor price
-                </SelectItem>
-                <SelectItem value="lowestFloor">Lowest floor price</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex gap-4">
+              <Select>
+                <SelectTrigger className="w-full md:w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50">
+                  <SelectValue placeholder="Volume" />
+                </SelectTrigger>
+                <SelectContent className="w-full -top-[53px] lg:left-0 md:w-60 rounded-xl bg-neutral600 bg-opacity-70 border-neutral400 backdrop-blur-lg pb-2 px-2">
+                  <SelectItem value="highest">Highest volume</SelectItem>
+                  <SelectItem value="lowest">Lowest volume</SelectItem>
+                  <SelectItem value="highestFloor">
+                    Highest floor price
+                  </SelectItem>
+                  <SelectItem value="lowestFloor">
+                    Lowest floor price
+                  </SelectItem>
+                </SelectContent>
+              </Select>
 
-            <TabsList className="text-neutral50 border border-neutral400 rounded-lg w-[92px] h-12 px-1">
-              <TabsTrigger
-                value="AllCard"
-                className="w-10 h-10 rounded-lg p-[10px] border border-transparent"
-              >
-                <Image
-                  src="/collections/hashtag.png"
-                  alt="grid"
-                  width={20}
-                  height={20}
-                />
-              </TabsTrigger>
-              <TabsTrigger
-                value="ColCard"
-                className="w-10 h-10 rounded-lg p-[10px] border border-transparent"
-              >
-                <Image
-                  src="/collections/burger.png"
-                  alt="list"
-                  width={20}
-                  height={20}
-                />
-              </TabsTrigger>
-            </TabsList>
+              <TabsList className="text-neutral50 border border-neutral400 rounded-lg w-[92px] h-12 px-1">
+                <TabsTrigger
+                  value="AllCard"
+                  className="w-10 h-10 rounded-lg p-[10px] border border-transparent"
+                >
+                  <Image
+                    src="/collections/hashtag.png"
+                    alt="grid"
+                    width={20}
+                    height={20}
+                  />
+                </TabsTrigger>
+                <TabsTrigger
+                  value="ColCard"
+                  className="w-10 h-10 rounded-lg p-[10px] border border-transparent"
+                >
+                  <Image
+                    src="/collections/burger.png"
+                    alt="list"
+                    width={20}
+                    height={20}
+                  />
+                </TabsTrigger>
+              </TabsList>
+            </div>
           </div>
         </section>
 
@@ -350,8 +354,8 @@ const CollectionDetailPage = () => {
                   <div
                     className={`grid gap-4 md:gap-6 lg:gap-8 ${
                       active
-                        ? "grid-cols-2 sm:grid-cols-2  md:grid-cols-3  md2:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 3xl:grid-cols-6 sm:gap-6"
-                        : "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 md2:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4  3xl:grid-cols-6 sm:gap-6"
+                        ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 gap-6 sm:gap-6 lg:gap-8 xl:gap-8"
+                        : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3  2xl:grid-cols-4 3xl:grid-cols-6 gap-6 sm:gap-6 lg:gap-8 xl:gap-8"
                     }`}
                   >
                     {collection?.collectibles?.map((item: any) => (

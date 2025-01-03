@@ -205,41 +205,42 @@ export default function Header() {
 
   return (
     <>
-      <div className="h-[72px] w-full flex justify-center bg-neutral500 bg-opacity-50 backdrop-blur-4xl mt-5 rounded-3xl">
-        <div className="flex flex-row justify-between items-center max-w-[1920px] w-full">
-          <div className="flex flex-row justify-between items-center w-full pl-6 pr-4 h-full">
-            <div className="flex gap-12">
-              <Link href={"/"}>
-                <Image
-                  src={"/Logo.svg"}
-                  alt="coordinals"
-                  width={40}
-                  height={40}
-                />
-              </Link>
-              {/* Desktop Navigation */}
-              <div className="hidden lg:flex flex-row gap-2 text-neutral00">
-                {routesData.map((item, index) => (
-                  <div key={index} className="relative">
-                    <HeaderItem
-                      title={item.title}
-                      handleNav={() =>
-                        handleNavigation(
-                          item.pageUrl,
-                          item.requiresAuth,
-                          item.disabled
-                        )
-                      }
-                    />
-                    {item.badge && <Badge label={item.badge} />}
-                  </div>
-                ))}
+      <div className="">
+        <div className="h-[72px] w-full flex justify-center bg-neutral500 bg-opacity-50 backdrop-blur-4xl mt-5 rounded-3xl">
+          <div className="flex flex-row justify-between items-center max-w-[1920px] w-full">
+            <div className="flex flex-row justify-between items-center w-full pl-6 pr-4 h-full">
+              <div className="flex gap-12">
+                <Link href={"/"}>
+                  <Image
+                    src={"/Logo.svg"}
+                    alt="coordinals"
+                    width={40}
+                    height={40}
+                  />
+                </Link>
+                {/* Desktop Navigation */}
+                <div className="hidden lg:flex flex-row gap-2 text-neutral00">
+                  {routesData.map((item, index) => (
+                    <div key={index} className="relative">
+                      <HeaderItem
+                        title={item.title}
+                        handleNav={() =>
+                          handleNavigation(
+                            item.pageUrl,
+                            item.requiresAuth,
+                            item.disabled
+                          )
+                        }
+                      />
+                      {item.badge && <Badge label={item.badge} />}
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Desktop Controls */}
-            <div className="hidden lg:flex flex-row overflow-hidden items-center gap-4">
-              {/* <button
+              {/* Desktop Controls */}
+              <div className="hidden lg:flex flex-row overflow-hidden items-center gap-4">
+                {/* <button
                 onClick={handleTwitterClick}
                 className="flex items-center gap-2 whitespace-nowrap justify-center h-10 px-4 bg-white16 hover:bg-white16 duration-300 transition-all rounded-xl"
               >
@@ -248,70 +249,70 @@ export default function Header() {
                   Follow us
                 </span>
               </button> */}
-              <Select onValueChange={handleLayerSelect} value={defaultLayer}>
-                <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
-                  <SelectValue
-                    placeholder="Select layer"
-                    defaultValue={defaultLayer}
-                  >
-                    {isLayersLoading ? (
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
-                        <span>Loading...</span>
-                      </div>
-                    ) : defaultLayer ? (
-                      <div className="flex flex-row gap-2 items-center w-max">
-                        <Image
-                          src={getLayerImage(defaultLayer.split("-")[0])}
-                          alt={defaultLayer.split("-")[0]}
-                          width={24}
-                          height={24}
-                        />
-                        {defaultLayer
-                          .split("-")
-                          .map(capitalizeFirstLetter)
-                          .join(" ")}
-                      </div>
-                    ) : (
-                      <span>Select layer</span>
-                    )}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent className="mt-4 flex flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
-                  <SelectGroup className="flex flex-col gap-2">
-                    {layers.map((layer: ExtendedLayerType) => (
-                      <SelectItem
-                        key={layer.id}
-                        value={`${layer.layer}-${layer.network}`}
-                        className={`flex flex-row items-center gap-2 w-[170px] ${
-                          layer.comingSoon
-                            ? "opacity-80 cursor-not-allowed"
-                            : "hover:bg-white8 duration-300 transition-all cursor-pointer"
-                        }`}
-                      >
-                        <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
+                <Select onValueChange={handleLayerSelect} value={defaultLayer}>
+                  <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
+                    <SelectValue
+                      placeholder="Select layer"
+                      defaultValue={defaultLayer}
+                    >
+                      {isLayersLoading ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
+                          <span>Loading...</span>
+                        </div>
+                      ) : defaultLayer ? (
+                        <div className="flex flex-row gap-2 items-center w-max">
                           <Image
-                            src={getLayerImage(layer.layer)}
-                            alt={layer.layer}
+                            src={getLayerImage(defaultLayer.split("-")[0])}
+                            alt={defaultLayer.split("-")[0]}
                             width={24}
                             height={24}
                           />
-                          <div className="flex items-center gap-2">
-                            {`${capitalizeFirstLetter(
-                              layer.layer
-                            )} ${capitalizeFirstLetter(layer.network)}`}
-                            {layer.comingSoon && (
-                              <span className="text-xs bg-white8 px-2 py-1 rounded-full">
-                                Soon
-                              </span>
-                            )}
-                          </div>
+                          {defaultLayer
+                            .split("-")
+                            .map(capitalizeFirstLetter)
+                            .join(" ")}
                         </div>
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+                      ) : (
+                        <span>Select layer</span>
+                      )}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="mt-4 flex flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
+                    <SelectGroup className="flex flex-col gap-2">
+                      {layers.map((layer: ExtendedLayerType) => (
+                        <SelectItem
+                          key={layer.id}
+                          value={`${layer.layer}-${layer.network}`}
+                          className={`flex flex-row items-center gap-2 w-[170px] ${
+                            layer.comingSoon
+                              ? "opacity-80 cursor-not-allowed"
+                              : "hover:bg-white8 duration-300 transition-all cursor-pointer"
+                          }`}
+                        >
+                          <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
+                            <Image
+                              src={getLayerImage(layer.layer)}
+                              alt={layer.layer}
+                              width={24}
+                              height={24}
+                            />
+                            <div className="flex items-center gap-2">
+                              {`${capitalizeFirstLetter(
+                                layer.layer
+                              )} ${capitalizeFirstLetter(layer.network)}`}
+                              {layer.comingSoon && (
+                                <span className="text-xs bg-white8 px-2 py-1 rounded-full">
+                                  Soon
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
 
               {isAuthenticated ? (
                 <Button
@@ -367,13 +368,14 @@ export default function Header() {
               ) : null}
             </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              className="lg:hidden p-2 text-neutral50"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              <MenuIcon size={24} />
-            </button>
+              {/* Mobile Menu Button */}
+              <button
+                className="lg:hidden p-2 text-neutral50"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                <MenuIcon size={24} />
+              </button>
+            </div>
           </div>
         </div>
       </div>

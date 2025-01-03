@@ -79,8 +79,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
  
 
   return (
-    <Link href={`/launchpad/${id}`} className="block w-full">
-      <div className="relative h-[274px] w-[163.5px] sm:h-[298px] md:h-[412px] md:w-[280px] flex flex-col backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-[20px] p-4 text-neutral00 transition-transform hover:scale-[1.02] duration-300">
+    <Link href={`/launchpad/${id}`} className="relative h-auto w-full sm:h-auto sm:w-full md:h-[364px] md:w-full md2:h-auto md2:w-full 3xl:w-[280px] 3xl:h-[412px] flex flex-col backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-[20px] p-4 text-neutral00 transition-transform hover:scale-[1.02] duration-300">
         <div className="relative w-full flex justify-center items-center">
           <Image
             width={248}
@@ -114,7 +113,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
                 data?.supply > 0 ? (data?.mintedAmount / data?.supply) * 100 : 0
               }
               className={`w-full h-full ${
-                data?.mintedAmount > 0 ? "shadow-shadowBrands" : ""
+                data?.mintedAmount > 0 ? "" : ""
               }`}
             />
           </div>
@@ -133,7 +132,6 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
           )}
           <p>{status}</p>
         </div>
-      </div>
     </Link>
   );
 };

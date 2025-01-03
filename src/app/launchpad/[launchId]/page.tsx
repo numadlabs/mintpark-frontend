@@ -229,10 +229,10 @@ const Page = () => {
           </div>
         ) : (
           <div className="3xl:px-[312px] pt-[56px] md:pt-0">
-            <section className="flex flex-col justify-center h-full sm:h-full  md2:h-[80vh] items-center md2:grid grid-cols-3 gap-8 lg:gap-8 mb-8">
+            <section className="flex flex-col justify-center h-full sm:h-full  lg:h-[80vh] items-center lg:grid grid-cols-3 gap-8 lg:gap-8 mb-8">
               {/* Left Column - Collection Info */}
               <div className="flex w-full flex-col gap-8 sm:gap-6 order-2">
-                <div className="block md2:hidden">
+                <div className="block lg:hidden">
                   <div className="flex gap-4 sm:gap-8">
                     {links.length > 0 && (
                       <div className="flex gap-4 sm:gap-6">
@@ -290,7 +290,7 @@ const Page = () => {
                     </h2>
                   </div>
                 </div>
-                <div className="hidden md2:block">
+                <div className="hidden lg:block">
                   <div className="flex gap-4 sm:gap-8 mt-2">
                     {links.length > 0 && (
                       <div className="flex gap-4 sm:gap-6">
@@ -310,7 +310,7 @@ const Page = () => {
               </div>
 
               {/* Middle Column - Image and Progress */}
-              <div className="flex flex-col gap-4 sm:gap-6 w-full  order-1 md2:order-2">
+              <div className="flex flex-col gap-4 sm:gap-6 w-full  order-1 lg:order-2">
                 <div className="w-full aspect-square relative rounded-2xl sm:rounded-3xl overflow-hidden max-h-[384px]">
                   <Carousel className="w-full justify-center items-center flex">
                     {collectibles?.logoKey && (
@@ -325,7 +325,7 @@ const Page = () => {
                   </Carousel>
                 </div>
 
-                <div className="space-y-2 sm:space-y-3 hidden md2:block">
+                <div className="space-y-2 sm:space-y-3 hidden lg:block">
                   <div className="flex h-2 sm:h-3 border rounded-lg border-1 border-neutral400">
                     <Progress
                       value={

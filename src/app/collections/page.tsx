@@ -85,7 +85,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
       <Tabs
         value={selectedInterval}
         onValueChange={setSelectedInterval}
-        className="mt-4 px-4 lg:px-0 sm:mt-6 lg:mt-8 mb-6 sm:mb-8 lg:mb-10 border-hidden"
+        className="mt-4 px-4 lg:px-0 sm:mt-6 lg:mt-12 mb-6 sm:mb-8 lg:mb-10 border-hidden"
       >
         <section className="flex flex-col justify-between md:flex-row gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-7">
           {detail ? (
@@ -122,12 +122,12 @@ export default function Collections({ searchParams }: CollectionsProps) {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <TabsList className="h-12 w-full flex justify-around text-neutral50 p-1 border border-neutral400 rounded-xl gap-1 whitespace-nowrap">
+              <TabsList className="h-12 mt-12  flex justify-around text-neutral50 p-1 border border-neutral400 rounded-xl gap-1 whitespace-nowrap">
                 {intervals.map((interval) => (
                   <TabsTrigger
                     key={interval}
                     value={interval}
-                    className="w-[63.8px] sm:w-[59px] h-10 font-semibold text-[15px] rounded-lg border-hidden"
+                    className="w-[63.8px] lg:w-[59px] h-10 font-semibold text-[15px] rounded-lg border-hidden"
                   >
                     {interval}
                   </TabsTrigger>
@@ -136,15 +136,15 @@ export default function Collections({ searchParams }: CollectionsProps) {
             </div>
           )}
 
-          <div className="flex sm:flex-row gap-4 sm:items-center">
+          <div className="flex sm:flex-row md:mt-12  gap-4 sm:items-center">
             <Select
               value={selectedOrder}
               onValueChange={(value) => setSelectedOrder(value)}
             >
-              <SelectTrigger className="h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50 px-4">
+              <SelectTrigger className="h-12  w-full lg:w-[205px] rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50 py-3 pr-5 pl-6">
                 <SelectValue placeholder="Highest volume" />
               </SelectTrigger>
-              <SelectContent className="lg:w-[225px] rounded-xl p-1 bg-neutral600/70 text-neutral50 border-neutral400 backdrop-blur-md">
+              <SelectContent className="w-[205px] -top-[53px] lg:-left-[34px] lg:w-[240px] rounded-xl p-1 bg-background/40 text-neutral50 border-neutral400 absolute backdrop-blur-md">
                 {Object.keys(orderConfigs).map((key) => (
                   <SelectItem key={key} value={key} className="px-4">
                     {key
@@ -227,7 +227,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
               <div>
                 {viewType === "grid" ? (
                   <div className="flex justify-start w-full">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-6 sm:p-0 gap-4 sm:gap-6">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 md2:grid-cols- lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-6 sm:p-0 sm:gap-6 gap-6 lg:gap-8">
                       {isLoading
                         ? Array(8)
                             .fill(null)

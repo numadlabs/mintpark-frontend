@@ -9,7 +9,7 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
   return (
     <Link
       href={`/assets/${data.id}`}
-      className="block w-[163.5px] h-[254px] sm:w-[280px] sm:h-[392px] transition-transform duration-300 hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl pt-3 pb-4 px-3 md:px-4 md:pt-4 md:pb-5"
+      className="block h-[254px] w-full sm:h-auto sm:w-full md:h-[330px] md:w-full md2:h-[300px] md2:w-full lg:h-[330px] lg:w-full xl:h-auto xl:w-full  3xl:w-[280px] 3xl:h-[392px] transition-transform duration-300 hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl pt-3 pb-4 px-3 md:px-4 md:pt-4 md:pb-5"
     >
       <div className="flex flex-col h-full gap-4 justify-center items-center">
         <Image
@@ -30,10 +30,10 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
           </p>
           <p className="py-1 text-lg text-neutral50 font-bold">{data.name}</p>
 
-          <div className="md:mt-4 m-0">
+          <div className="sm:mt-4 m-0">
             <div className="relative group">
-              <div className="h-12 md:h-10 border-t border-neutral400 group-hover:border-transparent">
-                <div className="flex justify-between py-4 group-hover:opacity-0 transition-opacity">
+              <div className="h-8 sm:h-8 md2:h-12 md:h-12 border-t border-neutral400 group-hover:border-transparent">
+                <div className="flex justify-between py-2 sm:py-4 group-hover:opacity-0 transition-opacity">
                   {isListed ? (
                     <>
                       <p className="text-neutral200 font-medium text-md">
