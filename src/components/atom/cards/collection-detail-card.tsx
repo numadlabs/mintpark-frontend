@@ -9,7 +9,7 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
   return (
     <Link
       href={`/assets/${data.id}`}
-      className="block h-auto w-full sm:h-auto sm:w-full md:h-[330px] md:w-full md2:h-auto md2:w-full lg:h-auto lg:w-full xl:h-auto xl:w-full  3xl:w-[280px] 3xl:h-[392px] transition-transform duration-300 hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl pt-3 pb-4 px-3 md:px-4 md:pt-4 md:pb-5"
+      className="block h-auto w-full sm:h-auto overflow-hidden sm:w-full md:h-auto md:w-full md2:h-auto md2:w-full lg:h-auto lg:w-full xl:h-auto xl:w-full  3xl:w-[280px] 3xl:h-[392px] transition-transform duration-300 hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl pt-3 pb-4 px-3 md:px-4 md:pt-4 md:pb-5"
     >
       <div className="flex flex-col h-full gap-4 justify-center items-center">
         <Image

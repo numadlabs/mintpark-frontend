@@ -84,9 +84,9 @@ export default function AssetDetail() {
   return (
     <Layout>
       <Header />
-      <div className="flex flex-col w-full gap-32 p-10 3xl:px-[312px]">
+      <div className="flex flex-col w-full gap-16 pt-10 pr-10 pl-10 3xl:px-[312px]">
         <div className="md:grid grid-cols-2 flex flex-col gap-16 justify-between pt-16 relative z-20">
-          <div className="w-full h-full relative flex items-center justify-center">
+          <div className="w-full h-auto relative flex items-center justify-center">
             <div className="z-10 w-full h-full blur-[90px] opacity-35 scale-120">
               <Image
                 width={560}
@@ -99,7 +99,7 @@ export default function AssetDetail() {
                   //   ? s3ImageUrlBuilder(currentAsset.fileKey)
                   //   : ordinalsImageCDN(currentAsset.uniqueIdx)
                 }
-                className="aspect-square rounded-xl relative z-20 md:h-full 3xl:h-[560px] 3xl:w-[560px] w-full h-[560px]"
+                className="aspect-square rounded-xl relative z-20 md:h-[343px] 3xl:h-[560px] 3xl:w-[560px] w-[343px] h-[343px] md2:h-auto md2:w-full"
                 alt={`${currentAsset.name} logo`}
               />
             </div>
@@ -111,7 +111,7 @@ export default function AssetDetail() {
                   ? currentAsset.highResolutionImageUrl
                   : s3ImageUrlBuilder(currentAsset.fileKey)
               }
-              className="aspect-square rounded-xl absolute z-20 w-[360px] h-[320px] md:h-[340px] lg:w-full lg:h-full top-0"
+              className="aspect-square rounded-xl absolute z-20 w-[360px] h-[320px] md:h-[340px] md2:h-auto md2:w-full 2xl:w-[560px] 2xl:h-[560px] top-0"
               alt={`${currentAsset.name} logo`}
             />
           </div>
@@ -124,11 +124,11 @@ export default function AssetDetail() {
                 {currentAsset.name}
               </span>
             </div>
-            <div className="w-full h-[1px] bg-neutral500" />
+            <div className="w-full h-[1px] bg-neutral500 my-8" />
             <div className="flex flex-col justify-center gap-6">
               {currentAsset.price > 0 ? (
                 <div className="flex flex-col gap-6">
-                  <div className="flex justify-between w-full">
+                  <div className="flex justify-between items-center w-full">
                     <span className="font-medium pt-3 text-end text-lg text-neutral200">
                       <p>List price</p>
                     </span>
@@ -157,7 +157,7 @@ export default function AssetDetail() {
                 )}
               </div>
             </div>
-            <Accordion type="multiple" className="w-full">
+            <Accordion type="multiple" className="w-full mt-8">
               <AccordionItem value="item-1">
                 <AccordionTrigger className="font-medium text-xl text-neutral50 w-full">
                   Detail
@@ -231,41 +231,39 @@ export default function AssetDetail() {
                 More from collection
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="activity" className="w-full">
-              <div className="overflow-x-auto">
-                <div className="inline-block w-full">
-                  <div className="overflow-hidden w-full">
-                    <div className="flex flex-row items-center px-3 pb-4 justify-between border-b border-neutral500">
-                      <div className="text-neutral200 text-md font-medium whitespace-nowrap">
-                        Item
-                      </div>
-                      <div className="text-neutral200 text-md font-medium whitespace-nowrap">
-                        Event
-                      </div>
-                      <div className="text-neutral200 text-md font-medium whitespace-nowrap">
-                        Price
-                      </div>
-                      <div className="text-neutral200 text-md font-medium whitespace-nowrap">
-                        Address
-                      </div>
-                      <div className="text-neutral200 text-md font-medium whitespace-nowrap">
-                        Date
-                      </div>
+            <TabsContent value="activity">
+              <div className="overflow-x-auto 3xl:overflow-x-hidden w-full">
+                <div className="min-w-[1216px]">
+                  <div className="flex flex-row items-center px-3 pb-4 justify-between border-b border-neutral500">
+                    <div className="w-[360px] shrink-0 text-neutral200 text-md font-medium whitespace-nowrap">
+                      Item
                     </div>
-                    <div className="flex flex-col gap-3 pt-3">
-                      {activity?.map((item: any) => (
-                        <ActivityCard
-                          key={item.id}
-                          data={item}
-                          imageUrl={
-                            currentAsset.highResolutionImageUrl
-                              ? currentAsset.highResolutionImageUrl
-                              : s3ImageUrlBuilder(currentAsset.fileKey)
-                          }
-                          collectionName={currentAsset.collectionName}
-                        />
-                      ))}
+                    <div className="w-[220px] shrink-0 text-neutral200 text-md font-medium whitespace-nowrap">
+                      Event
                     </div>
+                    <div className="w-[200px] shrink-0 text-neutral200 text-md font-medium whitespace-nowrap">
+                      Price
+                    </div>
+                    <div className="w-[260px] shrink-0 text-neutral200 text-md font-medium whitespace-nowrap">
+                      Address
+                    </div>
+                    <div className="w-[152px] shrink-0  text-neutral200 text-md font-medium whitespace-nowrap">
+                      Date
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-3 pt-3">
+                    {activity?.map((item: any) => (
+                      <ActivityCard
+                        key={item.id}
+                        data={item}
+                        imageUrl={
+                          currentAsset.highResolutionImageUrl
+                            ? currentAsset.highResolutionImageUrl
+                            : s3ImageUrlBuilder(currentAsset.fileKey)
+                        }
+                        collectionName={currentAsset.collectionName}
+                      />
+                    ))}
                   </div>
                 </div>
               </div>

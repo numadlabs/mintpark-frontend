@@ -165,8 +165,8 @@ const CollectionDetailPage = () => {
                   )}
                 </div>
 
-                <div className="lg:pt-0 pt-10">
-                  <div className="grid grid-cols-2 md:flex md:justify-around md:grid-cols-4 xl:grid w-full gap-8 md:gap-8 lg:gap-8 mt-4">
+                <div className="lg:pt-0 hidden lg:block">
+                  <div className="grid grid-cols-2 md:flex md:justify-around xl:grid-cols-4 lg:grid w-full gap-8 md:gap-8 lg:gap-8 mt-4">
                     <div className="text-center md:text-left">
                       <h2 className="font-medium text-lg text-neutral100">
                         Floor price
@@ -175,7 +175,7 @@ const CollectionDetailPage = () => {
                         <Image
                           width={24}
                           height={20}
-                          src="/detail_icon/Bitcoin.png"
+                          src="/detail_icon/btc.png"
                           alt="bitcoin"
                           className="aspect-square"
                         />
@@ -190,7 +190,7 @@ const CollectionDetailPage = () => {
                       </div>
                     </div>
 
-                    <div className="text-center md:text-left">
+                    <div className="text-center md:text-left 2xl:border-l 2xl:border-neutral400 2xl:px-8 px-0 border-0">
                       <h2 className="font-medium text-lg text-neutral100">
                         Total volume
                       </h2>
@@ -198,7 +198,7 @@ const CollectionDetailPage = () => {
                         <Image
                           width={24}
                           height={20}
-                          src="/detail_icon/Bitcoin.png"
+                          src="/detail_icon/btc.png"
                           alt="bitcoin"
                           className="aspect-square"
                         />
@@ -213,7 +213,7 @@ const CollectionDetailPage = () => {
                       </div>
                     </div>
 
-                    <div className="text-center md:text-left">
+                    <div className="text-center md:text-left 2xl:border-l 2xl:border-neutral400 2xl:px-8 px-0 border-0">
                       <h2 className="font-medium text-lg text-neutral100">
                         Owners
                       </h2>
@@ -229,7 +229,7 @@ const CollectionDetailPage = () => {
                       </div>
                     </div>
 
-                    <div className="text-center md:text-left">
+                    <div className="text-center md:text-left 2xl:border-l 2xl:border-neutral400 2xl:px-8 px-0 border-0">
                       <h2 className="font-medium text-lg text-neutral100">
                         Items
                       </h2>
@@ -245,13 +245,88 @@ const CollectionDetailPage = () => {
               </div>
             </div>
           </div>
-          <p className="px-4 md:px-12 text-lg font-normal text-neutral100 mt-6">
+          <p className="px-4 md:px-12 text-lg font-normal text-neutral100 mt-10 lg:mt-14 xl:mt-6">
             {collectionData?.description}
+            <div className="lg:pt-0 pt-10 block lg:hidden">
+              <div className="grid grid-cols-2 md:flex md:justify-around xl:grid-cols-4 lg:grid w-full gap-8 md:gap-8 lg:gap-8 mt-4">
+                <div className="text-center md:text-left">
+                  <h2 className="font-medium text-lg text-neutral100">
+                    Floor price
+                  </h2>
+                  <div className="flex items-center justify-center md:justify-start mt-2">
+                    <Image
+                      width={24}
+                      height={20}
+                      src="/detail_icon/Bitcoin.png"
+                      alt="bitcoin"
+                      className="aspect-square"
+                    />
+                    <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
+                      <span>
+                        {collectionData?.floor
+                          ? formatPrice(collectionData.floor)
+                          : "0"}
+                      </span>{" "}
+                      cBTC
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-center md:text-left 2xl:border-l 2xl:border-neutral400 2xl:px-8 px-0 border-0">
+                  <h2 className="font-medium text-lg text-neutral100">
+                    Total volume
+                  </h2>
+                  <div className="flex items-center justify-center md:justify-start mt-2">
+                    <Image
+                      width={24}
+                      height={20}
+                      src="/detail_icon/Bitcoin.png"
+                      alt="bitcoin"
+                      className="aspect-square"
+                    />
+                    <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
+                      <span>
+                        {collectionData?.volume
+                          ? formatPrice(collectionData?.volume)
+                          : "0"}
+                      </span>{" "}
+                      cBTC
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-center md:text-left 2xl:border-l 2xl:border-neutral400 2xl:px-8 px-0 border-0">
+                  <h2 className="font-medium text-lg text-neutral100">
+                    Owners
+                  </h2>
+                  <div className="flex items-center justify-center md:justify-start mt-2">
+                    <Profile2User color="#d3f85a" />
+                    <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
+                      <span>
+                        {collectionData?.ownerCount
+                          ? collectionData?.ownerCount
+                          : 0}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-center md:text-left 2xl:border-l 2xl:border-neutral400 2xl:px-8 px-0 border-0">
+                  <h2 className="font-medium text-lg text-neutral100">Items</h2>
+                  <div className="flex items-center justify-center md:justify-start mt-2">
+                    <Notepad color="#d3f85a" />
+                    <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
+                      <span>{collectionData?.supply}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </p>
         </section>
 
         {/* Search and Filter Section */}
-        <section className="flex flex-col md:flex-row justify-between gap-4 mb-7 pt-60 md:pt-36 md2:pt-36 lg:pt-10">
+        <section className="flex flex-col md:flex-row justify-between gap-4 mb-7 pt-12 md:pt-12 md2:pt-12 lg:pt-10">
           {/* <Image
             src="/collections/sort.png"
             alt="sort"
@@ -339,7 +414,7 @@ const CollectionDetailPage = () => {
           {/* Content */}
 
           <div
-            className={`flex-grow ${
+            className={`flex w-full overflow-x-auto 3xl:overflow-x-hidden ${
               active ? "w-[calc(100%-380px)]" : "sm:w-full"
             }`}
           >
@@ -366,40 +441,32 @@ const CollectionDetailPage = () => {
                   </div>
                 </TabsContent>
 
-                <TabsContent value="ColCard" className="w-full">
-                  <div className="w-full overflow-x-auto border-b border-neutral400">
-                    <div className="w-full min-w-[1216px] h-[34px] pr-8 pb-4 pl-4">
-                      <div className="w-[324px]">
-                        <p className="font-medium text-md text-neutral200">
-                          Item
-                        </p>
+                <TabsContent value="ColCard">
+                  <div className="overflow-x-auto w-full">
+                    <div className="min-w-[1216px] flex border-b border-neutral400 font-medium text-md text-neutral200  px-3 pb-4">
+                      <div className="w-[520px] flex  text-start">Item</div>
+                      <div className="w-[324px] flex  text-start">Price</div>
+                      <div className="w-[324px] flex text-start">
+                        Floor difference
                       </div>
-                      <div className="grid grid-cols-4 pl-5 w-full text-center">
-                        <p className="font-medium text-md text-neutral200">
-                          Price
-                        </p>
-                        <p className="font-medium text-md text-neutral200">
-                          Floor difference
-                        </p>
-                        <p className="font-medium text-md text-neutral200">
-                          Owner
-                        </p>
-                        <p className="font-medium text-md text-neutral200">
-                          Listed time
-                        </p>
+                      <div className="w-[324px] flex  text-start">Owner</div>
+                      <div className="w-[324px] 3xl:w-[214px] flex  text-start">
+                        Listed time
                       </div>
                     </div>
-                  </div>
 
-                  <ScrollArea className="h-[754px] w-full border-t-2 overflow-x-auto border-neutral500">
-                    <div className="flex flex-col w-full pt-4 gap-4">
-                      {collection?.collectibles?.map((item: any) => (
-                        <div key={item.id}>
-                          <ColDetailCards data={item} />
+                    <ScrollArea>
+                      <div className="h-[754px] w-full  min-w-[1216px]  border-t-2  border-neutral500">
+                        <div className="flex flex-col pt-4 gap-4">
+                          {collection?.collectibles?.map((item: any) => (
+                            <div key={item.id}>
+                              <ColDetailCards data={item} />
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
+                      </div>
+                    </ScrollArea>
+                  </div>
                 </TabsContent>
               </motion.div>
             </AnimatePresence>
