@@ -158,7 +158,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
                           <p className="text-lg sm:text-2xl lg:text-3xl text-neutral00 font-bold line-clamp-1">
                             {data?.name}
                           </p>
-                          <p className="text-xs sm:text-sm lg:text-base text-neutral50 line-clamp-2">
+                          <p className="text-md sm:text-md lg:text-md text-neutral50 line-clamp-2">
                             {data?.description}
                           </p>
                         </div>
@@ -170,16 +170,16 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
                                 <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2 bg-success rounded-full" />
                               </div>
                             )}
-                            <p>{status}</p>
-                            <p>{timeDisplay}</p>
+                            <p className="text-lg font-normal text-neutral100">{status}</p>
+                            <p className="text-lg font-medium text-neutral00">{timeDisplay}</p>
                           </div>
                           {(status === "Indefinite" ||
                             status === "Ends in:") && (
                             <Link
                               href={`/launchpad/${data.id}`}
-                              className="sm:ml-auto"
+                              className="sm:ml-auto text-neutral600"
                             >
-                              <Button className="w-full sm:w-auto text-sm sm:text-base">
+                              <Button className="w-full text-neutral600 sm:w-auto text-md2">
                                 Go to minter
                               </Button>
                             </Link>
