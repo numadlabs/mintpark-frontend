@@ -126,8 +126,8 @@ const CollectionDetailPage = () => {
             </div>
 
             {/* Collection Info */}
-            <div className="flex flex-col md:flex-row absolute top-24 w-full z-10 px-4 md:px-12 gap-6">
-              <div className="flex justify-center md:block">
+            <div className="flex flex-col lg:flex-row absolute top-24 w-full z-10 px-4 md:px-12 gap-6">
+              <div className="flex justify-center lg:block">
                 <Image
                   width={208}
                   height={208}
@@ -136,22 +136,22 @@ const CollectionDetailPage = () => {
                       ? s3ImageUrlBuilder(collectionData.logoKey)
                       : "/path/to/fallback/image.png"
                   }
-                  className="aspect-square rounded-xl w-40 md:w-52"
+                  className="aspect-square rounded-xl w-40 lg:w-52"
                   alt="collection logo"
                 />
               </div>
               <div className="flex-1 lg:relative top-0 lg:top-7 space-y-4 lg:space-y-7">
-                <div className="flex flex-col md:flex-row justify-between gap-4">
+                <div className="flex flex-col lg:flex-row justify-between gap-4">
                   <div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-neutral50 text-center md:text-left">
+                    <h3 className="text-2xl lg:text-3xl font-bold text-neutral50 text-center md:text-left">
                       {collectionData?.name}
                     </h3>
-                    <h2 className="text-lg md:text-lg font-medium text-neutral100 text-center md:text-left">
+                    <h2 className="text-lg lg:text-lg font-medium text-neutral100 text-center md:text-left">
                       by {collectionData?.creatorName}
                     </h2>
                   </div>
                   {links.length > 0 && (
-                    <div className="flex justify-center md:justify-end gap-6">
+                    <div className="flex justify-center lg:justify-end gap-6">
                       {links.map((link, i) => (
                         <button
                           key={i}
@@ -165,8 +165,8 @@ const CollectionDetailPage = () => {
                   )}
                 </div>
 
-                <div className="hidden lg:block">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 mt-4">
+                <div className="lg:pt-0 pt-10">
+                  <div className="grid grid-cols-2 md:flex md:justify-around md:grid-cols-4 xl:grid w-full gap-8 md:gap-8 lg:gap-8 mt-4">
                     <div className="text-center md:text-left">
                       <h2 className="font-medium text-lg text-neutral100">
                         Floor price
@@ -251,7 +251,7 @@ const CollectionDetailPage = () => {
         </section>
 
         {/* Search and Filter Section */}
-        <section className="flex flex-col md:flex-row justify-between gap-4 mb-7 pt-10">
+        <section className="flex flex-col md:flex-row justify-between gap-4 mb-7 pt-60 md:pt-36 md2:pt-36 lg:pt-10">
           {/* <Image
             src="/collections/sort.png"
             alt="sort"
