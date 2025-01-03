@@ -38,8 +38,8 @@ const ActivityCard: React.FC<cardProps> = ({
 
 
   return (
-    <div className="flex flex-row items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap">
-      <div className="flex flex-row items-center gap-3 max-w-[360px] w-full">
+    <div className="flex items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap">
+      <div className="flex items-center gap-3 shrink-0 w-[360px]">
         <Image
           src={imageUrl}
           sizes="100%"
@@ -50,7 +50,7 @@ const ActivityCard: React.FC<cardProps> = ({
         />
         <p className="text-md text-neutral50 font-medium">{collectionName}</p>
       </div>
-      <div className="max-w-[220px] w-full">
+      <div className="w-[220px] text-start shrink-0">
         <div className="flex flex-row items-center gap-2 bg-white4 w-fit h-[34px] px-3 rounded-lg">
           <TickCircle size={16} color="#D7D8D8" />
           <p className="text-md text-neutral50 font-medium">
@@ -58,7 +58,7 @@ const ActivityCard: React.FC<cardProps> = ({
           </p>
         </div>
       </div>
-      <div className="max-w-[200px] w-full flex flex-col gap-1">
+      <div className="w-[195px] text-start shrink-0 flex flex-col gap-1">
         <p className="text-md text-neutral50 font-medium">
           {data?.activityType === "MINTED" || data?.activityType === "TRANSFER"
             ? "-"
@@ -76,7 +76,7 @@ const ActivityCard: React.FC<cardProps> = ({
             : formatPrice((data?.price * 65000) / 10 ** 18)}
         </p>
       </div>
-      <div className="max-w-[260px] w-full gap-2 flex flex-row items-center">
+      <div className="w-[260px] shrink-0 gap-2 flex items-center">
         <p className="text-md text-neutral50 font-medium">
           {truncateAddress(data?.fromAddress)}
         </p>
@@ -91,7 +91,7 @@ const ActivityCard: React.FC<cardProps> = ({
           </div>
         )}
       </div>
-      <div className="max-w-[152px] w-full">
+      <div className="w-[152px] shrink-0 3xl:w-[130px] text-start">
         <p className="text-md text-neutral50 font-medium">
           {getFormattedTime(data?.timestamp)} ago
         </p>

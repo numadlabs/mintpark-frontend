@@ -245,21 +245,19 @@ export default function Collections({ searchParams }: CollectionsProps) {
                     </div>
                   </div>
                 ) : (
-                  <div className="w-full min-w-[1216px]">
-                    <div className="sm:grid grid-cols-[2fr_3fr_2fr]  gap-6 px-4 pb-4 text-neutral200 font-medium text-sm sm:text-md">
-                      <div>Name</div>
-                      <div className="grid grid-cols-3 text-right">
-                        <span>Floor price</span>
-                        <span>Volume</span>
-                        <span>Market cap</span>
-                      </div>
-                      <div className="grid grid-cols-3 text-right">
-                        <span>Sales</span>
-                        <span>Listed</span>
-                        <span>Owners</span>
+                  <div className="w-full overflow-x-auto mt-8">
+                    <div className="min-w-[1216px] flex pb-4 pl-4 pr-8 text-neutral200 font-medium text-sm sm:text-md">
+                      <div className="w-full flex text-md">
+                        <div className="w-[436px] text-start">Name</div>
+                        <div className="text-right w-[240px]">Floor price</div>
+                        <div className="text-right w-[240px]">Volume</div>
+                        <div className="text-right w-[240px]">Market cap</div>
+                        <div className="text-right w-[240px]">Sales</div>
+                        <div className="text-right w-[240px]">Listed</div>
+                        <div className="text-right w-[240px]">Owners</div>
                       </div>
                     </div>
-                    <div className="h-[500px] sm:h-[600px] lg:h-[754px] border-t-2 border-neutral500 w-full min-w-[1216px] overflow-y-auto">
+                    <div className="h-[500px] sm:h-[600px] lg:h-[754px] min-w-[1216px] border-t-2 border-neutral500 w-full">
                       <div className="flex flex-col gap-4 pt-4 ">
                         {collectionArray?.map((item: any) => (
                           <div key={item.id}>

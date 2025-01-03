@@ -45,13 +45,10 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
 import { getLayerById } from "@/lib/service/queryHelper";
-import { ethers } from "ethers";
-import { getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
 
 const CollectionDetail = () => {
   const router = useRouter();

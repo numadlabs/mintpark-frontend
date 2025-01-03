@@ -1,6 +1,4 @@
 "use client";
-
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -103,7 +101,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent
-                className="w-full md:w-[225px] h-40 rounded-xl text-center bg-neutral600 bg-opacity-[70%] text-neutral50 border-neutral400"
+                className="w-full md:w-[225px] h-40 rounded-xl text-center bg-neutral600 bg-opacity-[70%]  text-neutral50 border-neutral400"
                 style={{
                   backdropFilter: "blur(30px)",
                 }}
