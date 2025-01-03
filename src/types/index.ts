@@ -73,7 +73,7 @@ export interface JsonDataItem {
 }
 
 export interface WalletConfig {
-  type: "unisat" | "metamask";
+  type: "unisat" | "metamask" | "educhain";
   chainId?: string;
   name: string;
   icon: string;

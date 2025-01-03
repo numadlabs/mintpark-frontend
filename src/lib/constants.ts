@@ -29,7 +29,7 @@ export const STORAGE_KEYS = {
   WALLET_STATE: "wallet-storage",
   ACCESS_TOKEN: "accessToken",
   REFRESH_TOKEN: "refreshToken",
-  CITREA_PRICE_KEY:"CITREA_PRICE"
+  CITREA_PRICE_KEY: "CITREA_PRICE",
 } as const;
 
 export const FEERATE = 1;
@@ -60,6 +60,19 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
         chainName: "Citrea Testnet",
         rpcUrls: ["https://rpc.testnet.citrea.xyz"],
         blockExplorerUrls: ["https://explorer.testnet.citrea.xyz"],
+      },
+    },
+  },
+  EDU: {
+    type: "educhain",
+    chainId: "656476", // 5115 in hex
+    name: "Edu",
+    icon: "/wallets/EduChain.png",
+    networks: {
+      TESTNET: {
+        chainName: "Etherscan",
+        rpcUrls: ["https://rpc.open-campus-codex.gelato.digital"],
+        blockExplorerUrls: ["https://edu-chain-testnet.blockscout.com/"],
       },
     },
   },

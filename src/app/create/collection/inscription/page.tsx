@@ -43,10 +43,9 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
-
 const Inscription = () => {
   const router = useRouter();
-  const { authState } = useAuth();
+  const { authState, selectedLayerId } = useAuth();
   const {
     imageFile,
     setImageFile,
@@ -131,9 +130,9 @@ const Inscription = () => {
   };
 
   const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
+    queryKey: ["currentLayerData", selectedLayerId],
+    queryFn: () => getLayerById(selectedLayerId as string),
+    enabled: !!selectedLayerId,
   });
 
   const calculateTimeUntilDate = (
@@ -191,7 +190,7 @@ const Inscription = () => {
         priceForLaunchpad: 0.001,
         type: "INSCRIPTION",
         userLayerId: authState.userLayerId,
-        layerId: authState.layerId,
+        layerId: selectedLayerId,
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
