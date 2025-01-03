@@ -177,41 +177,45 @@ export default function Assets({ detail = false }: { detail: boolean }) {
             </TabsContent>
 
             <TabsContent value="ColCard" className="w-full">
-              <div className="w-full overflow-x-auto border-b border-neutral400">
-                <div className="min-w-[1216px] w-full border-b border-neutral400 flex h-[34px] pr-8 pb-4 pl-4">
-                  <div className="w-[392px] h-[18px]">
-                    <p className="font-medium text-md text-neutral200">Item</p>
-                  </div>
-                  <div className="grid grid-cols-4 w-full text-center">
-                    <div className="w-[200px] h-[18px]">
-                      <p className="font-medium text-md text-neutral200 pr-7">
-                        Price
-                      </p>
-                    </div>
-                    <div className="w-[200px] h-[18px]">
+              <div className="overflow-x-auto w-full">
+                <div className="w-full border-b border-neutral400 min-w-[1216px] ">
+                  <div className="w-full border-b border-neutral400 flex h-[34px] pr-8 pb-4 pl-4 justify-between">
+                    <div className="w-[392px] h-[18px]">
                       <p className="font-medium text-md text-neutral200">
-                        Floor difference
+                        Item
                       </p>
                     </div>
-                    <div className="w-[200px] h-[18px]">
-                      <p className="font-medium text-md text-neutral200">
-                        Owner
-                      </p>
-                    </div>
-                    <div className="w-[200px] h-[18px]">
-                      <p className="font-medium text-md text-neutral200 pl-10">
-                        Listed time
-                      </p>
+                    <div className="flex flex-row w-full text-start gap-0 justify-end">
+                      <div className="w-[200px] h-[18px]">
+                        <p className="font-medium text-md text-neutral200 pr-7">
+                          Price
+                        </p>
+                      </div>
+                      <div className="w-[200px] h-[18px]">
+                        <p className="font-medium text-md text-neutral200">
+                          Floor difference
+                        </p>
+                      </div>
+                      <div className="w-[200px] h-[18px]">
+                        <p className="font-medium text-md text-neutral200">
+                          Owner
+                        </p>
+                      </div>
+                      <div className="w-[200px] h-[18px]">
+                        <p className="font-medium text-md text-neutral200 ">
+                          Listed time
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex flex-col w-full pt-4 gap-4 overflow-x-auto">
-                {data?.data.collectibles.map((item: CollectibleSchema) => (
-                  <div key={item.id}>
-                    <ColAssetsCards data={item} />
-                  </div>
-                ))}
+                <div className="flex flex-col w-full pt-4 gap-4">
+                  {data?.data.collectibles.map((item: CollectibleSchema) => (
+                    <div key={item.id}>
+                      <ColAssetsCards data={item} />
+                    </div>
+                  ))}
+                </div>
               </div>
             </TabsContent>
           </section>

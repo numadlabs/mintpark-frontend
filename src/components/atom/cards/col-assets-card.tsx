@@ -41,7 +41,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
   return (
     <>
       <Link
-        className="flex min-w-[1216px] w-full justify-between items-center gap-24 bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-4"
+        className="flex min-w-[1216px] w-full justify-between items-center bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-4"
         href={`/my-assets/${data.id}`}
       >
         <div className="flex w-[392px] h-16 gap-5">
@@ -61,7 +61,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
           </p>
         </div>
         <div className="flex justify-end items-center w-full text-start">
-          <div className="w-[300px] grid gap-1 h-[18px]">
+          <div className="w-[200px] grid gap-1 h-[18px]">
             <p className="font-medium text-lg text-neutral50">
               {formatPrice(data.floor)}
               <span className="ml-1">cBTC</span>
@@ -75,7 +75,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
               </p>
             </p>
           </div>
-          <div className="w-[220px] h-[18px]">
+          <div className="w-[200px] h-[18px]">
             <p
               className={`font-medium text-lg ${
                 (data.floor ?? 0) >= 0 ? "text-success" : "text-errorMsg"
@@ -85,14 +85,14 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
               {formatPrice(data.floor) ?? 0}%
             </p>
           </div>
-          <div className="w-[160px] h-[18px]">
+          <div className="w-[200px] h-[18px]">
             <p className="font-medium text-lg text-neutral50">
               <TruncatedAddress address={data.id} />
               {/* this is OwnedBy */}
             </p>
           </div>
           <div
-            className={`w-[210px] h-[18px] ${
+            className={`w-[200px] h-[18px] ${
               (data?.price ?? 0) > 0 ? "group" : ""
             } relative`}
           >

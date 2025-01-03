@@ -314,59 +314,59 @@ export default function Header() {
                   </SelectContent>
                 </Select>
 
-              {isAuthenticated ? (
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => setWalletModalOpen(true)}
-                  className="min-w-[170px]"
-                >
-                  Connect Wallet
-                </Button>
-              ) : authState.authenticated && currentWallet ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[136px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
-                    <Image
-                      src="/Avatar.png"
-                      alt="avatar"
-                      width={24}
-                      height={24}
-                      className="rounded-full"
-                    />
-                    <span className="text-neutral50">
-                      {truncateAddress(currentWallet.address)}
-                    </span>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="flex flex-col gap-2 max-w-[215px] w-full p-2 border border-white4 bg-gray50 mt-4 rounded-2xl backdrop-blur-xl">
-                    <Link href="/my-assets">
-                      <DropdownMenuItem className="flex flex-row justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                        <div className="flex flex-row items-center gap-2">
-                          <Wallet2 size={24} color="#D7D8D8" />
-                          My Assets
-                        </div>
-                        <ArrowRight2 size={16} color="#D7D8D8" />
+                {isAuthenticated ? (
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    onClick={() => setWalletModalOpen(true)}
+                    className="min-w-[170px]"
+                  >
+                    Connect Wallet
+                  </Button>
+                ) : authState.authenticated && currentWallet ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[136px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
+                      <Image
+                        src="/Avatar.png"
+                        alt="avatar"
+                        width={24}
+                        height={24}
+                        className="rounded-full"
+                      />
+                      <span className="text-neutral50">
+                        {truncateAddress(currentWallet.address)}
+                      </span>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="flex flex-col gap-2 max-w-[215px] w-full p-2 border border-white4 bg-gray50 mt-4 rounded-2xl backdrop-blur-xl">
+                      <Link href="/my-assets">
+                        <DropdownMenuItem className="flex flex-row justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                          <div className="flex flex-row items-center gap-2">
+                            <Wallet2 size={24} color="#D7D8D8" />
+                            My Assets
+                          </div>
+                          <ArrowRight2 size={16} color="#D7D8D8" />
+                        </DropdownMenuItem>
+                      </Link>
+                      <Link href="/orders">
+                        <DropdownMenuItem className="flex flex-row items-center justify-between text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                          <div className="flex flex-row items-center gap-2">
+                            <I3Dcube size={24} color="#D7D8D8" />
+                            <p>Inscribe Orders</p>
+                          </div>
+                          <ArrowRight2 size={16} color="#D7D8D8" />
+                        </DropdownMenuItem>
+                      </Link>
+                      <DropdownMenuItem
+                        className="text-neutral50 text-md font-medium flex flex-row gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
+                        onClick={handleLogOut}
+                      >
+                        <Logout size={24} color="#D7D8D8" />
+                        Log Out
                       </DropdownMenuItem>
-                    </Link>
-                    <Link href="/orders">
-                      <DropdownMenuItem className="flex flex-row items-center justify-between text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                        <div className="flex flex-row items-center gap-2">
-                          <I3Dcube size={24} color="#D7D8D8" />
-                          <p>Inscribe Orders</p>
-                        </div>
-                        <ArrowRight2 size={16} color="#D7D8D8" />
-                      </DropdownMenuItem>
-                    </Link>
-                    <DropdownMenuItem
-                      className="text-neutral50 text-md font-medium flex flex-row gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
-                      onClick={handleLogOut}
-                    >
-                      <Logout size={24} color="#D7D8D8" />
-                      Log Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : null}
-            </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : null}
+              </div>
 
               {/* Mobile Menu Button */}
               <button
@@ -431,20 +431,22 @@ export default function Header() {
                   </button>
                 </div>
               ))}
-              <div className="flex flex-col gap-8 pt-6 border-t border-neutral400">
-                <Link
-                  href="/assets"
-                  className="text-neutral00 text-lg font-medium"
-                >
-                  My Assets
-                </Link>
-                <Link
-                  href="/orders"
-                  className="text-neutral00 text-lg font-medium"
-                >
-                  Inscribe Orders
-                </Link>
-              </div>
+              {authState.authenticated && (
+                <div className="flex flex-col gap-8 pt-6 border-t border-neutral400">
+                  <Link
+                    href="/my-assets"
+                    className="text-neutral00 text-lg font-medium"
+                  >
+                    My Assets
+                  </Link>
+                  <Link
+                    href="/orders"
+                    className="text-neutral00 text-lg font-medium"
+                  >
+                    Inscribe Orders
+                  </Link>
+                </div>
+              )}
 
               {/* {authState?.authenticated ? (
                 <div className="flex flex-col gap-2">
