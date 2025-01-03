@@ -48,7 +48,7 @@ export default function Header() {
   const [walletModal, setWalletModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
-
+  const [selectedLayer, setSelectedLayer] = useState("CITREA");
   const [defaultLayer, setDefaultLayer] = useState<string>("CITREA-mainnet");
 
   const {
@@ -57,8 +57,8 @@ export default function Header() {
     selectedLayerId,
     setSelectedLayerId,
     getWalletForLayer,
+    isWalletConnected,
   } = useAuth();
-  const id = authState?.userLayerId;
 
   const { data: dynamicLayers = [] } = useQuery({
     queryKey: ["layerData"],
@@ -68,9 +68,9 @@ export default function Header() {
   });
 
   const { data: currentLayer, isLoading: isLayersLoading } = useQuery({
-    queryKey: ["currentLayerData", id],
-    queryFn: () => getLayerById(id as string),
-    enabled: !!id,
+    queryKey: ["currentLayerData", selectedLayerId],
+    queryFn: () => getLayerById(selectedLayerId as string),
+    enabled: !!selectedLayerId,
   });
 
   // Initialize default layer
@@ -90,6 +90,7 @@ export default function Header() {
           const layerString = `${citreaLayer.layer}-${citreaLayer.network}`;
           setDefaultLayer(layerString);
           setSelectedLayerId(citreaLayer.id);
+          setSelectedLayer(citreaLayer.id);
         }
       }
     };
@@ -161,14 +162,9 @@ export default function Header() {
     );
 
     if (selectedLayer) {
-      if (authState.authenticated) {
-        onLogout();
-        toast.info(
-          "Logged out due to layer change. Please reconnect your wallet."
-        );
-      }
       setSelectedLayerId(selectedLayer.id);
       setDefaultLayer(value);
+      setSelectedLayer(layer);
     }
   };
 
@@ -204,7 +200,9 @@ export default function Header() {
     ? getWalletForLayer(selectedLayerId)
     : undefined;
 
-  //todo authenticated uyd dahij wallet holboh talaar evteihen UX bodoh
+  const isAuthenticated =
+    selectedLayerId && !isWalletConnected(selectedLayerId);
+
   return (
     <>
       <div className="h-[72px] w-full flex justify-center bg-neutral500 bg-opacity-50 backdrop-blur-4xl mt-5 rounded-3xl">
@@ -315,19 +313,27 @@ export default function Header() {
                 </SelectContent>
               </Select>
 
-              {authState?.authenticated ? (
+              {isAuthenticated ? (
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => setWalletModalOpen(true)}
+                  className="min-w-[170px]"
+                >
+                  Connect Wallet
+                </Button>
+              ) : authState.authenticated && currentWallet ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[136px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
                     <Image
-                      src={"/Avatar.png"}
-                      alt="image"
-                      sizes="100%"
+                      src="/Avatar.png"
+                      alt="avatar"
                       width={24}
                       height={24}
-                      className="object-cover rounded-full"
+                      className="rounded-full"
                     />
                     <span className="text-neutral50">
-                      {currentWallet && truncateAddress(currentWallet.address)}
+                      {truncateAddress(currentWallet.address)}
                     </span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="flex flex-col gap-2 max-w-[215px] w-full p-2 border border-white4 bg-gray50 mt-4 rounded-2xl backdrop-blur-xl">
@@ -358,16 +364,7 @@ export default function Header() {
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              ) : (
-                <Button
-                  variant={"secondary"}
-                  size={"lg"}
-                  onClick={() => setWalletModalOpen(true)}
-                  className="min-w-[170px]"
-                >
-                  Connect Wallet
-                </Button>
-              )}
+              ) : null}
             </div>
 
             {/* Mobile Menu Button */}
@@ -479,6 +476,11 @@ export default function Header() {
       <WalletConnectionModal
         open={walletModalOpen}
         onClose={() => setWalletModalOpen(false)}
+        activeTab={selectedLayer}
+        onTabChange={setSelectedLayer}
+        onLayerSelect={(layer, network) => {
+          handleLayerSelect(`${layer}-${network}`);
+        }}
       />
     </>
   );

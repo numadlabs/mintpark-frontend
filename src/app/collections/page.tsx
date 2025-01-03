@@ -42,8 +42,8 @@ const orderConfigs: Record<string, OrderConfig> = {
 export default function Collections({ searchParams }: CollectionsProps) {
   const detail = searchParams.detail === "true";
   const router = useRouter();
-  const { authState } = useAuth();
-  const id = authState?.layerId;
+  const { authState, selectedLayerId } = useAuth();
+  const id = selectedLayerId;
   const intervals = ["1h", "24h", "7d", "30d", "All"];
   const [active, setActive] = useState(false);
   const [selectedInterval, setSelectedInterval] = useState("All");
@@ -64,7 +64,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
         id as string,
         selectedInterval.toLowerCase(),
         orderConfig.orderBy,
-        orderConfig.orderDirection,
+        orderConfig.orderDirection
       ),
     enabled: !!id,
   });
@@ -150,7 +150,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                     {key
                       .split("-")
                       .map(
-                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
                       )
                       .join(" ")}
                   </SelectItem>

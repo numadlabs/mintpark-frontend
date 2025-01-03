@@ -30,15 +30,20 @@ import { LayerTypes } from "@/lib/types";
 interface WalletConnectionModalProps {
   open: boolean;
   onClose: () => void;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  onLayerSelect: (layer: string, network: string) => void;
 }
 
 export function WalletConnectionModal({
   open,
   onClose,
+  activeTab,
+  onTabChange,
+  onLayerSelect,
 }: WalletConnectionModalProps) {
   const [showLinkAlert, setShowLinkAlert] = useState(false);
   const [currentLayer, setCurrentLayer] = useState<LayerTypes | null>(null);
-  const [activeTab, setActiveTab] = useState("BITCOIN");
 
   const {
     authState,
@@ -47,6 +52,7 @@ export function WalletConnectionModal({
     connectWallet,
     disconnectWallet,
     isWalletConnected,
+    selectedLayerId,
   } = useAuth();
 
   const { data: layers = [] } = useQuery({
@@ -128,8 +134,17 @@ export function WalletConnectionModal({
           </DialogHeader>
           <div className="h-[1px] w-full bg-white8" />
           <Tabs
+            value={activeTab}
             defaultValue={activeTab}
-            onValueChange={setActiveTab}
+            onValueChange={(value) => {
+              onTabChange(value);
+              const selectedLayer = layers.find(
+                (layer) => layer.layer === value
+              );
+              if (selectedLayer) {
+                onLayerSelect(selectedLayer.layer, selectedLayer.network);
+              }
+            }}
             className="w-full"
           >
             <TabsList className="w-full">
