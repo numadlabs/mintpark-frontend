@@ -13,13 +13,13 @@ import LaunchpadCardSkeleton from "@/components/atom/skeleton/launchpad-skeleton
 import Autoplay from "embla-carousel-autoplay";
 
 const Launchpad = () => {
-  const { authState } = useAuth();
+  const { authState, selectedLayerId } = useAuth();
   const [interval, setInterval] = useState<string>("all");
 
   const { data: launch = [], isLoading } = useQuery({
     queryKey: ["launchData", interval],
-    queryFn: () => fetchLaunchs(authState?.layerId as string, interval),
-    enabled: !!authState?.layerId,
+    queryFn: () => fetchLaunchs(selectedLayerId as string, interval),
+    enabled: !!selectedLayerId,
   });
 
   const handleIntervalChange = (value: string) => {
