@@ -19,7 +19,7 @@ import {
   getSigner,
   s3ImageUrlBuilder,
   formatPrice,
-  formatTimeAgo
+  formatTimeAgo,
 } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -109,7 +109,7 @@ export default function AssetsDetails() {
           if (!registerRes.data.isRegistered) {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(
-              registerRes.data.registrationTx,
+              registerRes.data.registrationTx
             );
             await signedTx?.wait();
           }
@@ -125,7 +125,6 @@ export default function AssetsDetails() {
       setIsLoading(false);
     }
   };
-
 
   if (isCollectionLoading) {
     return (

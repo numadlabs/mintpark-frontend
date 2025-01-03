@@ -17,7 +17,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
     if (!address) return <span>-</span>;
     return (
       <span title={address}>{`${address.slice(0, 4)}...${address.slice(
-        -4,
+        -4
       )}`}</span>
     );
   };
@@ -42,7 +42,7 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
     <>
       <Link
         className="flex min-w-[1216px] w-full justify-between items-center gap-24 bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-4"
-        href={`/assets/${data.id}`}
+        href={`/my-assets/${data.id}`}
       >
         <div className="flex w-[392px] h-16 gap-5">
           <Image

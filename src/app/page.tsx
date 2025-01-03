@@ -151,7 +151,7 @@ export default function Home() {
   return (
     <Layout>
       <Header />
-      <section className="w-full flex flex-col gap-[56px] md:gap-[100px] 2xl:gap-[200px] mt-12 md:mt-[100px]">
+      <section className="w-full overflow-x-hidden flex flex-col gap-[56px] md:gap-[100px] 2xl:gap-[200px] mt-12 md:mt-[100px]">
         {/* Hero Section */}
         <div className="w-full flex flex-col items-center gap-8 md:gap-12">
           <div className="flex flex-col gap-6 md:gap-8 items-center">
