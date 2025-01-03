@@ -14,13 +14,13 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
   return (
     <div
       onClick={handleNav}
-      className="h-[248px] w-full sm:h-auto sm:w-full md:h-auto md:w-full md2:h-auto md2:w-full 3xl:w-[280px] 3xl:h-auto transition-transform duration-300 hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br collection from-gradientStart to-transparent border border-neutral400 rounded-xl p-3 sm:p-4 flex flex-col justify-between items-center"
+      className="h-auto w-full sm:h-auto sm:w-full md:h-[384px] md:w-full md2:h-auto md2:w-full 3xl:w-[280px] 3xl:h-[432px] transition-transform duration-300 hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br collection from-gradientStart to-transparent border border-neutral400 rounded-xl p-3 sm:p-4 flex flex-col justify-between items-center"
     >
       <Image
         width={248}
         height={248}
         src={s3ImageUrlBuilder(data?.logoKey)}
-        className="object-cover aspect-square rounded-xl h-[128px] w-[139.5px] sm:w-[248px] sm:h-[248px]"
+        className="object-cover aspect-square rounded-xl"
         alt={`${data.name || "Collection"} image`}
       />
 
