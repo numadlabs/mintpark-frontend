@@ -31,6 +31,18 @@ const Launchpad = () => {
       .fill(null)
       .map((_, index) => <LaunchpadCardSkeleton key={`skeleton-${index}`} />);
   };
+
+  // if (!launch || launch.length === 0){
+  //   return (
+  //     <>
+  //        <Header />
+  //        <LaunchpadBanner data={launch?.[0]} />
+  //       <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
+  //         <p className="text-neutral200 font-medium text-lg">No activity recorded</p>
+  //       </div>
+  //     </>
+  //   );
+  // }
   return (
     <Layout>
       <Header />

@@ -258,8 +258,8 @@ export default function Home() {
                   <Card
                     className="overflow-hidden rounded-3xl border border-white4 border-b-0 h-full"
                     style={{
-                      backgroundImage: `url(https://d1orw8h9a3ark2.cloudfront.net/asset/${service.image}.png)`,
-                      backgroundSize: "cover",
+                      backgroundImage: `url(https://d1orw8h9a3ark2.cloudfront.net/asset/${service.bg})`,
+                      backgroundSize: "cover relative -z-10",
                     }}
                   >
                     <div className="relative h-48 md:h-56">

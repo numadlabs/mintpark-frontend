@@ -53,13 +53,17 @@ const CollectionsBanner = () => {
     if (!api) return;
 
     api.on("select", handleSelect);
-    const interval = setInterval(() => api.scrollNext(), SLIDE_INTERVAL);
+    
+    const interval = setInterval(() => {
+      const nextIndex = (currentSlide + 1) % bannerData.length;
+      api.scrollTo(nextIndex);
+    }, SLIDE_INTERVAL);
 
     return () => {
       api.off("select", handleSelect);
       clearInterval(interval);
     };
-  }, [api, handleSelect]);
+  }, [api, handleSelect, currentSlide]);
 
   const renderSlide = (slide: BannerSlide) => (
     <div className="relative h-80 w-full rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden">

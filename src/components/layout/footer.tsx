@@ -24,7 +24,7 @@ export default function Footer() {
               <TextLogo />
             </div>
             <p className="font-medium text-md text-neutral200 mt-4 lg:mt-0">
-              ©2024 Mint Park. All rights reserved.
+              ©2025 Mint Park. All rights reserved.
             </p>
           </div>
 

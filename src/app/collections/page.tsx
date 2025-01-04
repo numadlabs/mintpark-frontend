@@ -127,7 +127,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                   <TabsTrigger
                     key={interval}
                     value={interval}
-                    className="w-[63.8px] lg:w-[59px] h-10 font-semibold text-[15px] rounded-lg border-hidden"
+                    className="w-full sm:w-full md:w-[59px] h-10 font-semibold text-[15px] rounded-lg border-hidden"
                   >
                     {interval}
                   </TabsTrigger>
