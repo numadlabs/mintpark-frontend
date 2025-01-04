@@ -99,7 +99,7 @@ export default function AssetDetail() {
                   //   ? s3ImageUrlBuilder(currentAsset.fileKey)
                   //   : ordinalsImageCDN(currentAsset.uniqueIdx)
                 }
-                className="aspect-square rounded-xl relative z-20 md:h-[343px] 3xl:h-[560px] 3xl:w-[560px] w-[343px] h-[343px] md2:h-auto md2:w-full"
+                className="aspect-square rounded-xl relative z-20 md:h-[343px] 3xl:h-[560px] 3xl:w-[560px] w-[343px] h-auto md2:h-auto md2:w-full"
                 alt={`${currentAsset.name} logo`}
               />
             </div>
@@ -111,7 +111,7 @@ export default function AssetDetail() {
                   ? currentAsset.highResolutionImageUrl
                   : s3ImageUrlBuilder(currentAsset.fileKey)
               }
-              className="aspect-square rounded-xl absolute z-20 w-[360px] h-[320px] md:h-[340px] md2:h-auto md2:w-full 2xl:w-[560px] 2xl:h-[560px] top-0"
+              className="aspect-square rounded-xl absolute z-20 w-[330px] h-auto md:h-[340px] md2:h-auto md2:w-full 2xl:w-[560px] 2xl:h-[560px] top-0"
               alt={`${currentAsset.name} logo`}
             />
           </div>

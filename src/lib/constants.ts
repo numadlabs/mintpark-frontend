@@ -84,17 +84,20 @@ export const serviceData = [
     title: "Launch Collection",
     description: "Create unique digital art on chain today backed by bitcoin",
     image: "service1",
+    bg:"bg"
   },
   {
     id: 2,
     title: "Trade",
     description: "Maximize value through seamless NFT market operations",
     image: "service2",
+    bg:"bg"
   },
   {
     id: 1,
     title: "Bridge between layer-2s",
     description: "Transfer assets seamlessly across Bitcoin Layer networks",
     image: "service3",
+    bg:"bg"
   },
 ];
