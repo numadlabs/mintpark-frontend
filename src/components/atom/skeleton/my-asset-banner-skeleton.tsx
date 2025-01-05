@@ -2,55 +2,55 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const ProfileBannerSkeleton = () => {
   return (
-    <section className="mt-[43.5px]">
-      <div className="relative h-[216px] w-full rounded-3xl overflow-hidden">
-        {/* Banner background */}
-        <div className="absolute inset-0 bg-neutral500 bg-opacity-[70%]" 
+    <section className="mt-[43.5px] w-full">
+      <div className="relative z-10 h-auto min-h-[216px] w-full rounded-3xl overflow-hidden">
+        {/* Banner Background with Blur */}
+        <div className="absolute inset-0 bg-neutral500 bg-opacity-[70%]"
           style={{
             backdropFilter: "blur(50px)",
           }}
         />
-        
-        {/* Content container */}
-        <div className="flex relative top-11 pl-12 pr-12 w-full z-50">
-          {/* Profile image skeleton */}
-          <div className="pt-4">
-            <Skeleton className="w-[120px] h-[120px] rounded-full" />
-          </div>
 
-          {/* Right side content */}
-          <div className="w-full flex flex-col justify-between gap-5 pl-6 pr-6 pt-4 pb-4">
-            {/* Wallet address and copy button */}
-            <div className="flex gap-4 items-center">
-              <Skeleton className="w-[180px] h-7" /> {/* Wallet address */}
-              <Skeleton className="w-6 h-6 rounded-md" /> {/* Copy icon */}
+        {/* Main Content Container */}
+        <div className="relative py-12 px-4 sm:px-6 md:px-8 lg:px-12 w-full z-10">
+          <div className="flex flex-col md:flex-row gap-6 xl:gap-10 items-center md:items-end">
+            {/* Profile Image */}
+            <div className="flex-shrink-0">
+              <Skeleton className="w-24 h-24 md:w-[120px] md:h-[120px] rounded-full" />
             </div>
 
-            {/* Bottom row with balance and stats */}
-            <div className="flex justify-between w-full">
-              {/* Wallet balance section */}
-              <div className="flex gap-4">
-                <div className="rounded-2xl bg-white4 p-4 flex gap-4 items-center">
-                  <Skeleton className="w-6 h-6 rounded-full" /> {/* Coin icon */}
-                  <Skeleton className="w-[120px] h-7" /> {/* Balance */}
-                  <div className="border-l border-l-white16 pl-4 h-5">
-                    <Skeleton className="w-[80px] h-5" /> {/* USD value */}
-                  </div>
-                </div>
+            {/* Profile Content */}
+            <div className="w-full flex flex-col gap-4 md:gap-5">
+              {/* Wallet Address and Copy Button */}
+              <div className="flex gap-4 items-center justify-center md:justify-start">
+                <Skeleton className="w-40 sm:w-48 h-6 sm:h-8" />
+                <Skeleton className="w-5 h-5 sm:w-6 sm:h-6 rounded-md" />
               </div>
 
-              {/* Stats containers */}
-              <div className="flex gap-4 items-end">
-                {/* Total items */}
-                <div className="pt-3 pr-4 pb-3 pl-4 flex gap-3 rounded-xl bg-white4 items-center">
-                  <Skeleton className="w-[80px] h-5" /> {/* "Total items:" */}
-                  <Skeleton className="w-[40px] h-5" /> {/* Count */}
+              {/* Balance and Items Info */}
+              <div className="flex flex-col md:flex-row gap-4 justify-between w-full">
+                {/* Wallet Balance Section */}
+                <div className="rounded-2xl bg-white4 p-3 sm:p-4 flex gap-4 items-center w-full md:w-fit justify-center md:justify-start">
+                  <div className="flex flex-row items-center gap-2 md:gap-3">
+                    <Skeleton className="h-5 w-5 sm:h-6 sm:w-6 rounded-full" />
+                    <Skeleton className="w-24 sm:w-28 h-5 sm:h-6" />
+                  </div>
+                  <div className="h-6 w-[1px] bg-white16" />
+                  <Skeleton className="w-20 sm:w-24 h-5" />
                 </div>
 
-                {/* Listed items */}
-                <div className="pt-3 pr-4 pb-3 pl-4 flex gap-3 rounded-xl bg-white4 items-center">
-                  <Skeleton className="w-[80px] h-5" /> {/* "Listed items:" */}
-                  <Skeleton className="w-[40px] h-5" /> {/* Count */}
+                {/* Items Count Section */}
+                <div className="grid grid-cols-2 md:flex flex-row md:flex-col lg:flex-row justify-center lg:justify-end gap-4 items-center lg:ml-auto">
+                  {/* Total Items */}
+                  <div className="py-3 px-4 items-center justify-center flex gap-2 sm:gap-3 rounded-xl bg-white4">
+                    <Skeleton className="w-16 sm:w-20 h-4 sm:h-5" />
+                    <Skeleton className="w-8 sm:w-10 h-4 sm:h-5" />
+                  </div>
+                  {/* Listed Items */}
+                  <div className="py-3 px-4 items-center justify-center flex gap-2 sm:gap-3 rounded-xl bg-white4">
+                    <Skeleton className="w-16 sm:w-20 h-4 sm:h-5" />
+                    <Skeleton className="w-8 sm:w-10 h-4 sm:h-5" />
+                  </div>
                 </div>
               </div>
             </div>
