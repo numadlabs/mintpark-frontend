@@ -5,18 +5,13 @@ import Header from "@/components/layout/header";
 import { Carousel } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  confirmOrder,
-  createBuyLaunch,
-  generateHex,
-} from "@/lib/service/postRequest";
-import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
+import { confirmOrder, createBuyLaunch } from "@/lib/service/postRequest";
+import { s3ImageUrlBuilder } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
-  getFeeRates,
   getLaunchByCollectionId,
   getLayerById,
 } from "@/lib/service/queryHelper";
@@ -24,14 +19,10 @@ import PhaseCard from "@/components/atom/cards/phase-card";
 import { useParams, useRouter } from "next/navigation";
 import WhiteListPhaseCard from "@/components/atom/cards/white-list-phase-card";
 import { useAuth } from "@/components/provider/auth-context-provider";
-import { createOrderToMint } from "@/lib/service/postRequest";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LaunchDetailSkeleton from "@/components/atom/skeleton/launch-detail-skeleton";
-import { Global } from "iconsax-react";
-import DiscordIcon from "@/components/icon/hoverIcon";
 import ThreadIcon from "@/components/icon/thread";
-import { LaunchsDetailSchema } from "@/lib/validations/launchpad-validation";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -62,12 +53,6 @@ const Page = () => {
       queryFn: () => getLaunchByCollectionId(id as string),
       enabled: !!id,
     });
-
-  // const { data: feeRates = [], isLoading: isFeeRatesLoading } = useQuery({
-  //   queryKey: ["feeRateData"],
-  //   queryFn: () => getFeeRates(authState?.userLayerId as string),
-  //   enabled: !!authState?.userLayerId,
-  // });
 
   const { data: currentLayer, isLoading: isLayerLoading } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
@@ -112,7 +97,7 @@ const Page = () => {
           response.data.order.fundingAddress,
           Math.ceil(response.data.order.fundingAmount)
         );
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         // }
         if (orderId) {
@@ -217,7 +202,7 @@ const Page = () => {
       className="min-h-screen bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage: `url(${s3ImageUrlBuilder(
-          collectibles ? collectibles?.logoKey : "/launchpads/bg_1.jpg"
+          collectibles ? collectibles?.logoKey : ""
         )})`,
       }}
     >

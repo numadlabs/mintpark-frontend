@@ -32,10 +32,7 @@ import { ExtendedLayerType, LayerType } from "@/lib/types";
 import { toast } from "sonner";
 import Badge from "../atom/badge";
 import { Loader2, MenuIcon } from "lucide-react";
-import XLogo from "../icon/xlogo";
-import useWalletAuth from "@/lib/hooks/useWalletAuth";
 import { WalletConnectionModal } from "../modal/wallet-connect-modal";
-import { STORAGE_KEYS } from "@/lib/constants";
 
 declare global {
   interface Window {
@@ -447,32 +444,6 @@ export default function Header() {
                   </Link>
                 </div>
               )}
-
-              {/* {authState?.authenticated ? (
-                <div className="flex flex-col gap-2">
-                  <Link href="/assets" className="text-neutral50 text-lg font-medium py-2">
-                    My Assets
-                  </Link>
-                  <Link href="/orders" className="text-neutral50 text-lg font-medium py-2">
-                    Inscribe Orders
-                  </Link>
-                  <button
-                    className="text-neutral50 text-lg font-medium py-2 text-left"
-                    onClick={handleLogOut}
-                  >
-                    Log Out
-                  </button>
-                </div>
-              ) : (
-                <Button
-                  variant={"secondary"}
-                  size={"lg"}
-                  onClick={handleConnect}
-                  className="w-full mt-4"
-                >
-                  Connect Wallet
-                </Button>
-              )} */}
             </div>
           </div>
         </div>

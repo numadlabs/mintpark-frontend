@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -9,25 +9,9 @@ import { X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  feeAmount,
-  createMintCollectible,
-  createCollection,
-} from "@/lib/service/postRequest";
 import { useAuth } from "../provider/auth-context-provider";
-import {
-  CollectionData,
-  FeeRateAmount,
-  InscribeOrderData,
-  MintCollectibleDataType,
-  MintDataType,
-} from "@/lib/types";
-import { toast } from "sonner";
 import InscribeOrderModal from "./insribe-order-modal";
-import { getLayerById } from "@/lib/service/queryHelper";
 import { useRouter } from "next/navigation";
-import { getSigner } from "@/lib/utils";
 
 interface ModalProps {
   open: boolean;
@@ -51,16 +35,9 @@ interface EstimatedFee {
 const SubmitPayModal: React.FC<ModalProps> = ({
   open,
   onClose,
-  fileSizes,
-  fileTypeSizes,
-  files,
-  name,
-  creator,
-  description,
   navigateOrders,
   navigateToCreate,
 }) => {
-  const router = useRouter();
   const { authState, getAddressforCurrentLayer } = useAuth();
   const connectedWallet = getAddressforCurrentLayer();
 
@@ -69,32 +46,13 @@ const SubmitPayModal: React.FC<ModalProps> = ({
   const [inscribeModal, setInscribeModal] = useState(false);
   const [hash, setHash] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [collectionId, setCollectionId] = useState<string>("");
   const [selectedTab, setSelectedTab] = useState<"Slow" | "Fast" | "Custom">(
-    "Custom",
+    "Custom"
   );
   const [estimatedFee, setEstimatedFee] = useState<EstimatedFee>({
     networkFee: 0,
     serviceFee: 0,
     totalFee: 0,
-  });
-
-  const { mutateAsync: createCollectionMutation } = useMutation({
-    mutationFn: createCollection,
-  });
-
-  const { mutateAsync: feeAmountMutation } = useMutation({
-    mutationFn: feeAmount,
-  });
-
-  const { mutateAsync: createCollectiblesMutation } = useMutation({
-    mutationFn: createMintCollectible,
-  });
-
-  const { data: currentLayer } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
   });
 
   const handleFeeRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,140 +61,6 @@ const SubmitPayModal: React.FC<ModalProps> = ({
     setSelectedTab("Custom");
   };
 
-  const calculateFeeRate = useCallback(async () => {
-    if (fileSizes.length === 0 || !fileTypeSizes.length) {
-      console.error("Invalid fileSize or fileType");
-      return;
-    }
-
-    try {
-      const params: FeeRateAmount = {
-        feeRate,
-        fileSizes,
-        fileTypeSizes,
-      };
-      const response = await feeAmountMutation({ data: params });
-
-      if (response && response.success) {
-        setEstimatedFee({
-          networkFee: response.data.estimatedFee.networkFee,
-          serviceFee: response.data.estimatedFee.serviceFee,
-          totalFee: response.data.estimatedFee.totalAmount,
-        });
-      }
-    } catch (error) {
-      console.error("Error calculating fee rate:", error);
-      // toast.error("Failed to calculate fee rate");
-    }
-  }, [feeAmountMutation, feeRate, fileSizes, fileTypeSizes]);
-
-  const handlePay = async () => {
-    if (!currentLayer) {
-      toast.error("Layer information not available");
-      return false;
-    }
-    setIsLoading(true);
-    try {
-      const collectionParams: CollectionData = {
-        logo: files[0],
-        name: name,
-        // creator: creator,
-        description: description,
-        priceForLaunchpad: 0,
-        userLayerId: authState.userLayerId,
-        layerId: authState.layerId,
-        type: "INSCRIPTION",
-      };
-      if (collectionParams) {
-        let collectionTxid;
-        let collectionResponse = await createCollectionMutation({
-          data: collectionParams,
-        });
-        if (collectionResponse && collectionResponse.success) {
-          const { id } = collectionResponse.data.collection;
-          const { deployContractTxHex } = collectionResponse.data;
-          setCollectionId(id);
-          console.log("create collection success", collectionResponse);
-
-          if (currentLayer.layer === "CITREA") {
-            const { signer } = await getSigner();
-            const signedTx = await signer?.sendTransaction(deployContractTxHex);
-            await signedTx?.wait();
-            if (signedTx?.hash) collectionTxid = signedTx?.hash;
-            console.log(signedTx);
-          }
-        }
-        const params: MintCollectibleDataType = {
-          // orderType: "COLLECTIBLE",
-          file: files,
-          // name: name,
-          // creator: creator,
-          feeRate: 1,
-          txid: collectionTxid,
-          collectionId: "",
-        };
-
-        const response = await createCollectiblesMutation({ data: params });
-        console.log("🚀 ~ handlePay ~ response:", response);
-        if (response && response.success) {
-          if (currentLayer.layer === "CITREA") {
-            const { batchMintTxHex } = response.data;
-            const { signer } = await getSigner();
-            const signedTx = await signer?.sendTransaction(batchMintTxHex);
-            await signedTx?.wait();
-            if (signedTx?.hash) setHash(signedTx?.hash);
-          } else if (currentLayer.layer === "FRACTAL") {
-            console.log(
-              response.data.order.fundingAddress,
-              response.data.order.fundingAmount,
-            );
-            await window.unisat.sendBitcoin(
-              response.data.order.fundingAddress,
-              Math.ceil(response.data.order.fundingAmount),
-            );
-          }
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          setData(response.data.order.id);
-          onClose();
-          setInscribeModal(true);
-        }
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to create order");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (open && fileSizes.length > 0 && fileTypeSizes) {
-      calculateFeeRate();
-    }
-  }, [open, fileSizes, fileTypeSizes, calculateFeeRate]);
-
-  useEffect(() => {
-    setFeeRate(
-      selectedTab === "Slow"
-        ? feeRate
-        : selectedTab === "Fast"
-          ? feeRate
-          : feeRate,
-    );
-  }, [selectedTab]);
-
-  useEffect(() => {
-    if (fileSizes.length > 0 && fileTypeSizes) {
-      calculateFeeRate();
-    }
-  }, [calculateFeeRate, feeRate, fileSizes, fileTypeSizes]);
-  const formatPrice = (price: number) => {
-    const btcAmount = price;
-    return btcAmount?.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 6,
-    });
-  };
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
@@ -315,7 +139,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
                         Network Fee
                       </p>
                       <p className="text-lg text-neutral50 font-bold">
-                        {formatPrice(estimatedFee.networkFee)} Sats
+                        {estimatedFee.networkFee} Sats
                       </p>
                     </div>
                     <div className="flex flex-row justify-between items-center">
@@ -323,7 +147,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
                         Service Fee
                       </p>
                       <p className="text-lg text-neutral50 font-bold">
-                        {formatPrice(estimatedFee.serviceFee)} Sats
+                        {estimatedFee.serviceFee} Sats
                       </p>
                     </div>
                   </div>
@@ -332,7 +156,7 @@ const SubmitPayModal: React.FC<ModalProps> = ({
                       Total Amount
                     </p>
                     <p className="text-lg text-brand font-bold">
-                      {formatPrice(estimatedFee.totalFee)} Sats
+                      {estimatedFee.totalFee} Sats
                     </p>
                   </div>
                 </div>
@@ -351,7 +175,6 @@ const SubmitPayModal: React.FC<ModalProps> = ({
             </Button>
             <Button
               className="flex items-center justify-center"
-              onClick={handlePay}
               disabled={isLoading}
             >
               {isLoading

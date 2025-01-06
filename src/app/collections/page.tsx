@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import ColumColCard from "@/components/atom/cards/collection-column-card";
 import {
   Select,
   SelectContent,
@@ -21,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import CollectionSkeleton from "@/components/atom/skeleton/collection-skeletion";
 import CollectionsBanner from "@/components/section/collections-banner";
+import CollectionCardList from "@/components/atom/cards/collection-card-list";
 
 interface CollectionsProps {
   params: {};
@@ -261,7 +261,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                       <div className="flex flex-col gap-4 pt-4 ">
                         {collectionArray?.map((item: any) => (
                           <div key={item.id}>
-                            <ColumColCard
+                            <CollectionCardList
                               data={item}
                               handleNav={() => handleNavigation(item)}
                             />

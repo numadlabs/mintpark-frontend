@@ -1,13 +1,7 @@
 import React from "react";
 import Image from "next/image";
-import {
-  formatPrice,
-  getPriceData,
-  ordinalsImageCDN,
-  s3ImageUrlBuilder,
-} from "@/lib/utils";
+import { formatPrice, getPriceData, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
-import { useAuth } from "@/components/provider/auth-context-provider";
 
 // Define the type for the component props
 interface ColDetailCardsProps {
@@ -31,7 +25,7 @@ const TruncatedAddress: React.FC<{ address: string | null }> = ({
   if (!address) return <span>-</span>;
   return (
     <span title={address}>{`${address.slice(0, 4)}...${address.slice(
-      -4,
+      -4
     )}`}</span>
   );
 };
@@ -44,7 +38,7 @@ const getDaysAgo = (createdAt: string) => {
   return diffDays;
 };
 
-const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
+const CollectibleCardList: React.FC<ColDetailCardsProps> = ({ data }) => {
   const citreaPrice = getPriceData();
   const daysAgo = getDaysAgo(data.createdAt);
 
@@ -108,7 +102,13 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
             } relative`}
           >
             <span className="font-medium text-md text-neutral50">
-              <span className={data.price > 0 ? "group-hover:hidden flex items-center" : "flex items-center"}>
+              <span
+                className={
+                  data.price > 0
+                    ? "group-hover:hidden flex items-center"
+                    : "flex items-center"
+                }
+              >
                 {daysAgo} days ago
               </span>
               {data.price > 0 && (
@@ -124,4 +124,4 @@ const ColDetailCards: React.FC<ColDetailCardsProps> = ({ data }) => {
   );
 };
 
-export default ColDetailCards;
+export default CollectibleCardList;

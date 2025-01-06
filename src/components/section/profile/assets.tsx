@@ -11,7 +11,7 @@ import Image from "next/image";
 import { useState } from "react";
 import CollectionSideBar from "../collections/sideBar";
 import AssetsCard from "@/components/atom/cards/assets-card";
-import ColAssetsCards from "@/components/atom/cards/col-assets-card";
+import AssetsCardList from "@/components/atom/cards/assets-card-list";
 import { getListableById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/provider/auth-context-provider";
@@ -62,15 +62,17 @@ export default function Assets({ detail = false }: { detail: boolean }) {
     return <AssetsSkeleton detail={detail} />;
   }
 
-    if (!data?.data?.collectibles || data.data.collectibles.length === 0){
-      return (
-        <>
-          <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
-            <p className="text-neutral200 font-medium text-lg">No activity recorded</p>
-          </div>
-        </>
-      );
-    }
+  if (!data?.data?.collectibles || data.data.collectibles.length === 0) {
+    return (
+      <>
+        <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
+          <p className="text-neutral200 font-medium text-lg">
+            No activity recorded
+          </p>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -220,7 +222,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                 <div className="flex flex-col w-full pt-4 gap-4">
                   {data?.data.collectibles.map((item: CollectibleSchema) => (
                     <div key={item.id}>
-                      <ColAssetsCards data={item} />
+                      <AssetsCardList data={item} />
                     </div>
                   ))}
                 </div>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { s3ImageUrlBuilder } from "@/lib/utils";
-import { LaunchDataType } from "@/lib/types";
 import { Button } from "../ui/button";
 import {
   Carousel,
@@ -170,8 +169,12 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
                                 <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2 bg-success rounded-full" />
                               </div>
                             )}
-                            <p className="text-lg font-normal text-neutral100">{status}</p>
-                            <p className="text-lg font-medium text-neutral00">{timeDisplay}</p>
+                            <p className="text-lg font-normal text-neutral100">
+                              {status}
+                            </p>
+                            <p className="text-lg font-medium text-neutral00">
+                              {timeDisplay}
+                            </p>
                           </div>
                           {(status === "Indefinite" ||
                             status === "Ends in:") && (

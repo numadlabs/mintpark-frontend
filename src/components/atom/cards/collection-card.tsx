@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Global, Notepad, Profile2User } from "iconsax-react";
+import { Notepad, Profile2User } from "iconsax-react";
 import { CollectionDataType } from "@/lib/types";
 import React from "react";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Header from "@/components/layout/header";
 import Layout from "@/components/layout/layout";
 import LaunchpadBanner from "@/components/section/launchpad-banner";
@@ -10,7 +10,6 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LaunchpadCard from "@/components/atom/cards/launchpad-card";
 import LaunchpadCardSkeleton from "@/components/atom/skeleton/launchpad-skeleton";
-import Autoplay from "embla-carousel-autoplay";
 
 const Launchpad = () => {
   const { authState, selectedLayerId } = useAuth();

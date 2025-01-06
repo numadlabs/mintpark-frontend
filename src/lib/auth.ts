@@ -1,5 +1,5 @@
 "use client";
-import { TokenType, WalletStorage } from "@/types";
+import { TokenType } from "@/types";
 import { STORAGE_KEYS } from "./constants";
 
 export function saveToken(tokenData: TokenType) {

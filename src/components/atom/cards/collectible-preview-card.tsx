@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import { CloseSquare } from "iconsax-react";
 import { X } from "lucide-react";
 
 interface cardProps {
@@ -12,7 +11,7 @@ interface cardProps {
 const CollectiblePreviewCard: React.FC<cardProps> = ({
   image,
   title,
-  onDelete
+  onDelete,
 }) => {
   return (
     <div className="rounded-[20px] w-[280px] pt-4 pr-4 pb-6 pl-4 backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-gray-700 relative mt-4">

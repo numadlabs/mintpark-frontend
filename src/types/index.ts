@@ -28,16 +28,6 @@ export type utxo = {
   confirmations: number;
 };
 
-/* export type utxo = {
-  txid: string;
-  vout: number;
-  value: string;
-  coinbase: boolean;
-  derivation_index: number;
-  confirmation: boolean;
-  height: string;
-}; */
-
 export type rpcResponse = {
   result: string;
   error: boolean;

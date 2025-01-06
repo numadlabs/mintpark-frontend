@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { s3ImageUrlBuilder, ordinalsImageCDN } from "@/lib/utils";
+import { s3ImageUrlBuilder } from "@/lib/utils";
 import { CollectibleSchema } from "@/lib/validations/asset-validation";
 import Link from "next/link";
 

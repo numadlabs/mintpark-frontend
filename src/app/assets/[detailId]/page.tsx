@@ -17,7 +17,6 @@ import {
 } from "@/lib/service/queryHelper";
 import {
   formatPrice,
-  ordinalsImageCDN,
   s3ImageUrlBuilder,
   formatDaysAgo,
   truncateAddress,

@@ -16,8 +16,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Global, Notepad, Profile2User } from "iconsax-react";
 import DiscordIcon from "@/components/icon/hoverIcon";
 import ThreadIcon from "@/components/icon/thread";
-import ColDetailCard from "@/components/atom/cards/collection-detail-card";
-import ColDetailCards from "@/components/atom/cards/collection-detail-column-card";
+import CollectibleCard from "@/components/atom/cards/collectible-card";
+import CollectibleCardList from "@/components/atom/cards/collectible-card-list";
 import { getListedCollectionById } from "@/lib/service/queryHelper";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
 import { CollectionDataType } from "@/lib/types";
@@ -435,7 +435,7 @@ const CollectionDetailPage = () => {
                   >
                     {collection?.collectibles?.map((item: any) => (
                       <div key={item.id}>
-                        <ColDetailCard data={item} />
+                        <CollectibleCard data={item} />
                       </div>
                     ))}
                   </div>
@@ -460,7 +460,7 @@ const CollectionDetailPage = () => {
                         <div className="flex flex-col pt-4 gap-4">
                           {collection?.collectibles?.map((item: any) => (
                             <div key={item.id}>
-                              <ColDetailCards data={item} />
+                              <CollectibleCardList data={item} />
                             </div>
                           ))}
                         </div>
