@@ -9,7 +9,7 @@ interface cardProps {
   data: CollectibleSchema;
 }
 
-const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
+const AssetsCardList: React.FC<cardProps> = ({ data }) => {
   const citreaPrice = getPriceData();
 
   //todo end function uud uldsen bn
@@ -115,4 +115,4 @@ const ColAssetsCards: React.FC<cardProps> = ({ data }) => {
   );
 };
 
-export default ColAssetsCards;
+export default AssetsCardList;

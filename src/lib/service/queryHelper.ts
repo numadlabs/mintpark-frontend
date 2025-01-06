@@ -16,16 +16,6 @@ import { OrderSchema } from "../validations/asset-validation";
 import { AssetSchema, ActivitySchema } from "../validations/asset-validation";
 import { UserSchema } from "../validations/user-schema";
 
-export async function getUserById(id: string) {
-  return axiosClient.get(`/api/v1/users/${id}/userLayer`).then((response) => {
-    if (response.data.success) {
-      return response.data.data;
-    } else {
-      throw new Error(response.data.error);
-    }
-  });
-}
-
 export async function getAllOrders(id: string): Promise<OrderSchema> {
   return axiosClient.get(`/api/v1/orders/user/${id}`).then((response) => {
     if (response.data.success) {
@@ -60,48 +50,12 @@ export async function fetchLaunchs(
     });
 }
 
-export async function getLaunchById(collectionId: string) {
-  return axiosClient
-    .get(`/api/v1/launchpad/collections/${collectionId}`)
-    .then((response) => {
-      if (response.data.success) {
-        return response?.data.data;
-      } else {
-        throw new Error(response.data.error);
-      }
-    });
-}
-
 export async function getLaunchByCollectionId(id: string) {
   return axiosClient
     .get(`/api/v1/launchpad/collections/${id}`)
     .then((response) => {
       if (response.data.success) {
         return response?.data.data;
-      } else {
-        throw new Error(response.data.error);
-      }
-    });
-}
-
-export async function getFeeRatesByLayer() {
-  return axiosClient
-    .get(`/api/v1/orders/fee-rates/BITCOIN_TESTNET`)
-    .then((response) => {
-      if (response.data.success) {
-        return response.data.data;
-      } else {
-        throw new Error(response.data.error);
-      }
-    });
-}
-
-export async function getFeeRates(layerId: string) {
-  return axiosClient
-    .get(`/api/v1/layers/${layerId}/fee-rates`)
-    .then((response) => {
-      if (response.data.success) {
-        return response.data.data;
       } else {
         throw new Error(response.data.error);
       }
@@ -177,28 +131,6 @@ export async function getCollectionById(
   });
 }
 
-export async function getCollectibleById(id: string) {
-  return axiosClient
-    .get(`/api/v1/collectibles/${id}/collection/listable`)
-    .then((response) => {
-      if (response.data.success) {
-        return response.data.data;
-      } else {
-        throw new Error(response.data.error);
-      }
-    });
-}
-
-export async function getCollectionsById(id: string) {
-  return axiosClient.get(`/api/v1/collections/${id}`).then((response) => {
-    if (response.data.success) {
-      return response.data.data;
-    } else {
-      throw new Error(response.data.error);
-    }
-  });
-}
-
 export async function getListableById(
   id: string,
   orderDirection: string,
@@ -221,18 +153,6 @@ export async function getListableById(
 export async function checkOrderStatus(id: string, txid?: string) {
   return axiosClient
     .get(`/api/v1/orders/${id}/payment-status?txid=${txid}`)
-    .then((response) => {
-      if (response.data.success) {
-        return response.data.data;
-      } else {
-        throw new Error(response.data.error);
-      }
-    });
-}
-
-export async function getEstimateFee(id: string) {
-  return axiosClient
-    .get(`/api/v1/lists/${id}/estimate-fee`)
     .then((response) => {
       if (response.data.success) {
         return response.data.data;

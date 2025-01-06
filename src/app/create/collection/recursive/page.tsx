@@ -20,11 +20,7 @@ import {
 } from "@/lib/types";
 import TextArea from "@/components/ui/textArea";
 import {
-  createCollectiblesToCollection,
   createCollection,
-  createMintHexCollection,
-  launchCollection,
-  mintFeeOfCitrea,
   createMintCollection,
   insriptionCollectible,
   invokeOrderMint,
@@ -75,8 +71,6 @@ const Recursive = () => {
     setPOMintPrice,
     POMaxMintPerWallet,
     setPOMaxMintPerWallet,
-    txid,
-    setTxid,
     reset,
   } = useCreateFormState();
   const queryClient = useQueryClient();

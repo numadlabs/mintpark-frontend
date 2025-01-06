@@ -7,16 +7,9 @@ import {
 } from "../ui/dialog";
 import { Loader2, X, Check } from "lucide-react";
 import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { getSigner, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import { Input } from "../ui/input";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  confirmPendingList,
-  listCollectiblesForConfirm,
-} from "@/lib/service/postRequest";
-import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ModalProps {
   open: boolean;
@@ -42,22 +35,9 @@ const PendingListModal: React.FC<ModalProps> = ({
   id,
 }) => {
   const queryClient = useQueryClient();
-  const router = useRouter();
   const [price, setPrice] = useState<string>("0");
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-
-  const { mutateAsync: listCollectiblesMutation } = useMutation({
-    mutationFn: listCollectiblesForConfirm,
-  });
-
-  const { mutateAsync: confirmPendingListMutation } = useMutation({
-    mutationFn: confirmPendingList,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
-      queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
-    },
-  });
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -85,46 +65,6 @@ const PendingListModal: React.FC<ModalProps> = ({
   const handlePriceBlur = () => {
     if (price === "" || parseFloat(price) < 0) {
       setPrice("0");
-    }
-  };
-
-  const handlePendingList = async () => {
-    setIsLoading(true);
-    try {
-      const collectibleRes = await listCollectiblesMutation({
-        collectibleId: collectibleId,
-        price: parseFloat(price),
-        txid: txid,
-      });
-      if (collectibleRes && collectibleRes.success) {
-        let txid;
-        const { preparedListingTx } = collectibleRes.data.list;
-        const { id } = collectibleRes.data.list.sanitizedList;
-        const { signer } = await getSigner();
-        const signedTx = await signer?.sendTransaction(preparedListingTx);
-        await signedTx?.wait();
-        if (signedTx?.hash) txid = signedTx?.hash;
-
-        if (id && txid) {
-          const response = await confirmPendingListMutation({
-            id: id,
-            txid: txid,
-            vout: 0,
-            inscribedAmount: 546,
-          });
-          if (response && response.success) {
-            setSuccess(true);
-            toast.success("Successfully.");
-          }
-        }
-      } else {
-        toast.error(collectibleRes.error);
-      }
-    } catch (error) {
-      toast.error("error pending list.");
-      console.error("Error pending list:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -221,7 +161,7 @@ const PendingListModal: React.FC<ModalProps> = ({
                 >
                   Cancel
                 </Button>
-                <Button onClick={handlePendingList} disabled={isLoading}>
+                <Button disabled={isLoading}>
                   {isLoading ? (
                     <Loader2
                       className="animate-spin w-full"

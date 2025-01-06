@@ -1,7 +1,6 @@
 import Layout from "@/components/layout/layout";
 import React from "react";
 import Header from "@/components/layout/header";
-import Image from "next/image";
 
 const PrivacyPolicy = () => {
   return (

@@ -9,7 +9,7 @@ interface CardProps {
   handleNav: () => void;
 }
 
-const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
+const CollectionCardList: React.FC<CardProps> = ({ data, handleNav }) => {
   const citreaPrice = getPriceData();
 
   return (
@@ -78,5 +78,4 @@ const ColumColCard: React.FC<CardProps> = ({ data, handleNav }) => {
   );
 };
 
-export default ColumColCard;
-
+export default CollectionCardList;

@@ -1,9 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CollectionDataType } from "@/lib/types";
-import { s3ImageUrlBuilder,formatPrice} from "@/lib/utils";
+import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
 
-export default function ColDetailCard({ data }: { data: CollectionDataType }) {
+export default function CollectibleCard({
+  data,
+}: {
+  data: CollectionDataType;
+}) {
   const isListed = data.price > 0;
 
   return (
