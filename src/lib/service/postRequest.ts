@@ -416,3 +416,99 @@ export async function createMintCollection({
     console.log("Error:", error);
   }
 }
+
+export async function buyListedCollectible({
+  id,
+  txid,
+  userLayerId,
+}: {
+  id: string | null;
+  txid: string;
+  userLayerId: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists/${id}/buy`, {
+        txid,
+        userLayerId,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function generateBuyHex({
+  id,
+  feeRate,
+  userLayerId,
+}: {
+  id: string | null;
+  feeRate: number;
+  userLayerId: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists/${id}/generate-hex`, {
+        feeRate,
+        userLayerId,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function confirmPendingList({
+  id,
+  txid,
+  vout,
+  inscribedAmount,
+}: {
+  id: string;
+  txid: string;
+  vout: number;
+  inscribedAmount: number;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists/${id}/confirm`, {
+        txid,
+        vout,
+        inscribedAmount,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function listCollectiblesForConfirm({
+  collectibleId,
+  price,
+  txid,
+}: {
+  collectibleId: string;
+  price: number;
+  txid: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists`, {
+        collectibleId,
+        price,
+        txid,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}

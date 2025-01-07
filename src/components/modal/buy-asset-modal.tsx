@@ -7,10 +7,15 @@ import {
 } from "../ui/dialog";
 import { Loader2, X } from "lucide-react";
 import { Button } from "../ui/button";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { formatPrice } from "@/lib/utils";
-import { useQueryClient } from "@tanstack/react-query";
+import { formatPrice, getSigner } from "@/lib/utils";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  generateBuyHex,
+  buyListedCollectible,
+} from "@/lib/service/postRequest";
+import { toast } from "sonner";
 import { Check } from "lucide-react";
 import { useAuth } from "../provider/auth-context-provider";
 
@@ -40,8 +45,90 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   const { authState } = useAuth();
 
   const id = params.detailId as string;
+  const router = useRouter();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { mutateAsync: generateBuyHexMutation } = useMutation({
+    mutationFn: generateBuyHex,
+  });
+  const { mutateAsync: buyListedCollectibleMutation } = useMutation({
+    mutationFn: buyListedCollectible,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
+      queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
+    },
+  });
+
+  // const handlePendingList = async () => {
+  //   try {
+  //     const params = await generateBuyHexMutation({
+  //       id: listId,
+  //       feeRate: 1,
+  //     });
+  //     if (params && params.success) {
+  //       const psbtHex = params.data.txHex;
+  //       const { signer } = await getSigner();
+  //         const signedTx = await signer?.sendTransaction(
+  //           response.data.batchMintTxHex,
+  //         );
+  //         await signedTx?.wait();
+  //       const hex = await window.unisat.signPsbt(psbtHex);
+  //       if (hex && listId) {
+  //         const response = await buyListedCollectibleMutation({
+  //           id: listId,
+  //           hex: hex,
+  //         });
+  //         if (response && response.success) {
+  //           setIsSuccess(true);
+  //         }
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error("Error pending list:", error);
+  //   }
+  // };
+
+  const handlePendingList = async () => {
+    setIsLoading(true);
+    try {
+      const pendingRes = await generateBuyHexMutation({
+        id: listId,
+        feeRate: 1,
+        userLayerId: authState.userLayerId as string,
+      });
+      if (pendingRes && pendingRes.success) {
+        let txid;
+        const { signer } = await getSigner();
+        const signedTx = await signer?.sendTransaction(pendingRes.data.txHex);
+        await signedTx?.wait();
+
+        if (signedTx?.hash) {
+          const response = await buyListedCollectible({
+            id: listId,
+            txid: signedTx?.hash,
+            userLayerId: authState.userLayerId as string,
+          });
+          if (response && response.success) {
+            setIsSuccess(true);
+            toast.success("Purchase successful");
+            queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
+            queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
+          } else {
+            toast.error("Error");
+          }
+        } else {
+          toast.error("txid missing error");
+        }
+      } else {
+        toast.error("Sent buy request error");
+      }
+    } catch (error) {
+      toast.error("Error pending list.");
+      console.error("Error pending list:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
@@ -131,7 +218,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                 >
                   Cancel
                 </Button>
-                <Button disabled={isLoading}>
+                <Button onClick={handlePendingList} disabled={isLoading}>
                   {isLoading ? (
                     <Loader2
                       className="animate-spin w-full"

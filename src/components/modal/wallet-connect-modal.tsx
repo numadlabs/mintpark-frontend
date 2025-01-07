@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
-import { X, Loader2 } from "lucide-react";
+import { X } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { getAllLayers } from "@/lib/service/queryHelper";
