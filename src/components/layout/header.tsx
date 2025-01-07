@@ -451,8 +451,16 @@ export default function Header() {
       <WalletConnectionModal
         open={walletModalOpen}
         onClose={() => setWalletModalOpen(false)}
-        activeTab={selectedLayer}
-        onTabChange={setSelectedLayer}
+        activeTab={selectedLayer} // Pass the selected layer
+        onTabChange={(tab) => {
+          setSelectedLayer(tab);
+          // Find the corresponding layer and update defaultLayer
+          const matchingLayer = layers.find((l: LayerType) => l.layer === tab);
+          if (matchingLayer) {
+            setDefaultLayer(`${tab}-${matchingLayer.network}`);
+            setSelectedLayerId(matchingLayer.id);
+          }
+        }}
         onLayerSelect={(layer, network) => {
           handleLayerSelect(`${layer}-${network}`);
         }}

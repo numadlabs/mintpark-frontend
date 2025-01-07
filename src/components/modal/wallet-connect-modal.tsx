@@ -86,7 +86,7 @@ export function WalletConnectionModal({
     if (isWalletConnected(layer.id)) {
       try {
         await disconnectWallet(layer.id);
-        toast.success(`Disconnected from ${layer.layer}`);
+        toast.success(`Disconnected from ${layer.name}`);
       } catch (error) {
         toast.error(`Failed to disconnect wallet. ${error}`);
       }
@@ -96,7 +96,7 @@ export function WalletConnectionModal({
     try {
       await connectWallet(layer.id, authState.authenticated);
       toast.success(
-        `${authState.authenticated ? "Linked" : "Connected to"} ${layer.layer}`
+        `${authState.authenticated ? "Linked" : "Connected to"} ${layer.name}`
       );
     } catch (error) {
       if (error instanceof Error && error.message === "WALLET_ALREADY_LINKED") {
