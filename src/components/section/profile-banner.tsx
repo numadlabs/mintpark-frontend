@@ -5,6 +5,7 @@ import { AssetSchema } from "@/lib/validations/asset-validation";
 import { formatPriceBtc, formatPriceUsd, getPriceData } from "@/lib/utils";
 import { getLayerById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
+import { BITCOIN_IMAGE } from "../../lib/constants";
 
 declare global {
   interface Window {
@@ -171,7 +172,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                   <div className="rounded-2xl bg-white4 p-3 sm:p-4 flex gap-4 items-center w-full md:w-fit justify-center md:justify-start">
                     <div className="flex flex-row items-center gap-2 md:gap-3">
                       <Image
-                        src={"/wallets/Bitcoin.png"}
+                        src={BITCOIN_IMAGE}
                         alt="crypto"
                         width={24}
                         height={24}

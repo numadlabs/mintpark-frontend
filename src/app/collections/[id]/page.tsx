@@ -24,6 +24,7 @@ import { CollectionDataType } from "@/lib/types";
 import CollectionSideBar from "@/components/section/collections/sideBar";
 import CollectionDetailSkeleton from "@/components/atom/skeleton/collection-detail-skeleton";
 import { motion, AnimatePresence } from "framer-motion";
+import { BITCOIN_IMAGE } from "@/lib/constants";
 const CollectionDetailPage = () => {
   const params = useParams();
   const { id } = params;
@@ -175,7 +176,7 @@ const CollectionDetailPage = () => {
                         <Image
                           width={24}
                           height={20}
-                          src="/detail_icon/btc.png"
+                          src={BITCOIN_IMAGE}
                           alt="bitcoin"
                           className="aspect-square"
                         />
@@ -198,7 +199,7 @@ const CollectionDetailPage = () => {
                         <Image
                           width={24}
                           height={20}
-                          src="/detail_icon/btc.png"
+                          src={BITCOIN_IMAGE}
                           alt="bitcoin"
                           className="aspect-square"
                         />

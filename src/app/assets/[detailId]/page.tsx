@@ -14,6 +14,7 @@ import {
 import {
   getCollectibleActivity,
   getCollectionById,
+  getListedCollectionById,
 } from "@/lib/service/queryHelper";
 import {
   formatPrice,
@@ -31,6 +32,7 @@ import { Collectible } from "@/lib/validations/collection-validation";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { toast } from "sonner";
 import Link from "next/link";
+import MoreCollection from "@/components/section/more-collection";
 
 export default function AssetDetail() {
   const params = useParams();
@@ -39,7 +41,7 @@ export default function AssetDetail() {
   const id = params.detailId as string;
   const [isVisible, setIsVisible] = useState(false);
 
-  const { data: collectionData, isLoading: isCollectionLoading } = useQuery<
+  const { data: collectible, isLoading: isCollectionLoading } = useQuery<
     Collectible[] | null
   >({
     queryKey: ["collectionData", id],
@@ -47,11 +49,25 @@ export default function AssetDetail() {
     enabled: !!id,
   });
 
-  const currentAsset = collectionData?.[0];
+  const currentAsset = collectible?.[0];
+  const collectionId = currentAsset?.collectionId;
+
   const { data: activity = [] } = useQuery({
     queryKey: ["acitivtyData", id],
     queryFn: () => getCollectibleActivity(id),
     enabled: !!id,
+  });
+
+  const { data: collection, isLoading: isQueryLoading } = useQuery({
+    queryKey: ["collectionData", collectionId],
+    queryFn: () => getListedCollectionById(collectionId as string),
+    enabled: !!collectionId,
+    retry: 1,
+    initialData: {
+      collectibles: [],
+      listedCollectibleCount: "0",
+      totalOwnerCount: 0,
+    },
   });
 
   const toggleModal = () => {
@@ -267,7 +283,12 @@ export default function AssetDetail() {
                 </div>
               </div>
             </TabsContent>
-            <TabsContent value="more"></TabsContent>
+            <TabsContent value="more">
+              <MoreCollection
+                collection={collection}
+                currentAssetId={currentAsset.id}
+              />
+            </TabsContent>
           </div>
         </Tabs>
       </div>
