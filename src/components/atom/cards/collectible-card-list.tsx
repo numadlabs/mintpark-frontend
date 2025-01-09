@@ -2,21 +2,11 @@ import React from "react";
 import Image from "next/image";
 import { formatPrice, getPriceData, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
+import { CollectionSchema } from "@/lib/validations/collection-validation";
 
 // Define the type for the component props
 interface ColDetailCardsProps {
-  data: {
-    fileKey?: string;
-    uniqueIdx: string;
-    name: string;
-    price: number;
-    floorDifference?: number;
-    ownedBy: string | null;
-    createdAt: string;
-    collectionId: string;
-    id: string; // Change this to string as we'll pass an ISO date string
-    highResolutionImageUrl: string;
-  };
+  data: CollectionSchema;
 }
 
 const TruncatedAddress: React.FC<{ address: string | null }> = ({
