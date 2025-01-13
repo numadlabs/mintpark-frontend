@@ -35,10 +35,10 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({ data }) => {
   return (
     <>
       <Link
-        className="flex w-full items-center bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-3"
+        className="flex w-full items-center justify-between bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-3"
         href={`/assets/${data.id}`}
       >
-        <div className="flex  w-[520px] gap-3">
+        <div className="flex min-w-[392px] w-full max-w-[520px] gap-3">
           <Image
             width={48}
             height={48}
@@ -54,24 +54,24 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({ data }) => {
             {data.name}
           </p>
         </div>
-        <div className="flex items-center text-start">
-          <div className="w-[324px]  text-start">
-            <p className="font-medium text-md w-[324px] text-neutral50">
+        <div className="flex items-center text-start w-full">
+          <div className="min-w-[200px] w-full max-w-[324px]  text-start">
+            <p className="font-medium text-md text-neutral50 w-full">
               {formatPrice(data.price)}
               <span className="ml-1">cBTC</span>
             </p>
             <p>
               {" "}
-              <p className="font-medium text-md text-neutral200">
+              <p className="font-medium text-md text-neutral200 w-full">
                 <span className="mr-1">$</span>
                 {formatPrice(data.price * citreaPrice)}
                 <span className="">k</span>
               </p>
             </p>
           </div>
-          <div className="w-[324px] text-start">
+          <div className="min-w-[200px] w-full max-w-[324px] text-start">
             <p
-              className={`font-medium text-md ${
+              className={`font-medium text-md w-full ${
                 (data.floorDifference ?? 0) >= 0
                   ? "text-success"
                   : "text-errorMsg"
@@ -81,21 +81,21 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({ data }) => {
               {formatPrice(data.floorDifference ?? 0)}%
             </p>
           </div>
-          <div className="w-[324px]  text-start">
-            <p className="font-medium text-md text-neutral50">
+          <div className="min-w-[200px] w-full max-w-[324px]  text-start">
+            <p className="font-medium text-md text-neutral50 w-full">
               <TruncatedAddress address={data.ownedBy} />
             </p>
           </div>
           <div
-            className={`w-[324px] 3xl:w-[214px] h-[18px] ${
+            className={`min-w-[200px] w-full max-w-[324px] h-[18px] ${
               data.price > 0 ? "group" : ""
             } relative`}
           >
-            <span className="font-medium text-md text-neutral50">
+            <span className="font-medium text-md text-neutral50 w-full">
               <span
                 className={
                   data.price > 0
-                    ? "group-hover:hidden flex items-center"
+                    ? "group-hover:hidden flex items-center w-full"
                     : "flex items-center"
                 }
               >

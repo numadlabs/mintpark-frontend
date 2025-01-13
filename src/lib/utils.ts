@@ -6,6 +6,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const BADGE_BATCH_SIZE = 25;
+
 export const stringtoHex = (value: any) => {
   const buffer = Buffer.from(value, "utf8");
   const hexString = buffer.toString("hex");

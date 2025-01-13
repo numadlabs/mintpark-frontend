@@ -102,7 +102,7 @@ export type InscriptionCollectible = {
 };
 
 export type LaunchParams = {
-  collectionId: string;
+  collectionId: string | null;
   isWhitelisted: boolean;
   poStartsAt: number;
   poEndsAt?: number;
@@ -125,4 +125,37 @@ export type LayerTypes = {
   network: string;
   currencyId: string;
   comingSoon?: boolean;
+};
+
+export type LaunchType = {
+  collectionId: string | null;
+  isWhitelisted: boolean;
+  poStartsAt: number;
+  poEndsAt: number;
+  poMintPrice: number;
+  poMaxMintPerWallet: number;
+  userLayerId: string | null;
+};
+
+export type LaunchItemType = {
+  files?: File[];
+  collectionId: string;
+  isLastBatch?: boolean;
+};
+
+export type MintFeeType = {
+  collectionTxid: string;
+  mintFee: string;
+};
+
+export type BadgeType = {
+  logo?: File;
+  description: string;
+  name: string;
+  priceForLaunchpad: number;
+  type: string;
+  userLayerId: string | null;
+  layerId: string | null;
+  isBadge: boolean;
+  creator: string;
 };

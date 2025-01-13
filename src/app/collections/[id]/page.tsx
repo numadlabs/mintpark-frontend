@@ -104,10 +104,7 @@ const CollectionDetailPage = () => {
 
   return (
     <>
-      <Tabs
-        defaultValue="AllCard"
-        className="mt-[43.5px] mb-10 px-4 md:px-6 lg:px-12"
-      >
+      <Tabs defaultValue="AllCard" className="mt-[43.5px] mb-10">
         <section>
           {/* Banner Section */}
           <div className="w-full relative h-[320px] mt-10">
@@ -400,79 +397,66 @@ const CollectionDetailPage = () => {
             </div>
           </div>
         </section>
+        <div className={`w-full`}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <TabsContent value="AllCard">
+                <div
+                  className={`grid gap-4 md:gap-6 lg:gap-8 ${
+                    active
+                      ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 gap-6 sm:gap-6 lg:gap-8 xl:gap-8"
+                      : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3  2xl:grid-cols-4 3xl:grid-cols-6 gap-6 sm:gap-6 lg:gap-8 xl:gap-8"
+                  }`}
+                >
+                  {collection?.collectibles?.map((item: any) => (
+                    <div key={item.id}>
+                      <CollectibleCard data={item} />
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
 
-        {/* Main Content Section */}
-        <section className={`flex w-full pt-7 ${active ? "gap-10" : "gap-0"}`}>
-          {/* Sidebar */}
-          <div
-            className={`${
-              active ? "block w-[280px]" : "hidden"
-            } transition-all`}
-          >
-            <CollectionSideBar />
-          </div>
-
-          {/* Content */}
-
-          <div
-            className={`flex w-full  overflow-x-auto 3xl:overflow-x-hidden ${
-              active ? "w-[calc(100%-380px)]" : "sm:w-full"
-            }`}
-          >
-            <AnimatePresence mode="wait">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                <TabsContent value="AllCard">
-                  <div
-                    className={`grid gap-4 md:gap-6 lg:gap-8 ${
-                      active
-                        ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6 gap-6 sm:gap-6 lg:gap-8 xl:gap-8"
-                        : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3  2xl:grid-cols-4 3xl:grid-cols-6 gap-6 sm:gap-6 lg:gap-8 xl:gap-8"
-                    }`}
-                  >
-                    {collection?.collectibles?.map((item: any) => (
-                      <div key={item.id}>
-                        <CollectibleCard data={item} />
+              <TabsContent value="ColCard" className="w-full">
+                <div className="overflow-x-auto w-full">
+                  <div className="min-w-[1216px] w-full flex border-b justify-between border-neutral400 font-medium text-md text-neutral200 px-3 pb-4">
+                    <div className="min-w-[392px] w-full max-w-[520px] text-start">
+                      Item
+                    </div>
+                    <div className="flex items-center w-full">
+                      <div className="min-w-[200px] w-full max-w-[324px] text-start">
+                        Price
                       </div>
-                    ))}
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="ColCard">
-                  <div className="overflow-x-auto w-full">
-                    <div className="min-w-[1216px] flex border-b border-neutral400 font-medium text-md text-neutral200  px-3 pb-4">
-                      <div className="w-[520px] flex  text-start">Item</div>
-                      <div className="w-[324px] flex  text-start">Price</div>
-                      <div className="w-[324px] flex text-start">
+                      <div className="min-w-[200px] w-full max-w-[324px] text-start">
                         Floor difference
                       </div>
-                      <div className="w-[324px] flex  text-start">Owner</div>
-                      <div className="w-[324px] 3xl:w-[214px] flex  text-start">
+                      <div className="min-w-[200px] w-full max-w-[324px] text-start">
+                        Owner
+                      </div>
+                      <div className="min-w-[200px] w-full max-w-[324px] text-start">
                         Listed time
                       </div>
                     </div>
-
-                    <ScrollArea>
-                      <div className="h-[754px] w-full  min-w-[1216px]  border-t-2  border-neutral500">
-                        <div className="flex flex-col pt-4 gap-4">
-                          {collection?.collectibles?.map((item: any) => (
-                            <div key={item.id}>
-                              <CollectibleCardList data={item} />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </ScrollArea>
                   </div>
-                </TabsContent>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </section>
+
+                  <div className="h-[754px] w-full min-w-[1216px] border-t-2 border-neutral500">
+                    <div className="flex flex-col pt-4 gap-4">
+                      {collection?.collectibles?.map((item: any) => (
+                        <div key={item.id}>
+                          <CollectibleCardList data={item} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </Tabs>
     </>
   );

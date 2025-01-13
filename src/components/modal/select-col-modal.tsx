@@ -65,16 +65,6 @@ const SelectColModal: React.FC<ModalProps> = ({ open, onClose }) => {
             ))}
           </div>
           <div className="bg-white8 w-full h-[1px]" />
-          <DialogFooter className="grid grid-cols-2 gap-2 w-full">
-            <Button
-              variant="secondary"
-              className="bg-white8 w-full"
-              onClick={onClose}
-            >
-              Cancel
-            </Button>
-            <Button>Continue</Button>
-          </DialogFooter>
           <DialogClose
             className="absolute h-12 w-12 top-3 right-3 flex justify-center items-center"
             onClick={onClose}
