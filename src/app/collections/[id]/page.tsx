@@ -33,6 +33,8 @@ const CollectionDetailPage = () => {
   const [collectionData, setCollectionData] =
     useState<CollectionDataType | null>(null);
   const [isParamsLoading, setIsParamsLoading] = useState(true);
+  const [orderBy, setOrderBy] = useState("recent");
+  const [orderDirection, setOrderDirection] = useState("desc");
 
   useEffect(() => {
     setIsParamsLoading(true);
@@ -42,8 +44,9 @@ const CollectionDetailPage = () => {
   }, [params]);
 
   const { data: collection, isLoading: isQueryLoading } = useQuery({
-    queryKey: ["collectionData", id],
-    queryFn: () => getListedCollectionById(id as string),
+    queryKey: ["collectionData", id, orderBy, orderDirection],
+    queryFn: () =>
+      getListedCollectionById(id as string, orderBy, orderDirection),
     enabled: !!id,
     retry: 1,
     initialData: {
@@ -89,6 +92,26 @@ const CollectionDetailPage = () => {
   ].filter(
     (link) => link.url !== null && link.url !== undefined && link.url !== ""
   );
+
+  const handleOrderChange = (value: string) => {
+    switch (value) {
+      case "recent":
+        setOrderBy("recent");
+        setOrderDirection("desc");
+        break;
+      case "price_high_to_low":
+        setOrderBy("price");
+        setOrderDirection("asc");
+        break;
+      case "price_low_to_high":
+        setOrderBy("price");
+        setOrderDirection("desc");
+        break;
+      default:
+        setOrderBy("recent");
+        setOrderDirection("desc");
+    }
+  };
 
   const handleSocialClick = (url: string | undefined) => {
     if (!url) return;
@@ -354,18 +377,19 @@ const CollectionDetailPage = () => {
             </div>
 
             <div className="flex gap-4">
-              <Select>
+              <Select defaultValue="recent" onValueChange={handleOrderChange}>
                 <SelectTrigger className="w-full md:w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50">
                   <SelectValue placeholder="Volume" />
                 </SelectTrigger>
                 <SelectContent className="w-full -top-[53px] lg:left-0 md:w-60 rounded-xl bg-neutral600 bg-opacity-70 border-neutral400 backdrop-blur-lg pb-2 px-2">
-                  <SelectItem value="highest">Highest volume</SelectItem>
-                  <SelectItem value="lowest">Lowest volume</SelectItem>
-                  <SelectItem value="highestFloor">
-                    Highest floor price
+                  <SelectItem value="recent" className="pl-10">
+                    Recently listed
                   </SelectItem>
-                  <SelectItem value="lowestFloor">
-                    Lowest floor price
+                  <SelectItem value="price_low_to_high" className="pl-10">
+                    Price: Low to High
+                  </SelectItem>
+                  <SelectItem value="price_high_to_low" className="pl-10">
+                    Price: High to Low
                   </SelectItem>
                 </SelectContent>
               </Select>
