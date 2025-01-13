@@ -25,6 +25,8 @@ interface FormState {
   setPOMintPrice: (POMintPrice: number) => void;
   POMaxMintPerWallet: number;
   setPOMaxMintPerWallet: (POMaxMintPerWallet: number) => void;
+  supply: number;
+  setSupply: (supply: number) => void;
   txid: string;
   setTxid: (txid: string) => void;
   reset: () => void;
@@ -56,6 +58,8 @@ const useCreateFormState = create<FormState>((set) => ({
   POMaxMintPerWallet: 0,
   setPOMaxMintPerWallet: (POMaxMintPerWallet: number) =>
     set({ POMaxMintPerWallet }),
+  supply: 0,
+  setSupply: (supply) => set({ supply }),
   txid: "",
   setTxid: (txid: string) => set({ txid }),
 
@@ -73,6 +77,7 @@ const useCreateFormState = create<FormState>((set) => ({
       POEndsAtTime: "",
       POMintPrice: 0,
       POMaxMintPerWallet: 0,
+      supply: 0,
       txid: "",
     }),
 }));
