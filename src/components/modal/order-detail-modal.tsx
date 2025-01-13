@@ -2,6 +2,7 @@ import React from "react";
 import { Dialog, DialogContent, DialogHeader } from "../ui/dialog";
 import { X, Check } from "lucide-react";
 import { Timer } from "lucide-react";
+import { formatPrice } from "@/lib/utils";
 
 interface ModalProps {
   open: boolean;
@@ -11,6 +12,7 @@ interface ModalProps {
   quantity: number;
   networkFee: number;
   serviceFee: number;
+  fundingAmount:number;
 }
 
 const OrderDetailModal: React.FC<ModalProps> = ({
@@ -21,8 +23,12 @@ const OrderDetailModal: React.FC<ModalProps> = ({
   orderId,
   networkFee,
   serviceFee,
+  fundingAmount
 }) => {
-  const totalFee = networkFee + serviceFee;
+
+
+  console.log("fund", fundingAmount)
+
 
   const getInscribeStatus = (paymentStatus: string) => {
     switch (paymentStatus) {
@@ -84,13 +90,6 @@ const OrderDetailModal: React.FC<ModalProps> = ({
     }
   };
 
-  const formatPrice = (price: number) => {
-    return price.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 6,
-    });
-  };
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="flex flex-col p-6 gap-6 max-w-[592px] w-full items-center">
@@ -123,7 +122,7 @@ const OrderDetailModal: React.FC<ModalProps> = ({
           <p className="text-lg2 text-neutral100 font-medium">Total Amount</p>
           <p className="text-lg2 text-brand font-bold">
             {" "}
-            {formatPrice(totalFee)} cBTC
+            {formatPrice(fundingAmount/ 10 ** 8)} cBTC
           </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />
