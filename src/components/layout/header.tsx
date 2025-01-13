@@ -95,24 +95,10 @@ export default function Header() {
     initializeDefaultLayer();
   }, [currentLayer, dynamicLayers, setSelectedLayerId]);
 
-  // Add static options
-  const staticLayers: (LayerType & { comingSoon?: boolean })[] = [
-    {
-      id: "static-1",
-      layer: "NUBIT",
-      name: "Nubit Testnet",
-      network: "TESTNET",
-      // createdAt: new Date().toISOString(),
-      // updatedAt: new Date().toISOString(),
-      comingSoon: true,
-    },
-  ];
+  // Static layers array is now empty since we removed Nubit
+  const staticLayers: (LayerType & { comingSoon?: boolean })[] = [];
 
-  const layers: ExtendedLayerType[] = [
-    // ...filteredDynamicLayers,
-    ...dynamicLayers,
-    ...staticLayers,
-  ];
+  const layers: ExtendedLayerType[] = [...dynamicLayers, ...staticLayers];
 
   const routesData = [
     {
@@ -124,8 +110,6 @@ export default function Header() {
     },
     { title: "Launchpad", pageUrl: "/launchpad" },
     { title: "Collections", pageUrl: "/collections" },
-    // { title: "My assets", pageUrl: "/assets" },
-    // { title: "Inscribe Orders", pageUrl: "/collections" },
   ];
 
   const toggleWalletModal = () => {
@@ -140,10 +124,8 @@ export default function Header() {
         return "/wallets/Fractal.png";
       case "CITREA":
         return "/wallets/Citrea.png";
-      case "NUBIT":
-        return "/wallets/nubit.webp";
       default:
-        return "/wallets/Citrea.png";
+        return "/wallets/Bitcoin.png"; // Changed default to Bitcoin instead of Nubit
     }
   };
 
@@ -232,15 +214,6 @@ export default function Header() {
 
               {/* Desktop Controls */}
               <div className="hidden lg:flex flex-row overflow-hidden items-center gap-4">
-                {/* <button
-                onClick={handleTwitterClick}
-                className="flex items-center gap-2 whitespace-nowrap justify-center h-10 px-4 bg-white16 hover:bg-white16 duration-300 transition-all rounded-xl"
-              >
-                <XLogo size={20} className="h-5 w-5 text-white" />
-                <span className="text-neutral50 text-md font-medium">
-                  Follow us
-                </span>
-              </button> */}
                 <Select onValueChange={handleLayerSelect} value={defaultLayer}>
                   <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
                     <SelectValue
@@ -293,11 +266,6 @@ export default function Header() {
                               {`${capitalizeFirstLetter(
                                 layer.layer
                               )} ${capitalizeFirstLetter(layer.network)}`}
-                              {layer.comingSoon && (
-                                <span className="text-xs bg-white8 px-2 py-1 rounded-full">
-                                  Soon
-                                </span>
-                              )}
                             </div>
                           </div>
                         </SelectItem>
@@ -446,10 +414,9 @@ export default function Header() {
       <WalletConnectionModal
         open={walletModalOpen}
         onClose={() => setWalletModalOpen(false)}
-        activeTab={selectedLayer} // Pass the selected layer
+        activeTab={selectedLayer}
         onTabChange={(tab) => {
           setSelectedLayer(tab);
-          // Find the corresponding layer and update defaultLayer
           const matchingLayer = layers.find((l: LayerType) => l.layer === tab);
           if (matchingLayer) {
             setDefaultLayer(`${tab}-${matchingLayer.network}`);

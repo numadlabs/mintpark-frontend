@@ -243,7 +243,7 @@ const CollectionDetailPage = () => {
               </div>
             </div>
           </div>
-          <p className="px-0 lg:px-12 text-lg font-normal text-neutral100 mt-10 lg:mt-14 xl:mt-6">
+          <div className="px-0 lg:px-12 text-lg font-normal text-neutral100 mt-10 lg:mt-14 xl:mt-6">
             <div className="lg:pt-0 pt-4 block lg:hidden">
               <div className="grid grid-cols-2 md:flex md:justify-around xl:grid-cols-4 lg:grid w-full gap-8 md:gap-8 lg:gap-8">
                 <div className="text-center md:text-left">
@@ -254,7 +254,7 @@ const CollectionDetailPage = () => {
                     <Image
                       width={24}
                       height={20}
-                      src="/detail_icon/Bitcoin.png"
+                      src={BITCOIN_IMAGE}
                       alt="bitcoin"
                       className="aspect-square"
                     />
@@ -277,7 +277,7 @@ const CollectionDetailPage = () => {
                     <Image
                       width={24}
                       height={20}
-                      src="/detail_icon/Bitcoin.png"
+                      src={BITCOIN_IMAGE}
                       alt="bitcoin"
                       className="aspect-square"
                     />
@@ -320,7 +320,7 @@ const CollectionDetailPage = () => {
               </div>
             </div>
             <div className="mt-8">{collectionData?.description}</div>{" "}
-          </p>
+          </div>
         </section>
 
         {/* Search and Filter Section */}
