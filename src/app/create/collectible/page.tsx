@@ -55,9 +55,7 @@ const SingleCollectible = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [submitModal, setSubmitModal] = useState(false);
   const [fileSizes, setFileSizes] = useState<number[]>([]);
-  const [totalFileSize, setTotalFileSize] = useState<number>(0);
   const [fileTypeSizes, setFileTypeSizes] = useState<number[]>([]);
-  const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [hash, setHash] = useState<string>("");
   const [inscribeModal, setInscribeModal] = useState(false);
@@ -76,43 +74,6 @@ const SingleCollectible = () => {
     queryFn: () => getLayerById(authState.layerId as string),
     enabled: !!authState.layerId,
   });
-
-  const updateFileInfo = (files: File[]) => {
-    const newSizes = files.map((file) => file.size);
-    setFileSizes((prevSizes) => [...prevSizes, ...newSizes]);
-
-    const newTotalSize = newSizes.reduce((acc, size) => acc + size, 0);
-    setTotalFileSize((prevTotal) => prevTotal + newTotalSize);
-
-    const newTypes = files.map((file) => file.type.length);
-    setFileTypeSizes((prevTypes) => [...prevTypes, ...newTypes]);
-
-    setFileTypes((prevTypes) => {
-      const updatedTypes = new Set(prevTypes);
-      files.forEach((file) => updatedTypes.add(file.type));
-      return updatedTypes;
-    });
-  };
-
-  // const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = event.target.files?.[0];
-  //   if (file) {
-  //     const reader = new FileReader();
-
-  //     reader.onloadend = () => {
-  //       const base64 = reader.result as string;
-  //       const mime = base64
-  //         .split(",")[0]
-  //         .split(":")[1]
-  //         .split(";")[0]
-  //         .split("/")[1];
-  //       setImageBase64(base64);
-  //       setImageMime(mime);
-  //     };
-
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
 
   const toggleSubmitModal = () => {
     setIsLoading(true);
@@ -133,24 +94,19 @@ const SingleCollectible = () => {
       // Calculate file sizes and types
       const newFileSizes = Array.from(files).map((file) => file.size);
       const newFileTypeSizes = Array.from(files).map(
-        (file) => file.type.length,
+        (file) => file.type.length
       );
       const newFileTypes = new Set(Array.from(files).map((file) => file.type));
 
       setFileSizes((prevSizes) => [...prevSizes, ...newFileSizes]);
       setFileTypeSizes((prevSizes) => [...prevSizes, ...newFileTypeSizes]);
-      setTotalFileSize(
-        (prevSize) => prevSize + newFileSizes.reduce((a, b) => a + b, 0),
-      );
     }
   };
   const handleBack = () => {
     reset(); // Reset form state
     setImageFiles([]); // Reset image files
     setFileSizes([]); // Reset file sizes
-    setTotalFileSize(0); // Reset total file size
     setFileTypeSizes([]); // Reset file type sizes
-    setFileTypes(new Set()); // Reset file types
     setError(""); // Reset error message
     router.push("/"); // Navigate back
   };
@@ -161,10 +117,10 @@ const SingleCollectible = () => {
   const handleDelete = (indexToDelete: number) => {
     // Create new arrays without the deleted items
     const newImageFile = Array.from(imageFile).filter(
-      (_, index) => index !== indexToDelete,
+      (_, index) => index !== indexToDelete
     );
     const newImageFiles = imageFiles.filter(
-      (_, index) => index !== indexToDelete,
+      (_, index) => index !== indexToDelete
     );
 
     // Update state with the new arrays directly
@@ -238,11 +194,11 @@ const SingleCollectible = () => {
           } else if (currentLayer.layer === "FRACTAL") {
             console.log(
               response.data.order.fundingAddress,
-              response.data.order.fundingAmount,
+              response.data.order.fundingAmount
             );
             await window.unisat.sendBitcoin(
               response.data.order.fundingAddress,
-              Math.ceil(response.data.order.fundingAmount),
+              Math.ceil(response.data.order.fundingAmount)
             );
           }
           await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -260,9 +216,9 @@ const SingleCollectible = () => {
 
   return (
     <Layout>
-      <div className="flex flex-col w-full h-full bg-background items-center pb-[148px]">
+      <div className="w-full bg-background items-center pb-[148px]">
         <Header />
-        <div className="w-full flex flex-col items-center gap-16 z-50">
+        <div className="flex flex-col items-center gap-16 z-50">
           <Banner
             title={"Create Collectible"}
             image={"/background-2.png"}
@@ -270,16 +226,14 @@ const SingleCollectible = () => {
             stepperData={stepperData}
           />
           {step == 0 && (
-            <div
-            // onSubmit={handleSubmit}
-            >
+            <div>
               <div className="w-[592px] items-start flex flex-col gap-16">
                 <div className="w-full gap-8 flex flex-col">
                   <div className="flex flex-col gap-4">
                     <p className="text-profileTitle text-neutral50 font-bold">
                       Upload your Collectible
                     </p>
-                    <p className="text-neutral200 text-lg2">
+                    <p className="text-neutral200 text-lg">
                       The NFT you wish to spawn into existence.
                     </p>
                   </div>
@@ -328,7 +282,6 @@ const SingleCollectible = () => {
                       />
                     </div>
                     <TextArea
-                      // onReset={reset}
                       title="Description"
                       text="Collectible description"
                       value={description}
@@ -337,16 +290,10 @@ const SingleCollectible = () => {
                   </div>
                 </div>
                 <div className="w-full flex flex-row gap-8">
-                  <ButtonOutline
-                    title="Back"
-                    // onClick={() => router.push("/")}
-                    onClick={handleBack}
-                  />
+                  <ButtonOutline title="Back" onClick={handleBack} />
                   <Button
                     onClick={handleNextStep}
                     type="submit"
-                    // isSelected={true}
-                    // isLoading={isLoading}
                     variant={"primary"}
                     disabled={isLoading}
                     className="w-full"
@@ -418,57 +365,6 @@ const SingleCollectible = () => {
               </div>
             </div>
           )}
-          {/* {step === 2 && (
-            <div className="w-[800px] flex flex-col gap-16">
-              <p>Please sign the transaction to mint your collectible.</p>
-              <div className="flex flex-row gap-8">
-                <ButtonOutline title="Back" onClick={() => setStep(1)} />
-                <ButtonLg
-                  type="button"
-                  isSelected={true}
-                  isLoading={isLoading}
-                  onClick={handleSignandSend}
-                >
-                  {isLoading ? "...loading" : "Sign Transaction"}
-                </ButtonLg>
-              </div>
-            </div>
-          )} */}
-          {/* {step === 3 && (
-            <div className="w-[800px] flex flex-col gap-16">
-              <p>Transaction signed. Ready to send?</p>
-              <div className="flex flex-row gap-8">
-                <ButtonOutline title="Back" onClick={() => setStep(2)} />
-                <ButtonLg
-                  type="button"
-                  isSelected={true}
-                  isLoading={isLoading}
-                  onClick={handleSend}
-                >
-                  {isLoading ? "...loading" : "Send Transaction"}
-                </ButtonLg>
-              </div>
-            </div>
-          )} */}
-          {/* {step === 3 && (
-            <div className="w-[800px] flex flex-col gap-16">
-              <p>Successfully sent the transaction</p>
-              <div className="flex flex-row gap-8">
-                <ButtonOutline
-                  title="Go home"
-                  onClick={() => router.push("/")}
-                />
-                <ButtonLg
-                  type="button"
-                  isSelected={true}
-                  isLoading={isLoading}
-                  onClick={() => triggerRefresh()}
-                >
-                  Create again
-                </ButtonLg>
-              </div>
-            </div>
-          )} */}
         </div>
       </div>
       <SubmitPayModal

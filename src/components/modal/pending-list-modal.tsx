@@ -21,7 +21,7 @@ import { toast } from "sonner";
 interface ModalProps {
   open: boolean;
   onClose: () => void;
-  fileKey: string;
+  imageUrl: string;
   uniqueIdx: string;
   collectionName: string;
   name: string;
@@ -33,7 +33,7 @@ interface ModalProps {
 const PendingListModal: React.FC<ModalProps> = ({
   open,
   onClose,
-  fileKey,
+  imageUrl,
   uniqueIdx,
   collectionName,
   name,
@@ -151,7 +151,7 @@ const PendingListModal: React.FC<ModalProps> = ({
                 <Image
                   width={160}
                   height={160}
-                  src={fileKey}
+                  src={imageUrl}
                   className="aspect-square rounded-xl"
                   alt={`logo`}
                 />
@@ -190,7 +190,7 @@ const PendingListModal: React.FC<ModalProps> = ({
                 <Image
                   width={160}
                   height={160}
-                  src={fileKey}
+                  src={imageUrl}
                   className="aspect-square rounded-xl"
                   alt={`logo`}
                 />

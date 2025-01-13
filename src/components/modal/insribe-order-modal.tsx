@@ -7,6 +7,7 @@ import {
 } from "../ui/dialog";
 import { Check, Timer, X } from "lucide-react";
 import { Button } from "../ui/button";
+import { formatPrice } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { checkOrderStatus, getOrderById } from "@/lib/service/queryHelper";
 import { useRouter } from "next/navigation"; // Note: from 'navigation' instead of 'router'
@@ -38,12 +39,12 @@ const InscribeOrderModal: React.FC<modalProps> = ({
 
   const { data: paymentStatus = [] } = useQuery({
     queryKey: ["paymentStatus"],
-    queryFn:() => checkOrderStatus(id, txid),
+    queryFn: () => checkOrderStatus(id, txid),
     enabled: !!id && !!txid,
     refetchInterval: 5000,
   });
 
-  console.log(paymentStatus)
+  console.log(paymentStatus);
 
   const totalFee = orders?.networkFee + orders?.serviceFee;
   const router = useRouter();
@@ -52,10 +53,10 @@ const InscribeOrderModal: React.FC<modalProps> = ({
     navigateOrders();
   };
 
+  console.log("first", totalFee);
+
   const handleNavigation = () => {
     router.push(`/orders`);
-    // onClose();
-    // navigateToCreate();
   };
 
   const getPaymentStatus = (paymentStatus: string) => {
@@ -124,13 +125,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         return "text-[#B0B0B1]";
     }
   };
-  const formatPrice = (price: number) => {
-    const btcAmount = price;
-    return btcAmount?.toLocaleString('en-US', {
-      minimumFractionDigits:0,
-      maximumFractionDigits: 6
-    });
-  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="flex flex-col p-6 gap-5 max-w-[592px] w-full items-center">
@@ -142,7 +137,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         <div className="h-[1px] w-full bg-white8" />
         <div className="flex flex-col gap-3 border border-white8 rounded-2xl w-full px-5 pt-4 pb-5">
           <p className="text-neutral200 text-md font-medium">Order ID:</p>
-          <p className="text-lg2 text-neutral50 font-medium">{orders?.id}</p>
+          <p className="text-lg text-neutral50 font-medium">{orders?.id}</p>
         </div>
         <div className="grid grid-cols-2 gap-4 items-center w-full">
           <div className="border border-white8 rounded-2xl w-full px-5 pt-4 pb-5 flex flex-col gap-3">
@@ -161,21 +156,21 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         <div className="h-[1px] w-full bg-white8" />
         {/* <div className="flex flex-col gap-5 p-4 w-full bg-white4 rounded-2xl">
           <div className="flex flex-row justify-between items-center">
-            <p className="text-lg2 text-neutral100 font-medium">Network Fee</p>
-            <p className="text-lg2 text-neutral50 font-bold">
+            <p className="text-lg text-neutral100 font-medium">Network Fee</p>
+            <p className="text-lg text-neutral50 font-bold">
               {(orders?.networkFee)?.toFixed(4)} Sats
             </p>
           </div>
           <div className="flex flex-row justify-between items-center">
-            <p className="text-lg2 text-neutral100 font-medium">Service Fee</p>
-            <p className="text-lg2 text-neutral50 font-bold">
+            <p className="text-lg text-neutral100 font-medium">Service Fee</p>
+            <p className="text-lg text-neutral50 font-bold">
               {(orders?.serviceFee)?.toFixed(4)} Sats
             </p>
           </div>
         </div> */}
         <div className="flex flex-row justify-between items-center -4 w-full bg-white4 rounded-2xl p-4">
-          <p className="text-lg2 text-neutral100 font-medium">Total Amount</p>
-          <p className="text-lg2 text-brand font-bold">
+          <p className="text-lg text-neutral100 font-medium">Total Amount</p>
+          <p className="text-lg text-brand font-bold">
             {formatPrice(totalFee)} cBTC
           </p>
         </div>
@@ -198,7 +193,11 @@ const InscribeOrderModal: React.FC<modalProps> = ({
               <div className="flex flex-row items-center justify-between w-full bg-white4 p-4 rounded-2xl">
                 <div className="flex flex-row gap-3 items-center">
                   <div
-                    className={`h-8 w-8 ${orders?.orderStatus === "PENDING" ? "bg-white8" : "bg-success"} flex justify-center items-center rounded-[20px]`}
+                    className={`h-8 w-8 ${
+                      orders?.orderStatus === "PENDING"
+                        ? "bg-white8"
+                        : "bg-success"
+                    } flex justify-center items-center rounded-[20px]`}
                   >
                     {orders?.orderStatus === "PENDING" ? (
                       <p className="text-lg text-brand font-bold">1</p>
@@ -209,7 +208,9 @@ const InscribeOrderModal: React.FC<modalProps> = ({
                   <p className="text-neutral50 text-lg font-bold">Payment</p>
                 </div>
                 <p
-                  className={`text-lg font-medium ${getStatusColor(orders?.orderStatus)}`}
+                  className={`text-lg font-medium ${getStatusColor(
+                    orders?.orderStatus
+                  )}`}
                 >
                   {getPaymentStatus(orders?.orderStatus)}
                 </p>
@@ -217,7 +218,11 @@ const InscribeOrderModal: React.FC<modalProps> = ({
               <div className="flex flex-row items-center justify-between w-full bg-white4 p-4 rounded-2xl">
                 <div className="flex flex-row gap-3 items-center">
                   <div
-                    className={`h-8 w-8 ${orders?.orderStatus === "DONE" ? "bg-success" : "bg-white8"} flex justify-center items-center rounded-[20px]`}
+                    className={`h-8 w-8 ${
+                      orders?.orderStatus === "DONE"
+                        ? "bg-success"
+                        : "bg-white8"
+                    } flex justify-center items-center rounded-[20px]`}
                   >
                     {orders?.orderStatus === "DONE" ? (
                       <Check size={16} color="#111315" />
@@ -228,7 +233,9 @@ const InscribeOrderModal: React.FC<modalProps> = ({
                   <p className="text-neutral50 text-lg font-bold">Inscribe</p>
                 </div>
                 <p
-                  className={`text-lg font-medium ${getStatusColor(orders?.orderStatus)}`}
+                  className={`text-lg font-medium ${getStatusColor(
+                    orders?.orderStatus
+                  )}`}
                 >
                   {getInscribeStatus(orders?.orderStatus)}
                 </p>

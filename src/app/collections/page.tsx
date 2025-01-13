@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import ColumColCard from "@/components/atom/cards/column-col-card";
 import {
   Select,
   SelectContent,
@@ -21,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import CollectionSkeleton from "@/components/atom/skeleton/collection-skeletion";
 import CollectionsBanner from "@/components/section/collections-banner";
+import CollectionCardList from "@/components/atom/cards/collection-card-list";
 
 interface CollectionsProps {
   params: {};
@@ -42,8 +42,8 @@ const orderConfigs: Record<string, OrderConfig> = {
 export default function Collections({ searchParams }: CollectionsProps) {
   const detail = searchParams.detail === "true";
   const router = useRouter();
-  const { authState } = useAuth();
-  const id = authState?.layerId;
+  const { authState, selectedLayerId } = useAuth();
+  const id = selectedLayerId;
   const intervals = ["1h", "24h", "7d", "30d", "All"];
   const [active, setActive] = useState(false);
   const [selectedInterval, setSelectedInterval] = useState("All");
@@ -85,7 +85,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
       <Tabs
         value={selectedInterval}
         onValueChange={setSelectedInterval}
-        className="mt-4 sm:mt-6 lg:mt-8 mb-6 sm:mb-8 lg:mb-10 border-hidden"
+        className="mt-4 px-4 lg:px-0 sm:mt-6 lg:mt-12 mb-6 sm:mb-8 lg:mb-10 border-hidden"
       >
         <section className="flex flex-col justify-between md:flex-row gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-7">
           {detail ? (
@@ -122,12 +122,12 @@ export default function Collections({ searchParams }: CollectionsProps) {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <TabsList className="h-12 text-neutral50 p-1 border border-neutral400 rounded-xl gap-1 whitespace-nowrap">
+              <TabsList className="h-12 mt-12  flex justify-around text-neutral50 p-1 border border-neutral400 rounded-xl gap-1 whitespace-nowrap">
                 {intervals.map((interval) => (
                   <TabsTrigger
                     key={interval}
                     value={interval}
-                    className="w-[46px] sm:w-[59px] h-10 font-semibold text-[15px] rounded-lg border-hidden"
+                    className="w-full sm:w-full md:w-[59px] h-10 font-semibold text-[15px] rounded-lg border-hidden"
                   >
                     {interval}
                   </TabsTrigger>
@@ -136,15 +136,15 @@ export default function Collections({ searchParams }: CollectionsProps) {
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
+          <div className="flex sm:flex-row md:mt-12  gap-4 sm:items-center">
             <Select
               value={selectedOrder}
               onValueChange={(value) => setSelectedOrder(value)}
             >
-              <SelectTrigger className="h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50 px-4">
+              <SelectTrigger className="h-12  w-full lg:w-[205px] rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50 py-3 pr-5 pl-6">
                 <SelectValue placeholder="Highest volume" />
               </SelectTrigger>
-              <SelectContent className="lg:w-[225px] rounded-xl p-1 bg-neutral600/70 text-neutral50 border-neutral400 backdrop-blur-md">
+              <SelectContent className="w-[205px] -top-[53px] lg:-left-[34px] lg:w-[240px] rounded-xl p-1 bg-background/40 text-neutral50 border-neutral400 absolute backdrop-blur-md">
                 {Object.keys(orderConfigs).map((key) => (
                   <SelectItem key={key} value={key} className="px-4">
                     {key
@@ -204,7 +204,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
             </div>
             <div className="flex-grow">
               <TabsContent value="ColCard">
-                <div className="hidden sm:grid grid-cols-4 gap-4 px-4 pb-4 text-neutral200 font-medium text-sm sm:text-md">
+                <div className="sm:grid grid-cols-4 gap-4 px-4 pb-4 text-neutral200 font-medium text-sm sm:text-md">
                   <div>Item</div>
                   <div className="text-center">Price</div>
                   <div className="text-center">Floor difference</div>
@@ -226,40 +226,42 @@ export default function Collections({ searchParams }: CollectionsProps) {
             {!detail && (
               <div>
                 {viewType === "grid" ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-6 lg:gap-8">
-                    {isLoading
-                      ? Array(8)
-                          .fill(null)
-                          .map((_, index) => <CollectionSkeleton key={index} />)
-                      : collectionArray?.map((item: any) => (
-                          <div key={item.id}>
-                            <CollectionCard
-                              data={item}
-                              handleNav={() => handleNavigation(item)}
-                            />
-                          </div>
-                        ))}
+                  <div className="flex justify-start w-full">
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 md2:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6 sm:p-0 sm:gap-8 gap-8 lg:gap-8">
+                      {isLoading
+                        ? Array(8)
+                            .fill(null)
+                            .map((_, index) => (
+                              <CollectionSkeleton key={index} />
+                            ))
+                        : collectionArray?.map((item: any) => (
+                            <div key={item.id}>
+                              <CollectionCard
+                                data={item}
+                                handleNav={() => handleNavigation(item)}
+                              />
+                            </div>
+                          ))}
+                    </div>
                   </div>
                 ) : (
-                  <div className="w-full">
-                    <div className="hidden sm:grid grid-cols-[2fr_3fr_2fr] gap-4 px-4 pb-4 text-neutral200 font-medium text-sm sm:text-md">
-                      <div>Name</div>
-                      <div className="grid grid-cols-3 text-center">
-                        <span>Floor price</span>
-                        <span>Volume</span>
-                        <span>Market cap</span>
-                      </div>
-                      <div className="grid grid-cols-3 text-center">
-                        <span>Sales</span>
-                        <span>Listed</span>
-                        <span>Owners</span>
+                  <div className="w-full overflow-x-auto mt-8">
+                    <div className="min-w-[1216px] flex pb-4 pl-4 pr-8 text-neutral200 font-medium text-sm sm:text-md">
+                      <div className="w-full flex text-md">
+                        <div className="w-[436px] text-start">Name</div>
+                        <div className="text-right w-[240px]">Floor price</div>
+                        <div className="text-right w-[240px]">Volume</div>
+                        <div className="text-right w-[240px]">Market cap</div>
+                        <div className="text-right w-[240px]">Sales</div>
+                        <div className="text-right w-[240px]">Listed</div>
+                        <div className="text-right w-[240px]">Owners</div>
                       </div>
                     </div>
-                    <div className="h-[500px] sm:h-[600px] lg:h-[754px] border-t-2 border-neutral500 w-full overflow-y-auto">
+                    <div className="h-[500px] sm:h-[600px] lg:h-[754px] min-w-[1216px] border-t-2 border-neutral500 w-full">
                       <div className="flex flex-col gap-4 pt-4 ">
                         {collectionArray?.map((item: any) => (
                           <div key={item.id}>
-                            <ColumColCard
+                            <CollectionCardList
                               data={item}
                               handleNav={() => handleNavigation(item)}
                             />

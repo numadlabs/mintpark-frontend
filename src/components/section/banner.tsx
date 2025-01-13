@@ -17,12 +17,12 @@ const Banner: React.FC<bannerProps> = ({
   stepperData,
 }) => {
   const { currentStep } = useStateStep();
-  
+
   setStep === currentStep;
 
   return (
-    <div className="flex flex-col gap-12 w-full mt-[72px] items-center">
-      <div className="relative w-full h-[188px] flex justify-center max-w-[1216px]">
+    <div className="flex flex-col gap-12 w-full items-center">
+      <div className="relative w-full h-[188px] flex justify-center">
         <Image
           src={image}
           alt="background"
@@ -42,7 +42,9 @@ const Banner: React.FC<bannerProps> = ({
                   title={item}
                   currentStep={setStep}
                 />
-                {index !== stepperData.length -1 && <div className="w-8 h-0.5 bg-neutral50"/>}
+                {index !== stepperData.length - 1 && (
+                  <div className="w-8 h-0.5 bg-neutral50" />
+                )}
               </React.Fragment>
             ))}
           </div>

@@ -14,21 +14,13 @@ import CollectiblePreviewCard from "@/components/atom/cards/collectible-preview-
 import {
   ImageFile,
   CollectionData,
-  LaunchCollectionData,
-  MintFeeType,
-  MintDataType,
-  OrderType,
   InscriptionCollectible,
   CreateLaunchParams,
   LaunchParams,
 } from "@/lib/types";
 import TextArea from "@/components/ui/textArea";
 import {
-  createCollectiblesToCollection,
   createCollection,
-  createMintHexCollection,
-  launchCollection,
-  mintFeeOfCitrea,
   createMintCollection,
   insriptionCollectible,
   invokeOrderMint,
@@ -36,7 +28,7 @@ import {
   createLaunch,
 } from "@/lib/service/postRequest";
 import useCreateFormState from "@/lib/store/createFormStore";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery,} from "@tanstack/react-query";
 import CollectionUploadFile from "@/components/section/collection-upload-file";
 import Toggle from "@/components/ui/toggle";
 import { Calendar2, Clock, Bitcoin } from "iconsax-react";
@@ -44,18 +36,18 @@ import OrderPayModal from "@/components/modal/order-pay-modal";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
-import { getLayerById, getUserById } from "@/lib/service/queryHelper";
-import { ethers } from "ethers";
-import { getSigner } from "@/lib/utils";
+import { getLayerById } from "@/lib/service/queryHelper";
 import { Loader2 } from "lucide-react";
 import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
 
+
+
 const Ipfs = () => {
   const router = useRouter();
-  const { authState, connect } = useAuth();
+  const { authState } = useAuth();
   const {
     imageFile,
     setImageFile,
@@ -81,48 +73,22 @@ const Ipfs = () => {
     setTxid,
     reset,
   } = useCreateFormState();
-  const queryClient = useQueryClient();
   const [step, setStep] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [collectionId, setCollectionId] = useState<string>("");
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [payModal, setPayModal] = useState(false);
-  const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [fileSizes, setFileSizes] = useState<number[]>([]);
-  const [logoImage, setImageLogo] = useState<ImageFile | null>(null);
   const stepperData = ["Details", "Upload", "Launch", "Confirm"];
   const [totalFileSize, setTotalFileSize] = useState<number>(0);
   const [fileTypeSizes, setFileTypeSizes] = useState<number[]>([]);
   const [successModal, setSuccessModal] = useState(false);
   const [inscribeModal, setInscribeModal] = useState(false);
   const [data, setData] = useState<string>("");
-  const [id, setId] = useState<string>("");
 
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
-  });
-
-  const { mutateAsync: launchCollectionMutation } = useMutation({
-    mutationFn: launchCollection,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["launchData"] });
-    },
-  });
-
-  const { mutateAsync: mintFeeOfCitreaMutation } = useMutation({
-    mutationFn: mintFeeOfCitrea,
-  });
-
-  const { mutateAsync: createCollectiblesMutation } = useMutation({
-    mutationFn: createCollectiblesToCollection,
-  });
-
-  const { mutateAsync: createHexCollectionMutation } = useMutation({
-    mutationFn: createMintHexCollection,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["collectionData"] });
-    },
   });
 
   const { mutateAsync: createOrder } = useMutation({
@@ -154,23 +120,17 @@ const Ipfs = () => {
 
     const newTypes = files.map((file) => file.type.length);
     setFileTypeSizes((prevTypes) => [...prevTypes, ...newTypes]);
-
-    setFileTypes((prevTypes) => {
-      const updatedTypes = new Set(prevTypes);
-      files.forEach((file) => updatedTypes.add(file.type));
-      return updatedTypes;
-    });
   };
 
   const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
+    queryKey: ["currentLayerData", authState.userLayerId],
+    queryFn: () => getLayerById(authState.userLayerId as string),
+    enabled: !!authState.userLayerId,
   });
 
   const calculateTimeUntilDate = (
     dateString: string,
-    timeString: string,
+    timeString: string
   ): number => {
     try {
       // Input validation
@@ -223,7 +183,7 @@ const Ipfs = () => {
         priceForLaunchpad: 0.001,
         type: "INSCRIPTION",
         userLayerId: authState.userLayerId,
-        layerId: authState.layerId,
+        layerId: authState.userLayerId,
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
@@ -234,14 +194,6 @@ const Ipfs = () => {
           setCollectionId(id);
           console.log("create collection success", response);
           toast.success("Create collection success.");
-
-          // if (currentLayer.layer === "CITREA") {
-          //   const { signer } = await getSigner();
-          //   const signedTx = await signer?.sendTransaction(deployContractTxHex);
-          //   await signedTx?.wait();
-          //   if (signedTx?.hash) setTxid(signedTx?.hash);
-          // }
-
           setStep(1);
         }
       }
@@ -283,12 +235,6 @@ const Ipfs = () => {
 
       const newTypes = filteredFiles.map((file) => file.type.length);
       setFileTypeSizes((prevTypes) => [...prevTypes, ...newTypes]);
-
-      setFileTypes((prevTypes) => {
-        const updatedTypes = new Set(prevTypes);
-        filteredFiles.forEach((file) => updatedTypes.add(file.type));
-        return updatedTypes;
-      });
     }
   };
 
@@ -304,7 +250,6 @@ const Ipfs = () => {
 
   const handleDeleteLogo = () => {
     setImageFile([]); // Clear the imageFile array
-    setImageLogo(null);
   };
 
   const handleBack = () => {
@@ -327,39 +272,6 @@ const Ipfs = () => {
   };
 
   const files = imageFiles.map((image) => image.file);
-
-  // const handleMintfeeChange = async () => {
-  //   if (!currentLayer) {
-  //     toast.error("Layer information not available");
-  //     return false;
-  //   }
-  //   setIsLoading(true);
-  //   try {
-  //     const params: MintFeeType = {
-  //       collectionTxid: txid,
-  //       mintFee: POMintPrice.toString(),
-  //     };
-  //     const response = await mintFeeOfCitreaMutation({ data: params });
-  //     if (response && response.success) {
-  //       const { singleMintTxHex } = response.data;
-  //       console.log("create collection success", response);
-  //       toast.success("Create collection success.");
-
-  //       if (currentLayer.layer === "CITREA") {
-  //         const { signer } = await getSigner();
-  //         const signedTx = await signer?.sendTransaction(singleMintTxHex);
-  //         await signedTx?.wait();
-  //       }
-  //       setStep(3);
-  //     }
-  //   } catch (error) {
-  //     toast.error("Error creating launch.");
-  //     console.error("Error creating launch: ", error);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
   const handleCreateLaunch = async () => {
     setIsLoading(true);
     const poStartsAt = calculateTimeUntilDate(POStartsAtDate, POStartsAtTime);
@@ -401,7 +313,7 @@ const Ipfs = () => {
           const currentBatchFiles = files.slice(start, end);
 
           const names = currentBatchFiles.map(
-            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
+            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
           );
 
           const launchItemsData: CreateLaunchParams = {
@@ -428,7 +340,7 @@ const Ipfs = () => {
     } catch (error) {
       console.error("Error creating launch:", error);
       toast.error(
-        error instanceof Error ? error.message : "Error creating launch",
+        error instanceof Error ? error.message : "Error creating launch"
       );
     } finally {
       setIsLoading(false);
@@ -457,18 +369,11 @@ const Ipfs = () => {
     const batchSize = 10;
     const totalBatches = Math.ceil(files.length / batchSize);
     try {
-      // const data: OrderType = {
-      //   collectionId: collectionId,
-      //   feeRate: 1,
-      //   txid: "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e",
-      //   userLayerId: authState.userLayerId,
-      //   totalFileSize: totalFileSize,
-      // };
       if (collectionId && authState.userLayerId && totalFileSize) {
         const response = await createOrder({
           collectionId: collectionId,
           feeRate: 1,
-          txid: "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e",
+          txid: txid,
           userLayerId: authState.userLayerId,
           totalFileSize: totalFileSize,
           totalCollectibleCount: files.length,
@@ -476,7 +381,7 @@ const Ipfs = () => {
         if (response && response.success) {
           await window.unisat.sendBitcoin(
             response.data.order.fundingAddress,
-            Math.ceil(response.data.order.fundingAmount),
+            Math.ceil(response.data.order.fundingAmount)
           );
 
           const orderID = response.data.order.id;
@@ -488,7 +393,7 @@ const Ipfs = () => {
             const currentBatchFiles = files.slice(start, end);
 
             const names = currentBatchFiles.map(
-              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
+              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
             );
             const params: InscriptionCollectible = {
               files: currentBatchFiles,
@@ -515,25 +420,6 @@ const Ipfs = () => {
           if (orderRes && orderRes.success) {
             setInscribeModal(true);
           }
-
-          // if (currentLayer.layer === "CITREA") {
-          //   const hexRes = await invokeOrderMint(orderID);
-          //   if (hexRes && hexRes.success) {
-          //     const { signer } = await getSigner();
-          //     const signedTx = await signer?.sendTransaction(
-          //       hexRes.data.batchMintTxHex
-          //     );
-          //     setInscribeModal(true);
-          //     await signedTx?.wait();
-          //     setInscribeModal(true);
-          //   }
-          // } else if (currentLayer.layer === "FRACTAL") {
-          //   await window.unisat.sendBitcoin(
-          //     response.data.order.fundingAddress,
-          //     response.data.order.fundingAmount
-          //   );
-          //   setInscribeModal(true);
-          // }
         }
       }
     } catch (error) {
@@ -660,52 +546,6 @@ const Ipfs = () => {
                   />
                 )}
               </div>
-              {/* <div className="flex flex-col w-full gap-8">
-                <div className="flex flex-row items-center justify-between">
-                  <p className="font-bold text-profileTitle text-neutral50">
-                    Include traits
-                  </p>
-                  <Toggle isChecked={isChecked} onChange={handleCheckBox} />
-                </div>
-                <p className="text-neutral100 text-lg2">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin
-                  ac ornare nisi. Aliquam eget semper risus, sed commodo elit.
-                  Curabitur sed congue magna. Donec ultrices dui nec ullamcorper
-                  aliquet. Nunc efficitur mauris id mi venenatis imperdiet.
-                  Integer mauris lectus, pretium eu nibh molestie, rutrum
-                  lobortis tortor. Duis sit amet sem fermentum, consequat est
-                  nec, ultricies justo.
-                </p>
-                <div className="flex flex-row rounded-xl border-neutral400 border w-[443px] gap-3 justify-center items-center py-3">
-                  <DocumentDownload size={24} color="#ffffff" />
-                  <p className="text-lg font-semibold text-neutral50">
-                    Download sample .CSV for correct formatting
-                  </p>
-                </div>
-                <div className={isChecked ? `flex` : `hidden`}>
-                  {jsonData.length !== 0 && jsonMetaData ? (
-                    <FileCard
-                      onDelete={handleDelete}
-                      fileName={jsonMetaData.name}
-                      fileSize={jsonMetaData.size}
-                    />
-                  ) : (
-                    <UploadFile
-                      text="Accepted file types: .JSON"
-                      handleImageUpload={handleJsonUpload}
-                      acceptedFileTypes=".json"
-                    />
-                  )}
-                </div>
-              </div> */}
-              {/* {isLoading && (
-                <div>
-                  <progress value={progress.value} max={progress.total} />
-                  <p>{progress.message}</p>
-                  <p>{`${progress.value}/${progress.total} NFTs minted`}</p>
-                </div>
-              )} */}
-              {/* <div className="text-red-500">{error}</div> */}
               <div className="flex flex-row w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
                 <Button
@@ -910,7 +750,7 @@ const Ipfs = () => {
                       By {creator}
                     </p>
                   </div>
-                  <p className="text-neutral100 text-lg2">{description}</p>
+                  <p className="text-neutral100 text-lg">{description}</p>
                 </div>
               </div>
               <div className="relative flex flex-row w-full h-auto gap-8 overflow-x-auto">
@@ -999,9 +839,7 @@ const Ipfs = () => {
         files={files}
         navigateOrders={handleNavigateToOrder}
         navigateToCreate={handleNavigateToCreate}
-        hash={
-          "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e"
-        }
+        hash={txid}
       />
 
       <InscribeOrderModal
@@ -1010,9 +848,7 @@ const Ipfs = () => {
         id={data}
         navigateOrders={() => router.push("/orders")}
         navigateToCreate={() => router.push("/create")}
-        txid={
-          "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e"
-        }
+        txid={txid}
       />
       <SuccessModal
         open={successModal}

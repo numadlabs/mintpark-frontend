@@ -1,4 +1,3 @@
-import { Gallery } from "iconsax-react";
 import React from "react";
 
 interface cardProps {

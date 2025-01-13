@@ -31,8 +31,9 @@ export const collectionDetailSchema = z.object({
   id: z.string(),
   name: z.string(),
   uniqueIdx: z.string().nullable(),
-  createdAt: z.date(),
-  fileKey: z.string().nullable(),
+  createdAt: z.string(),
+  fileKey: z.string(),
+  highResolutionImageUrl: z.string().nullable(),
   collectionId: z.string(),
   collectionName: z.string(),
   contractAddress: z.string().nullable(),
@@ -60,6 +61,7 @@ export const collectibleSchema = z.object({
   ownedBy: z.string().nullable(),
   listedAt: z.date().nullable(),
   listId: z.string().nullable(),
+  inscriptionId: z.string(),
 });
 
 // Schema for the complete API response
@@ -71,6 +73,7 @@ export const detailQuerySchema = z.object({
 
 //Collection type
 export type Collection = z.infer<typeof collectionSchema>;
+export type CollectionSchema = z.infer<typeof collectionDetailSchema>;
 
 const collectionsArraySchema = z.array(collectionSchema);
 

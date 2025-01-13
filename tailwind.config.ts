@@ -1,4 +1,4 @@
-/** @type {import('tailwindcss').Config} */
+8/** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
   content: [
@@ -21,7 +21,7 @@ module.exports = {
       md: ["14px", "18px"],
       md2: ["15px", "24px"],
       lg: ["16px", "20px"],
-      lg2: ["16px", "20px"],
+      lg2: ["17px", "24px"],
       xl: ["20px", "24px"],
       "2xl": ["24px", "36px"],
       "3xl": ["32px", "40px"],
@@ -41,7 +41,6 @@ module.exports = {
       smallTitles: ["16px", "22px"],
       profileTitle: ["28px", "36px"],
       headText: ["88px", "88px"],
-      // memeBtn:["17px","24px"]
     },
     extend: {
       backdropBlur: {
@@ -137,13 +136,13 @@ module.exports = {
     screens: {
       sm: "640px",
       md: "768px",
-      md2: "800px",
+      md2: "856px",
       lg: "1024px",
       xl: "1280px",
-      "2xl": "1536px",
+      "2xl": "1440px",
       "3xl": "1920px",
       "4xl": "2048px",
-    }
+    },
   },
   variants: {
     extend: {

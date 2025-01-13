@@ -1,24 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CollectionDataType } from "@/lib/types";
-import { s3ImageUrlBuilder, ordinalsImageCDN } from "@/lib/utils";
+import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
+import { CollectionSchema } from "@/lib/validations/collection-validation";
 
-export default function ColDetailCard({ data }: { data: CollectionDataType }) {
+export default function CollectibleCard({ data }: { data: CollectionSchema }) {
   const isListed = data.price > 0;
-
-  const formatPrice = (price: number) => {
-    return price.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 6,
-    });
-  };
 
   return (
     <Link
-      href={`/assetDetail/${data.id}`}
-      className="block w-full h-[394px] transition-transform duration-300 hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl px-4 pt-4 pb-5"
+      href={`/assets/${data.id}`}
+      className="block sm:h-auto overflow-hidden sm:w-full md:h-auto md:w-full md2:h-auto md2:w-full lg:h-auto lg:w-full xl:h-auto xl:w-full 2xl:w-full 2xl:h-auto  3xl:w-auto 3xl:h-auto transition-transform  duration-300 backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl pt-3 pb-4 px-3 md:px-4 md:pt-4 md:pb-5"
     >
-      <div className="flex flex-col h-full justify-center items-center">
+      <div className="flex flex-col h-auto gap-4 justify-center items-center">
         <Image
           width={248}
           height={248}
@@ -27,20 +21,20 @@ export default function ColDetailCard({ data }: { data: CollectionDataType }) {
               ? data.highResolutionImageUrl
               : s3ImageUrlBuilder(data.fileKey)
           }
-          className="aspect-square rounded-xl"
+          className="rounded-xl object-cover aspect-square"
           alt={data.name || "Collection image"}
         />
 
-        <div className="flex flex-col flex-1 pt-1 w-full">
-          <p className="text-neutral200 font-medium text-md pt-2">
+        <div className="flex flex-col flex-1 w-full">
+          <p className="text-neutral200 font-medium text-sm md:text-md pt-0 md:pt-2">
             {data.collectionName}
           </p>
-          <p className="py-1 text-lg2 text-neutral50 font-bold">{data.name}</p>
+          <p className="py-1 text-lg text-neutral50 font-bold">{data.name}</p>
 
-          <div className="mt-auto">
+          <div className="sm:mt-4 mt-3">
             <div className="relative group">
-              <div className="h-10 border-t border-neutral400 group-hover:border-transparent">
-                <div className="flex justify-between py-4 group-hover:opacity-0 transition-opacity">
+              <div className="h-8 sm:h-8 md2:h-9 md:h-8 border-t border-neutral400 group-hover:border-transparent">
+                <div className="flex justify-between py-2 sm:py-4 group-hover:opacity-0 transition-opacity">
                   {isListed ? (
                     <>
                       <p className="text-neutral200 font-medium text-md">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Header from "@/components/layout/header";
 import Layout from "@/components/layout/layout";
 import LaunchpadBanner from "@/components/section/launchpad-banner";
@@ -10,16 +10,15 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LaunchpadCard from "@/components/atom/cards/launchpad-card";
 import LaunchpadCardSkeleton from "@/components/atom/skeleton/launchpad-skeleton";
-import Autoplay from "embla-carousel-autoplay";
 
 const Launchpad = () => {
-  const { authState } = useAuth();
+  const { authState, selectedLayerId } = useAuth();
   const [interval, setInterval] = useState<string>("all");
 
   const { data: launch = [], isLoading } = useQuery({
     queryKey: ["launchData", interval],
-    queryFn: () => fetchLaunchs(authState?.layerId as string, interval),
-    enabled: !!authState?.layerId,
+    queryFn: () => fetchLaunchs(selectedLayerId as string, interval),
+    enabled: !!selectedLayerId,
   });
 
   const handleIntervalChange = (value: string) => {
@@ -32,15 +31,24 @@ const Launchpad = () => {
       .map((_, index) => <LaunchpadCardSkeleton key={`skeleton-${index}`} />);
   };
 
-  const plugin = useRef(Autoplay({ delay: 10000, stopOnInteraction: true }));
-
+  // if (!launch || launch.length === 0){
+  //   return (
+  //     <>
+  //        <Header />
+  //        <LaunchpadBanner data={launch?.[0]} />
+  //       <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
+  //         <p className="text-neutral200 font-medium text-lg">No activity recorded</p>
+  //       </div>
+  //     </>
+  //   );
+  // }
   return (
     <Layout>
       <Header />
       <div className="">
         <LaunchpadBanner data={launch?.[0]} />
         <Tabs
-          className="text-neutral50 mt-6 sm:mt-8 lg:mt-12"
+          className="text-neutral50 mt-14 sm:mt-14 lg:mt-12"
           defaultValue="all"
           onValueChange={handleIntervalChange}
         >
@@ -69,7 +77,7 @@ const Launchpad = () => {
 
           <TabsContent
             value="all"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 xl:gap-10"
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 3xl:grid-cols-6 gap-6 sm:gap-6 lg:gap-8 xl:gap-8"
           >
             {isLoading
               ? renderSkeletons()
@@ -79,7 +87,7 @@ const Launchpad = () => {
           </TabsContent>
           <TabsContent
             value="live"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 xl:gap-10"
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 3xl:grid-cols-6  gap-6 sm:gap-6 lg:gap-8 xl:gap-8"
           >
             {isLoading
               ? renderSkeletons()
@@ -89,7 +97,7 @@ const Launchpad = () => {
           </TabsContent>
           <TabsContent
             value="past"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 xl:gap-10"
+            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 3xl:grid-cols-6  gap-6 sm:gap-6 lg:gap-8 xl:gap-8"
           >
             {isLoading
               ? renderSkeletons()

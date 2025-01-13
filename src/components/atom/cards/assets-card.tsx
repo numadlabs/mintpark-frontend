@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { s3ImageUrlBuilder, ordinalsImageCDN } from "@/lib/utils";
+import { s3ImageUrlBuilder } from "@/lib/utils";
 import { CollectibleSchema } from "@/lib/validations/asset-validation";
 import Link from "next/link";
 
@@ -18,7 +18,7 @@ const AssetsCard: React.FC<CardProps> = ({ data }) => {
   };
 
   return (
-    <Link href={`/assets/${data.id}`} className="block w-full ">
+    <Link href={`/my-assets/${data.id}`} className="block w-full ">
       <div className="flex flex-col w-full transition-transform hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl px-4 pt-4 pb-5">
         <div className="w-full flex justify-center items-center">
           <Image
@@ -37,7 +37,7 @@ const AssetsCard: React.FC<CardProps> = ({ data }) => {
           <p className="text-neutral200 font-medium text-md pt-2">
             {data?.collectionName}
           </p>
-          <p className="py-1 text-lg2 text-neutral50 font-bold">{data?.name}</p>
+          <p className="py-1 text-lg text-neutral50 font-bold">{data?.name}</p>
 
           <div className="w-full pt-4">
             <div className="relative group">

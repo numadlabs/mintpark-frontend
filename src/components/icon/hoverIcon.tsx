@@ -7,9 +7,9 @@ interface IconProps {
 
 const DiscordIcon: React.FC<IconProps> = ({ size, className }) => (
   <svg
-    width={size}
-    height={size}
-    viewBox="0 0 22 18"
+    width="32"
+    height="32"
+    viewBox="0 0 32 32"
     xmlns="http://www.w3.org/2000/svg"
     className={className} // Add className to SVG element
   >

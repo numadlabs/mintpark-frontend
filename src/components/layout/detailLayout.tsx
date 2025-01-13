@@ -7,12 +7,12 @@ const DetailLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex flex-col w-full h-full backdrop-blur-[70px] bg-neutral600 bg-opacity-[70%]  min-h-screen items-center">
       {/* <UseConnectorProvider walletURL={WALLET_URL}> */}
-      <div className="w-full max-w-[1216px]">{children}</div>
+      <div className="w-full max-w-[1920px] px-4 md2:px-[112px] 3xl:px-10">
+        {children}
+      </div>
       {/* </UseConnectorProvider> */}
     </div>
   );
 };
 
 export default DetailLayout;
-
-// bg - [url("/slide.png")];

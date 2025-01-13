@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Header from "@/components/layout/header";
-import Layout from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import {
@@ -17,14 +16,13 @@ import {
 } from "@/lib/service/queryHelper";
 import {
   getSigner,
-  ordinalsImageCDN,
   s3ImageUrlBuilder,
   formatPrice,
+  formatTimeAgo,
 } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import PendingListModal from "@/components/modal/pending-list-modal";
-import moment from "moment";
 import {
   checkAndCreateRegister,
   createApprovalTransaction,
@@ -49,10 +47,6 @@ export default function AssetsDetails() {
 
   const { mutateAsync: createApprovalMutation } = useMutation({
     mutationFn: createApprovalTransaction,
-    // onSuccess: () => {
-    //   queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
-    //   queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
-    // },
   });
 
   const { mutateAsync: checkAndCreateRegisterMutation } = useMutation({
@@ -78,21 +72,6 @@ export default function AssetsDetails() {
   });
 
   const currentAsset = collectionData?.[0];
-
-  const formatTimeAgo = (dateString: string) => {
-    const now = moment();
-    const createdDate = moment(dateString);
-    const duration = moment.duration(now.diff(createdDate));
-    const minutes = duration.asMinutes();
-
-    if (minutes < 60) {
-      return `${Math.floor(minutes)}m`;
-    } else if (minutes < 1440) {
-      return `${Math.floor(minutes / 60)}h`;
-    } else {
-      return `${Math.floor(minutes / 1440)}d`;
-    }
-  };
 
   const toggleModal = () => {
     setIsVisible(!isVisible);
@@ -129,7 +108,7 @@ export default function AssetsDetails() {
           if (!registerRes.data.isRegistered) {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(
-              registerRes.data.registrationTx,
+              registerRes.data.registrationTx
             );
             await signedTx?.wait();
           }
@@ -137,9 +116,6 @@ export default function AssetsDetails() {
           return toast.error("Error registering asset");
         }
         toggleModal();
-        // } else {
-        //   toast.error("Unknown issue");
-        // }
       }
     } catch (error) {
       toast.error("Error listing asset");
@@ -148,13 +124,6 @@ export default function AssetsDetails() {
       setIsLoading(false);
     }
   };
-
-  // const formatPrice = (price: number) => {
-  //   return price.toLocaleString("en-US", {
-  //     minimumFractionDigits: 0,
-  //     maximumFractionDigits: 4,
-  //   });
-  // };
 
   if (isCollectionLoading) {
     return (
@@ -175,86 +144,89 @@ export default function AssetsDetails() {
       </>
     );
   }
-  //todo tur fileKey gd yvsan imageUrl bolgoj oorchloh
-
   return (
-    <Layout>
+    <>
       <Header />
-      <div className="flex flex-col gap-32 w-full">
-        <div className="flex justify-between pt-16 relative z-50">
-          <div className="relative z-10 w-[580px] h-[580px] blur-[90px] opacity-35 scale-120">
-            <Image
-              width={560}
-              height={560}
-              src={
-                currentAsset.highResolutionImageUrl
-                  ? currentAsset.highResolutionImageUrl
-                  : s3ImageUrlBuilder(currentAsset.fileKey)
-              }
-              className="aspect-square rounded-xl"
-              alt={`${currentAsset.name} logo`}
-            />
-          </div>
-          <Image
-            width={560}
-            height={560}
-            src={
-              currentAsset.highResolutionImageUrl
-                ? currentAsset.highResolutionImageUrl
-                : s3ImageUrlBuilder(currentAsset.fileKey)
-            }
-            className="aspect-square rounded-xl absolute z-50"
-            alt={`${currentAsset.name} logo`}
-          />
-          <div className="flex flex-col gap-8">
-            <div className="flex flex-col gap-2">
-              <p className="font-medium text-xl text-brand">
-                {currentAsset.collectionName}
-              </p>
-              <span className="flex text-3xl font-bold text-neutral50">
-                {currentAsset.name}
-              </span>
+      <div className="w-full flex justify-center items-center">
+        <div className="flex flex-col gap-32 w-full max-w-[1216px]">
+          <div className="md:grid grid-cols-2 flex flex-col gap-16 justify-between pt-16 relative z-20">
+            <div className="w-full h-full relative flex items-center justify-center">
+              <div className="z-10 w-full h-full blur-[90px] opacity-35 scale-120">
+                <Image
+                  width={560}
+                  height={560}
+                  src={
+                    currentAsset.highResolutionImageUrl
+                      ? currentAsset.highResolutionImageUrl
+                      : s3ImageUrlBuilder(currentAsset.fileKey)
+                    // currentAsset.fileKey
+                    //   ? s3ImageUrlBuilder(currentAsset.fileKey)
+                    //   : ordinalsImageCDN(currentAsset.uniqueIdx)
+                  }
+                  className="aspect-square rounded-xl relative z-20 md:h-full 3xl:h-[560px] 3xl:w-[560px] w-full h-[560px]"
+                  alt={`${currentAsset.name} logo`}
+                />
+              </div>
+              <Image
+                width={560}
+                height={560}
+                src={
+                  currentAsset.highResolutionImageUrl
+                    ? currentAsset.highResolutionImageUrl
+                    : s3ImageUrlBuilder(currentAsset.fileKey)
+                }
+                className="aspect-square rounded-xl absolute z-20 w-[360px] h-[320px] md:h-[340px] lg:w-full lg:h-full top-0"
+                alt={`${currentAsset.name} logo`}
+              />
             </div>
-            <div className="w-[592px] h-[1px] bg-neutral500" />
-            <div className="flex flex-col justify-center gap-6">
-              {currentAsset.price === 0 ? (
-                "This asset is not listed"
-              ) : (
-                <div className="flex flex-col justify-center gap-6">
-                  <div className="flex justify-between w-full">
-                    <span className="font-medium pt-3 text-end text-lg text-neutral200">
-                      <p>List price</p>
-                    </span>
-                    <span className="font-bold text-neutral50 text-lg">
-                      <h1>{formatPrice(currentAsset.price)} cBTC</h1>
-                    </span>
+            <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-2">
+                <p className="font-medium text-xl text-brand">
+                  {currentAsset.collectionName}
+                </p>
+                <span className="flex text-3xl font-bold text-neutral50">
+                  {currentAsset.name}
+                </span>
+              </div>
+              <div className="w-full h-[1px] bg-neutral500" />
+              <div className="flex flex-col justify-center gap-6">
+                {currentAsset.price === 0 ? (
+                  "This asset is not listed"
+                ) : (
+                  <div className="flex flex-col justify-center gap-6">
+                    <div className="flex justify-between w-full">
+                      <span className="font-medium pt-3 text-end text-lg text-neutral200">
+                        <p>List price</p>
+                      </span>
+                      <span className="font-bold text-neutral50 text-lg">
+                        <h1>{formatPrice(currentAsset.price)} cBTC</h1>
+                      </span>
+                    </div>
                   </div>
-                </div>
-              )}
-              {currentAsset.price === 0 && (
-                <div className="">
-                  <Button
-                    variant="primary"
-                    className="w-60 h-12 bg-brand500 flex justify-center items-center"
-                    onClick={HandleList}
-                    disabled
-                  >
-                    {isLoading ? (
-                      <Loader2
-                        className="animate-spin w-full"
-                        color="#111315"
-                        size={24}
-                      />
-                    ) : (
-                      "List"
-                    )}
-                  </Button>
-                </div>
-              )}
-            </div>
-            <div className="w-[592px] h-[1px] bg-neutral500" />
-            <div>
-              <Accordion type="multiple" className="w-[592px]">
+                )}
+                {currentAsset.price === 0 && (
+                  <div className="">
+                    <Button
+                      variant="primary"
+                      className="w-60 h-12 bg-brand500 flex justify-center items-center"
+                      onClick={HandleList}
+                      // disabled
+                    >
+                      {isLoading ? (
+                        <Loader2
+                          className="animate-spin w-full"
+                          color="#111315"
+                          size={24}
+                        />
+                      ) : (
+                        "List"
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </div>
+              <div className="w-full h-[1px] bg-neutral500" />
+              <Accordion type="multiple" className="w-full">
                 <AccordionItem value="item-1">
                   <AccordionTrigger className="font-medium text-xl text-neutral50">
                     Detail
@@ -299,62 +271,66 @@ export default function AssetsDetails() {
               </Accordion>
             </div>
           </div>
+          <div className="w-full h-[1px] bg-white8" />
+          <Tabs defaultValue="activity">
+            <div className="flex flex-col gap-8">
+              <TabsList className="border border-neutral400 p-1 rounded-xl h-12 w-fit">
+                <TabsTrigger
+                  value="activity"
+                  className="px-5 rounded-lg border-0 font-semibold"
+                >
+                  Activity
+                </TabsTrigger>
+                <TabsTrigger value="more" className="px-5 rounded-lg border-0">
+                  More from collection
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="activity" className="w-full">
+                <div className="overflow-x-auto w-full">
+                  <div className="flex flex-col min-w-[1216px] w-full">
+                    <div className="flex flex-row items-center px-3 pb-4 justify-between border-b border-neutral500">
+                      <p className="max-w-[360px] w-full text-neutral200 text-md font-medium">
+                        Item
+                      </p>
+                      <p className="max-w-[220px] w-full text-neutral200 text-md font-medium">
+                        Event
+                      </p>
+                      <p className="max-w-[200px] w-full text-neutral200 text-md font-medium">
+                        Price
+                      </p>
+                      <p className="max-w-[260px] w-full text-neutral200 text-md font-medium">
+                        Address
+                      </p>
+                      <p className="max-w-[152px] w-full text-neutral200 text-md font-medium">
+                        Date
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-3 pt-3">
+                      {activity.map((item: any) => (
+                        <ActivityCard
+                          key={item.id}
+                          data={item}
+                          imageUrl={
+                            currentAsset.highResolutionImageUrl
+                              ? currentAsset.highResolutionImageUrl
+                              : s3ImageUrlBuilder(currentAsset.fileKey)
+                          }
+                          collectionName={currentAsset.collectionName}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="more"></TabsContent>
+            </div>
+          </Tabs>
         </div>
-        <div className="w-full h-[1px] bg-white8" />
-        <Tabs defaultValue="activity">
-          <div className="flex flex-col gap-8">
-            <TabsList className="border border-neutral400 p-1 rounded-xl h-12 w-fit">
-              <TabsTrigger
-                value="activity"
-                className="px-5 rounded-lg border-0 font-semibold"
-              >
-                Activity
-              </TabsTrigger>
-              <TabsTrigger value="more" className="px-5 rounded-lg border-0">
-                More from collection
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="activity" className="flex flex-col">
-              <div className="flex flex-row items-center px-3 pb-4 justify-between border-b border-neutral500">
-                <p className="max-w-[360px] w-full text-neutral200 text-md font-medium">
-                  Item
-                </p>
-                <p className="max-w-[220px] w-full text-neutral200 text-md font-medium">
-                  Event
-                </p>
-                <p className="max-w-[200px] w-full text-neutral200 text-md font-medium">
-                  Price
-                </p>
-                <p className="max-w-[260px] w-full text-neutral200 text-md font-medium">
-                  Address
-                </p>
-                <p className="max-w-[152px] w-full text-neutral200 text-md font-medium">
-                  Date
-                </p>
-              </div>
-              <div className="flex flex-col gap-3 pt-3">
-                {activity.map((item: any) => (
-                  <ActivityCard
-                    key={item.id}
-                    data={item}
-                    fileKey={
-                      currentAsset.highResolutionImageUrl
-                        ? currentAsset.highResolutionImageUrl
-                        : s3ImageUrlBuilder(currentAsset.fileKey)
-                    }
-                    collectionName={currentAsset.collectionName}
-                  />
-                ))}
-              </div>
-            </TabsContent>
-            <TabsContent value="more"></TabsContent>
-          </div>
-        </Tabs>
       </div>
       <PendingListModal
         open={isVisible}
         onClose={toggleModal}
-        fileKey={
+        imageUrl={
           currentAsset.highResolutionImageUrl
             ? currentAsset.highResolutionImageUrl
             : s3ImageUrlBuilder(currentAsset.fileKey)
@@ -366,6 +342,6 @@ export default function AssetsDetails() {
         txid={txid}
         id={id}
       />
-    </Layout>
+    </>
   );
 }

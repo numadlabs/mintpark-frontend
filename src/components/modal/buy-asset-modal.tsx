@@ -9,13 +9,7 @@ import { Loader2, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import {
-  formatPrice,
-  getSigner,
-  ordinalsImageCDN,
-  s3ImageUrlBuilder,
-} from "@/lib/utils";
-import { Input } from "../ui/input";
+import { formatPrice, getSigner } from "@/lib/utils";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   generateBuyHex,
@@ -23,7 +17,6 @@ import {
 } from "@/lib/service/postRequest";
 import { toast } from "sonner";
 import { Check } from "lucide-react";
-import { id } from "ethers";
 import { useAuth } from "../provider/auth-context-provider";
 
 interface ModalProps {
@@ -34,9 +27,6 @@ interface ModalProps {
   name: string;
   uniqueIdx: string;
   price: number;
-  // networkFee: number;
-  // serviceFee: number;
-  // total: number;
   listId: string | null;
 }
 
