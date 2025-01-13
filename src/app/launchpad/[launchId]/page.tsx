@@ -198,6 +198,7 @@ const Page = () => {
   };
 
   return (
+    <>
     <div
       className="min-h-screen bg-cover bg-center bg-no-repeat"
       style={{
@@ -413,6 +414,7 @@ const Page = () => {
         )}
       </DetailLayout>
     </div>
+    </>
   );
 };
 
