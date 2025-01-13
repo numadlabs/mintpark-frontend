@@ -59,8 +59,9 @@ export default function AssetDetail() {
   });
 
   const { data: collection, isLoading: isQueryLoading } = useQuery({
-    queryKey: ["collectionData", collectionId],
-    queryFn: () => getListedCollectionById(collectionId as string),
+    queryKey: ["collectionData", collectionId, "recent", "desc"],
+    queryFn: () =>
+      getListedCollectionById(collectionId as string, "recent", "desc"),
     enabled: !!collectionId,
     retry: 1,
     initialData: {
