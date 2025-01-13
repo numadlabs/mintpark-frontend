@@ -7,6 +7,7 @@ import {
 } from "../ui/dialog";
 import { Check, Timer, X } from "lucide-react";
 import { Button } from "../ui/button";
+import { formatPrice } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { checkOrderStatus, getOrderById } from "@/lib/service/queryHelper";
 import { useRouter } from "next/navigation"; // Note: from 'navigation' instead of 'router'
@@ -52,11 +53,16 @@ const InscribeOrderModal: React.FC<modalProps> = ({
     navigateOrders();
   };
 
+  console.log("first", totalFee);
+
   const handleNavigation = () => {
     router.push(`/orders`);
     // onClose();
     // navigateToCreate();
   };
+
+  console.log("sadsdds",orders.quantity);
+
 
   const getPaymentStatus = (paymentStatus: string) => {
     switch (paymentStatus) {
@@ -124,13 +130,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         return "text-[#B0B0B1]";
     }
   };
-  const formatPrice = (price: number) => {
-    const btcAmount = price;
-    return btcAmount?.toLocaleString('en-US', {
-      minimumFractionDigits:0,
-      maximumFractionDigits: 6
-    });
-  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="flex flex-col p-6 gap-5 max-w-[592px] w-full items-center">
