@@ -14,7 +14,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
   return (
     <div
       onClick={handleNav}
-      className="h-auto w-full sm:h-auto sm:w-full md:h-[384px] md:w-full md2:h-auto md2:w-full 3xl:w-[280px] 3xl:h-[432px] transition-transform duration-300 hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br collection from-gradientStart to-transparent border border-neutral400 rounded-xl p-3 sm:p-4 flex flex-col justify-between items-center"
+      className="h-auto w-full sm:h-auto sm:w-full md:h-[384px] md:w-full md2:h-auto md2:w-full 3xl:w-[280px] 3xl:h-[432px] transition-transform duration-300 hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br collection from-gradientStart to-transparent border border-neutral400 rounded-xl p-3 sm:p-4 flex flex-col justify-between items-center cursor-pointer"
     >
       <Image
         width={248}

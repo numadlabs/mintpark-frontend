@@ -44,7 +44,7 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
         className="flex min-w-[1216px] w-full justify-between items-center bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-4"
         href={`/my-assets/${data.id}`}
       >
-        <div className="flex w-[392px] h-16 gap-5">
+        <div className="flex min-w-[392px] w-full max-w-[640px] h-16 gap-5">
           <Image
             width={64}
             height={64}
@@ -61,23 +61,20 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
           </p>
         </div>
         <div className="flex justify-end items-center w-full text-start">
-          <div className="w-[200px] grid gap-1 h-[18px]">
-            <p className="font-medium text-lg text-neutral50">
+          <div className="min-w-[200px] w-full max-w-[392px] grid gap-1">
+            <p className="font-medium text-lg text-neutral50 w-full">
               {formatPrice(data.floor)}
               <span className="ml-1">cBTC</span>
             </p>
-            <p>
-              {" "}
-              <p className="font-medium text-sm text-neutral200">
-                <span className="mr-1">$</span>
-                {formatPrice(data.floor * citreaPrice)}
-                <span className="">k</span>
-              </p>
+            <p className="font-medium text-sm text-neutral200 w-full">
+              <span className="mr-1">$</span>
+              {formatPrice(data.floor * citreaPrice)}
+              <span className="">k</span>
             </p>
           </div>
-          <div className="w-[200px] h-[18px]">
+          <div className="min-w-[200px] w-full max-w-[392px]">
             <p
-              className={`font-medium text-lg ${
+              className={`font-medium w-full text-lg ${
                 (data.floor ?? 0) >= 0 ? "text-success" : "text-errorMsg"
               }`}
             >
@@ -85,25 +82,27 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
               {formatPrice(data.floor) ?? 0}%
             </p>
           </div>
-          <div className="w-[200px] h-[18px]">
-            <p className="font-medium text-lg text-neutral50">
+          <div className="min-w-[200px] w-full max-w-[392px]">
+            <p className="font-medium text-lg text-neutral50 w-full">
               <TruncatedAddress address={data.id} />
               {/* this is OwnedBy */}
             </p>
           </div>
           <div
-            className={`w-[200px] h-[18px] ${
+            className={`min-w-[200px] w-full max-w-[392px] ${
               (data?.price ?? 0) > 0 ? "group" : ""
             } relative`}
           >
-            <span className="font-medium text-lg flex justify-center text-neutral50">
+            <span className="font-medium text-lg w-full flex justify-start text-neutral50">
               <span
-                className={(data.price ?? 0) > 0 ? "group-hover:hidden" : ""}
+                className={
+                  (data.price ?? 0) > 0 ? "group-hover:hidden w-full" : ""
+                }
               >
                 {daysAgo} days ago
               </span>
               {(data.price ?? 0) > 0 && (
-                <span className="hidden group-hover:block lg:absolute lg:-top-2 Lg:left-12 text-white bg-white bg-opacity-25 py-2 px-5 rounded-lg cursor-pointer transition-all duration-300 ease-in-out">
+                <span className="hidden w-full group-hover:block lg:absolute lg:-top-2 Lg:left-12 text-white bg-white bg-opacity-25 py-2 px-5 rounded-lg cursor-pointer transition-all duration-300 ease-in-out">
                   List
                 </span>
               )}

@@ -99,10 +99,26 @@ export default function AssetDetail() {
   return (
     <Layout>
       <Header />
-      <div className="flex flex-col w-full gap-16 pt-10 pr-10 pl-10 3xl:px-[312px]">
-        <div className="md:grid grid-cols-2 flex flex-col gap-16 justify-between pt-16 relative z-20">
-          <div className="w-full h-auto relative flex items-center justify-center">
-            <div className="z-10 w-full h-full blur-[90px] opacity-35 scale-120">
+      <div className="w-full flex justify-center ">
+        <div className="flex flex-col w-full gap-16 pt-10 max-w-[1216px]">
+          <div className="md:grid grid-cols-2 flex flex-col gap-16 justify-between pt-16 relative z-20">
+            <div className="w-full h-auto relative flex items-center justify-center">
+              <div className="z-10 w-full h-full blur-[90px] opacity-35 scale-120">
+                <Image
+                  width={560}
+                  height={560}
+                  src={
+                    currentAsset.highResolutionImageUrl
+                      ? currentAsset.highResolutionImageUrl
+                      : s3ImageUrlBuilder(currentAsset.fileKey)
+                    // currentAsset.fileKey
+                    //   ? s3ImageUrlBuilder(currentAsset.fileKey)
+                    //   : ordinalsImageCDN(currentAsset.uniqueIdx)
+                  }
+                  className="aspect-square rounded-xl relative z-20 md:h-[343px] 3xl:h-[560px] 3xl:w-[560px] w-[343px] h-auto md2:h-auto md2:w-full"
+                  alt={`${currentAsset.name} logo`}
+                />
+              </div>
               <Image
                 width={560}
                 height={560}
@@ -110,187 +126,174 @@ export default function AssetDetail() {
                   currentAsset.highResolutionImageUrl
                     ? currentAsset.highResolutionImageUrl
                     : s3ImageUrlBuilder(currentAsset.fileKey)
-                  // currentAsset.fileKey
-                  //   ? s3ImageUrlBuilder(currentAsset.fileKey)
-                  //   : ordinalsImageCDN(currentAsset.uniqueIdx)
                 }
-                className="aspect-square rounded-xl relative z-20 md:h-[343px] 3xl:h-[560px] 3xl:w-[560px] w-[343px] h-auto md2:h-auto md2:w-full"
+                className="aspect-square rounded-xl absolute z-20 w-[330px] h-auto md:h-[340px] md2:h-auto md2:w-full 2xl:w-[560px] 2xl:h-[560px] top-0"
                 alt={`${currentAsset.name} logo`}
               />
             </div>
-            <Image
-              width={560}
-              height={560}
-              src={
-                currentAsset.highResolutionImageUrl
-                  ? currentAsset.highResolutionImageUrl
-                  : s3ImageUrlBuilder(currentAsset.fileKey)
-              }
-              className="aspect-square rounded-xl absolute z-20 w-[330px] h-auto md:h-[340px] md2:h-auto md2:w-full 2xl:w-[560px] 2xl:h-[560px] top-0"
-              alt={`${currentAsset.name} logo`}
-            />
-          </div>
-          <div className="flex flex-col gap-8">
-            <div className="flex flex-col gap-2">
-              <p className="font-medium text-xl text-brand">
-                {currentAsset.collectionName}
-              </p>
-              <span className="flex text-3xl font-bold text-neutral50">
-                {currentAsset.name}
-              </span>
-            </div>
-            <div className="w-full h-[1px] bg-neutral500 my-8" />
-            <div className="flex flex-col justify-center gap-6">
-              {currentAsset.price > 0 ? (
-                <div className="flex flex-col gap-6">
-                  <div className="flex justify-between items-center w-full">
-                    <span className="font-medium pt-3 text-end text-lg text-neutral200">
-                      <p>List price</p>
-                    </span>
-                    <span className="font-bold text-neutral50 text-lg">
-                      <h1>
-                        {currentAsset.price && formatPrice(currentAsset.price)}{" "}
-                        cBTC
-                      </h1>
-                    </span>
-                  </div>
-                </div>
-              ) : null}
-              <div className="flex gap-4">
-                {currentAsset.price > 0 ? (
-                  <Button
-                    variant="primary"
-                    className="w-60 h-12 bg-brand500"
-                    onClick={toggleModal}
-                  >
-                    Buy now
-                  </Button>
-                ) : (
-                  <p className="text-xl text-neutral50 font-medium">
-                    This asset is not listed
-                  </p>
-                )}
+            <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-2">
+                <p className="font-medium text-xl text-brand">
+                  {currentAsset.collectionName}
+                </p>
+                <span className="flex text-3xl font-bold text-neutral50">
+                  {currentAsset.name}
+                </span>
               </div>
-            </div>
-            <Accordion type="multiple" className="w-full mt-8">
-              <AccordionItem value="item-1">
-                <AccordionTrigger className="font-medium text-xl text-neutral50 w-full">
-                  Detail
-                </AccordionTrigger>
-                <AccordionContent className="flex flex-col gap-6">
-                  {currentAsset.inscriptionId && (
+              <div className="w-full h-[1px] bg-neutral500 my-8" />
+              <div className="flex flex-col justify-center gap-6">
+                {currentAsset.price > 0 ? (
+                  <div className="flex flex-col gap-6">
+                    <div className="flex justify-between items-center w-full">
+                      <span className="font-medium pt-3 text-end text-lg text-neutral200">
+                        <p>List price</p>
+                      </span>
+                      <span className="font-bold text-neutral50 text-lg">
+                        <h1>
+                          {currentAsset.price &&
+                            formatPrice(currentAsset.price)}{" "}
+                          cBTC
+                        </h1>
+                      </span>
+                    </div>
+                  </div>
+                ) : null}
+                <div className="flex gap-4">
+                  {currentAsset.price > 0 ? (
+                    <Button
+                      variant="primary"
+                      className="w-60 h-12 bg-brand500"
+                      onClick={toggleModal}
+                    >
+                      Buy now
+                    </Button>
+                  ) : (
+                    <p className="text-xl text-neutral50 font-medium">
+                      This asset is not listed
+                    </p>
+                  )}
+                </div>
+              </div>
+              <Accordion type="multiple" className="w-full mt-8">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger className="font-medium text-xl text-neutral50 w-full">
+                    Detail
+                  </AccordionTrigger>
+                  <AccordionContent className="flex flex-col gap-6">
+                    {currentAsset.inscriptionId && (
+                      <div className="flex justify-between">
+                        <h1 className="font-medium text-md text-neutral200">
+                          Original Asset (Inscription ID)
+                        </h1>
+                        <Link
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={`https://testnet4.ordinals.com/${currentAsset.inscriptionId}`}
+                          className="font-medium cursor-pointer text-md hover:underline text-neutral50"
+                        >
+                          {truncateAddress(currentAsset.inscriptionId)}
+                        </Link>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <h1 className="font-medium text-md text-neutral200">
-                        Original Asset (Inscription ID)
+                        Owned by
                       </h1>
-                      <Link
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href={`https://testnet4.ordinals.com/${currentAsset.inscriptionId}`}
-                        className="font-medium cursor-pointer text-md hover:underline text-neutral50"
-                      >
-                        {truncateAddress(currentAsset.inscriptionId)}
-                      </Link>
+                      <p className="font-medium text-md text-neutral50">
+                        {currentAsset.ownedBy}
+                      </p>
                     </div>
-                  )}
-                  <div className="flex justify-between">
-                    <h1 className="font-medium text-md text-neutral200">
-                      Owned by
-                    </h1>
-                    <p className="font-medium text-md text-neutral50">
-                      {currentAsset.ownedBy}
+                    <div className="flex justify-between">
+                      <h1 className="font-medium text-md text-neutral200">
+                        Floor difference
+                      </h1>
+                      <p className="font-medium text-md text-success">
+                        {currentAsset.floorDifference}%
+                      </p>
+                    </div>
+                    <div className="flex justify-between">
+                      <h1 className="font-medium text-md text-neutral200">
+                        Listed time
+                      </h1>
+                      <p className="font-medium text-md text-neutral50">
+                        {formatDaysAgo(currentAsset.createdAt)}
+                      </p>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                  <AccordionTrigger className="font-medium text-xl text-neutral50">
+                    About {currentAsset.collectionName}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-neutral200 font-medium text-md">
+                      {currentAsset.description}
                     </p>
-                  </div>
-                  <div className="flex justify-between">
-                    <h1 className="font-medium text-md text-neutral200">
-                      Floor difference
-                    </h1>
-                    <p className="font-medium text-md text-success">
-                      {currentAsset.floorDifference}%
-                    </p>
-                  </div>
-                  <div className="flex justify-between">
-                    <h1 className="font-medium text-md text-neutral200">
-                      Listed time
-                    </h1>
-                    <p className="font-medium text-md text-neutral50">
-                      {formatDaysAgo(currentAsset.createdAt)}
-                    </p>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="item-2">
-                <AccordionTrigger className="font-medium text-xl text-neutral50">
-                  About {currentAsset.collectionName}
-                </AccordionTrigger>
-                <AccordionContent>
-                  <p className="text-neutral200 font-medium text-md">
-                    {currentAsset.description}
-                  </p>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </div>
           </div>
-        </div>
-        <div className="w-full h-[1px] bg-white8" />
-        <Tabs defaultValue="activity">
-          <div className="flex flex-col gap-8">
-            <TabsList className="border border-neutral400 p-1 rounded-xl h-12 w-fit">
-              <TabsTrigger
-                value="activity"
-                className="px-5 rounded-lg border-0 font-semibold"
-              >
-                Activity
-              </TabsTrigger>
-              <TabsTrigger value="more" className="px-5 rounded-lg border-0">
-                More from collection
-              </TabsTrigger>
-            </TabsList>
-            <TabsContent value="activity">
-              <div className="overflow-x-auto 3xl:overflow-x-hidden w-full">
-                <div className="min-w-[1216px]">
-                  <div className="flex flex-row items-center px-3 pb-4 justify-between border-b border-neutral500">
-                    <div className="w-[360px] shrink-0 text-neutral200 text-md font-medium whitespace-nowrap">
-                      Item
+          <div className="w-full h-[1px] bg-white8" />
+          <Tabs defaultValue="activity">
+            <div className="flex flex-col gap-8">
+              <TabsList className="border border-neutral400 p-1 rounded-xl h-12 w-fit">
+                <TabsTrigger
+                  value="activity"
+                  className="px-5 rounded-lg border-0 font-semibold"
+                >
+                  Activity
+                </TabsTrigger>
+                <TabsTrigger value="more" className="px-5 rounded-lg border-0">
+                  More from collection
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="activity">
+                <div className="overflow-x-auto 3xl:overflow-x-hidden w-full">
+                  <div className="min-w-[1216px]">
+                    <div className="flex flex-row items-center px-3 pb-4 justify-between border-b border-neutral500">
+                      <div className="w-[360px] shrink-0 text-neutral200 text-md font-medium whitespace-nowrap">
+                        Item
+                      </div>
+                      <div className="w-[220px] shrink-0 text-neutral200 text-md font-medium whitespace-nowrap">
+                        Event
+                      </div>
+                      <div className="w-[200px] shrink-0 text-neutral200 text-md font-medium whitespace-nowrap">
+                        Price
+                      </div>
+                      <div className="w-[260px] shrink-0 text-neutral200 text-md font-medium whitespace-nowrap">
+                        Address
+                      </div>
+                      <div className="w-[152px] shrink-0  text-neutral200 text-md font-medium whitespace-nowrap">
+                        Date
+                      </div>
                     </div>
-                    <div className="w-[220px] shrink-0 text-neutral200 text-md font-medium whitespace-nowrap">
-                      Event
+                    <div className="flex flex-col gap-3 pt-3">
+                      {activity?.map((item: any) => (
+                        <ActivityCard
+                          key={item.id}
+                          data={item}
+                          imageUrl={
+                            currentAsset.highResolutionImageUrl
+                              ? currentAsset.highResolutionImageUrl
+                              : s3ImageUrlBuilder(currentAsset.fileKey)
+                          }
+                          collectionName={currentAsset.collectionName}
+                        />
+                      ))}
                     </div>
-                    <div className="w-[200px] shrink-0 text-neutral200 text-md font-medium whitespace-nowrap">
-                      Price
-                    </div>
-                    <div className="w-[260px] shrink-0 text-neutral200 text-md font-medium whitespace-nowrap">
-                      Address
-                    </div>
-                    <div className="w-[152px] shrink-0  text-neutral200 text-md font-medium whitespace-nowrap">
-                      Date
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-3 pt-3">
-                    {activity?.map((item: any) => (
-                      <ActivityCard
-                        key={item.id}
-                        data={item}
-                        imageUrl={
-                          currentAsset.highResolutionImageUrl
-                            ? currentAsset.highResolutionImageUrl
-                            : s3ImageUrlBuilder(currentAsset.fileKey)
-                        }
-                        collectionName={currentAsset.collectionName}
-                      />
-                    ))}
                   </div>
                 </div>
-              </div>
-            </TabsContent>
-            <TabsContent value="more">
-              <MoreCollection
-                collection={collection}
-                currentAssetId={currentAsset.id}
-              />
-            </TabsContent>
-          </div>
-        </Tabs>
+              </TabsContent>
+              <TabsContent value="more">
+                <MoreCollection
+                  collection={collection}
+                  currentAssetId={currentAsset.id}
+                />
+              </TabsContent>
+            </div>
+          </Tabs>
+        </div>
       </div>
       <BuyAssetModal
         open={isVisible}

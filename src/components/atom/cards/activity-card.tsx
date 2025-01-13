@@ -2,11 +2,11 @@ import React from "react";
 import Image from "next/image";
 import { TickCircle, ArrowRight } from "iconsax-react";
 import { ActivityType } from "@/lib/types";
-import { truncateAddress,formatPrice } from "@/lib/utils";
+import { truncateAddress, formatPrice } from "@/lib/utils";
 import moment from "moment";
 
 interface cardProps {
-  imageUrl:string;
+  imageUrl: string;
   data: ActivityType;
   collectionName: string;
 }
@@ -35,10 +35,8 @@ const ActivityCard: React.FC<cardProps> = ({
     }
   };
 
-
-
   return (
-    <div className="flex items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap">
+    <div className="flex items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap hover:bg-neutral400 hover:bg-opacity-30 cursor-pointer">
       <div className="flex items-center gap-3 shrink-0 w-[360px]">
         <Image
           src={imageUrl}
