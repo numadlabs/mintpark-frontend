@@ -135,17 +135,25 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
                 </div>
               </TabsContent>
 
-              <TabsContent value="ColCard">
+              <TabsContent value="ColCard" className="w-full">
                 <div className="overflow-x-auto w-full">
-                  <div className="min-w-[1216px] flex border-b border-neutral400 font-medium text-md text-neutral200 px-3 pb-4">
-                    <div className="w-[520px] flex text-start">Item</div>
-                    <div className="w-[324px] flex text-start">Price</div>
-                    <div className="w-[324px] flex text-start">
-                      Floor difference
+                  <div className="min-w-[1216px] w-full flex border-b justify-between border-neutral400 font-medium text-md text-neutral200 px-3 pb-4">
+                    <div className="min-w-[392px] w-full max-w-[520px] text-start">
+                      Item
                     </div>
-                    <div className="w-[324px] flex text-start">Owner</div>
-                    <div className="w-[324px] 3xl:w-[214px] flex text-start">
-                      Listed time
+                    <div className="flex items-center w-full">
+                      <div className="min-w-[200px] w-full max-w-[324px] text-start">
+                        Price
+                      </div>
+                      <div className="min-w-[200px] w-full max-w-[324px] text-start">
+                        Floor difference
+                      </div>
+                      <div className="min-w-[200px] w-full max-w-[324px] text-start">
+                        Owner
+                      </div>
+                      <div className="min-w-[200px] w-full max-w-[324px] text-start">
+                        Listed time
+                      </div>
                     </div>
                   </div>
 

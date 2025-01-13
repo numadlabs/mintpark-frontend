@@ -189,30 +189,30 @@ export default function Assets({ detail = false }: { detail: boolean }) {
             <TabsContent value="ColCard" className="w-full">
               <div className="overflow-x-auto w-full">
                 <div className="w-full border-b border-neutral400 min-w-[1216px] ">
-                  <div className="w-full border-b border-neutral400 flex h-[34px] pr-8 pb-4 pl-4 justify-between">
-                    <div className="w-[392px] h-[18px]">
+                  <div className="w-full border-b border-neutral400 flex h-[34px] pr-4 pb-4 pl-4 justify-between">
+                    <div className="min-w-[392px] w-full max-w-[640px] h-[18px]">
                       <p className="font-medium text-md text-neutral200">
                         Item
                       </p>
                     </div>
                     <div className="flex flex-row w-full text-start gap-0 justify-end">
-                      <div className="w-[200px] h-[18px]">
-                        <p className="font-medium text-md text-neutral200 pr-7">
+                      <div className="min-w-[200px] w-full max-w-[392px] h-[18px]">
+                        <p className="font-medium text-md text-neutral200 pr-7 w-full">
                           Price
                         </p>
                       </div>
-                      <div className="w-[200px] h-[18px]">
-                        <p className="font-medium text-md text-neutral200">
+                      <div className="min-w-[200px] w-full max-w-[392px] h-[18px]">
+                        <p className="font-medium text-md text-neutral200 w-full">
                           Floor difference
                         </p>
                       </div>
-                      <div className="w-[200px] h-[18px]">
-                        <p className="font-medium text-md text-neutral200">
+                      <div className="min-w-[200px] w-full max-w-[392px] h-[18px]">
+                        <p className="font-medium text-md text-neutral200 w-full">
                           Owner
                         </p>
                       </div>
-                      <div className="w-[200px] h-[18px]">
-                        <p className="font-medium text-md text-neutral200 ">
+                      <div className="min-w-[200px] w-full max-w-[392px] h-[18px]">
+                        <p className="font-medium text-md text-neutral200 w-full">
                           Listed time
                         </p>
                       </div>
