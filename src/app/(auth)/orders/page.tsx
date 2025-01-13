@@ -18,6 +18,7 @@ interface Order {
   createdAt: string;
   networkFee: number;
   serviceFee: number;
+  fundingAmount:number;
 }
 
 const Orders = () => {
@@ -197,6 +198,7 @@ const Orders = () => {
             quantity={selectedOrder.quantity}
             networkFee={selectedOrder.networkFee}
             serviceFee={selectedOrder.serviceFee}
+            fundingAmount={selectedOrder.fundingAmount}
           />
         )}
       </div>
