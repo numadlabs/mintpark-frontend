@@ -69,7 +69,7 @@ const CollectionsBanner = () => {
     <div className="relative h-80 w-full rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden">
       <Image
         src={slide.image}
-        alt=""
+        alt="mintpark-slide"
         fill
         className="object-cover"
         priority={slide.id === 1}

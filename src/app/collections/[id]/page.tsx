@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Global, Notepad, Profile2User } from "iconsax-react";
 import DiscordIcon from "@/components/icon/hoverIcon";
 import ThreadIcon from "@/components/icon/thread";
@@ -21,10 +20,10 @@ import CollectibleCardList from "@/components/atom/cards/collectible-card-list";
 import { getListedCollectionById } from "@/lib/service/queryHelper";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
 import { CollectionDataType } from "@/lib/types";
-import CollectionSideBar from "@/components/section/collections/sideBar";
 import CollectionDetailSkeleton from "@/components/atom/skeleton/collection-detail-skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import { BITCOIN_IMAGE } from "@/lib/constants";
+
 const CollectionDetailPage = () => {
   const params = useParams();
   const { id } = params;

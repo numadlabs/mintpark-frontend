@@ -103,7 +103,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
               <div className="w-full h-full relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden">
                 <Image
                   src="/banner.png"
-                  alt=""
+                  alt="mintparkBanner"
                   fill
                   className="object-cover"
                   priority
