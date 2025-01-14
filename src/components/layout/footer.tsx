@@ -31,9 +31,9 @@ export default function Footer() {
           <div className="grid md:grid-cols-3 lg:grid-cols-3  grid-cols-1 gap-8">
             {/* Marketplace Section */}
             <div className="space-y-7">
-              <h1 className="font-medium text-lg text-neutral50">
+              <h2 className="font-medium text-lg text-neutral50">
                 Marketplace
-              </h1>
+              </h2>
               <div className="flex flex-col gap-6">
                 <button
                   className="hidden md:block font-medium text-md text-neutral200 text-left transition-all duration-300 ease-out cursor-not-allowed"
@@ -58,9 +58,9 @@ export default function Footer() {
 
             {/* Social Links Section */}
             <div className="space-y-7">
-              <h1 className="font-medium text-lg text-neutral50">
+              <h3 className="font-medium text-lg text-neutral50">
                 Social Links
-              </h1>
+              </h3>
               <div className="flex flex-col gap-6">
                 <button
                   onClick={handleTwitter}
@@ -73,7 +73,7 @@ export default function Footer() {
 
             {/* Legal Section */}
             <div className="space-y-7">
-              <h1 className="font-medium text-lg text-neutral50">Legal</h1>
+              <h4 className="font-medium text-lg text-neutral50">Legal</h4>
               <div className="flex flex-col gap-6">
                 <button
                   onClick={handleTermsClick}
