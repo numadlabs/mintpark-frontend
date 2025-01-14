@@ -19,11 +19,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { serviceData } from "@/lib/constants";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface FormData {
@@ -150,6 +145,7 @@ export default function Home() {
   };
 
   return (
+<>
     <Layout>
       <Header />
       <section className="w-full flex flex-col gap-[56px] md:gap-[100px] 2xl:gap-[200px] mt-12 md:mt-[100px]">
@@ -228,7 +224,7 @@ export default function Home() {
               {serviceData.map((item) => (
                 <div
                   key={item.id}
-                  className="border border-white4 rounded-[32px] flex flex-col min-w-[327px] lg:min-w-0"
+                  className="border rounded-[32px] border-white4 flex flex-col min-w-[327px] lg:min-w-0"
                 >
                   <Image
                     src={`/homePage/${item.image}.png`}
@@ -238,7 +234,7 @@ export default function Home() {
                     className="object-cover w-full"
                   />
                   <div className="p-8 flex flex-col gap-4">
-                    <p className="text-center text-2xl text-neutral00 font-bold">
+                    <p className="text-center text-lg 2xl:text-2xl text-neutral00 font-bold">
                       {item.title}
                     </p>
                     <p className="text-center text-md font-medium text-neutral100">
@@ -374,9 +370,9 @@ export default function Home() {
 
         {/* FAQ Section */}
         <div className="flex flex-col items-center gap-8 md:gap-12 w-full">
-          <h1 className="font-bold text-center text-neutral00 text-xl sm:text-3xl md:text-5xl px-4">
+          <h4 className="font-bold text-center text-neutral00 text-xl sm:text-3xl md:text-5xl px-4">
             Frequently Asked Questions
-          </h1>
+          </h4>
           <div className="w-full max-w-[800px] px-4">
             <Accordion
               type="single"
@@ -449,9 +445,9 @@ export default function Home() {
 
           <div className="flex flex-col items-center gap-8 md:gap-12 px-4">
             <div className="text-center grid gap-4 md:gap-6">
-              <h1 className="font-bold text-2xl md:text-3xl text-neutral00">
+              <h3 className="font-bold text-2xl md:text-3xl text-neutral00">
                 Learn More About Citrea and Our Vision
-              </h1>
+              </h3>
               <p className="font-medium text-sm md:text-lg text-neutral100">
                 Explore who we are, what we stand for, and how we&apos;re
                 shaping the future.
@@ -468,5 +464,6 @@ export default function Home() {
         </div>
       </section>
     </Layout>
+</>
   );
 }
