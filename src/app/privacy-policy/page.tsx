@@ -1,6 +1,11 @@
 import Layout from "@/components/layout/layout";
 import React from "react";
 import Header from "@/components/layout/header";
+import { Metadata } from "next";
+
+export const metadata:Metadata = {
+title:"Privacy Policy",
+}
 
 const PrivacyPolicy = () => {
   return (
