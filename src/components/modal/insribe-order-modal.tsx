@@ -53,8 +53,6 @@ const InscribeOrderModal: React.FC<modalProps> = ({
     navigateOrders();
   };
 
-  console.log("first", totalFee);
-
   const handleNavigation = () => {
     router.push(`/orders`);
   };

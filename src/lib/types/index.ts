@@ -134,6 +134,10 @@ export type LaunchType = {
   poEndsAt: number;
   poMintPrice: number;
   poMaxMintPerWallet: number;
+  wlStartsAt?: number;
+  wlEndsAt?: number;
+  wlMintPrice?: number;
+  wlMaxMintPerWallet?: number;
   userLayerId: string | null;
 };
 
@@ -149,7 +153,6 @@ export type MintFeeType = {
 };
 
 export type BadgeType = {
-  logo?: File;
   description: string;
   name: string;
   priceForLaunchpad: number;

@@ -25,6 +25,18 @@ interface FormState {
   setPOMintPrice: (POMintPrice: number) => void;
   POMaxMintPerWallet: number;
   setPOMaxMintPerWallet: (POMaxMintPerWallet: number) => void;
+  WLStartsAtDate: string;
+  setWLStartsAtDate: (WLStartsAtDate: string) => void;
+  WLStartsAtTime: string;
+  setWLStartsAtTime: (WLStartsAtTime: string) => void;
+  WLEndsAtDate: string;
+  setWLEndsAtDate: (WLEndsAtDate: string) => void;
+  WLEndsAtTime: string;
+  setWLEndsAtTime: (WLEndsAtTime: string) => void;
+  WLMintPrice: number;
+  setWLMintPrice: (WLMintPrice: number) => void;
+  WLMaxMintPerWallet: number;
+  setWLMaxMintPerWallet: (WLMaxMintPerWallet: number) => void;
   supply: number;
   setSupply: (supply: number) => void;
   txid: string;
@@ -58,6 +70,19 @@ const useCreateFormState = create<FormState>((set) => ({
   POMaxMintPerWallet: 0,
   setPOMaxMintPerWallet: (POMaxMintPerWallet: number) =>
     set({ POMaxMintPerWallet }),
+  WLStartsAtDate: "",
+  setWLStartsAtDate: (WLStartsAtDate: string) => set({ WLStartsAtDate }),
+  WLStartsAtTime: "",
+  setWLStartsAtTime: (WLStartsAtTime: string) => set({ WLStartsAtTime }),
+  WLEndsAtDate: "",
+  setWLEndsAtDate: (WLEndsAtDate: string) => set({ WLEndsAtDate }),
+  WLEndsAtTime: "",
+  setWLEndsAtTime: (WLEndsAtTime: string) => set({ WLEndsAtTime }),
+  WLMintPrice: 0,
+  setWLMintPrice: (WLMintPrice: number) => set({ WLMintPrice }),
+  WLMaxMintPerWallet: 0,
+  setWLMaxMintPerWallet: (WLMaxMintPerWallet: number) =>
+    set({ WLMaxMintPerWallet }),
   supply: 0,
   setSupply: (supply) => set({ supply }),
   txid: "",
@@ -77,6 +102,11 @@ const useCreateFormState = create<FormState>((set) => ({
       POEndsAtTime: "",
       POMintPrice: 0,
       POMaxMintPerWallet: 0,
+      WLStartsAtDate: "",
+      WLStartsAtTime: "",
+      WLEndsAtDate: "",
+      WLEndsAtTime: "",
+      WLMintPrice: 0,
       supply: 0,
       txid: "",
     }),

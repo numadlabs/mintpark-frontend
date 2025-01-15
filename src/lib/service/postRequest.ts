@@ -645,6 +645,54 @@ export async function launchItems({ data }: { data: LaunchItemType }) {
   }
 }
 
+export async function launchItemsIpfs({
+  collectionId,
+  isLastBatch,
+}: {
+  collectionId: string;
+  isLastBatch?: boolean;
+}) {
+  const formData = new FormData();
+
+  // Append other data
+  formData.append("collectionId", collectionId);
+
+  // Only append isLastBatch if it's defined
+  if (typeof isLastBatch !== "undefined") {
+    formData.append("isLastBatch", isLastBatch.toString());
+  } else {
+    // You might want to set a default value here
+    formData.append("isLastBatch", "false");
+  }
+
+  console.log("FormData contents:");
+  // Use Array.from() to convert the iterator to an array
+  Array.from(formData.keys()).forEach((key) => {
+    console.log(key, formData.get(key));
+  });
+
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/launchpad/ipfs`,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  };
+
+  try {
+    const response = await axiosClient.request(config);
+    console.log("Server response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error in createCollectiblesToCollection:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error("Server error response:", error.response.data);
+    }
+    throw error;
+  }
+}
+
 export async function mintFeeOfCitrea({
   data,
   userLayerId,
@@ -657,6 +705,48 @@ export async function mintFeeOfCitrea({
       .post(`/api/v1/launchpad/change-mintfee-transaction`, {
         data,
         userLayerId,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function whitelistAddresses({
+  launchId,
+  addresses,
+}: {
+  launchId: string;
+  addresses: string[];
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/whitelist-addresses`, {
+        launchId,
+        addresses,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function ifpsLaunchItem({
+  collectionId,
+  isLastBatch,
+}: {
+  collectionId: string;
+  isLastBatch?: boolean;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/ipfs`, {
+        collectionId,
+        isLastBatch,
       })
       .then((response) => {
         return response.data;
