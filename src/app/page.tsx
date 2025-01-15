@@ -216,9 +216,9 @@ export default function Home() {
 
         {/* Services Section */}
         <div className="w-full flex flex-col gap-16 justify-center items-center">
-          <h2 className="font-bold text-center text-neutral00 text-3xl md:text-5xl">
+          <h1 className="font-bold text-center text-neutral00 text-3xl md:text-5xl">
             Our service
-          </h2>
+          </h1>
           <ScrollArea className="w-full max-w-[1216px]">
             <div className="flex flex-row lg:grid lg:grid-cols-3 items-center gap-4 sm:gap-8">
               {serviceData.map((item) => (
