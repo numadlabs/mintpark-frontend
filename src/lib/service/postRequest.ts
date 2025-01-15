@@ -391,14 +391,40 @@ export async function createLaunch({
   totalFileSize: number;
   feeRate: number;
 }) {
+  const formData = new FormData();
+
+  const dataLaunch = data;
+  formData.append("data", JSON.stringify(dataLaunch));
+
+  // Append other data
+  formData.append("txid", txid);
+  formData.append("totalFileSize", totalFileSize.toString());
+  formData.append("feeRate", feeRate.toString());
+  console.log("FormData contents:");
+  // Use Array.from() to convert the iterator to an array
+  Array.from(formData.keys()).forEach((key) => {
+    console.log(key, formData.get(key));
+  });
+
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/launchpad`,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  };
+
   try {
-    return axiosClient
-      .post(`/api/v1/launchpad`, { data, txid, totalFileSize, feeRate })
-      .then((response) => {
-        return response.data;
-      });
+    const response = await axiosClient.request(config);
+    console.log("Server response:", response.data);
+    return response.data;
   } catch (error) {
-    console.log("Error:", error);
+    console.error("Error in createCollectiblesToCollection:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error("Server error response:", error.response.data);
+    }
+    throw error;
   }
 }
 
