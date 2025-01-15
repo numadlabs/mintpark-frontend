@@ -44,16 +44,16 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
         className="flex min-w-[1216px] w-full justify-between items-center bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-4"
         href={`/my-assets/${data.id}`}
       >
-        <div className="flex min-w-[392px] w-full max-w-[640px] h-16 gap-5">
+        <div className="flex min-w-[392px] w-full max-w-[640px] gap-5 items-center">
           <Image
-            width={64}
-            height={64}
+            width={48}
+            height={48}
             src={
               data.highResolutionImageUrl
                 ? data.highResolutionImageUrl
                 : s3ImageUrlBuilder(data.fileKey)
             }
-            className="aspect-square rounded-lg"
+            className="aspect-square rounded-lg h-12"
             alt={`${data.name} image`}
           />
           <p className="text-neutral50 font-medium text-xl flex items-center">
