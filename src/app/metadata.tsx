@@ -229,14 +229,14 @@ export const metadata: Metadata = {
     locale: 'en_US',
     images: [
       {
-        url: `${getBaseUrl()}/og-image-large.png`,
+        url: `${getBaseUrl()}/logo.png`,
         width: 1200,
         height: 630,
         alt: 'Mint Park - Digital Art Creation Platform',
         type: 'image/png',
       },
       {
-        url: `${getBaseUrl()}/og-image-small.png`,
+        url: `${getBaseUrl()}/logo.png`,
         width: 600,
         height: 315,
         alt: 'Mint Park - Digital Art Creation Platform',
@@ -250,7 +250,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Mint Park - Digital Art Creation Platform',
     description: 'Create and launch unique digital art on Mint Park. Explore Bitcoin NFTs and cross-chain opportunities.',
-    images: [`${getBaseUrl()}/detail_icon/icon_2.png`],
+    images: [`${getBaseUrl()}/logo.png`],
     site: '@mintpark',
     creator: '@mintpark'
   },
@@ -259,7 +259,7 @@ export const metadata: Metadata = {
   icons: {
     icon: '/logo.png',
     apple: [
-      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+      { url: '/logo.png', sizes: '180x180', type: 'image/png' },
     ],
     shortcut: '/logo.png',
     other: [
