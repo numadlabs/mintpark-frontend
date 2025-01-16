@@ -107,6 +107,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Bai_Jamjuree } from "next/font/google";
 import "./globals.css";
 import { ErrorBoundary } from "@/components/error-boundary.tsx";
+import { Viewport } from "next";
 
 const bai_Jamjuree = Bai_Jamjuree({
   weight: ["400", "700"],
@@ -115,6 +116,14 @@ const bai_Jamjuree = Bai_Jamjuree({
 });
 
 export { metadata } from "./metadata";
+
+export const viewport: Viewport = {
+  // Add viewport export
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#111315",
+};
 
 export default function RootLayout({
   children,
@@ -131,10 +140,7 @@ export default function RootLayout({
               process.env.NEXT_PUBLIC_SITE_URL || "https://www.mintpark.io/"
             }
           />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, viewport-fit=cover"
-          />
+          {/* Remove the viewport meta tag from here */}
           <link rel="manifest" href="/manifest.json" />
         </head>
         <body>

@@ -16,7 +16,6 @@ export const BACKEND_URL =
 const instance = axios.create({
   baseURL: BACKEND_URL,
 });
-
 export const initializeAxios = (logoutHandler: () => void) => {
   instance.interceptors.request.use(
     (config) => {

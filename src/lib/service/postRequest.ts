@@ -16,13 +16,20 @@ import { collectibleFormData } from "./formHelper";
 
 // Connect and Login sections
 export async function generateMessageHandler({ address }: { address: string }) {
-  console.log("🚀 ~ loginHandler ~ walletData:", address);
-  return axiosClient
-    .post(`/api/v1/users/generate-message`, JSON.stringify({ address }))
-    .then((response) => {
-      // if(respo)
-      return response.data;
-    });
+  try {
+    console.log("🚀 ~ loginHandler ~ walletData:", address);
+    return axiosClient
+      .post(`/api/v1/users/generate-message`, JSON.stringify({ address }))
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
 }
 
 export async function loginHandler({
@@ -36,15 +43,23 @@ export async function loginHandler({
   layerId: string;
   pubkey?: string;
 }) {
-  console.log("🚀 ~ loginHandler ~ walletData:", address);
-  return axiosClient
-    .post(
-      `/api/v1/users/login`,
-      JSON.stringify({ address, signedMessage, layerId, pubkey })
-    )
-    .then((response) => {
-      return response.data;
-    });
+  try {
+    console.log("🚀 ~ loginHandler ~ walletData:", address);
+    return axiosClient
+      .post(
+        `/api/v1/users/login`,
+        JSON.stringify({ address, signedMessage, layerId, pubkey })
+      )
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
 }
 
 export async function loginWalletLink({
@@ -58,14 +73,22 @@ export async function loginWalletLink({
   layerId: string;
   pubkey?: string;
 }) {
-  return axiosClient
-    .post(
-      `/api/v1/users/link-account`,
-      JSON.stringify({ address, signedMessage, layerId, pubkey })
-    )
-    .then((response) => {
-      return response.data;
-    });
+  try {
+    return axiosClient
+      .post(
+        `/api/v1/users/link-account`,
+        JSON.stringify({ address, signedMessage, layerId, pubkey })
+      )
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
 }
 
 export async function linkAccountToAnotherUser({
@@ -79,14 +102,22 @@ export async function linkAccountToAnotherUser({
   layerId: string;
   pubkey?: string;
 }) {
-  return axiosClient
-    .post(
-      `/api/v1/users/link-account-to-another-user`,
-      JSON.stringify({ address, signedMessage, layerId, pubkey })
-    )
-    .then((response) => {
-      return response.data;
-    });
+  try {
+    return axiosClient
+      .post(
+        `/api/v1/users/link-account-to-another-user`,
+        JSON.stringify({ address, signedMessage, layerId, pubkey })
+      )
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
 }
 
 //Collection section
