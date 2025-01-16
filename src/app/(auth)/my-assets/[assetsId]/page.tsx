@@ -106,16 +106,20 @@ export default function AssetsDetails() {
         });
         if (registerRes.success) {
           if (!registerRes.data.isRegistered) {
-            const { signer } = await getSigner();
-            const signedTx = await signer?.sendTransaction(
-              registerRes.data.registrationTx
-            );
-            await signedTx?.wait();
+            toggleModal();
+
+            //todo i
+            // const { signer } = await getSigner();
+            // const signedTx = await signer?.sendTransaction(
+            //   registerRes.data.registrationTx
+            // );
+            // await signedTx?.wait();
+          } else {
+            return toast.error("Already registered the nft ");
           }
         } else {
           return toast.error("Error registering asset");
         }
-        toggleModal();
       }
     } catch (error) {
       toast.error("Error listing asset");
