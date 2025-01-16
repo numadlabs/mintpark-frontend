@@ -98,16 +98,10 @@ export function WalletConnectionModal({
       toast.success(
         `${authState.authenticated ? "Linked" : "Connected to"} ${layer.name}`
       );
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof Error && error.message === "WALLET_ALREADY_LINKED") {
         setCurrentLayer(layer);
         setShowLinkAlert(true);
-      } else {
-        toast.error(
-          `Failed to ${
-            authState.authenticated ? "link" : "connect"
-          } wallet. ${error}`
-        );
       }
     }
   };

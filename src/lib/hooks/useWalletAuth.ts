@@ -245,14 +245,12 @@ const useWalletStore = create<WalletStore>()(
               loading: false,
             },
           }));
-        } catch (error) {
+        } catch (error: any) {
           set((state) => ({
             authState: { ...state.authState, loading: false },
           }));
           console.error("Wallet connection failed:", error);
-          toast.error(
-            error instanceof Error ? error.message : "Wallet connection failed"
-          );
+          toast.error(error.message);
           throw error;
         }
       },
@@ -303,14 +301,12 @@ const useWalletStore = create<WalletStore>()(
           }
 
           return response.data;
-        } catch (error) {
+        } catch (error: any) {
           set((state) => ({
             authState: { ...state.authState, loading: false },
           }));
           console.error("Failed to proceed with linking:", error);
-          toast.error(
-            error instanceof Error ? error.message : "Failed to link wallet"
-          );
+          toast.error(error.message);
           throw error;
         }
       },

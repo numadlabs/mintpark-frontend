@@ -17,6 +17,11 @@
   }
 }
 
+input[type="time"]::-webkit-calendar-picker-indicator {
+  background: none;
+  display: none;
+}
+
 body {
   /* color: rgb(var(--foreground-rgb)); */
   color: #ffffff;
