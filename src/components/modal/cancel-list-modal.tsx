@@ -43,10 +43,12 @@ const CancelListModal: React.FC<ModalProps> = ({
     try {
       if (listId) {
         const txResponse = await cancelListMutation({ id: listId });
-        if (txResponse && txResponse.success) {
-          const { approveTxHex } = txResponse.data;
+        if (txResponse && txResponse.data.result) {
+          // const { approveTxHex } = txResponse.data;
           const { signer } = await getSigner();
-          const signedTx = await signer?.sendTransaction(approveTxHex);
+          const signedTx = await signer?.sendTransaction(
+            txResponse.data.result,
+          );
           await signedTx?.wait();
 
           const response = await confirmCancelListMutation({ id: listId });
