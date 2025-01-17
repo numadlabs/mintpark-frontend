@@ -12,17 +12,10 @@ interface LaunchProps {
 }
 
 const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
-  const [timeDisplay, setTimeDisplay] = useState("");
   const [status, setStatus] = useState("");
 
   useEffect(() => {
     const updateTime = () => {
-      if (!data.poEndsAt) {
-        setStatus("Indefinite");
-        setTimeDisplay("");
-        return;
-      }
-
       const now = moment();
 
       const convertToSeconds = (timestamp: number) => {
@@ -31,42 +24,51 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
           : timestamp;
       };
 
-      const startMoment = moment.unix(convertToSeconds(data.poStartsAt));
-      const endMoment = moment.unix(convertToSeconds(data.poEndsAt));
+      const wlStartMoment = moment.unix(convertToSeconds(data.wlStartsAt));
+      const wlEndMoment = moment.unix(convertToSeconds(data.wlEndsAt));
+      const poStartMoment = moment.unix(convertToSeconds(data.poStartsAt));
+      const poEndMoment = moment.unix(convertToSeconds(data.poEndsAt));
 
-      if (now.isAfter(endMoment)) {
+      // Determine which timer to show based on multiple conditions
+      const shouldShowWhitelistTimer = () => {
+        if (!data.isWhitelisted) return false;
+        if (poStartMoment.isBefore(wlStartMoment)) return false;
+        if (now.isAfter(wlEndMoment)) return false;
+        return true;
+      };
+
+      const shouldUseWl = shouldShowWhitelistTimer();
+      const activeStartMoment = shouldUseWl ? wlStartMoment : poStartMoment;
+      const activeEndMoment = shouldUseWl ? wlEndMoment : poEndMoment;
+
+      // Handle cases where both periods have ended
+      if (now.isAfter(poEndMoment) && now.isAfter(wlEndMoment)) {
         setStatus("Ended");
-        setTimeDisplay("");
         return;
       }
 
-      if (now.isBetween(startMoment, endMoment)) {
+      // Handle active period
+      if (now.isBetween(activeStartMoment, activeEndMoment)) {
         setStatus("Live");
-        const duration = moment.duration(endMoment.diff(now));
-        setTimeDisplay(
-          `${Math.floor(duration.asDays())}d ${duration
-            .hours()
-            .toString()
-            .padStart(2, "0")}h ${duration
-            .minutes()
-            .toString()
-            .padStart(2, "0")}m`
-        );
+        const duration = moment.duration(activeEndMoment.diff(now));
         return;
       }
 
-      if (now.isBefore(startMoment)) {
+      // Handle upcoming period
+      if (now.isBefore(activeStartMoment)) {
         setStatus("Upcoming");
-        const duration = moment.duration(startMoment.diff(now));
-        setTimeDisplay(
-          `${Math.floor(duration.asDays())}d ${duration
-            .hours()
-            .toString()
-            .padStart(2, "0")}h ${duration
-            .minutes()
-            .toString()
-            .padStart(2, "0")}m`
-        );
+        const duration = moment.duration(activeStartMoment.diff(now));
+        return;
+      }
+
+      // Handle transition between WL and Public
+      if (
+        shouldUseWl &&
+        now.isAfter(wlEndMoment) &&
+        now.isBefore(poEndMoment)
+      ) {
+        setStatus("Live");
+        const duration = moment.duration(poEndMoment.diff(now));
       }
     };
 
@@ -74,7 +76,13 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
     const interval = setInterval(updateTime, 60000);
 
     return () => clearInterval(interval);
-  }, [data.poStartsAt, data.poEndsAt]);
+  }, [
+    data.wlStartsAt,
+    data.wlEndsAt,
+    data.poStartsAt,
+    data.poEndsAt,
+    data.isWhitelisted,
+  ]);
 
   return (
     <Link
@@ -101,7 +109,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
           </p>
           <p className="font-bold text-sm sm:text-md text-neutral50">
             {formatPrice(
-              data.wlMintPrice ? data.wlMintPrice : data.poMintPrice
+              status.includes("WL") ? data.wlMintPrice : data.poMintPrice
             )}
             <span className="ml-1">cBTC</span>
           </p>
@@ -111,7 +119,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
             value={
               data?.supply > 0 ? (data?.mintedAmount / data?.supply) * 100 : 0
             }
-            className={`w-full h-full ${data?.mintedAmount > 0 ? "" : ""}`}
+            className="w-full h-full"
           />
         </div>
         <p className="pt-2 sm:pt-3 font-bold text-sm sm:text-md text-end">
@@ -122,7 +130,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
       </div>
 
       <div className="absolute top-6 left-6 flex flex-row gap-2 items-center justify-around w-fit h-[30px] sm:h-[34px] border border-transparent rounded-lg px-3 py-2 bg-neutral500 bg-opacity-[50%] text-sm sm:text-md text-neutral50 font-medium">
-        {(status === "Indefinite" || status === "Live") && (
+        {status.includes("Live") && (
           <div className="bg-success20 h-3 w-3 sm:h-4 sm:w-4 rounded-full flex justify-center items-center">
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-success rounded-full" />
           </div>

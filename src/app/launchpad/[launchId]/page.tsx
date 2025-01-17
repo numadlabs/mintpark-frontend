@@ -9,7 +9,7 @@ import { confirmOrder, createBuyLaunch } from "@/lib/service/postRequest";
 import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   getLaunchByCollectionId,
@@ -23,6 +23,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LaunchDetailSkeleton from "@/components/atom/skeleton/launch-detail-skeleton";
 import ThreadIcon from "@/components/icon/thread";
+import moment from "moment";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -31,7 +32,9 @@ const Page = () => {
   const params = useParams();
   const id = params.launchId as string;
   const [isLoading, setIsLoading] = useState(false);
-  const [activePhase, setActivePhase] = useState(null);
+  const [activePhase, setActivePhase] = useState<
+    "guaranteed" | "public" | null
+  >(null);
 
   const { mutateAsync: createBuyLaunchMutation } = useMutation({
     mutationFn: createBuyLaunch,
@@ -137,8 +140,40 @@ const Page = () => {
     }
   };
 
-  const handlePhaseClick = (phaseType: any) => {
-    setActivePhase(phaseType);
+  const determineActivePhase = () => {
+    const now = moment();
+
+    // Check Guaranteed (Whitelist) phase
+    if (collectibles.isWhitelisted) {
+      const wlStart = moment.unix(collectibles.wlStartsAt);
+      const wlEnd = moment.unix(collectibles.wlEndsAt);
+
+      if (now.isBetween(wlStart, wlEnd)) {
+        return "guaranteed";
+      }
+    }
+
+    // Check Public phase
+    const poStart = moment.unix(collectibles.poStartsAt);
+    const poEnd = moment.unix(collectibles.poEndsAt);
+
+    if (now.isBetween(poStart, poEnd)) {
+      return "public";
+    }
+
+    return null;
+  };
+
+  useEffect(() => {
+    const currentPhase = determineActivePhase();
+    setActivePhase(currentPhase);
+  }, [collectibles]);
+
+  const handlePhaseClick = (phaseType: "guaranteed" | "public") => {
+    const currentPhase = determineActivePhase();
+    if (currentPhase === phaseType) {
+      setActivePhase(phaseType);
+    }
   };
 
   const unixToISOString = (
@@ -226,7 +261,7 @@ const Page = () => {
             </div>
           ) : (
             <div className="3xl:px-[312px] pt-[56px] md:pt-0">
-              <section className="flex flex-col justify-center h-full sm:h-full  lg:h-[80vh] items-center lg:grid grid-cols-3 gap-8 lg:gap-8 mb-8">
+              <section className="flex flex-col justify-start h-full sm:h-full  lg:h-[80vh] items-center lg:grid grid-cols-3 gap-8 lg:gap-8 mb-8">
                 {/* Left Column - Collection Info */}
                 <div className="flex w-full flex-col gap-8 sm:gap-6 order-2">
                   <div className="block lg:hidden">
@@ -358,19 +393,9 @@ const Page = () => {
                 <div className="flex flex-col gap-4 sm:gap-6 w-full lg:gap-8 order-3">
                   <ScrollArea className="flex-grow">
                     <div className="flex flex-col gap-4">
-                      <PhaseCard
-                        key={collectibles.id}
-                        maxMintPerWallet={collectibles.poMaxMintPerWallet}
-                        mintPrice={collectibles.poMintPrice}
-                        endsAt={collectibles.poEndsAt}
-                        startsAt={collectibles.poStartsAt}
-                        isActive={activePhase === "public"}
-                        onClick={() => handlePhaseClick("public")}
-                        createdAt={collectibles.createdAt}
-                      />
                       {collectibles.isWhitelisted && (
-                        <WhiteListPhaseCard
-                          key={collectibles.id}
+                        <PhaseCard
+                          phaseType="guaranteed"
                           maxMintPerWallet={collectibles.wlMaxMintPerWallet}
                           mintPrice={collectibles.wlMintPrice}
                           endsAt={collectibles.wlEndsAt}
@@ -379,12 +404,27 @@ const Page = () => {
                           onClick={() => handlePhaseClick("guaranteed")}
                         />
                       )}
+                      <PhaseCard
+                        phaseType="public"
+                        maxMintPerWallet={collectibles.poMaxMintPerWallet}
+                        mintPrice={collectibles.poMintPrice}
+                        endsAt={collectibles.poEndsAt}
+                        startsAt={collectibles.poStartsAt}
+                        isActive={activePhase === "public"}
+                        onClick={() => handlePhaseClick("public")}
+                        createdAt={collectibles.createdAt}
+                      />
                     </div>
                   </ScrollArea>
 
-                  {unixToISOString(collectibles.poStartsAt) >
-                  now ? null : unixToISOString(collectibles.poEndsAt) < now &&
-                    unixToISOString(collectibles.poEndsAt) > "0" ? (
+                  {unixToISOString(
+                    collectibles.poStartsAt || collectibles.wlStartsAt
+                  ) > now ? null : unixToISOString(
+                      collectibles.poEndsAt || collectibles.endsAt
+                    ) < now &&
+                    unixToISOString(
+                      collectibles.poEndsAt || collectibles.wlEndsAt
+                    ) > "0" ? (
                     <Button
                       className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold mt-4"
                       disabled={isLoading}

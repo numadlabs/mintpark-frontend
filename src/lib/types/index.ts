@@ -73,8 +73,8 @@ export type LaunchDataType = {
   logoKey: string;
   layerId: string;
   launchId: string;
-  wlStartsAt: string;
-  wlEndsAt: string;
+  wlStartsAt: number;
+  wlEndsAt: number;
   wlMintPrice: number;
   wlMaxMintPerWallet: number;
   poStartsAt: number;
