@@ -626,6 +626,30 @@ export async function confirmPendingList({
   }
 }
 
+export async function cancelList({ id }: { id: string }) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists/${id}/generate-cancel-listing-tx`)
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error: any) {
+    console.log(error.message);
+  }
+}
+
+export async function confirmCancelList({ id }: { id: string }) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists/${id}/confirm-cancel-listing`)
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error: any) {
+    console.log(error.message);
+  }
+}
+
 export async function listCollectiblesForConfirm({
   collectibleId,
   price,

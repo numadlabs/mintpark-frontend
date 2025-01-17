@@ -34,6 +34,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AssetDetailSkeleton from "@/components/atom/skeleton/asset-detail-skeleton";
 import { Collectible } from "@/lib/validations/collection-validation";
 import { useAuth } from "@/components/provider/auth-context-provider";
+import CancelListModal from "@/components/modal/cancel-list-modal";
 
 export default function AssetsDetails() {
   const queryClient = useQueryClient();
@@ -43,6 +44,7 @@ export default function AssetsDetails() {
   const id = params.assetsId as string;
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [cancelModal, setCancelModal] = useState(false);
   const [txid, setTxid] = useState<string>("");
 
   const { mutateAsync: createApprovalMutation } = useMutation({
@@ -53,7 +55,7 @@ export default function AssetsDetails() {
     mutationFn: checkAndCreateRegister,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
-      queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
+      queryClient.invalidateQueries({ queryKey: ["activityData", id] });
     },
   });
 
@@ -66,7 +68,7 @@ export default function AssetsDetails() {
   });
 
   const { data: activity = [], isLoading: isActivityLoading } = useQuery({
-    queryKey: ["acitivtyData", id],
+    queryKey: ["activityData", id],
     queryFn: () => getCollectibleActivity(id as string),
     enabled: !!id,
   });
@@ -75,6 +77,10 @@ export default function AssetsDetails() {
 
   const toggleModal = () => {
     setIsVisible(!isVisible);
+  };
+
+  const toggleCancelModal = () => {
+    setCancelModal(!cancelModal);
   };
 
   const HandleList = async () => {
@@ -148,6 +154,7 @@ export default function AssetsDetails() {
       </>
     );
   }
+
   return (
     <>
       <Header />
@@ -163,9 +170,6 @@ export default function AssetsDetails() {
                     currentAsset.highResolutionImageUrl
                       ? currentAsset.highResolutionImageUrl
                       : s3ImageUrlBuilder(currentAsset.fileKey)
-                    // currentAsset.fileKey
-                    //   ? s3ImageUrlBuilder(currentAsset.fileKey)
-                    //   : ordinalsImageCDN(currentAsset.uniqueIdx)
                   }
                   className="aspect-square rounded-xl relative z-20 md:h-full 3xl:h-[560px] 3xl:w-[560px] w-full h-[560px]"
                   alt={`${currentAsset.name} logo`}
@@ -208,13 +212,31 @@ export default function AssetsDetails() {
                     </div>
                   </div>
                 )}
-                {currentAsset.price === 0 && (
+                {currentAsset.price > 0 ? (
+                  <div className="">
+                    <Button
+                      variant="secondary"
+                      className="w-60 h-12 flex justify-center items-center"
+                      onClick={toggleCancelModal}
+                    >
+                      {isLoading ? (
+                        <Loader2
+                          className="animate-spin w-full"
+                          color="#111315"
+                          size={24}
+                        />
+                      ) : (
+                        "Cancel Listing"
+                      )}
+                    </Button>
+                  </div>
+                ) : (
                   <div className="">
                     <Button
                       variant="primary"
-                      className="w-60 h-12 bg-brand500 flex justify-center items-center"
+                      className="w-60 h-12 flex justify-center items-center"
                       onClick={HandleList}
-                      // disabled
+                      disabled={isLoading}
                     >
                       {isLoading ? (
                         <Loader2
@@ -345,6 +367,12 @@ export default function AssetsDetails() {
         collectibleId={currentAsset.id}
         txid={txid}
         id={id}
+      />
+      <CancelListModal
+        open={cancelModal}
+        onClose={toggleCancelModal}
+        id={currentAsset.id}
+        listId={currentAsset.listId}
       />
     </>
   );

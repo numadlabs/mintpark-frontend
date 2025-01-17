@@ -55,7 +55,7 @@ const PendingListModal: React.FC<ModalProps> = ({
     mutationFn: confirmPendingList,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
-      queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
+      queryClient.invalidateQueries({ queryKey: ["activityData", id] });
     },
   });
 

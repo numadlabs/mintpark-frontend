@@ -53,7 +53,7 @@ export default function AssetDetail() {
   const collectionId = currentAsset?.collectionId;
 
   const { data: activity = [] } = useQuery({
-    queryKey: ["acitivtyData", id],
+    queryKey: ["activityData", id],
     queryFn: () => getCollectibleActivity(id),
     enabled: !!id,
   });
