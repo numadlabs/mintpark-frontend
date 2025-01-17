@@ -65,7 +65,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
   if (!data?.data?.collectibles || data.data.collectibles.length === 0) {
     return (
       <>
-        <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
+        <div className="flex justify-center items-c enter mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
           <p className="text-neutral200 font-medium text-lg">
             No activity recorded
           </p>
