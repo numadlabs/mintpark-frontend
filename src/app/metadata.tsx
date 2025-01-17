@@ -162,6 +162,8 @@
 
 import { Metadata } from "next";
 
+
+
 // Helper function to get the base URL
 const getBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_VERCEL_URL) {
@@ -170,7 +172,7 @@ const getBaseUrl = () => {
   if (process.env.NEXT_PUBLIC_SITE_URL) {
     return process.env.NEXT_PUBLIC_SITE_URL;
   }
-  return 'https://mintpark-frontend.vercel.app';
+  return 'https://www.mintpark.io/';
 };
 
 export const metadata: Metadata = {
@@ -221,7 +223,6 @@ export const metadata: Metadata = {
 
   // OpenGraph metadata
   openGraph: {
-    url: getBaseUrl(),
     title: "Mint Park - Create & Explore Digital Art",
     description: "Create, launch, and bridge unique digital art on Mint Park. Your gateway to Bitcoin NFTs and cross-chain digital assets.",
     siteName: 'Mint Park',
@@ -229,14 +230,14 @@ export const metadata: Metadata = {
     locale: 'en_US',
     images: [
       {
-        url: `${getBaseUrl()}/logo.png`,
+        url: `/logo.png`,
         width: 1200,
         height: 630,
         alt: 'Mint Park - Digital Art Creation Platform',
         type: 'image/png',
       },
       {
-        url: `${getBaseUrl()}/logo.png`,
+        url: `/logo.png`,
         width: 600,
         height: 315,
         alt: 'Mint Park - Digital Art Creation Platform',
@@ -250,7 +251,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Mint Park - Digital Art Creation Platform',
     description: 'Create and launch unique digital art on Mint Park. Explore Bitcoin NFTs and cross-chain opportunities.',
-    images: [`${getBaseUrl()}/logo.png`],
+    images: [`/logo.png`],
     site: '@mintpark',
     creator: '@mintpark'
   },
