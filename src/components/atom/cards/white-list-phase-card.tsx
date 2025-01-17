@@ -25,44 +25,85 @@ const WhiteListPhaseCard: React.FC<PhaseCardItemProps> = ({
 
   useEffect(() => {
     const updateTime = () => {
-      const now = moment();
-      const start = moment(startsAt);
-      const end = moment(endsAt);
+      // If endsAt is undefined, set status to Indefinite
+      if (!endsAt) {
+        setStatus("Indefinite");
+        setTimeDisplay("");
+        return;
+      }
 
-      if (now.isAfter(end)) {
+      const now = moment();
+      // Convert millisecond timestamps to seconds if needed
+      const convertToSeconds = (timestamp: number) => {
+        // If timestamp is in milliseconds (13 digits), convert to seconds
+        return timestamp.toString().length === 13
+          ? Math.floor(timestamp / 1000)
+          : timestamp;
+      };
+
+      const startMoment = moment.unix(convertToSeconds(startsAt));
+      const endMoment = moment.unix(convertToSeconds(endsAt));
+
+      // Check if ended
+      if (now.isAfter(endMoment)) {
         setStatus("Ended");
         setTimeDisplay("");
-      } else if (now.isAfter(start)) {
+        return;
+      }
+
+      // Check if currently active
+      if (now.isBetween(startMoment, endMoment)) {
         setStatus("Ends in:");
-        const duration = moment.duration(end.diff(now));
-        const days = Math.floor(duration.asDays());
-        const hours = duration.hours();
-        const minutes = duration.minutes();
-        setTimeDisplay(`${days}d ${hours}h ${minutes}m`);
-      } else {
+        const duration = moment.duration(endMoment.diff(now));
+        setTimeDisplay(
+          `${Math.floor(duration.asDays())}d ${duration
+            .hours()
+            .toString()
+            .padStart(2, "0")}h ${duration
+            .minutes()
+            .toString()
+            .padStart(2, "0")}m`
+        );
+        return;
+      }
+
+      // If not started yet
+      if (now.isBefore(startMoment)) {
         setStatus("Starts in:");
-        const duration = moment.duration(start.diff(now));
-        const days = Math.floor(duration.asDays());
-        const hours = duration.hours();
-        const minutes = duration.minutes();
-        setTimeDisplay(`${days}d ${hours}h ${minutes}m`);
+        const duration = moment.duration(startMoment.diff(now));
+        setTimeDisplay(
+          `${Math.floor(duration.asDays())}d ${duration
+            .hours()
+            .toString()
+            .padStart(2, "0")}h ${duration
+            .minutes()
+            .toString()
+            .padStart(2, "0")}m`
+        );
       }
     };
 
     updateTime();
-    const timer = setInterval(updateTime, 60000); // Update every minute
-    return () => clearInterval(timer);
+    const interval = setInterval(updateTime, 60000); // Update every minute
+
+    return () => clearInterval(interval);
   }, [startsAt, endsAt]);
 
   return (
     <button
-      className={`flex flex-col justify-between border ${isActive ? "border-brand" : "border-brand"} rounded-3xl p-5 gap-4 ${status === "Ended" ? "cursor-not-allowed" : "cursor-auto"} `}
+      className={`flex flex-col justify-between border ${
+        isActive ? "border-brand" : "border-brand"
+      } rounded-3xl p-5 gap-4 ${
+        status === "Ended" ? "cursor-not-allowed" : "cursor-auto"
+      } `}
       disabled={status === "Ended"}
       onClick={onClick}
     >
       <div className="flex justify-between w-full">
         <div className="flex flex-row gap-2 items-center bg-white8 px-3 py-2 text-md font-medium rounded-lg">
-          <p className={`${isActive ? "text-brand500" :  "text-neutral50"}`}>Guaranteed</p>
+          <p className={`${isActive ? "text-brand500" : "text-neutral50"}`}>
+            Guaranteed
+          </p>
           {status === "Ended" || status === "Starts in:" ? (
             <Lock1 size={16} color="#D7D8D8" />
           ) : (
@@ -71,7 +112,9 @@ const WhiteListPhaseCard: React.FC<PhaseCardItemProps> = ({
         </div>
         <div className="flex flex-row items-center gap-2 border bg-white8 border-transparent text-md rounded-lg px-3 py-2 text-neutral50">
           <span className="text-neutral100 font-medium text-md">{status}</span>
-          <span className="text-neutral50 font-medium text-md">{timeDisplay}</span>
+          <span className="text-neutral50 font-medium text-md">
+            {timeDisplay}
+          </span>
         </div>
       </div>
       {status === "Ended" ? (

@@ -5,8 +5,8 @@ import Footer from "@/components/layout/footer";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { authState } = useAuth();
-  if (!authState.loading && !authState.authenticated) {
-    redirect("/");
+  if (authState && !authState.loading && !authState.authenticated) {
+    // redirect("/");
     return null;
   }
   return (

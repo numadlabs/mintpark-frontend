@@ -64,8 +64,8 @@ const Page = () => {
     activePhase === "public"
       ? "public"
       : activePhase === "guaranteed"
-        ? "guaranteed"
-        : "";
+      ? "guaranteed"
+      : "";
 
   const handleConfirm = async () => {
     if (!authState.authenticated)
@@ -90,17 +90,14 @@ const Page = () => {
       if (response && response.success) {
         const orderId = response.data.order.id;
         launchItemId = response.data.launchItem.id;
-        // const { singleMintTxHex } = response.data;
-
-        // } else if (currentLayer.layer === "FRACTAL") {
         console.log(
           "🚀 ~ handleConfirm ~ response.data.singleMintHex:",
-          response.data.singleMintTxHex,
+          response.data.singleMintTxHex
         );
         if (response.data.singleMintTxHex) {
           const { signer } = await getSigner();
           const signedTx = await signer?.sendTransaction(
-            response.data.singleMintTxHex,
+            response.data.singleMintTxHex
           );
           const tx = await signedTx?.wait();
           if (tx) {
@@ -111,12 +108,10 @@ const Page = () => {
         } else {
           await window.unisat.sendBitcoin(
             response.data.order.fundingAddress,
-            Math.ceil(response.data.order.fundingAmount),
+            Math.ceil(response.data.order.fundingAmount)
           );
           await new Promise((resolve) => setTimeout(resolve, 10000));
         }
-
-        // }
         if (orderId) {
           orderRes = await confirmOrderMutation({
             orderId: orderId,
@@ -133,7 +128,6 @@ const Page = () => {
           }
         }
       } else {
-        // toast.error(response.error);
         toast.error(`Failed to create order ${response.error}`);
       }
     } catch (error) {
@@ -148,7 +142,7 @@ const Page = () => {
   };
 
   const unixToISOString = (
-    unixTimestamp: number | null | undefined,
+    unixTimestamp: number | null | undefined
   ): string => {
     try {
       if (!unixTimestamp) return "";
@@ -205,7 +199,7 @@ const Page = () => {
       ),
     },
   ].filter(
-    (link) => link.url !== null && link.url !== undefined && link.url !== "",
+    (link) => link.url !== null && link.url !== undefined && link.url !== ""
   );
 
   const handleSocialClick = (url: string | undefined) => {
@@ -220,7 +214,7 @@ const Page = () => {
         className="min-h-screen bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${s3ImageUrlBuilder(
-            collectibles ? collectibles?.logoKey : "",
+            collectibles ? collectibles?.logoKey : ""
           )})`,
         }}
       >
@@ -374,7 +368,7 @@ const Page = () => {
                         onClick={() => handlePhaseClick("public")}
                         createdAt={collectibles.createdAt}
                       />
-                      {collectibles.isWhiteListed && (
+                      {collectibles.isWhitelisted && (
                         <WhiteListPhaseCard
                           key={collectibles.id}
                           maxMintPerWallet={collectibles.wlMaxMintPerWallet}
