@@ -100,7 +100,9 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
             Price
           </p>
           <p className="font-bold text-sm sm:text-md text-neutral50">
-            {formatPrice(data.poMintPrice)}
+            {formatPrice(
+              data.wlMintPrice ? data.wlMintPrice : data.poMintPrice
+            )}
             <span className="ml-1">cBTC</span>
           </p>
         </div>
