@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Lock1 } from "iconsax-react";
 import moment from "moment";
+import { BITCOIN_IMAGE } from "@/lib/constants";
 
 interface PhaseCardItemProps {
   maxMintPerWallet: string;
@@ -125,7 +126,7 @@ const WhiteListPhaseCard: React.FC<PhaseCardItemProps> = ({
             <Image
               width={20}
               height={20}
-              src="/detail_icon/Bitcoin.png"
+              src={BITCOIN_IMAGE}
               alt="Bitcoin icon"
               className="aspect-square h-5 w-5"
             />
