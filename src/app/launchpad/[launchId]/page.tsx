@@ -417,14 +417,12 @@ const Page = () => {
                     </div>
                   </ScrollArea>
 
-                  {unixToISOString(
-                    collectibles.poStartsAt || collectibles.wlStartsAt
-                  ) > now ? null : unixToISOString(
-                      collectibles.poEndsAt || collectibles.endsAt
-                    ) < now &&
-                    unixToISOString(
-                      collectibles.poEndsAt || collectibles.wlEndsAt
-                    ) > "0" ? (
+                  {(unixToISOString(collectibles.poStartsAt) > now &&
+                    unixToISOString(collectibles.wlStartsAt) > now) ||
+                  (unixToISOString(collectibles.wlEndsAt) < now &&
+                    unixToISOString(collectibles.poStartsAt) >
+                      now) ? null : unixToISOString(collectibles.poEndsAt) <
+                      now && unixToISOString(collectibles.wlEndsAt) < now ? (
                     <Button
                       className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold mt-4"
                       disabled={isLoading}

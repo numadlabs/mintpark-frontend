@@ -339,65 +339,64 @@ const Badge = () => {
           const launchId = launchResponse.data.launch.id;
 
           // Poll for launch items until isDone is true
-          let isDone = false;
+          // let isDone = false;
           let retryCount = 0;
           const maxRetries = 10; // Maximum number of retry attempts
           const retryDelay = 2000; // Delay between retries in milliseconds
 
-          while (!isDone && retryCount < maxRetries) {
+          for (let i = 0; i < Math.ceil(supply / 25); i++) {
             const response = await launchItemMutation({
               collectionId: collectionId,
             });
-
-            if (response && response.success) {
-              isDone = response.data.isDone;
-
-              if (isDone) {
-                // Process whitelist if enabled
-                if (isChecked) {
-                  try {
-                    let whResponse;
-                    // Process whitelist addresses in batches of 50
-                    for (
-                      let i = 0;
-                      i < Math.ceil(whitelistAddress.length / 50);
-                      i++
-                    ) {
-                      const batch = whitelistAddress.slice(
-                        i * 50,
-                        (i + 1) * 50
-                      );
-                      whResponse = await whitelistAddressesMutation({
-                        launchId: launchId,
-                        addresses: batch,
-                      });
-                    }
-                    if (whResponse && whResponse.success) {
-                      console.log("Whitelist processing completed");
-                      toggleSuccessModal();
-                    }
-                  } catch (error) {
-                    console.error("Error processing whitelist:", error);
-                    toast.error("Error processing whitelist addresses");
-                  }
-                } else {
-                  toggleSuccessModal();
-                }
-                break;
-              }
-            }
-
-            retryCount++;
-            if (!isDone && retryCount < maxRetries) {
-              await new Promise((resolve) => setTimeout(resolve, retryDelay));
-            }
           }
 
-          if (!isDone) {
-            toast.error("Launch item creation timed out. Please try again.");
+          // while (!isDone && retryCount < maxRetries) {
+
+          //   if (response && response.success) {
+          //     isDone = response.data.isDone;
+          //   }
+
+          //   retryCount++;
+          //   if (!isDone && retryCount < maxRetries) {
+          //     await new Promise((resolve) => setTimeout(resolve, retryDelay));
+          //   }
+          // }
+
+          // if (!isDone) {
+          //   toast.error("Launch item creation timed out. Please try again.");
+          // }
+
+          // if (isDone) {
+          // Process whitelist if enabled
+          if (isChecked) {
+            try {
+              let whResponse;
+              // Process whitelist addresses in batches of 50
+              for (
+                let i = 0;
+                i < Math.ceil(whitelistAddress.length / 50);
+                i++
+              ) {
+                const batch = whitelistAddress.slice(i * 50, (i + 1) * 50);
+                whResponse = await whitelistAddressesMutation({
+                  launchId: launchId,
+                  addresses: batch,
+                });
+              }
+              if (whResponse && whResponse.success) {
+                console.log("Whitelist processing completed");
+                toggleSuccessModal();
+              }
+            } catch (error) {
+              console.error("Error processing whitelist:", error);
+              toast.error("Error processing whitelist addresses");
+            }
+          } else {
+            toggleSuccessModal();
           }
         }
       }
+      // }
     } catch (error) {
       console.error("Error creating launch:", error);
       toast.error(
