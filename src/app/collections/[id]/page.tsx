@@ -34,6 +34,7 @@ const CollectionDetailPage = () => {
   const [isParamsLoading, setIsParamsLoading] = useState(true);
   const [orderBy, setOrderBy] = useState("recent");
   const [orderDirection, setOrderDirection] = useState("desc");
+  const [searchFilter, setSearchFilter] = useState<string>("");
 
   useEffect(() => {
     setIsParamsLoading(true);
@@ -68,6 +69,20 @@ const CollectionDetailPage = () => {
     }
   }, [searchParams]);
 
+  // const filteredCollectibles = collection?.collectibles?.filter((item: any) => {
+  //   if (!searchFilter) return true;
+  //   return item.name.includes(searchFilter);
+  // });
+  const filteredCollectibles =
+    collection?.collectibles?.filter((item: any) => {
+      if (!searchFilter) return true;
+      return item.name?.includes(searchFilter);
+    }) ?? [];
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchFilter(event.target.value);
+  };
+
   const links = [
     {
       url: collectionData?.websiteUrl,
@@ -100,11 +115,11 @@ const CollectionDetailPage = () => {
         break;
       case "price_high_to_low":
         setOrderBy("price");
-        setOrderDirection("asc");
+        setOrderDirection("desc");
         break;
       case "price_low_to_high":
         setOrderBy("price");
-        setOrderDirection("desc");
+        setOrderDirection("asc");
         break;
       default:
         setOrderBy("recent");
@@ -170,19 +185,21 @@ const CollectionDetailPage = () => {
                       by {collectionData?.creatorName}
                     </h2>
                   </div>
-                  {links.length > 0 && (
-                    <div className="flex justify-center lg:justify-end gap-6">
-                      {links.map((link, i) => (
-                        <button
-                          key={i}
-                          onClick={() => handleSocialClick(link.url)}
-                          className="h-10 w-10 border border-transparent bg-transparent"
-                        >
-                          {link.icon}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  <div>
+                    {links.length > 0 && (
+                      <div className="flex justify-center lg:justify-end gap-6">
+                        {links.map((link, i) => (
+                          <button
+                            key={i}
+                            onClick={() => handleSocialClick(link.url)}
+                            className="h-10 w-10 border border-transparent bg-transparent"
+                          >
+                            {link.icon}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="lg:pt-0 hidden lg:block">
@@ -371,6 +388,8 @@ const CollectionDetailPage = () => {
               <input
                 type="text"
                 placeholder="Search ID"
+                value={searchFilter}
+                onChange={handleSearchChange}
                 className="w-full h-12 rounded-xl pl-10 pr-4 bg-transparent border border-neutral400 text-neutral200"
               />
             </div>
@@ -436,7 +455,12 @@ const CollectionDetailPage = () => {
                       : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4  2xl:grid-cols-5 3xl:grid-cols-6 gap-6 sm:gap-6 lg:gap-8 xl:gap-8"
                   }`}
                 >
-                  {collection?.collectibles?.map((item: any) => (
+                  {/* {collection?.collectibles?.map((item: any) => (
+                    <div key={item.id}>
+                      <CollectibleCard data={item} />
+                    </div>
+                  ))} */}
+                  {filteredCollectibles.map((item: any) => (
                     <div key={item.id}>
                       <CollectibleCard data={item} />
                     </div>
@@ -468,7 +492,12 @@ const CollectionDetailPage = () => {
 
                   <div className="h-[754px] w-full min-w-[1216px] border-t-2 border-neutral500">
                     <div className="flex flex-col pt-4 gap-4">
-                      {collection?.collectibles?.map((item: any) => (
+                      {/* {collection?.collectibles?.map((item: any) => (
+                        <div key={item.id}>
+                          <CollectibleCardList data={item} />
+                        </div>
+                      ))} */}
+                      {filteredCollectibles.map((item: any) => (
                         <div key={item.id}>
                           <CollectibleCardList data={item} />
                         </div>

@@ -158,7 +158,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                     onClick={handleCopyAddress}
                   />
                   {copySuccess && (
-                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-sm py-1 px-2 rounded">
+                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-success text-white text-sm py-1 px-2 rounded">
                       Copied!
                     </div>
                   )}
@@ -211,7 +211,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
 
               {/* Error Display */}
               {error && (
-                <div className="text-red-500 text-sm mt-2 text-center md:text-left">
+                <div className="text-errorMsg text-sm mt-2 text-center md:text-left">
                   {error}
                 </div>
               )}
