@@ -224,7 +224,12 @@ export default function Home() {
               {serviceData.map((item) => (
                 <div
                   key={item.id}
-                  className="border rounded-[32px] border-white4 flex flex-col min-w-[327px] lg:min-w-0"
+                  className="rounded-[32px] border-hidden flex flex-col min-w-[327px] lg:min-w-0"
+                  style={{
+                    backgroundImage: `url('/homePage/${item.bg}.png')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
                 >
                   <Image
                     src={`/homePage/${item.image}.png`}
