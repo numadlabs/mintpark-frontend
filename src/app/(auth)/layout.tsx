@@ -6,8 +6,8 @@ import Footer from "@/components/layout/footer";
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { authState } = useAuth();
   if (authState && !authState.loading && !authState.authenticated) {
-    // redirect("/");
-    return null;
+    redirect("/");
+    // return null;
   }
   return (
     <div className="flex flex-col w-full h-full bg-background min-h-screen items-center">

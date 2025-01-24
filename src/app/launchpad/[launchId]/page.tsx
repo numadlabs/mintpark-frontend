@@ -131,10 +131,11 @@ const Page = () => {
           }
         }
       } else {
-        toast.error(`Failed to create order ${response.error}`);
+        // toast.error(`Order creation failed. Please check your balance and mint limit.`);
+        toast.error('Order creation failed due to insufficient balance or exceeded mint limit. Please check both and try again.');
       }
     } catch (error) {
-      toast.error(`Failed to create order ${error}`);
+      toast.error(`Order creation failed.`);
     } finally {
       setIsLoading(false);
     }
@@ -468,3 +469,465 @@ const Page = () => {
 };
 
 export default Page;
+
+// "use client";
+
+// import DetailLayout from "@/components/layout/detailLayout";
+// import Header from "@/components/layout/header";
+// import { Carousel } from "@/components/ui/carousel";
+// import { Progress } from "@/components/ui/progress";
+// import { ScrollArea } from "@/components/ui/scroll-area";
+// import { confirmOrder, createBuyLaunch } from "@/lib/service/postRequest";
+// import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
+// import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+// import Image from "next/image";
+// import { useEffect, useState } from "react";
+// import { toast } from "sonner";
+// import { getLaunchByCollectionId, getLayerById } from "@/lib/service/queryHelper";
+// import PhaseCard from "@/components/atom/cards/phase-card";
+// import { useParams, useRouter } from "next/navigation";
+// import { useAuth } from "@/components/provider/auth-context-provider";
+// import { Loader2 } from "lucide-react";
+// import { Button } from "@/components/ui/button";
+// import LaunchDetailSkeleton from "@/components/atom/skeleton/launch-detail-skeleton";
+// import ThreadIcon from "@/components/icon/thread";
+// import moment from "moment";
+
+// const Page = () => {
+//   const queryClient = useQueryClient();
+//   const router = useRouter();
+//   const { authState } = useAuth();
+//   const params = useParams();
+//   const id = params.launchId as string;
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [balance, setBalance] = useState({ amount: 0, usdAmount: 0 });
+//   const [activePhase, setActivePhase] = useState<"guaranteed" | "public" | null>(null);
+
+//   const { mutateAsync: createBuyLaunchMutation } = useMutation({
+//     mutationFn: createBuyLaunch,
+//   });
+
+//   const { mutateAsync: confirmOrderMutation } = useMutation({
+//     mutationFn: confirmOrder,
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({
+//         queryKey: ["collectiblesByCollections", id],
+//       });
+//       queryClient.invalidateQueries({ queryKey: ["launchData", id] });
+//     },
+//   });
+
+//   const { data: collectibles = [], isLoading: isCollectiblesLoading } = useQuery({
+//     queryKey: ["collectiblesByCollections", id],
+//     queryFn: () => getLaunchByCollectionId(id as string),
+//     enabled: !!id,
+//   });
+
+//   const { data: currentLayer, isLoading: isLayerLoading } = useQuery({
+//     queryKey: ["currentLayerData", authState.layerId],
+//     queryFn: () => getLayerById(authState.layerId as string),
+//     enabled: !!authState.layerId,
+//   });
+
+//   useEffect(() => {
+//     const fetchBalance = async () => {
+//       if (!authState.authenticated || !currentLayer) return;
+
+//       try {
+//         if (currentLayer.type === "CITREA") {
+//           if (!window.ethereum) throw new Error("MetaMask not installed");
+//           const balance = await window.ethereum.request({
+//             method: "eth_getBalance",
+//             params: [authState.address, "latest"],
+//           });
+//           const ethAmount = Number(BigInt(balance)) / 1e18;
+//           setBalance({
+//             amount: ethAmount,
+//             usdAmount: ethAmount * (currentLayer?.price || 0),
+//           });
+//         } else if (currentLayer.type === "BITCOIN") {
+//           if (!window.unisat) throw new Error("Unisat not installed");
+//           const res = await window.unisat.getBalance();
+//           if (!res || typeof res.total !== "number") {
+//             throw new Error("Invalid balance format");
+//           }
+//           const btcAmount = Number(res.total) / 1e8;
+//           setBalance({
+//             amount: btcAmount,
+//             usdAmount: btcAmount * 97500,
+//           });
+//         }
+//       } catch (error) {
+//         console.error("Error fetching balance:", error);
+//       }
+//     };
+
+//     fetchBalance();
+//   }, [authState.authenticated, authState.address, currentLayer]);
+
+//   const checkBalance = () => {
+//     if (!authState.authenticated) return { canMint: false, error: "Please connect wallet first" };
+    
+//     const currentPhase = activePhase;
+//     const price = currentPhase === "guaranteed" 
+//       ? collectibles.wlMintPrice 
+//       : collectibles.poMintPrice;
+
+//     if (!price) return { canMint: false, error: "Mint price not available" };
+    
+//     if (!balance.amount) return { canMint: false, error: "Unable to fetch balance" };
+    
+//     return {
+//       canMint: balance.amount >= price,
+//       error: balance.amount < price ? "Insufficient balance for minting" : null
+//     };
+//   };
+
+//   const handleConfirm = async () => {
+//     const balanceCheck = checkBalance();
+//     if (!balanceCheck.canMint) {
+//       toast.error(balanceCheck.error);
+//       return;
+//     }
+
+//     if (!currentLayer || !authState.userLayerId) {
+//       toast.error("Layer information not available");
+//       return false;
+//     }
+
+//     setIsLoading(true);
+//     try {
+//       let txid;
+//       let launchItemId;
+//       let orderRes;
+
+//       const response = await createBuyLaunchMutation({
+//         id: collectibles.launchId,
+//         userLayerId: authState.userLayerId,
+//         feeRate: 1,
+//       });
+
+//       if (response && response.success) {
+//         const orderId = response.data.order.id;
+//         launchItemId = response.data.launchItem.id;
+
+//         if (response.data.singleMintTxHex) {
+//           const { signer } = await getSigner();
+//           const signedTx = await signer?.sendTransaction(response.data.singleMintTxHex);
+//           const tx = await signedTx?.wait();
+//           if (tx) {
+//             txid = tx.hash;
+//           } else {
+//             return toast.error("tx not found");
+//           }
+//         } else {
+//           await window.unisat.sendBitcoin(
+//             response.data.order.fundingAddress,
+//             Math.ceil(response.data.order.fundingAmount)
+//           );
+//           await new Promise((resolve) => setTimeout(resolve, 10000));
+//         }
+
+//         if (orderId) {
+//           orderRes = await confirmOrderMutation({
+//             orderId: orderId,
+//             txid: txid,
+//             launchItemId: launchItemId,
+//             userLayerId: authState.userLayerId,
+//             feeRate: 1,
+//           });
+//           if (orderRes && orderRes.success) {
+//             toast.success("Success minted.");
+//             router.push("/launchpad");
+//           } else {
+//             toast.error("Failed to confirm order");
+//           }
+//         }
+//       } else {
+//         toast.error(`Failed to create order ${response.error}`);
+//       }
+//     } catch (error) {
+//       toast.error(`Failed to create order ${error}`);
+//     } finally {
+//       setIsLoading(false);
+//     }
+//   };
+
+//   const determineActivePhase = () => {
+//     const now = moment();
+
+//     if (collectibles.isWhitelisted) {
+//       const wlStart = moment.unix(collectibles.wlStartsAt);
+//       const wlEnd = moment.unix(collectibles.wlEndsAt);
+
+//       if (now.isBetween(wlStart, wlEnd)) {
+//         return "guaranteed";
+//       }
+//     }
+
+//     const poStart = moment.unix(collectibles.poStartsAt);
+//     const poEnd = moment.unix(collectibles.poEndsAt);
+
+//     if (now.isBetween(poStart, poEnd)) {
+//       return "public";
+//     }
+
+//     return null;
+//   };
+
+//   useEffect(() => {
+//     const currentPhase = determineActivePhase();
+//     setActivePhase(currentPhase);
+//   }, [collectibles]);
+
+//   const handlePhaseClick = (phaseType: "guaranteed" | "public") => {
+//     const currentPhase = determineActivePhase();
+//     if (currentPhase === phaseType) {
+//       setActivePhase(phaseType);
+//     }
+//   };
+
+//   const unixToISOString = (unixTimestamp: number | null | undefined): string => {
+//     try {
+//       if (!unixTimestamp) return "";
+//       const date = new Date(unixTimestamp * 1000);
+//       if (isNaN(date.getTime())) {
+//         return "";
+//       }
+//       return date.toISOString();
+//     } catch (error) {
+//       console.error("Error converting timestamp:", error);
+//       return "";
+//     }
+//   };
+
+//   const now = new Date().toISOString();
+
+//   const handlCollectionClick = () => {
+//     router.push("/collections");
+//   };
+
+//   const handleSocialClick = (url: string | undefined) => {
+//     if (!url) return;
+//     const validUrl = url.startsWith("http") ? url : `https://${url}`;
+//     window.open(validUrl, "_blank", "noopener,noreferrer");
+//   };
+
+//   if (isCollectiblesLoading || isLayerLoading) {
+//     return <LaunchDetailSkeleton />;
+//   }
+
+//   const links = [
+//     {
+//       url: "https://x.com/mintpark_io",
+//       isIcon: false,
+//       icon: (
+//         <ThreadIcon
+//           size={32}
+//           className="sm:size-8 lg:size-8 hover:text-brand text-neutral00"
+//         />
+//       ),
+//     },
+//   ];
+
+//   return (
+//     <div className="min-h-screen bg-cover bg-center bg-no-repeat"
+//       style={{
+//         backgroundImage: `url(${s3ImageUrlBuilder(collectibles?.logoKey || "")})`
+//       }}>
+//       <DetailLayout>
+//         <Header />
+//         <div className="3xl:px-[312px] pt-[56px] md:pt-0">
+//           <section className="flex flex-col justify-start h-full sm:h-full lg:h-[80vh] items-center lg:grid grid-cols-3 gap-8 lg:gap-8 mb-8">
+//             {/* Left Column - Collection Info */}
+//             <div className="flex w-full flex-col gap-8 sm:gap-6 order-2">
+//               {/* Social Links Mobile */}
+//               <div className="block lg:hidden">
+//                 <div className="flex gap-4 sm:gap-8">
+//                   {links.length > 0 && (
+//                     <div className="flex gap-4 sm:gap-6">
+//                       {links.map((link, i) => (
+//                         <button
+//                           key={i}
+//                           onClick={() => handleSocialClick(link.url)}
+//                           className="p-2 hover:bg-neutral800/10 rounded-lg transition-colors"
+//                         >
+//                           {link.icon}
+//                         </button>
+//                       ))}
+//                     </div>
+//                   )}
+//                 </div>
+//               </div>
+
+//               {/* Collection Details */}
+//               <div className="flex flex-col gap-4 sm:gap-6">
+//                 <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold capitalize text-neutral50">
+//                   {collectibles?.name}
+//                 </h1>
+//                 <div className="sm:block">
+//                   <p className="h-1 w-[120px] rounded bg-brand shadow-shadowBrands"></p>
+//                 </div>
+//                 <p className="text-base sm:text-lg lg:text-lg text-neutral100 line-clamp-4 sm:line-clamp-none">
+//                   {collectibles?.description}
+//                 </p>
+//               </div>
+
+//               {/* Progress Mobile */}
+//               <div className="space-y-2 sm:space-y-3 block md2:hidden">
+//                 <div className="flex h-2 sm:h-3 border rounded-lg border-1 border-neutral400">
+//                   <Progress
+//                     value={(collectibles?.mintedAmount / collectibles?.supply) * 100}
+//                     className="w-full h-full"
+//                   />
+//                 </div>
+//                 <div className="flex justify-between items-center py-1 text-sm sm:text-base text-neutral100">
+//                   <span className="font-medium text-lg text-neutral100">Total minted</span>
+//                   <h2>
+//                     <span className="text-neutral50 font-medium text-lg">
+//                       {collectibles?.mintedAmount}
+//                     </span>
+//                     <span className="text-brand font-medium text-lg"> / </span>
+//                     <span className="text-neutral100 font-medium text-lg">
+//                       {collectibles?.supply}
+//                     </span>
+//                   </h2>
+//                 </div>
+//               </div>
+
+//               {/* Social Links Desktop */}
+//               <div className="hidden lg:block">
+//                 <div className="flex gap-4 sm:gap-8 mt-2">
+//                   {links.length > 0 && (
+//                     <div className="flex gap-4 sm:gap-6">
+//                       {links.map((link, i) => (
+//                         <button
+//                           key={i}
+//                           onClick={() => handleSocialClick(link.url)}
+//                           className="p-2 hover:bg-neutral800/10 rounded-lg transition-colors"
+//                         >
+//                           {link.icon}
+//                         </button>
+//                       ))}
+//                     </div>
+//                   )}
+//                 </div>
+//               </div>
+//             </div>
+
+//             {/* Middle Column - Image and Progress */}
+//             <div className="flex flex-col gap-4 sm:gap-6 w-full order-1 lg:order-2">
+//               <div className="w-full aspect-square relative rounded-2xl sm:rounded-3xl overflow-hidden max-h-[384px]">
+//                 <Carousel className="w-full justify-center items-center flex">
+//                   {collectibles?.logoKey && (
+//                     <Image
+//                       width={384}
+//                       height={384}
+//                       src={s3ImageUrlBuilder(collectibles.logoKey)}
+//                       className="object-cover rounded-2xl"
+//                       alt={collectibles?.name || "Collection image"}
+//                     />
+//                   )}
+//                 </Carousel>
+//               </div>
+
+//               {/* Progress Desktop */}
+//               <div className="space-y-2 sm:space-y-3 hidden lg:block">
+//                 <div className="flex h-2 sm:h-3 border rounded-lg border-1 border-neutral400">
+//                   <Progress
+//                     value={(collectibles?.mintedAmount / collectibles?.supply) * 100}
+//                     className="w-full h-full"
+//                   />
+//                 </div>
+//                 <div className="flex justify-between items-center py-1 text-sm sm:text-base text-neutral100">
+//                   <span className="font-medium text-lg text-neutral100">Total minted</span>
+//                   <h2>
+//                     <span className="text-neutral50 font-medium text-lg">
+//                       {collectibles?.mintedAmount}
+//                     </span>
+//                     <span className="text-brand font-medium text-lg"> / </span>
+//                     <span className="text-neutral100 font-medium text-lg">
+//                       {collectibles?.supply}
+//                     </span>
+//                   </h2>
+//                 </div>
+//               </div>
+//             </div>
+
+//             {/* Right Column - Phases and Button */}
+//             <div className="flex flex-col gap-4 sm:gap-6 w-full lg:gap-8 order-3">
+//               <ScrollArea className="flex-grow">
+// <div className="flex flex-col gap-4">
+//                   {collectibles.isWhitelisted && (
+//                     <PhaseCard
+//                       phaseType="guaranteed"
+//                       maxMintPerWallet={collectibles.wlMaxMintPerWallet}
+//                       mintPrice={collectibles.wlMintPrice}
+//                       endsAt={collectibles.wlEndsAt}
+//                       startsAt={collectibles.wlStartsAt}
+//                       isActive={activePhase === "guaranteed"}
+//                       onClick={() => handlePhaseClick("guaranteed")}
+//                     />
+//                   )}
+//                   <PhaseCard
+//                     phaseType="public"
+//                     maxMintPerWallet={collectibles.poMaxMintPerWallet}
+//                     mintPrice={collectibles.poMintPrice}
+//                     endsAt={collectibles.poEndsAt}
+//                     startsAt={collectibles.poStartsAt}
+//                     isActive={activePhase === "public"}
+//                     onClick={() => handlePhaseClick("public")}
+//                     createdAt={collectibles.createdAt}
+//                   />
+//                 </div>
+//               </ScrollArea>
+
+//               {/* Mint or Collection Button */}
+//               {(unixToISOString(collectibles.poStartsAt) > now &&
+//                 unixToISOString(collectibles.wlStartsAt) > now) ||
+//               (unixToISOString(collectibles.wlEndsAt) < now &&
+//                 unixToISOString(collectibles.poStartsAt) > now) ? null : 
+//               unixToISOString(collectibles.poEndsAt) < now && 
+//               unixToISOString(collectibles.wlEndsAt) < now ? (
+//                 <Button
+//                   className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold mt-4"
+//                   disabled={isLoading}
+//                   onClick={handlCollectionClick}
+//                 >
+//                   {isLoading ? (
+//                     <Loader2 className="animate-spin" color="#111315" size={24} />
+//                   ) : (
+//                     "Go to collection"
+//                   )}
+//                 </Button>
+//               ) : (
+//                 <div className="space-y-2">
+//                   <Button
+//                     variant="primary"
+//                     type="submit"
+//                     className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold"
+//                     disabled={isLoading || !checkBalance().canMint}
+//                     onClick={handleConfirm}
+//                   >
+//                     {isLoading ? (
+//                       <Loader2 className="animate-spin" color="#111315" size={24} />
+//                     ) : (
+//                       "Mint"
+//                     )}
+//                   </Button>
+//                   {checkBalance().error && (
+//                     <p className="text-errorMsg text-sm text-center">
+//                       {checkBalance().error}
+//                     </p>
+//                   )}
+//                 </div>
+//               )}
+//             </div>
+//           </section>
+//         </div>
+//       </DetailLayout>
+//     </div>
+//   );
+// };
+
+// export default Page;
