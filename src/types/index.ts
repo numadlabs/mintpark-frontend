@@ -142,9 +142,11 @@ export interface WalletInfo {
 }
 
 export interface Layer {
+  chainId: string;
   id: string;
   name: string;
   layer: string;
   network: string;
   currencyId: string;
+  
 }

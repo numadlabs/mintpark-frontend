@@ -11,7 +11,6 @@ import { saveToken } from "../auth";
 import { STORAGE_KEYS, WALLET_CONFIGS } from "../constants";
 import { toast } from "sonner";
 
-// Define wallet types
 type WalletType = "EVM" | "BITCOIN" | null;
 
 export interface Wallet {
@@ -45,7 +44,6 @@ const initialAuthState: AuthState = {
   },
 };
 
-// Helper function to safely access localStorage
 const getStorageItem = (key: string) => {
   if (typeof window === "undefined") return null;
   try {
@@ -57,7 +55,6 @@ const getStorageItem = (key: string) => {
   }
 };
 
-// Helper function to safely set localStorage
 const setStorageItem = (key: string, value: any) => {
   if (typeof window === "undefined") return;
   try {
@@ -69,7 +66,6 @@ const setStorageItem = (key: string, value: any) => {
 
 const loadInitialState = () => {
   try {
-    // Only attempt to load state if we're in the browser
     if (typeof window === "undefined") {
       return initialAuthState;
     }
@@ -130,16 +126,11 @@ const useWalletStore = create<WalletStore>()(
 
       connectWallet: async (layerId: string, isLinking: boolean = false) => {
         const { layers, connectedWallets, authState } = get();
-
         const layer = layers.find((l) => l.id === layerId);
-        if (!layer) {
-          throw new Error("Layer not found");
-        }
+        if (!layer) throw new Error("Layer not found");
 
         const walletConfig = WALLET_CONFIGS[layer.layer];
-        if (!walletConfig) {
-          throw new Error("Wallet configuration not found");
-        }
+        if (!walletConfig) throw new Error("Wallet configuration not found");
 
         set((state) => ({ authState: { ...state.authState, loading: true } }));
 
@@ -148,10 +139,55 @@ const useWalletStore = create<WalletStore>()(
           let signedMessage: string;
           let pubkey: string | undefined;
 
-          // Connect based on wallet type
           if (walletConfig.type === "metamask") {
-            if (typeof window === "undefined" || !window.ethereum) {
-              throw new Error("MetaMask is not installed");
+            if (!window?.ethereum) throw new Error("MetaMask is not installed");
+
+            const chainId = await window.ethereum.request({
+              method: "eth_chainId",
+            });
+            const currentChainIdDecimal = parseInt(chainId, 16);
+            const targetChainIdDecimal = parseInt(layer.chainId, 16);
+            const targetChainIdHex = `0x${targetChainIdDecimal.toString(16)}`;
+
+            if (currentChainIdDecimal !== targetChainIdDecimal) {
+              try {
+                await window.ethereum.request({
+                  method: "wallet_addEthereumChain",
+                  params: [
+                    {
+                      chainId: targetChainIdHex,
+                      chainName: layer.name,
+                      rpcUrls: ["https://rpc.testnet.citrea.xyz"],
+                      // rpcUrls: [layer.rpcUrl],
+                      nativeCurrency: {
+                        name: "CORE",
+                        symbol: "CBTC",
+                        decimals: 18,
+                        // name: layer.nativeCurrency?.name || "CORE",
+                        // symbol: layer.nativeCurrency?.symbol || "CBTC",
+                        // decimals: layer.nativeCurrency?.decimals || 18
+                      },
+                    },
+                  ],
+                });
+              } catch (addError: any) {
+                if (addError.code === 4902) {
+                  try {
+                    await window.ethereum.request({
+                      method: "wallet_switchEthereumChain",
+                      params: [{ chainId: targetChainIdHex }],
+                    });
+                  } catch (switchError) {
+                    throw new Error(
+                      `Failed to switch network (Chain ID: ${layer.chainId})`
+                    );
+                  }
+                } else {
+                  throw new Error(
+                    `Failed to add network (Chain ID: ${layer.chainId})`
+                  );
+                }
+              }
             }
 
             address = await window.ethereum
@@ -165,86 +201,69 @@ const useWalletStore = create<WalletStore>()(
               method: "personal_sign",
               params: [msgResponse.data.message, address],
             });
-          } else if (walletConfig.type === "unisat") {
-            if (typeof window === "undefined" || !window.unisat) {
-              throw new Error("Unisat wallet is not installed");
-            }
 
-            address = await window.unisat
-              .requestAccounts()
-              .then((accounts: string[]) => accounts[0]);
-            const msgResponse = await generateMessageHandler({ address });
-            signedMessage = await window.unisat.signMessage(
-              msgResponse.data.message
-            );
-            pubkey = await window.unisat.getPublicKey();
-          } else {
-            throw new Error("Unsupported wallet type");
-          }
-
-          let response;
-          if (isLinking && authState.authenticated) {
-            response = await loginWalletLink({
-              address,
-              layerId,
-              signedMessage,
-              pubkey,
-            });
-
-            if (response.data.hasAlreadyBeenLinkedToAnotherUser) {
-              set((state) => ({
-                authState: { ...state.authState, loading: false },
-              }));
-
-              // Store the connection info for later use if user confirms
-              setStorageItem("pendingWalletLink", {
+            let response;
+            if (isLinking && authState.authenticated) {
+              response = await loginWalletLink({
                 address,
                 layerId,
                 signedMessage,
+                pubkey,
               });
 
-              throw new Error("WALLET_ALREADY_LINKED");
+              if (response.data.hasAlreadyBeenLinkedToAnotherUser) {
+                set((state) => ({
+                  authState: { ...state.authState, loading: false },
+                }));
+
+                setStorageItem("pendingWalletLink", {
+                  address,
+                  layerId,
+                  signedMessage,
+                });
+
+                throw new Error("WALLET_ALREADY_LINKED");
+              }
+            } else {
+              response = await loginHandler({
+                address,
+                layerId,
+                signedMessage,
+                pubkey,
+              });
+              saveToken(response.data.auth);
             }
-          } else {
-            response = await loginHandler({
+
+            if (!response.success) {
+              throw new Error(`Authentication failed ${response.error}`);
+            }
+
+            const newWallet: ConnectedWallet = {
               address,
               layerId,
-              signedMessage,
-              pubkey,
+              layerType: layer.layer,
+              network: layer.network,
+            };
+
+            const updatedWallets = [...get().connectedWallets, newWallet];
+            const hasOnlyBitcoin = updatedWallets.every((w) => {
+              const layerInfo = get().layers.find((l) => l.id === w.layerId);
+              return layerInfo?.layer === "BITCOIN";
             });
-            saveToken(response.data.auth);
+
+            set((state) => ({
+              connectedWallets: [...state.connectedWallets, newWallet],
+              authState: {
+                ...state.authState,
+                authenticated: true,
+                userLayerId: hasOnlyBitcoin ? null : response.data.userLayer.id,
+                userId: response.data.user.id,
+                layerId,
+                tokens: response.data.tokens,
+                loading: false,
+              },
+            }));
           }
-
-          if (!response.success) {
-            throw new Error(`Authentication failed ${response.error}`);
-          }
-
-          const newWallet: ConnectedWallet = {
-            address,
-            layerId,
-            layerType: layer.layer,
-            network: layer.network,
-          };
-
-          // Check if only Bitcoin wallet is connected
-          const updatedWallets = [...get().connectedWallets, newWallet];
-          const hasOnlyBitcoin = updatedWallets.every((w) => {
-            const layerInfo = get().layers.find((l) => l.id === w.layerId);
-            return layerInfo?.layer === "BITCOIN";
-          });
-
-          set((state) => ({
-            connectedWallets: [...state.connectedWallets, newWallet],
-            authState: {
-              ...state.authState,
-              authenticated: true,
-              userLayerId: hasOnlyBitcoin ? null : response.data.userLayer.id,
-              userId: response.data.user.id,
-              layerId,
-              tokens: response.data.tokens,
-              loading: false,
-            },
-          }));
         } catch (error: any) {
           set((state) => ({
             authState: { ...state.authState, loading: false },
@@ -312,8 +331,6 @@ const useWalletStore = create<WalletStore>()(
       },
 
       disconnectWallet: async (layerId: string) => {
-        const { connectedWallets } = get();
-
         set((state) => ({
           connectedWallets: state.connectedWallets.filter(
             (w) => w.layerId !== layerId
@@ -338,7 +355,6 @@ const useWalletStore = create<WalletStore>()(
       getAddressforCurrentLayer: () => {
         const { selectedLayerId, connectedWallets } = get();
         if (!selectedLayerId) return undefined;
-
         return connectedWallets.find((w) => w.layerId === selectedLayerId);
       },
 
@@ -351,7 +367,6 @@ const useWalletStore = create<WalletStore>()(
           selectedLayerId: null,
         });
 
-        // Clear all storage
         localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
         localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
         localStorage.removeItem(STORAGE_KEYS.WALLET_STATE);
