@@ -28,22 +28,35 @@ const useLaunchStatus = (data: LaunchDataType) => {
   const poStartsAt = convertToSeconds(data.poStartsAt);
   const poEndsAt = convertToSeconds(data.poEndsAt);
 
-  // Handle invalid timestamps
+  // Check for invalid timestamps first
   if (!wlStartsAt && !wlEndsAt && !poStartsAt && !poEndsAt) {
     return "Invalid";
   }
 
+  // Handle cases where endsAt is 0 (Indefinite)
+  if (
+    (wlEndsAt === 0 || poEndsAt === 0) &&
+    (wlStartsAt > 0 || poStartsAt > 0)
+  ) {
+    return "Indefinite";
+  }
+
+  // Handle cases where startAt is not set (Upcoming)
+  if (!wlStartsAt && !poStartsAt) {
+    return "Upcoming";
+  }
+
   const wlStartMoment = moment.unix(wlStartsAt);
-  const wlEndMoment = moment.unix(wlEndsAt);
+  const wlEndMoment = wlEndsAt ? moment.unix(wlEndsAt) : null;
   const poStartMoment = moment.unix(poStartsAt);
-  const poEndMoment = moment.unix(poEndsAt);
+  const poEndMoment = poEndsAt ? moment.unix(poEndsAt) : null;
 
   // Determine if whitelist period should be shown
   const shouldShowWhitelistTimer = () => {
     if (!data.isWhitelisted) return false;
-    if (!wlStartsAt || !wlEndsAt) return false;
+    if (!wlStartsAt) return false;
     if (poStartMoment.isBefore(wlStartMoment)) return false;
-    if (now.isAfter(wlEndMoment)) return false;
+    if (wlEndMoment && now.isAfter(wlEndMoment)) return false;
     return true;
   };
 
@@ -52,7 +65,7 @@ const useLaunchStatus = (data: LaunchDataType) => {
   const activeEndMoment = shouldUseWl ? wlEndMoment : poEndMoment;
 
   // Determine status based on current time
-  if (now.isAfter(poEndMoment) && now.isAfter(wlEndMoment)) {
+  if (activeEndMoment && now.isAfter(activeEndMoment)) {
     return "Ended";
   }
 
@@ -64,7 +77,13 @@ const useLaunchStatus = (data: LaunchDataType) => {
     return "Upcoming";
   }
 
-  if (shouldUseWl && now.isAfter(wlEndMoment) && now.isBefore(poEndMoment)) {
+  // Handle transition between WL and PO periods
+  if (
+    shouldUseWl &&
+    wlEndMoment &&
+    now.isAfter(wlEndMoment) &&
+    (!poEndMoment || now.isBefore(poEndMoment))
+  ) {
     return "Live";
   }
 
