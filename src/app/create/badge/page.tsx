@@ -10,20 +10,12 @@ import ButtonOutline from "@/components/ui/buttonOutline";
 import Layout from "@/components/layout/layout";
 import UploadCardFill from "@/components/atom/cards/upload-card-fill";
 import Image from "next/image";
-import {
-  LaunchType,
-  LaunchItemType,
-  MintFeeType,
-  BadgeType,
-} from "@/lib/types";
+import { LaunchType, BadgeType } from "@/lib/types";
 import TextArea from "@/components/ui/textArea";
 import {
   createBadgeCollection,
   createBadgeLaunch,
   ifpsLaunchItem,
-  launchItems,
-  launchItemsIpfs,
-  mintFeeOfCitrea,
   whitelistAddresses,
 } from "@/lib/service/postRequest";
 import useCreateFormState from "@/lib/store/createFormStore";
@@ -108,10 +100,6 @@ const Badge = () => {
       queryClient.invalidateQueries({ queryKey: ["launchData"] });
       queryClient.invalidateQueries({ queryKey: ["collectionData"] });
     },
-  });
-
-  const { mutateAsync: mintFeeOfCitreaMutation } = useMutation({
-    mutationFn: mintFeeOfCitrea,
   });
 
   const { mutateAsync: whitelistAddressesMutation } = useMutation({
@@ -337,11 +325,31 @@ const Badge = () => {
         if (launchResponse && launchResponse.success) {
           const collectionId = launchResponse.data.launch.collectionId;
           const launchId = launchResponse.data.launch.id;
+
           for (let i = 0; i < Math.ceil(supply / 25); i++) {
             const response = await launchItemMutation({
               collectionId: collectionId,
             });
           }
+
+          // while (!isDone && retryCount < maxRetries) {
+
+          //   if (response && response.success) {
+          //     isDone = response.data.isDone;
+          //   }
+
+          //   retryCount++;
+          //   if (!isDone && retryCount < maxRetries) {
+          //     await new Promise((resolve) => setTimeout(resolve, retryDelay));
+          //   }
+          // }
+
+          // if (!isDone) {
+          //   toast.error("Launch item creation timed out. Please try again.");
+          // }
+
+          // if (isDone) {
+          // Process whitelist if enabled
           if (isChecked) {
             try {
               let whResponse;
