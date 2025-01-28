@@ -337,37 +337,11 @@ const Badge = () => {
         if (launchResponse && launchResponse.success) {
           const collectionId = launchResponse.data.launch.collectionId;
           const launchId = launchResponse.data.launch.id;
-
-          // Poll for launch items until isDone is true
-          // let isDone = false;
-          let retryCount = 0;
-          const maxRetries = 10; // Maximum number of retry attempts
-          const retryDelay = 2000; // Delay between retries in milliseconds
-
           for (let i = 0; i < Math.ceil(supply / 25); i++) {
             const response = await launchItemMutation({
               collectionId: collectionId,
             });
           }
-
-          // while (!isDone && retryCount < maxRetries) {
-
-          //   if (response && response.success) {
-          //     isDone = response.data.isDone;
-          //   }
-
-          //   retryCount++;
-          //   if (!isDone && retryCount < maxRetries) {
-          //     await new Promise((resolve) => setTimeout(resolve, retryDelay));
-          //   }
-          // }
-
-          // if (!isDone) {
-          //   toast.error("Launch item creation timed out. Please try again.");
-          // }
-
-          // if (isDone) {
-          // Process whitelist if enabled
           if (isChecked) {
             try {
               let whResponse;
@@ -757,7 +731,9 @@ const Badge = () => {
                       <Bitcoin size={20} color="#D7D8D8" />
                     </div>
                     <div className="absolute right-4">
-                      <p className="text-md text-neutral200 font-medium">EDU</p>
+                      <p className="text-md text-neutral200 font-medium">
+                        cBTC
+                      </p>
                     </div>
                   </div>
                   <p className="text-neutral200 text-sm pl-4">

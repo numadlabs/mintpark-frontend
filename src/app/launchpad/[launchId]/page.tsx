@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import LaunchDetailSkeleton from "@/components/atom/skeleton/launch-detail-skeleton";
 import ThreadIcon from "@/components/icon/thread";
 import moment from "moment";
+import { error } from "console";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -32,12 +33,17 @@ const Page = () => {
   const params = useParams();
   const id = params.launchId as string;
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [activePhase, setActivePhase] = useState<
     "guaranteed" | "public" | null
   >(null);
-
   const { mutateAsync: createBuyLaunchMutation } = useMutation({
     mutationFn: createBuyLaunch,
+    onError: (error: any) => {
+      const errorMessage = error?.message || "Failed to create buy launch";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    },
   });
 
   const { mutateAsync: confirmOrderMutation } = useMutation({
@@ -47,6 +53,11 @@ const Page = () => {
         queryKey: ["collectiblesByCollections", id],
       });
       queryClient.invalidateQueries({ queryKey: ["launchData", id] });
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.message || "Failed to confirm order";
+      setError(errorMessage);
+      toast.error(errorMessage);
     },
   });
 
@@ -71,18 +82,24 @@ const Page = () => {
       : "";
 
   const handleConfirm = async () => {
-    if (!authState.authenticated)
-      return toast.error("Please connect wallet first");
+    if (!authState.authenticated) {
+      setError("Please connect wallet first");
+      toast.error("Please connect wallet first");
+      return;
+    }
 
     if (!currentLayer || !authState.userLayerId) {
+      setError("Layer information not available");
       toast.error("Layer information not available");
-      return false;
+      return;
     }
+
     setIsLoading(true);
+    setError(null);
+
     try {
       let txid;
       let launchItemId;
-      let orderRes;
 
       const response = await createBuyLaunchMutation({
         id: collectibles.launchId,
@@ -90,52 +107,48 @@ const Page = () => {
         feeRate: 1,
       });
 
-      if (response && response.success) {
-        const orderId = response.data.order.id;
-        launchItemId = response.data.launchItem.id;
-        console.log(
-          "🚀 ~ handleConfirm ~ response.data.singleMintHex:",
+      if (!response?.success) {
+        throw new Error(response?.error || "Failed to create order");
+      }
+
+      const orderId = response.data.order.id;
+      launchItemId = response.data.launchItem.id;
+
+      if (response.data.singleMintTxHex) {
+        const { signer } = await getSigner();
+        const signedTx = await signer?.sendTransaction(
           response.data.singleMintTxHex
         );
-        if (response.data.singleMintTxHex) {
-          const { signer } = await getSigner();
-          const signedTx = await signer?.sendTransaction(
-            response.data.singleMintTxHex
-          );
-          const tx = await signedTx?.wait();
-          if (tx) {
-            txid = tx.hash;
-          } else {
-            return toast.error("tx not found");
-          }
-        } else {
-          await window.unisat.sendBitcoin(
-            response.data.order.fundingAddress,
-            Math.ceil(response.data.order.fundingAmount)
-          );
-          await new Promise((resolve) => setTimeout(resolve, 10000));
-        }
-        if (orderId) {
-          orderRes = await confirmOrderMutation({
-            orderId: orderId,
-            txid: txid,
-            launchItemId: launchItemId,
-            userLayerId: authState.userLayerId,
-            feeRate: 1,
-          });
-          if (orderRes && orderRes.success) {
-            toast.success("Success minted.");
-            router.push("/launchpad");
-          } else {
-            toast.error("Failed to confirm order");
-          }
+        const tx = await signedTx?.wait();
+        if (tx) {
+          txid = tx.hash;
         }
       } else {
-        // toast.error(`Order creation failed. Please check your balance and mint limit.`);
-        toast.error('Order creation failed due to insufficient balance or exceeded mint limit. Please check both and try again.');
+        await window.unisat.sendBitcoin(
+          response.data.order.fundingAddress,
+          Math.ceil(response.data.order.fundingAmount)
+        );
+        await new Promise((resolve) => setTimeout(resolve, 10000));
       }
-    } catch (error) {
-      toast.error(`Order creation failed.`);
+
+      if (orderId) {
+        const orderRes = await confirmOrderMutation({
+          orderId,
+          txid,
+          launchItemId,
+          userLayerId: authState.userLayerId,
+          feeRate: 1,
+        });
+
+        if (orderRes?.success) {
+          toast.success("Successfully minted");
+          router.push("/launchpad");
+        }
+      }
+    } catch (error: any) {
+      const errorMessage = error?.message || "An unexpected error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -567,16 +580,16 @@ export default Page;
 
 //   const checkBalance = () => {
 //     if (!authState.authenticated) return { canMint: false, error: "Please connect wallet first" };
-    
+
 //     const currentPhase = activePhase;
-//     const price = currentPhase === "guaranteed" 
-//       ? collectibles.wlMintPrice 
+//     const price = currentPhase === "guaranteed"
+//       ? collectibles.wlMintPrice
 //       : collectibles.poMintPrice;
 
 //     if (!price) return { canMint: false, error: "Mint price not available" };
-    
+
 //     if (!balance.amount) return { canMint: false, error: "Unable to fetch balance" };
-    
+
 //     return {
 //       canMint: balance.amount >= price,
 //       error: balance.amount < price ? "Insufficient balance for minting" : null
@@ -886,8 +899,8 @@ export default Page;
 //               {(unixToISOString(collectibles.poStartsAt) > now &&
 //                 unixToISOString(collectibles.wlStartsAt) > now) ||
 //               (unixToISOString(collectibles.wlEndsAt) < now &&
-//                 unixToISOString(collectibles.poStartsAt) > now) ? null : 
-//               unixToISOString(collectibles.poEndsAt) < now && 
+//                 unixToISOString(collectibles.poStartsAt) > now) ? null :
+//               unixToISOString(collectibles.poEndsAt) < now &&
 //               unixToISOString(collectibles.wlEndsAt) < now ? (
 //                 <Button
 //                   className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold mt-4"

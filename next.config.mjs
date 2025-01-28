@@ -11,6 +11,7 @@ const nextConfig = {
     domains: [
       "numadlabs-coordinals-test.s3.eu-central-1.amazonaws.com",
       "d1orw8h9a3ark2.cloudfront.net",
+      "d237xcwu5voimf.cloudfront.net",
       "images.unsplash.com",
       "static-testnet.unisat.io",
       "ordinals-testnet.fractalbitcoin.io", // Add this line

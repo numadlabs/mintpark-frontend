@@ -108,6 +108,10 @@ export type LaunchParams = {
   poEndsAt?: number;
   poMintPrice: number;
   poMaxMintPerWallet: number;
+  wlStartsAt?: number;
+  wlEndsAt?: number;
+  wlMintPrice?: number;
+  wlMaxMintPerWallet?: number;
   userLayerId: string | null;
 };
 
