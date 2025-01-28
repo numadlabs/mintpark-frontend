@@ -431,7 +431,11 @@ export async function createApprovalTransaction({
         return response.data;
       });
   } catch (error) {
-    console.log("Error:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -452,7 +456,11 @@ export async function checkAndCreateRegister({
         return response.data;
       });
   } catch (error) {
-    console.log("Error:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
   }
 }
 

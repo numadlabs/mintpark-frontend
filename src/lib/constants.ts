@@ -96,7 +96,7 @@ export const serviceData = [
     bg: "serviceBg2",
   },
   {
-    id: 1,
+    id: 3,
     title: "Bridge between layer-2s",
     description: "Transfer assets seamlessly across Bitcoin Layer networks",
     image: "service3",

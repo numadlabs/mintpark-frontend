@@ -12,7 +12,6 @@ interface PhaseCardProps {
   isActive: boolean;
   onClick: () => void;
   phaseType: "guaranteed" | "public";
-  createdAt?: string;
 }
 
 const PhaseCard: React.FC<PhaseCardProps> = ({
@@ -23,7 +22,6 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   isActive,
   onClick,
   phaseType,
-  createdAt,
 }) => {
   const [timeDisplay, setTimeDisplay] = useState("");
   const [status, setStatus] = useState("");
@@ -31,13 +29,6 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
 
   useEffect(() => {
     const updateTime = () => {
-      if (!startsAt || !endsAt) {
-        setStatus("Indefinite");
-        setTimeDisplay("");
-        setIsClickable(true);
-        return;
-      }
-
       const now = moment();
       const convertToSeconds = (timestamp: number) => {
         return timestamp.toString().length === 13
@@ -45,45 +36,90 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
           : timestamp;
       };
 
-      const startMoment = moment.unix(convertToSeconds(startsAt));
-      const endMoment = moment.unix(convertToSeconds(endsAt));
+      // Check if endsAt is 0 or null
+      const isIndefiniteEnd = !endsAt || endsAt === 0;
 
-      if (now.isAfter(endMoment)) {
-        setStatus("Ended");
+      // If startsAt exists but endsAt is indefinite
+      if (startsAt && isIndefiniteEnd) {
+        const startMoment = moment.unix(convertToSeconds(startsAt));
+
+        if (now.isBefore(startMoment)) {
+          setStatus("Starts in:");
+          const duration = moment.duration(startMoment.diff(now));
+          setTimeDisplay(
+            `${
+              Math.floor(duration.asDays()) > 0
+                ? `${Math.floor(duration.asDays())}d `
+                : ""
+            }${
+              duration.hours() > 0
+                ? `${duration.hours().toString().padStart(2, "0")}h `
+                : ""
+            }${duration.minutes().toString().padStart(2, "0")}m`
+          );
+          setIsClickable(false);
+          return;
+        } else {
+          setStatus("Indefinite");
+          setTimeDisplay("");
+          setIsClickable(true);
+          return;
+        }
+      }
+
+      // Handle case when both startsAt and endsAt exist
+      if (startsAt && endsAt) {
+        const startMoment = moment.unix(convertToSeconds(startsAt));
+        const endMoment = moment.unix(convertToSeconds(endsAt));
+
+        if (now.isAfter(endMoment)) {
+          setStatus("Ended");
+          setTimeDisplay("");
+          setIsClickable(false);
+          return;
+        }
+
+        if (now.isBetween(startMoment, endMoment)) {
+          setStatus("Ends in:");
+          const duration = moment.duration(endMoment.diff(now));
+          setTimeDisplay(
+            `${
+              Math.floor(duration.asDays()) > 0
+                ? `${Math.floor(duration.asDays())}d `
+                : ""
+            }${
+              duration.hours() > 0
+                ? `${duration.hours().toString().padStart(2, "0")}h `
+                : ""
+            }${duration.minutes().toString().padStart(2, "0")}m`
+          );
+          setIsClickable(true);
+          return;
+        }
+
+        if (now.isBefore(startMoment)) {
+          setStatus("Starts in:");
+          const duration = moment.duration(startMoment.diff(now));
+          setTimeDisplay(
+            `${
+              Math.floor(duration.asDays()) > 0
+                ? `${Math.floor(duration.asDays())}d `
+                : ""
+            }${
+              duration.hours() > 0
+                ? `${duration.hours().toString().padStart(2, "0")}h `
+                : ""
+            }${duration.minutes().toString().padStart(2, "0")}m`
+          );
+          setIsClickable(false);
+        }
+      }
+
+      // Handle case when neither exists
+      if (!startsAt && !endsAt) {
+        setStatus("Indefinite");
         setTimeDisplay("");
-        setIsClickable(false);
-        return;
-      }
-
-      if (now.isBetween(startMoment, endMoment)) {
-        setStatus("Ends in:");
-        const duration = moment.duration(endMoment.diff(now));
-        setTimeDisplay(
-          `${Math.floor(duration.asDays())}d ${duration
-            .hours()
-            .toString()
-            .padStart(2, "0")}h ${duration
-            .minutes()
-            .toString()
-            .padStart(2, "0")}m`
-        );
         setIsClickable(true);
-        return;
-      }
-
-      if (now.isBefore(startMoment)) {
-        setStatus("Starts in:");
-        const duration = moment.duration(startMoment.diff(now));
-        setTimeDisplay(
-          `${Math.floor(duration.asDays())}d ${duration
-            .hours()
-            .toString()
-            .padStart(2, "0")}h ${duration
-            .minutes()
-            .toString()
-            .padStart(2, "0")}m`
-        );
-        setIsClickable(false);
       }
     };
 
