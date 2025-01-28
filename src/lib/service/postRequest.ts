@@ -17,7 +17,7 @@ import { collectibleFormData } from "./formHelper";
 // Connect and Login sections
 export async function generateMessageHandler({ address }: { address: string }) {
   try {
-    console.log("🚀 ~ loginHandler ~ walletData:", address);
+    // console.log("🚀 ~ loginHandler ~ walletData:", address);
     return axiosClient
       .post(`/api/v1/users/generate-message`, JSON.stringify({ address }))
       .then((response) => {
@@ -44,7 +44,7 @@ export async function loginHandler({
   pubkey?: string;
 }) {
   try {
-    console.log("🚀 ~ loginHandler ~ walletData:", address);
+    // console.log("🚀 ~ loginHandler ~ walletData:", address);
     return axiosClient
       .post(
         `/api/v1/users/login`,
@@ -152,7 +152,7 @@ export async function createMintCollectible({
 }: {
   data: MintCollectibleDataType;
 }) {
-  console.log("Creating mint collectible with data:", data);
+  // console.log("Creating mint collectible with data:", data);
   const formData = new FormData();
   data.file.forEach((file, index) => {
     if (file instanceof File) {
