@@ -12,26 +12,43 @@ interface LaunchProps {
 }
 
 const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState("Upcoming");
 
   useEffect(() => {
     const updateTime = () => {
       const now = moment();
 
-      const convertToSeconds = (timestamp: number) => {
-        return timestamp.toString().length === 13
+      const convertToSeconds = (
+        timestamp: number | null | undefined
+      ): number => {
+        if (!timestamp) return 0;
+        const timestampStr = timestamp.toString();
+        return timestampStr.length === 13
           ? Math.floor(timestamp / 1000)
           : timestamp;
       };
 
-      const wlStartMoment = moment.unix(convertToSeconds(data.wlStartsAt));
-      const wlEndMoment = moment.unix(convertToSeconds(data.wlEndsAt));
-      const poStartMoment = moment.unix(convertToSeconds(data.poStartsAt));
-      const poEndMoment = moment.unix(convertToSeconds(data.poEndsAt));
+      // Safely convert timestamps
+      const wlStartsAt = convertToSeconds(data.wlStartsAt);
+      const wlEndsAt = convertToSeconds(data.wlEndsAt);
+      const poStartsAt = convertToSeconds(data.poStartsAt);
+      const poEndsAt = convertToSeconds(data.poEndsAt);
+
+      // Skip processing if all timestamps are invalid
+      if (!wlStartsAt && !wlEndsAt && !poStartsAt && !poEndsAt) {
+        setStatus("Invalid");
+        return;
+      }
+
+      const wlStartMoment = moment.unix(wlStartsAt);
+      const wlEndMoment = moment.unix(wlEndsAt);
+      const poStartMoment = moment.unix(poStartsAt);
+      const poEndMoment = moment.unix(poEndsAt);
 
       // Determine which timer to show based on multiple conditions
       const shouldShowWhitelistTimer = () => {
         if (!data.isWhitelisted) return false;
+        if (!wlStartsAt || !wlEndsAt) return false;
         if (poStartMoment.isBefore(wlStartMoment)) return false;
         if (now.isAfter(wlEndMoment)) return false;
         return true;
@@ -50,14 +67,12 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
       // Handle active period
       if (now.isBetween(activeStartMoment, activeEndMoment)) {
         setStatus("Live");
-        const duration = moment.duration(activeEndMoment.diff(now));
         return;
       }
 
       // Handle upcoming period
       if (now.isBefore(activeStartMoment)) {
         setStatus("Upcoming");
-        const duration = moment.duration(activeStartMoment.diff(now));
         return;
       }
 
@@ -68,7 +83,6 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
         now.isBefore(poEndMoment)
       ) {
         setStatus("Live");
-        const duration = moment.duration(poEndMoment.diff(now));
       }
     };
 
@@ -123,14 +137,14 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
           />
         </div>
         <p className="pt-2 sm:pt-3 font-bold text-sm sm:text-md text-end">
-          {data?.mintedAmount}
+          {data?.mintedAmount ?? 0}
           <span className="text-brand"> / </span>
-          {data?.supply}
+          {data?.supply ?? 0}
         </p>
       </div>
 
       <div className="absolute top-6 left-6 flex flex-row gap-2 items-center justify-around w-fit h-[30px] sm:h-[34px] border border-transparent rounded-lg px-3 py-2 bg-neutral500 bg-opacity-[50%] text-sm sm:text-md text-neutral50 font-medium">
-        {status.includes("Live") && (
+        {status === "Live" && (
           <div className="bg-success20 h-3 w-3 sm:h-4 sm:w-4 rounded-full flex justify-center items-center">
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-success rounded-full" />
           </div>

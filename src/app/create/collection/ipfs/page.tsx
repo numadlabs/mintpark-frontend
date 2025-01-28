@@ -22,20 +22,24 @@ import {
   createCollection,
   createLaunch,
   createLaunchItemsIPFS,
+  whitelistAddresses,
 } from "@/lib/service/postRequest";
 import useCreateFormState from "@/lib/store/createFormStore";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import CollectionUploadFile from "@/components/section/collection-upload-file";
-import { Calendar2, Clock, Bitcoin } from "iconsax-react";
+import { Calendar2, Clock, Bitcoin, DocumentDownload } from "iconsax-react";
 import OrderPayModal from "@/components/modal/order-pay-modal";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
 import { getLayerById } from "@/lib/service/queryHelper";
-import { getSigner } from "@/lib/utils";
+import { formatFileSize, getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import Toggle from "@/components/ui/toggle";
+import UploadJsonCard from "@/components/atom/cards/upload-json-card";
+import UploadJsonFile from "@/components/section/upload-json-file";
 
 const IPFS = () => {
   const router = useRouter();
@@ -61,6 +65,18 @@ const IPFS = () => {
     setPOMintPrice,
     POMaxMintPerWallet,
     setPOMaxMintPerWallet,
+    WLStartsAtDate,
+    setWLStartsAtDate,
+    WLStartsAtTime,
+    setWLStartsAtTime,
+    WLEndsAtDate,
+    setWLEndsAtDate,
+    WLEndsAtTime,
+    setWLEndsAtTime,
+    WLMintPrice,
+    setWLMintPrice,
+    WLMaxMintPerWallet,
+    setWLMaxMintPerWallet,
     txid,
     setTxid,
     reset,
@@ -74,12 +90,13 @@ const IPFS = () => {
   const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [fileSizes, setFileSizes] = useState<number[]>([]);
+  const [whitelistAddress, setWhitelistAddress] = useState<string[]>([]);
+  const [jsonFile, setJsonFile] = useState<File | null>(null);
 
   const stepperData = ["Details", "Upload", "Launch", "Confirm"];
   const [totalFileSize, setTotalFileSize] = useState<number>(0);
   const [fileTypeSizes, setFileTypeSizes] = useState<number[]>([]);
   const [successModal, setSuccessModal] = useState(false);
-  const [id, setId] = useState<string>("");
 
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
@@ -95,6 +112,10 @@ const IPFS = () => {
 
   const { mutateAsync: createLaunchMutation } = useMutation({
     mutationFn: createLaunch,
+  });
+
+  const { mutateAsync: whitelistAddressesMutation } = useMutation({
+    mutationFn: whitelistAddresses,
   });
 
   const updateFileInfo = (files: File[]) => {
@@ -181,7 +202,7 @@ const IPFS = () => {
         const response = await createCollectionMutation({ data: params });
         console.log("🚀 ~ handleCreateCollection ~ response:", response);
         if (response && response.success) {
-          const { id } = response.data.ordinalCollection;
+          const { id } = response.data.l2Collection;
           const { deployContractTxHex } = response.data;
           setCollectionId(id);
           console.log("create collection success", response);
@@ -244,19 +265,42 @@ const IPFS = () => {
     }
   };
 
-  const togglePayModal = () => {
-    setPayModal(!payModal);
-    // reset();
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type === "application/json") {
+      setJsonFile(file);
+      // Read and parse the JSON file
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const jsonData = JSON.parse(e.target?.result as string);
+          // Assuming the JSON file contains an array of addresses
+          if (Array.isArray(jsonData.addresses)) {
+            setWhitelistAddress(jsonData.addresses);
+          } else {
+            toast.error("Invalid JSON format. Expected an array of addresses.");
+          }
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+          toast.error("Invalid JSON file");
+        }
+      };
+      reader.readAsText(file);
+    }
   };
 
-  const handleToggle = () => {
-    setIsChecked(!isChecked);
+  const togglePayModal = () => {
+    setPayModal(!payModal);
     // reset();
   };
 
   const handleDeleteLogo = () => {
     setImageFile([]); // Clear the imageFile array
     // setImageLogo(null);
+  };
+
+  const handleDeleteJson = () => {
+    setJsonFile(null);
   };
 
   const handleBack = () => {
@@ -278,23 +322,33 @@ const IPFS = () => {
     setSuccessModal(!successModal);
   };
 
+  const toggleWhiteList = () => {
+    setIsChecked(!isChecked);
+  };
+
   const files = imageFiles.map((image) => image.file);
 
   const handleCreateLaunch = async () => {
     setIsLoading(true);
     const poStartsAt = calculateTimeUntilDate(POStartsAtDate, POStartsAtTime);
     const poEndsAt = calculateTimeUntilDate(POEndsAtDate, POEndsAtTime);
+    const wlStartsAt = calculateTimeUntilDate(WLStartsAtDate, WLStartsAtTime);
+    const wlEndsAt = calculateTimeUntilDate(WLEndsAtDate, WLEndsAtTime);
 
     try {
       const batchSize = 10;
       const totalBatches = Math.ceil(files.length / batchSize);
       const params: LaunchParams = {
         collectionId: collectionId,
-        isWhitelisted: false,
+        isWhitelisted: isChecked ? true : false,
         poStartsAt: poStartsAt,
         poEndsAt: poEndsAt,
         poMintPrice: POMintPrice,
         poMaxMintPerWallet: POMaxMintPerWallet,
+        wlStartsAt: wlStartsAt,
+        wlEndsAt: wlEndsAt,
+        wlMintPrice: WLMintPrice,
+        wlMaxMintPerWallet: WLMaxMintPerWallet,
         userLayerId: authState.userLayerId,
       };
 
@@ -313,6 +367,7 @@ const IPFS = () => {
 
         const launchCollectionId = launchResponse.data.launch.collectionId;
         console.log("Launch Collection ID:", launchCollectionId);
+        const launchId = launchResponse.data.launch.id;
 
         // Process files in batches
         for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
@@ -342,8 +397,28 @@ const IPFS = () => {
             await new Promise((resolve) => setTimeout(resolve, 1000));
           }
         }
-
-        toggleSuccessModal();
+        if (isChecked) {
+          try {
+            let whResponse;
+            // Process whitelist addresses in batches of 50
+            for (let i = 0; i < Math.ceil(whitelistAddress.length / 50); i++) {
+              const batch = whitelistAddress.slice(i * 50, (i + 1) * 50);
+              whResponse = await whitelistAddressesMutation({
+                launchId: launchId,
+                addresses: batch,
+              });
+            }
+            if (whResponse && whResponse.success) {
+              console.log("Whitelist processing completed");
+              toggleSuccessModal();
+            }
+          } catch (error) {
+            console.error("Error processing whitelist:", error);
+            toast.error("Error processing whitelist addresses");
+          }
+        } else {
+          toggleSuccessModal();
+        }
       }
     } catch (error) {
       console.error("Error creating launch:", error);
@@ -518,6 +593,156 @@ const IPFS = () => {
                   and seamless integration, you can focus on what matters most -
                   your creative expression.
                 </p>
+              </div>
+              <div className="flex flex-col gap-4 w-full">
+                <div className="flex flex-row w-full justify-between">
+                  <p className="font-bold text-profileTitle text-neutral50">
+                    Include whitelist phase
+                  </p>
+                  <Toggle isChecked={isChecked} onChange={toggleWhiteList} />
+                </div>
+                {isChecked && (
+                  <div className="w-full flex flex-col gap-8">
+                    <p className="text-neutral200 text-lg">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Proin ac ornare nisi. Aliquam eget semper risus, sed
+                      commodo elit. Curabitur sed congue magna. Donec ultrices
+                      dui nec ullamcorper aliquet. Nunc efficitur mauris id mi
+                      venenatis imperdiet. Integer mauris lectus, pretium eu
+                      nibh molestie, rutrum lobortis tortor. Duis sit amet sem
+                      fermentum, consequat est nec, ultricies justo.
+                    </p>
+                    <Button
+                      className="w-fit flex gap-3 items-center"
+                      variant={"outline"}
+                    >
+                      <span>
+                        <DocumentDownload size={24} color="#FFFFFF" />
+                      </span>
+                      Download sample .json for connect formatting
+                    </Button>
+                    {jsonFile ? (
+                      <UploadJsonCard
+                        title={jsonFile.name}
+                        size={formatFileSize(jsonFile.size)}
+                        onDelete={handleDeleteJson}
+                      />
+                    ) : (
+                      <UploadJsonFile
+                        text="Accepted file types: JSON"
+                        handleImageUpload={handleFileUpload}
+                      />
+                    )}
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-row justify-between items-center">
+                        <p className="text-neutral50 text-xl font-medium">
+                          Start date
+                        </p>
+                        <div className="flex flex-row gap-4">
+                          <div className="relative flex items-center">
+                            <Input
+                              type="birthdaytime"
+                              placeholder="YYYY - MM - DD"
+                              className="pl-10 w-[184px]"
+                              value={WLStartsAtDate}
+                              onChange={(e) =>
+                                setWLStartsAtDate(e.target.value)
+                              }
+                            />
+                            <div className="absolute left-4">
+                              <Calendar2 size={20} color="#D7D8D8" />
+                            </div>
+                          </div>
+                          <div className="relative flex items-center">
+                            <Input
+                              placeholder="HH : MM"
+                              className="pl-10 w-[184px]"
+                              value={WLStartsAtTime}
+                              onChange={(e) =>
+                                setWLStartsAtTime(e.target.value)
+                              }
+                            />
+                            <div className="absolute left-4">
+                              <Clock size={20} color="#D7D8D8" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-row justify-between items-center">
+                        <p className="text-neutral50 text-xl font-medium">
+                          End date
+                        </p>
+                        <div className="flex flex-row gap-4">
+                          <div className="relative flex items-center">
+                            <Input
+                              type="birthdaytime"
+                              placeholder="YYYY - MM - DD"
+                              className="pl-10 w-[184px]"
+                              value={WLEndsAtDate}
+                              onChange={(e) => setWLEndsAtDate(e.target.value)}
+                            />
+                            <div className="absolute left-4">
+                              <Calendar2 size={20} color="#D7D8D8" />
+                            </div>
+                          </div>
+                          <div className="relative flex items-center">
+                            <Input
+                              placeholder="HH : MM"
+                              className="pl-10 w-[184px]"
+                              value={WLEndsAtTime}
+                              onChange={(e) => setWLEndsAtTime(e.target.value)}
+                            />
+                            <div className="absolute left-4">
+                              <Clock size={20} color="#D7D8D8" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <p className="text-neutral50 text-lg font-medium">
+                        Whitelist mint price
+                      </p>
+                      <div className="relative flex items-center">
+                        <Input
+                          onReset={reset}
+                          placeholder="Amount"
+                          className="w-full pl-10"
+                          type="number"
+                          value={WLMintPrice}
+                          onChange={(e) =>
+                            setWLMintPrice(Number(e.target.value))
+                          }
+                        />
+                        <div className="absolute left-4">
+                          <Bitcoin size={20} color="#D7D8D8" />
+                        </div>
+                        <div className="absolute right-4">
+                          <p className="text-md text-neutral200 font-medium">
+                            BTC
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-neutral200 text-sm pl-4">
+                        Enter 0 for free mints
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <p className="text-lg text-neutral50 font-medium">
+                        Max mint per wallet
+                      </p>
+                      <Input
+                        onReset={reset}
+                        placeholder="0"
+                        value={WLMaxMintPerWallet}
+                        type="number"
+                        onChange={(e) =>
+                          setWLMaxMintPerWallet(parseInt(e.target.value))
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="flex flex-col gap-8">
                 <div className="flex flex-col w-full gap-4">
@@ -697,36 +922,77 @@ const IPFS = () => {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col gap-8 w-full">
-                <p className="text-[28px] leading-9 text-neutral50 font-bold">
-                  Public phase
-                </p>
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-row justify-between items-center">
-                    <p className="text-neutral200 text-lg">Start date</p>
-                    <p className="text-neutral50 text-lg font-bold">
-                      {POStartsAtDate},{POStartsAtTime}
+              <div className="flex flex-col gap-16 w-full">
+                {isChecked && (
+                  <div className="flex flex-col gap-8 w-full">
+                    <p className="text-[28px] leading-9 text-neutral50 font-bold">
+                      WhiteList phase
                     </p>
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-row justify-between items-center">
+                        <p className="text-neutral200 text-lg">Start date</p>
+                        <p className="text-neutral50 text-lg font-bold">
+                          {WLStartsAtDate},{WLStartsAtTime}
+                        </p>
+                      </div>
+                      <div className="flex flex-row justify-between items-center">
+                        <p className="text-neutral200 text-lg">End date</p>
+                        <p className="text-neutral50 text-lg font-bold">
+                          {WLEndsAtDate},{WLEndsAtTime}
+                        </p>
+                      </div>
+                      <div className="flex flex-row justify-between items-center">
+                        <p className="text-neutral200 text-lg">
+                          Public mint price
+                        </p>
+                        <p className="text-neutral50 text-lg font-bold">
+                          {WLMintPrice}
+                        </p>
+                      </div>
+                      <div className="flex flex-row justify-between items-center">
+                        <p className="text-neutral200 text-lg">
+                          Max mint per wallet
+                        </p>
+                        <p className="text-neutral50 text-lg font-bold">
+                          {WLMaxMintPerWallet}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex flex-row justify-between items-center">
-                    <p className="text-neutral200 text-lg">End date</p>
-                    <p className="text-neutral50 text-lg font-bold">
-                      {POEndsAtDate},{POEndsAtTime}
-                    </p>
-                  </div>
-                  <div className="flex flex-row justify-between items-center">
-                    <p className="text-neutral200 text-lg">Public mint price</p>
-                    <p className="text-neutral50 text-lg font-bold">
-                      {POMintPrice}
-                    </p>
-                  </div>
-                  <div className="flex flex-row justify-between items-center">
-                    <p className="text-neutral200 text-lg">
-                      Max mint per wallet
-                    </p>
-                    <p className="text-neutral50 text-lg font-bold">
-                      {POMaxMintPerWallet}
-                    </p>
+                )}
+                <div className="flex flex-col gap-8 w-full">
+                  <p className="text-[28px] leading-9 text-neutral50 font-bold">
+                    Public phase
+                  </p>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral200 text-lg">Start date</p>
+                      <p className="text-neutral50 text-lg font-bold">
+                        {POStartsAtDate},{POStartsAtTime}
+                      </p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral200 text-lg">End date</p>
+                      <p className="text-neutral50 text-lg font-bold">
+                        {POEndsAtDate},{POEndsAtTime}
+                      </p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral200 text-lg">
+                        Public mint price
+                      </p>
+                      <p className="text-neutral50 text-lg font-bold">
+                        {POMintPrice}
+                      </p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral200 text-lg">
+                        Max mint per wallet
+                      </p>
+                      <p className="text-neutral50 text-lg font-bold">
+                        {POMaxMintPerWallet}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -373,7 +373,11 @@ export async function createBuyLaunch({
         return response.data;
       });
   } catch (error) {
-    console.log("Error:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
   }
 }
 export async function confirmOrder({
@@ -402,7 +406,11 @@ export async function confirmOrder({
         return response.data;
       });
   } catch (error) {
-    console.log("Error:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
   }
 }
 
