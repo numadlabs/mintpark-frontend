@@ -127,6 +127,7 @@ const useWalletStore = create<WalletStore>()(
       connectWallet: async (layerId: string, isLinking: boolean = false) => {
         const { layers, connectedWallets, authState } = get();
         const layer = layers.find((l) => l.id === layerId);
+        console.log("🚀 ~ connectWallet: ~ layer:", layer);
         if (!layer) throw new Error("Layer not found");
 
         const walletConfig = WALLET_CONFIGS[layer.layer];
@@ -146,10 +147,18 @@ const useWalletStore = create<WalletStore>()(
               method: "eth_chainId",
             });
             const currentChainIdDecimal = parseInt(chainId, 16);
-            const targetChainIdDecimal = parseInt(layer.chainId, 16);
+            console.log(
+              "🚀 ~ connectWallet: ~ currentChainIdDecimal:",
+              currentChainIdDecimal,
+            );
+            const targetChainIdDecimal = parseInt(layer.chainId);
+            console.log(
+              "🚀 ~ connectWallet: ~ targetChainIdDecimal:",
+              targetChainIdDecimal,
+            );
             const targetChainIdHex = `0x${targetChainIdDecimal.toString(16)}`;
 
-            if (currentChainIdDecimal !== targetChainIdDecimal) {
+            if (currentChainIdDecimal.toString() !== layer.chainId) {
               try {
                 await window.ethereum.request({
                   method: "wallet_addEthereumChain",
@@ -157,11 +166,11 @@ const useWalletStore = create<WalletStore>()(
                     {
                       chainId: targetChainIdHex,
                       chainName: layer.name,
-                      rpcUrls: ["https://rpc.testnet.citrea.xyz"],
+                      rpcUrls: ["https://testnet.rpc.imeh.net/rpc"],
                       // rpcUrls: [layer.rpcUrl],
                       nativeCurrency: {
-                        name: "CORE",
-                        symbol: "CBTC",
+                        name: "ETH",
+                        symbol: "ETH",
                         decimals: 18,
                         // name: layer.nativeCurrency?.name || "CORE",
                         // symbol: layer.nativeCurrency?.symbol || "CBTC",
@@ -179,12 +188,12 @@ const useWalletStore = create<WalletStore>()(
                     });
                   } catch (switchError) {
                     throw new Error(
-                      `Failed to switch network (Chain ID: ${layer.chainId})`
+                      `Failed to switch network (Chain ID: ${layer.chainId})`,
                     );
                   }
                 } else {
                   throw new Error(
-                    `Failed to add network (Chain ID: ${layer.chainId})`
+                    `Failed to add network (Chain ID: ${layer.chainId})`,
                   );
                 }
               }
@@ -333,7 +342,7 @@ const useWalletStore = create<WalletStore>()(
       disconnectWallet: async (layerId: string) => {
         set((state) => ({
           connectedWallets: state.connectedWallets.filter(
-            (w) => w.layerId !== layerId
+            (w) => w.layerId !== layerId,
           ),
         }));
 
@@ -381,8 +390,8 @@ const useWalletStore = create<WalletStore>()(
         authState: state.authState,
         selectedLayerId: state.selectedLayerId,
       }),
-    }
-  )
+    },
+  ),
 );
 
 export default useWalletStore;
