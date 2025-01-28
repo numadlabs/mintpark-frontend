@@ -15,9 +15,10 @@ export const stringtoHex = (value: any) => {
 };
 
 export function s3ImageUrlBuilder(fileKey: string) {
-  return `https://d1orw8h9a3ark2.cloudfront.net/${fileKey}`;
+  return process.env.NODE_ENV === "development"
+    ? `https://d1orw8h9a3ark2.cloudfront.net/${fileKey}`
+    : `https://d237xcwu5voimf.cloudfront.net/${fileKey}`;
 }
-
 export function imageCDN(uniqueIdx: string) {
   return `https://static-testnet.unisat.io/content/${uniqueIdx}`;
 }

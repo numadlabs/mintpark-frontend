@@ -248,11 +248,11 @@ const Page = () => {
     <>
       <div
         className="min-h-screen bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `url(${s3ImageUrlBuilder(
-            collectibles ? collectibles?.logoKey : ""
-          )})`,
-        }}
+        // style={{
+        //   backgroundImage: `url(${s3ImageUrlBuilder(
+        //     collectibles ? collectibles?.logoKey : ""
+        //   )})`,
+        // }}
       >
         <DetailLayout>
           <Header />
