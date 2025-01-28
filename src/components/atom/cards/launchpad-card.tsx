@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import moment from "moment";
 import { Progress } from "@/components/ui/progress";
 import { LaunchDataType } from "@/lib/types";
@@ -11,92 +11,68 @@ interface LaunchProps {
   id: string;
 }
 
+// Helper function to convert timestamps to seconds
+const convertToSeconds = (timestamp: number | null | undefined): number => {
+  if (!timestamp) return 0;
+  const timestampStr = timestamp.toString();
+  return timestampStr.length === 13 ? Math.floor(timestamp / 1000) : timestamp;
+};
+
+// Custom hook for launch status
+const useLaunchStatus = (data: LaunchDataType) => {
+  const now = moment();
+
+  // Convert all timestamps
+  const wlStartsAt = convertToSeconds(data.wlStartsAt);
+  const wlEndsAt = convertToSeconds(data.wlEndsAt);
+  const poStartsAt = convertToSeconds(data.poStartsAt);
+  const poEndsAt = convertToSeconds(data.poEndsAt);
+
+  // Handle invalid timestamps
+  if (!wlStartsAt && !wlEndsAt && !poStartsAt && !poEndsAt) {
+    return "Invalid";
+  }
+
+  const wlStartMoment = moment.unix(wlStartsAt);
+  const wlEndMoment = moment.unix(wlEndsAt);
+  const poStartMoment = moment.unix(poStartsAt);
+  const poEndMoment = moment.unix(poEndsAt);
+
+  // Determine if whitelist period should be shown
+  const shouldShowWhitelistTimer = () => {
+    if (!data.isWhitelisted) return false;
+    if (!wlStartsAt || !wlEndsAt) return false;
+    if (poStartMoment.isBefore(wlStartMoment)) return false;
+    if (now.isAfter(wlEndMoment)) return false;
+    return true;
+  };
+
+  const shouldUseWl = shouldShowWhitelistTimer();
+  const activeStartMoment = shouldUseWl ? wlStartMoment : poStartMoment;
+  const activeEndMoment = shouldUseWl ? wlEndMoment : poEndMoment;
+
+  // Determine status based on current time
+  if (now.isAfter(poEndMoment) && now.isAfter(wlEndMoment)) {
+    return "Ended";
+  }
+
+  if (now.isBetween(activeStartMoment, activeEndMoment)) {
+    return "Live";
+  }
+
+  if (now.isBefore(activeStartMoment)) {
+    return "Upcoming";
+  }
+
+  if (shouldUseWl && now.isAfter(wlEndMoment) && now.isBefore(poEndMoment)) {
+    return "Live";
+  }
+
+  return "Upcoming";
+};
+
 const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
-  const [status, setStatus] = useState("Upcoming");
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = moment();
-
-      const convertToSeconds = (
-        timestamp: number | null | undefined
-      ): number => {
-        if (!timestamp) return 0;
-        const timestampStr = timestamp.toString();
-        return timestampStr.length === 13
-          ? Math.floor(timestamp / 1000)
-          : timestamp;
-      };
-
-      // Safely convert timestamps
-      const wlStartsAt = convertToSeconds(data.wlStartsAt);
-      const wlEndsAt = convertToSeconds(data.wlEndsAt);
-      const poStartsAt = convertToSeconds(data.poStartsAt);
-      const poEndsAt = convertToSeconds(data.poEndsAt);
-
-      // Skip processing if all timestamps are invalid
-      if (!wlStartsAt && !wlEndsAt && !poStartsAt && !poEndsAt) {
-        setStatus("Invalid");
-        return;
-      }
-
-      const wlStartMoment = moment.unix(wlStartsAt);
-      const wlEndMoment = moment.unix(wlEndsAt);
-      const poStartMoment = moment.unix(poStartsAt);
-      const poEndMoment = moment.unix(poEndsAt);
-
-      // Determine which timer to show based on multiple conditions
-      const shouldShowWhitelistTimer = () => {
-        if (!data.isWhitelisted) return false;
-        if (!wlStartsAt || !wlEndsAt) return false;
-        if (poStartMoment.isBefore(wlStartMoment)) return false;
-        if (now.isAfter(wlEndMoment)) return false;
-        return true;
-      };
-
-      const shouldUseWl = shouldShowWhitelistTimer();
-      const activeStartMoment = shouldUseWl ? wlStartMoment : poStartMoment;
-      const activeEndMoment = shouldUseWl ? wlEndMoment : poEndMoment;
-
-      // Handle cases where both periods have ended
-      if (now.isAfter(poEndMoment) && now.isAfter(wlEndMoment)) {
-        setStatus("Ended");
-        return;
-      }
-
-      // Handle active period
-      if (now.isBetween(activeStartMoment, activeEndMoment)) {
-        setStatus("Live");
-        return;
-      }
-
-      // Handle upcoming period
-      if (now.isBefore(activeStartMoment)) {
-        setStatus("Upcoming");
-        return;
-      }
-
-      // Handle transition between WL and Public
-      if (
-        shouldUseWl &&
-        now.isAfter(wlEndMoment) &&
-        now.isBefore(poEndMoment)
-      ) {
-        setStatus("Live");
-      }
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 60000);
-
-    return () => clearInterval(interval);
-  }, [
-    data.wlStartsAt,
-    data.wlEndsAt,
-    data.poStartsAt,
-    data.poEndsAt,
-    data.isWhitelisted,
-  ]);
+  const status = useLaunchStatus(data);
 
   return (
     <Link
