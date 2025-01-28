@@ -432,18 +432,18 @@ export default function Home() {
               <Image
                 src="/homePage/citreaMeme.png"
                 alt="citrea"
-                layout="fill"
-                objectFit="cover"
-                className="rounded-[32px]"
+                width={320}
+                height={320}
+                className="rounded-[32px] object-cover"
               />
             </div>
             <div className="absolute inset-0 z-50">
               <Image
                 src="/homePage/citreaMeme.png"
                 alt="citrea"
-                layout="fill"
-                objectFit="cover"
-                className="rounded-[32px]"
+                width={320}
+                height={320}
+                className="rounded-[32px] object-cover"
               />
             </div>
           </div>

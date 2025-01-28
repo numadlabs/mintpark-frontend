@@ -311,7 +311,7 @@ export const metadata: Metadata = {
   creator: 'Mint Park Team',
   publisher: 'Mint Park',
   
-  manifest: '/manifest.json',
+  // manifest: '/manifest.json',
   themeColor: '#ffffff',
 };
 
