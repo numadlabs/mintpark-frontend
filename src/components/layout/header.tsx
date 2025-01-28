@@ -124,6 +124,8 @@ export default function Header() {
         return "/wallets/Fractal.png";
       case "CITREA":
         return "/wallets/Citrea.png";
+      case "HEMI":
+        return "/wallets/hemi.png";
       default:
         return "/wallets/Bitcoin.png"; // Changed default to Bitcoin instead of Nubit
     }
@@ -232,6 +234,7 @@ export default function Header() {
                             alt={defaultLayer.split("-")[0]}
                             width={24}
                             height={24}
+                            className="rounded-full"
                           />
                           {defaultLayer
                             .split("-")
@@ -261,6 +264,7 @@ export default function Header() {
                               alt={layer.layer}
                               width={24}
                               height={24}
+                              className="rounded-full"
                             />
                             <div className="flex items-center gap-2">
                               {`${capitalizeFirstLetter(
