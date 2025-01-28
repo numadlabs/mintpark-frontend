@@ -307,6 +307,56 @@ export async function createLaunchItems({
   }
 }
 
+export async function createLaunchItemsIPFS({
+  data,
+}: {
+  data: CreateLaunchParams;
+}) {
+  const formData = new FormData();
+
+  // Append files
+  data.files.forEach((file, index) => {
+    formData.append(`files`, file);
+    console.log(
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
+    );
+  });
+
+  const namesArray = data.names;
+  formData.append("names", JSON.stringify(namesArray));
+
+  // Append other data
+  formData.append("collectionId", data.collectionId);
+  formData.append("isLastBatch", data.isLastBatch.toString());
+
+  console.log("FormData contents:");
+  // Use Array.from() to convert the iterator to an array
+  Array.from(formData.keys()).forEach((key) => {
+    console.log(key, formData.get(key));
+  });
+
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/launchpad/ipfs-file`,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  };
+
+  try {
+    const response = await axiosClient.request(config);
+    console.log("Server response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error in createCollectiblesToCollection:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error("Server error response:", error.response.data);
+    }
+    throw error;
+  }
+}
+
 export async function createBuyLaunch({
   id,
   userLayerId,

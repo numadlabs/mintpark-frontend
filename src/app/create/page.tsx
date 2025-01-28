@@ -7,8 +7,8 @@ import Options from "@/components/section/options";
 import { Stop, BuyCrypto, Celo } from "iconsax-react";
 import ButtonLg from "@/components/ui/buttonLg";
 import Layout from "@/components/layout/layout";
-import SelectColModal from "@/components/modal/select-col-modal";
 import { useRouter } from "next/navigation";
+import SelectCollectionModal from "@/components/modal/select-collection-modal";
 import { Loader2 } from "lucide-react";
 
 // Define an interface for the data items
@@ -63,8 +63,8 @@ const Create = () => {
       icon: BuyCrypto,
       title: "Collection",
       text: "A group of NFTs, best for brands and projects.",
-      pageUrl: "/create/collection/inscription",
-      action: undefined,
+      pageUrl: null,
+      action: toggleModal,
     },
     {
       id: 2,
@@ -142,7 +142,7 @@ const Create = () => {
           </div>
         </div>
       </div>
-      <SelectColModal open={showModal} onClose={toggleModal} />
+      <SelectCollectionModal open={showModal} onClose={toggleModal} />
     </Layout>
   );
 };
