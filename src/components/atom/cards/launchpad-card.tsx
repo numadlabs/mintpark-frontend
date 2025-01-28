@@ -14,9 +14,13 @@ interface LaunchProps {
 const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
   const [status, setStatus] = useState("");
 
+  //todo: Ayo using useEffect on card component? Query should update every 60 second instead. Read tanstack query docs
   useEffect(() => {
     const updateTime = () => {
       const now = moment();
+      if (!data.wlStartsAt) {
+        return;
+      }
 
       const convertToSeconds = (timestamp: number) => {
         return timestamp.toString().length === 13
@@ -109,7 +113,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
           </p>
           <p className="font-bold text-sm sm:text-md text-neutral50">
             {formatPrice(
-              status.includes("WL") ? data.wlMintPrice : data.poMintPrice
+              status.includes("WL") ? data.wlMintPrice : data.poMintPrice,
             )}
             <span className="ml-1">cBTC</span>
           </p>

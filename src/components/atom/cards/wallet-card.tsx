@@ -24,6 +24,8 @@ const getWalletImage = (layer: string) => {
       return "/wallets/Unisat.png";
     case "CITREA":
       return "/wallets/Metamask.png";
+    case "HEMI":
+      return "/wallets/Metamask.png";
     default:
       return "/wallets/Unisat.png";
   }
@@ -34,6 +36,8 @@ const getWalletName = (layer: string) => {
     case "BITCOIN":
       return "Unisat Wallet";
     case "CITREA":
+      return "MetaMask Wallet";
+    case "HEMI":
       return "MetaMask Wallet";
     default:
       return "Wallet";

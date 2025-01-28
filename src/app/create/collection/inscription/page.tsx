@@ -137,7 +137,7 @@ const Inscription = () => {
 
   const calculateTimeUntilDate = (
     dateString: string,
-    timeString: string
+    timeString: string,
   ): number => {
     try {
       // Input validation
@@ -202,7 +202,11 @@ const Inscription = () => {
           console.log("create collection success", response);
           toast.success("Create collection success.");
 
-          if (currentLayer.layer === "CITREA") {
+          //todo: evm bolohig shalgadag bolgoh
+          if (
+            currentLayer.layer === "CITREA" ||
+            currentLayer.layer === "HEMI"
+          ) {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
             await signedTx?.wait();
@@ -336,7 +340,7 @@ const Inscription = () => {
           const currentBatchFiles = files.slice(start, end);
 
           const names = currentBatchFiles.map(
-            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
+            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
           );
 
           const launchItemsData: CreateLaunchParams = {
@@ -363,7 +367,7 @@ const Inscription = () => {
     } catch (error) {
       console.error("Error creating launch:", error);
       toast.error(
-        error instanceof Error ? error.message : "Error creating launch"
+        error instanceof Error ? error.message : "Error creating launch",
       );
     } finally {
       setIsLoading(false);
@@ -405,7 +409,7 @@ const Inscription = () => {
           let id;
           await window.unisat.sendBitcoin(
             response.data.order.fundingAddress,
-            Math.ceil(response.data.order.fundingAmount)
+            Math.ceil(response.data.order.fundingAmount),
           );
 
           id = response.data.order.id;
@@ -420,7 +424,7 @@ const Inscription = () => {
             const currentBatchFiles = files.slice(start, end);
 
             const names = currentBatchFiles.map(
-              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
+              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
             );
             const params: InscriptionCollectible = {
               files: currentBatchFiles,
