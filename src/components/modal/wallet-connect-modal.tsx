@@ -51,7 +51,6 @@ export function WalletConnectionModal({
     connectWallet,
     disconnectWallet,
     isWalletConnected,
-    selectedLayerId,
   } = useAuth();
 
   const { data: layers = [] } = useQuery({

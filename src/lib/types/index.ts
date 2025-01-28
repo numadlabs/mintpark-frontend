@@ -129,6 +129,7 @@ export type LayerTypes = {
   network: string;
   currencyId: string;
   comingSoon?: boolean;
+  chainId: string | null;
 };
 
 export type LaunchType = {

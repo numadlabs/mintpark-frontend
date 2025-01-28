@@ -9,6 +9,7 @@ export type ExtendedLayerType = {
   network: string;
   currencyId: string;
   comingSoon?: boolean;
+  chainId: string | null;
 };
 
 interface WalletCardProps {
