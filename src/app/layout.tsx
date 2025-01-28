@@ -141,7 +141,7 @@ export default function RootLayout({
             }
           />
           {/* Remove the viewport meta tag from here */}
-          <link rel="manifest" href="/manifest.json" />
+          {/* <link rel="manifest" href="/manifest.json" /> */}
         </head>
         <body>
           <main className={bai_Jamjuree.className}>

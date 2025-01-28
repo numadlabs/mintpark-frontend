@@ -44,7 +44,6 @@ const InscribeOrderModal: React.FC<modalProps> = ({
     refetchInterval: 5000,
   });
 
-  console.log(paymentStatus);
 
   const totalFee = orders?.networkFee + orders?.serviceFee;
   const router = useRouter();

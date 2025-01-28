@@ -25,11 +25,6 @@ const OrderDetailModal: React.FC<ModalProps> = ({
   serviceFee,
   fundingAmount
 }) => {
-
-
-  console.log("fund", fundingAmount)
-
-
   const getInscribeStatus = (paymentStatus: string) => {
     switch (paymentStatus) {
       case "PENDING":

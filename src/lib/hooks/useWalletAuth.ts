@@ -149,12 +149,12 @@ const useWalletStore = create<WalletStore>()(
             const currentChainIdDecimal = parseInt(chainId, 16);
             console.log(
               "🚀 ~ connectWallet: ~ currentChainIdDecimal:",
-              currentChainIdDecimal,
+              currentChainIdDecimal
             );
             const targetChainIdDecimal = parseInt(layer.chainId);
             console.log(
               "🚀 ~ connectWallet: ~ targetChainIdDecimal:",
-              targetChainIdDecimal,
+              targetChainIdDecimal
             );
             const targetChainIdHex = `0x${targetChainIdDecimal.toString(16)}`;
 
@@ -166,20 +166,18 @@ const useWalletStore = create<WalletStore>()(
                     {
                       chainId: targetChainIdHex,
                       chainName: layer.name,
-                      rpcUrls: ["https://testnet.rpc.imeh.net/rpc"],
+                      rpcUrls: ["https://rpc.testnet.citrea.xyz"],
                       // rpcUrls: [layer.rpcUrl],
                       nativeCurrency: {
-                        name: "ETH",
-                        symbol: "ETH",
+                        name: "cBTC",
+                        symbol: "cBTC",
                         decimals: 18,
-                        // name: layer.nativeCurrency?.name || "CORE",
-                        // symbol: layer.nativeCurrency?.symbol || "CBTC",
-                        // decimals: layer.nativeCurrency?.decimals || 18
                       },
                     },
                   ],
                 });
               } catch (addError: any) {
+                console.log("add error", addError);
                 if (addError.code === 4902) {
                   try {
                     await window.ethereum.request({
@@ -188,12 +186,12 @@ const useWalletStore = create<WalletStore>()(
                     });
                   } catch (switchError) {
                     throw new Error(
-                      `Failed to switch network (Chain ID: ${layer.chainId})`,
+                      `Failed to switch network (Chain ID: ${layer.chainId})`
                     );
                   }
                 } else {
                   throw new Error(
-                    `Failed to add network (Chain ID: ${layer.chainId})`,
+                    `Failed to add network (Chain ID: ${layer.chainId})`
                   );
                 }
               }
@@ -342,7 +340,7 @@ const useWalletStore = create<WalletStore>()(
       disconnectWallet: async (layerId: string) => {
         set((state) => ({
           connectedWallets: state.connectedWallets.filter(
-            (w) => w.layerId !== layerId,
+            (w) => w.layerId !== layerId
           ),
         }));
 
@@ -390,8 +388,8 @@ const useWalletStore = create<WalletStore>()(
         authState: state.authState,
         selectedLayerId: state.selectedLayerId,
       }),
-    },
-  ),
+    }
+  )
 );
 
 export default useWalletStore;
