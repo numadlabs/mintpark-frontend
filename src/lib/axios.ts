@@ -9,14 +9,13 @@ import { toast } from "sonner";
 
 export const BACKEND_URL =
   process.env.NODE_ENV === "development"
-    // ? "http://127.0.0.1:3001" // development api
-    ? "https://mintpark-staging-e569c5c4d83c.herokuapp.com/" // development api
-    :  "https://mintpark-production-0006d54da9fb.herokuapp.com";
+    ? // ? "http://127.0.0.1:3001" // development api
+      "https://mintpark-staging-e569c5c4d83c.herokuapp.com" // development api
+    : "https://mintpark-production-0006d54da9fb.herokuapp.com";
 
 const instance = axios.create({
   baseURL: BACKEND_URL,
 });
-
 export const initializeAxios = (logoutHandler: () => void) => {
   instance.interceptors.request.use(
     (config) => {
@@ -53,7 +52,7 @@ export const initializeAxios = (logoutHandler: () => void) => {
 
         try {
           const res = await axios.post(
-            `${BACKEND_URL}/api/v1/users/refreshToken`,
+            `${BACKEND_URL}/api/v1/users/refresh-token`,
             {
               refreshToken: getRefreshToken(),
             }

@@ -73,8 +73,8 @@ export type LaunchDataType = {
   logoKey: string;
   layerId: string;
   launchId: string;
-  wlStartsAt: string;
-  wlEndsAt: string;
+  wlStartsAt: number;
+  wlEndsAt: number;
   wlMintPrice: number;
   wlMaxMintPerWallet: number;
   poStartsAt: number;
@@ -108,6 +108,10 @@ export type LaunchParams = {
   poEndsAt?: number;
   poMintPrice: number;
   poMaxMintPerWallet: number;
+  wlStartsAt?: number;
+  wlEndsAt?: number;
+  wlMintPrice?: number;
+  wlMaxMintPerWallet?: number;
   userLayerId: string | null;
 };
 
@@ -125,6 +129,7 @@ export type LayerTypes = {
   network: string;
   currencyId: string;
   comingSoon?: boolean;
+  chainId: string | null;
 };
 
 export type LaunchType = {
@@ -134,6 +139,10 @@ export type LaunchType = {
   poEndsAt: number;
   poMintPrice: number;
   poMaxMintPerWallet: number;
+  wlStartsAt?: number;
+  wlEndsAt?: number;
+  wlMintPrice?: number;
+  wlMaxMintPerWallet?: number;
   userLayerId: string | null;
 };
 
@@ -149,7 +158,6 @@ export type MintFeeType = {
 };
 
 export type BadgeType = {
-  logo?: File;
   description: string;
   name: string;
   priceForLaunchpad: number;

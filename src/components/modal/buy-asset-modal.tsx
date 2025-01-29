@@ -55,7 +55,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
     mutationFn: buyListedCollectible,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
-      queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
+      queryClient.invalidateQueries({ queryKey: ["activityData", id] });
     },
   });
 
@@ -112,7 +112,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
             setIsSuccess(true);
             toast.success("Purchase successful");
             queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
-            queryClient.invalidateQueries({ queryKey: ["acitivtyData", id] });
+            queryClient.invalidateQueries({ queryKey: ["activityData", id] });
           } else {
             toast.error("Error");
           }

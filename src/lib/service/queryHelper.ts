@@ -62,7 +62,7 @@ export async function getLaunchByCollectionId(id: string) {
     });
 }
 
-export async function getAllLayers(): Promise<LayerSchema[]> {
+export async function  getAllLayers(): Promise<LayerSchema[]> {
   return axiosClient.get(`/api/v1/layers/`).then((response) => {
     if (response.data.success) {
       return response.data.data;

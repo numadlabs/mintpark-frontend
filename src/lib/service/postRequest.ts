@@ -16,13 +16,20 @@ import { collectibleFormData } from "./formHelper";
 
 // Connect and Login sections
 export async function generateMessageHandler({ address }: { address: string }) {
-  console.log("🚀 ~ loginHandler ~ walletData:", address);
-  return axiosClient
-    .post(`/api/v1/users/generate-message`, JSON.stringify({ address }))
-    .then((response) => {
-      // if(respo)
-      return response.data;
-    });
+  try {
+    // console.log("🚀 ~ loginHandler ~ walletData:", address);
+    return axiosClient
+      .post(`/api/v1/users/generate-message`, JSON.stringify({ address }))
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
 }
 
 export async function loginHandler({
@@ -36,15 +43,23 @@ export async function loginHandler({
   layerId: string;
   pubkey?: string;
 }) {
-  console.log("🚀 ~ loginHandler ~ walletData:", address);
-  return axiosClient
-    .post(
-      `/api/v1/users/login`,
-      JSON.stringify({ address, signedMessage, layerId, pubkey })
-    )
-    .then((response) => {
-      return response.data;
-    });
+  try {
+    // console.log("🚀 ~ loginHandler ~ walletData:", address);
+    return axiosClient
+      .post(
+        `/api/v1/users/login`,
+        JSON.stringify({ address, signedMessage, layerId, pubkey })
+      )
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
 }
 
 export async function loginWalletLink({
@@ -58,14 +73,22 @@ export async function loginWalletLink({
   layerId: string;
   pubkey?: string;
 }) {
-  return axiosClient
-    .post(
-      `/api/v1/users/link-account`,
-      JSON.stringify({ address, signedMessage, layerId, pubkey })
-    )
-    .then((response) => {
-      return response.data;
-    });
+  try {
+    return axiosClient
+      .post(
+        `/api/v1/users/link-account`,
+        JSON.stringify({ address, signedMessage, layerId, pubkey })
+      )
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
 }
 
 export async function linkAccountToAnotherUser({
@@ -79,14 +102,22 @@ export async function linkAccountToAnotherUser({
   layerId: string;
   pubkey?: string;
 }) {
-  return axiosClient
-    .post(
-      `/api/v1/users/link-account-to-another-user`,
-      JSON.stringify({ address, signedMessage, layerId, pubkey })
-    )
-    .then((response) => {
-      return response.data;
-    });
+  try {
+    return axiosClient
+      .post(
+        `/api/v1/users/link-account-to-another-user`,
+        JSON.stringify({ address, signedMessage, layerId, pubkey })
+      )
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
 }
 
 //Collection section
@@ -121,7 +152,7 @@ export async function createMintCollectible({
 }: {
   data: MintCollectibleDataType;
 }) {
-  console.log("Creating mint collectible with data:", data);
+  // console.log("Creating mint collectible with data:", data);
   const formData = new FormData();
   data.file.forEach((file, index) => {
     if (file instanceof File) {
@@ -276,6 +307,56 @@ export async function createLaunchItems({
   }
 }
 
+export async function createLaunchItemsIPFS({
+  data,
+}: {
+  data: CreateLaunchParams;
+}) {
+  const formData = new FormData();
+
+  // Append files
+  data.files.forEach((file, index) => {
+    formData.append(`files`, file);
+    console.log(
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
+    );
+  });
+
+  const namesArray = data.names;
+  formData.append("names", JSON.stringify(namesArray));
+
+  // Append other data
+  formData.append("collectionId", data.collectionId);
+  formData.append("isLastBatch", data.isLastBatch.toString());
+
+  console.log("FormData contents:");
+  // Use Array.from() to convert the iterator to an array
+  Array.from(formData.keys()).forEach((key) => {
+    console.log(key, formData.get(key));
+  });
+
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/launchpad/ipfs-file`,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  };
+
+  try {
+    const response = await axiosClient.request(config);
+    console.log("Server response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error in createCollectiblesToCollection:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error("Server error response:", error.response.data);
+    }
+    throw error;
+  }
+}
+
 export async function createBuyLaunch({
   id,
   userLayerId,
@@ -292,7 +373,11 @@ export async function createBuyLaunch({
         return response.data;
       });
   } catch (error) {
-    console.log("Error:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
   }
 }
 export async function confirmOrder({
@@ -321,7 +406,11 @@ export async function confirmOrder({
         return response.data;
       });
   } catch (error) {
-    console.log("Error:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -342,7 +431,11 @@ export async function createApprovalTransaction({
         return response.data;
       });
   } catch (error) {
-    console.log("Error:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -363,7 +456,11 @@ export async function checkAndCreateRegister({
         return response.data;
       });
   } catch (error) {
-    console.log("Error:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -391,14 +488,40 @@ export async function createLaunch({
   totalFileSize: number;
   feeRate: number;
 }) {
+  const formData = new FormData();
+
+  const dataLaunch = data;
+  formData.append("data", JSON.stringify(dataLaunch));
+
+  // Append other data
+  formData.append("txid", txid);
+  formData.append("totalFileSize", totalFileSize.toString());
+  formData.append("feeRate", feeRate.toString());
+  console.log("FormData contents:");
+  // Use Array.from() to convert the iterator to an array
+  Array.from(formData.keys()).forEach((key) => {
+    console.log(key, formData.get(key));
+  });
+
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/launchpad`,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  };
+
   try {
-    return axiosClient
-      .post(`/api/v1/launchpad`, { data, txid, totalFileSize, feeRate })
-      .then((response) => {
-        return response.data;
-      });
+    const response = await axiosClient.request(config);
+    console.log("Server response:", response.data);
+    return response.data;
   } catch (error) {
-    console.log("Error:", error);
+    console.error("Error in createCollectiblesToCollection:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error("Server error response:", error.response.data);
+    }
+    throw error;
   }
 }
 
@@ -569,6 +692,30 @@ export async function confirmPendingList({
   }
 }
 
+export async function cancelList({ id }: { id: string }) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists/${id}/generate-cancel-listing-tx`)
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error: any) {
+    console.log(error.message);
+  }
+}
+
+export async function confirmCancelList({ id }: { id: string }) {
+  try {
+    return axiosClient
+      .post(`/api/v1/lists/${id}/confirm-cancel-listing`)
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error: any) {
+    console.log(error.message);
+  }
+}
+
 export async function listCollectiblesForConfirm({
   collectibleId,
   price,
@@ -645,6 +792,54 @@ export async function launchItems({ data }: { data: LaunchItemType }) {
   }
 }
 
+export async function launchItemsIpfs({
+  collectionId,
+  isLastBatch,
+}: {
+  collectionId: string;
+  isLastBatch?: boolean;
+}) {
+  const formData = new FormData();
+
+  // Append other data
+  formData.append("collectionId", collectionId);
+
+  // Only append isLastBatch if it's defined
+  if (typeof isLastBatch !== "undefined") {
+    formData.append("isLastBatch", isLastBatch.toString());
+  } else {
+    // You might want to set a default value here
+    formData.append("isLastBatch", "false");
+  }
+
+  console.log("FormData contents:");
+  // Use Array.from() to convert the iterator to an array
+  Array.from(formData.keys()).forEach((key) => {
+    console.log(key, formData.get(key));
+  });
+
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/launchpad/ipfs`,
+    data: formData,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  };
+
+  try {
+    const response = await axiosClient.request(config);
+    console.log("Server response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error in createCollectiblesToCollection:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      console.error("Server error response:", error.response.data);
+    }
+    throw error;
+  }
+}
+
 export async function mintFeeOfCitrea({
   data,
   userLayerId,
@@ -657,6 +852,48 @@ export async function mintFeeOfCitrea({
       .post(`/api/v1/launchpad/change-mintfee-transaction`, {
         data,
         userLayerId,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function whitelistAddresses({
+  launchId,
+  addresses,
+}: {
+  launchId: string;
+  addresses: string[];
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/whitelist-addresses`, {
+        launchId,
+        addresses,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+export async function ifpsLaunchItem({
+  collectionId,
+  isLastBatch,
+}: {
+  collectionId: string;
+  isLastBatch?: boolean;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/ipfs`, {
+        collectionId,
+        isLastBatch,
       })
       .then((response) => {
         return response.data;

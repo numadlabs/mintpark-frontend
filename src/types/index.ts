@@ -147,4 +147,5 @@ export interface Layer {
   layer: string;
   network: string;
   currencyId: string;
+  chainId: string;
 }

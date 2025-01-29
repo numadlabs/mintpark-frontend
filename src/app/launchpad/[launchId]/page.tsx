@@ -6,10 +6,10 @@ import { Carousel } from "@/components/ui/carousel";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { confirmOrder, createBuyLaunch } from "@/lib/service/postRequest";
-import { s3ImageUrlBuilder } from "@/lib/utils";
+import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   getLaunchByCollectionId,
@@ -17,12 +17,12 @@ import {
 } from "@/lib/service/queryHelper";
 import PhaseCard from "@/components/atom/cards/phase-card";
 import { useParams, useRouter } from "next/navigation";
-import WhiteListPhaseCard from "@/components/atom/cards/white-list-phase-card";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LaunchDetailSkeleton from "@/components/atom/skeleton/launch-detail-skeleton";
 import ThreadIcon from "@/components/icon/thread";
+import moment from "moment";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -31,10 +31,21 @@ const Page = () => {
   const params = useParams();
   const id = params.launchId as string;
   const [isLoading, setIsLoading] = useState(false);
-  const [activePhase, setActivePhase] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const [activePhase, setActivePhase] = useState<
+    "guaranteed" | "public" | null
+  >(null);
+  const [selectedPhase, setSelectedPhase] = useState<
+    "guaranteed" | "public" | null
+  >(null);
 
   const { mutateAsync: createBuyLaunchMutation } = useMutation({
     mutationFn: createBuyLaunch,
+    onError: (error: any) => {
+      const errorMessage = error?.message || "Failed to create buy launch";
+      setError(errorMessage);
+      toast.error(errorMessage);
+    },
   });
 
   const { mutateAsync: confirmOrderMutation } = useMutation({
@@ -44,6 +55,11 @@ const Page = () => {
         queryKey: ["collectiblesByCollections", id],
       });
       queryClient.invalidateQueries({ queryKey: ["launchData", id] });
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.message || "Failed to confirm order";
+      setError(errorMessage);
+      toast.error(errorMessage);
     },
   });
 
@@ -60,26 +76,25 @@ const Page = () => {
     enabled: !!authState.layerId,
   });
 
-  const launchOfferType =
-    activePhase === "public"
-      ? "public"
-      : activePhase === "guaranteed"
-      ? "guaranteed"
-      : "";
-
   const handleConfirm = async () => {
-    if (!authState.authenticated)
-      return toast.error("Please connect wallet first");
+    if (!authState.authenticated) {
+      setError("Please connect wallet first");
+      toast.error("Please connect wallet first");
+      return;
+    }
 
     if (!currentLayer || !authState.userLayerId) {
+      setError("Layer information not available");
       toast.error("Layer information not available");
-      return false;
+      return;
     }
+
     setIsLoading(true);
+    setError(null);
+
     try {
       let txid;
       let launchItemId;
-      let orderRes;
 
       const response = await createBuyLaunchMutation({
         id: collectibles.launchId,
@@ -87,66 +102,90 @@ const Page = () => {
         feeRate: 1,
       });
 
-      if (response && response.success) {
-        const orderId = response.data.order.id;
-        launchItemId = response.data.launchItem.id;
-        // const { singleMintTxHex } = response.data;
+      if (!response?.success) {
+        throw new Error(response?.error || "Failed to create order");
+      }
 
-        // } else if (currentLayer.layer === "FRACTAL") {
+      const orderId = response.data.order.id;
+      launchItemId = response.data.launchItem.id;
+
+      if (response.data.singleMintTxHex) {
+        const { signer } = await getSigner();
+        const signedTx = await signer?.sendTransaction(
+          response.data.singleMintTxHex
+        );
+        const tx = await signedTx?.wait();
+        if (tx) {
+          txid = tx.hash;
+        }
+      } else {
         await window.unisat.sendBitcoin(
           response.data.order.fundingAddress,
           Math.ceil(response.data.order.fundingAmount)
         );
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // }
-        if (orderId) {
-          orderRes = await confirmOrderMutation({
-            orderId: orderId,
-            // txid: txid,
-            launchItemId: launchItemId,
-            userLayerId: authState.userLayerId,
-            feeRate: 1,
-          });
-          if (orderRes && orderRes.success) {
-            toast.success("Success minted.");
-            router.push("/launchpad");
-          } else {
-            toast.error("Failed to confirm order");
-          }
-        }
-      } else {
-        // toast.error(response.error);
-        toast.error(`Failed to create order ${response.error}`);
+        await new Promise((resolve) => setTimeout(resolve, 10000));
       }
-    } catch (error) {
-      toast.error(`Failed to create order ${error}`);
+
+      if (orderId) {
+        const orderRes = await confirmOrderMutation({
+          orderId,
+          txid,
+          launchItemId,
+          userLayerId: authState.userLayerId,
+          feeRate: 1,
+        });
+
+        if (orderRes?.success) {
+          toast.success("Successfully minted");
+          router.push("/launchpad");
+        }
+      }
+    } catch (error: any) {
+      const errorMessage = error?.message || "An unexpected error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handlePhaseClick = (phaseType: any) => {
-    setActivePhase(phaseType);
-  };
+  const determineActivePhase = () => {
+    const now = moment();
 
-  const unixToISOString = (
-    unixTimestamp: number | null | undefined
-  ): string => {
-    try {
-      if (!unixTimestamp) return "";
-      const date = new Date(unixTimestamp * 1000);
-      if (isNaN(date.getTime())) {
-        return "";
+    // Check Guaranteed (Whitelist) phase
+    if (collectibles.isWhitelisted) {
+      const wlStart = moment.unix(collectibles.wlStartsAt);
+      const wlEnd = moment.unix(collectibles.wlEndsAt);
+
+      if (now.isBetween(wlStart, wlEnd)) {
+        return "guaranteed";
       }
-      return date.toISOString();
-    } catch (error) {
-      console.error("Error converting timestamp:", error);
-      return "";
     }
+
+    // Check Public phase
+    const poStart = moment.unix(collectibles.poStartsAt);
+    const poEnd = moment.unix(collectibles.poEndsAt);
+
+    if (now.isBetween(poStart, poEnd)) {
+      return "public";
+    }
+
+    return null;
   };
 
-  const now = new Date().toISOString();
+  useEffect(() => {
+    const currentPhase = determineActivePhase();
+    setActivePhase(currentPhase);
+    // Set the selected phase to the active phase initially
+    if (!selectedPhase) {
+      setSelectedPhase(currentPhase);
+    }
+  }, [collectibles]);
+
+  const handlePhaseClick = (phaseType: "guaranteed" | "public") => {
+    // Allow selection of any phase regardless of current active phase
+    setSelectedPhase(phaseType);
+  };
 
   const handlCollectionClick = () => {
     router.push("/collections");
@@ -157,26 +196,6 @@ const Page = () => {
   }
 
   const links = [
-    // {
-    //   url: "collectionsData?.websiteUrl",
-    //   isIcon: true,
-    //   icon: (
-    //     <Global
-    //       size={32}
-    //       className="sm:size-8 lg:size-8 hover:text-brand text-neutral00"
-    //     />
-    //   ),
-    // },
-    // {
-    //   url: "collectionsData?.discordUrl",
-    //   isIcon: false,
-    //   icon: (
-    //     <DiscordIcon
-    //       size={32}
-    //       className="sm:size-8 lg:size-8 hover:text-brand text-neutral00"
-    //     />
-    //   ),
-    // },
     {
       url: "https://x.com/mintpark_io",
       isIcon: false,
@@ -197,223 +216,261 @@ const Page = () => {
     window.open(validUrl, "_blank", "noopener,noreferrer");
   };
 
+  const isMintActive = () => {
+    const now = moment().unix();
+
+    // If supply is reached, minting is not active
+    if (collectibles.supply === collectibles.mintedAmount) {
+      return false;
+    }
+
+    // Check whitelist period
+    const isInWhitelistPeriod =
+      collectibles.isWhitelisted &&
+      collectibles.wlStartsAt <= now &&
+      (collectibles.wlEndsAt === 0 || collectibles.wlEndsAt > now);
+
+    // Check public period
+    const isInPublicPeriod =
+      collectibles.poStartsAt <= now &&
+      (collectibles.poEndsAt === 0 || collectibles.poEndsAt > now);
+
+    return isInWhitelistPeriod || isInPublicPeriod;
+  };
+
+  const shouldShowGoToCollection = () => {
+    const now = moment().unix();
+
+    // Show "Go to Collection" if supply is reached
+    if (collectibles.supply === collectibles.mintedAmount) {
+      return true;
+    }
+
+    // Show "Go to Collection" if either phase has started but mint is not active
+    const hasEitherPhaseStarted =
+      collectibles.wlStartsAt <= now || collectibles.poStartsAt <= now;
+
+    return hasEitherPhaseStarted && !isMintActive();
+  };
+
   return (
     <>
-    <div
-      className="min-h-screen bg-cover bg-center bg-no-repeat"
-      style={{
-        backgroundImage: `url(${s3ImageUrlBuilder(
-          collectibles ? collectibles?.logoKey : ""
-        )})`,
-      }}
-    >
-      <DetailLayout>
-        <Header />
-        {isCollectiblesLoading || isLayerLoading ? (
-          <div className="w-full">
-            <LaunchDetailSkeleton />
-          </div>
-        ) : (
-          <div className="3xl:px-[312px] pt-[56px] md:pt-0">
-            <section className="flex flex-col justify-center h-full sm:h-full  lg:h-[80vh] items-center lg:grid grid-cols-3 gap-8 lg:gap-8 mb-8">
-              {/* Left Column - Collection Info */}
-              <div className="flex w-full flex-col gap-8 sm:gap-6 order-2">
-                <div className="block lg:hidden">
-                  <div className="flex gap-4 sm:gap-8">
-                    {links.length > 0 && (
-                      <div className="flex gap-4 sm:gap-6">
-                        {links.map((link, i) => (
-                          <button
-                            key={i}
-                            onClick={() => handleSocialClick(link.url)}
-                            className="p-2 hover:bg-neutral800/10 rounded-lg transition-colors"
-                          >
-                            {link.icon}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+      <div
+        className="min-h-screen bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url(${s3ImageUrlBuilder(
+            collectibles?.logoKey || ""
+          )})`,
+        }}
+      >
+        <DetailLayout>
+          <Header />
+          {isCollectiblesLoading || isLayerLoading ? (
+            <div className="w-full">
+              <LaunchDetailSkeleton />
+            </div>
+          ) : (
+            <div className="3xl:px-[312px] pt-[56px] md:pt-0">
+              <section className="flex flex-col justify-start h-full sm:h-full  lg:h-[80vh] items-center lg:grid grid-cols-3 gap-8 lg:gap-8 mb-8">
+                {/* Left Column - Collection Info */}
+                <div className="flex w-full flex-col gap-8 sm:gap-6 order-2">
+                  <div className="block lg:hidden">
+                    <div className="flex gap-4 sm:gap-8">
+                      {links.length > 0 && (
+                        <div className="flex gap-4 sm:gap-6">
+                          {links.map((link, i) => (
+                            <button
+                              key={i}
+                              onClick={() => handleSocialClick(link.url)}
+                              className="p-2 hover:bg-neutral800/10 rounded-lg transition-colors"
+                            >
+                              {link.icon}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="flex flex-col gap-4 sm:gap-6">
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold capitalize text-neutral50">
-                    {collectibles?.name}
-                  </h1>
-                  <div className="sm:block">
-                    <p className="h-1 w-[120px] rounded bg-brand shadow-shadowBrands"></p>
+                  <div className="flex flex-col gap-4 sm:gap-6">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold capitalize text-neutral50">
+                      {collectibles?.name}
+                    </h1>
+                    <div className="sm:block">
+                      <p className="h-1 w-[120px] rounded bg-brand shadow-shadowBrands"></p>
+                    </div>
+                    <p className="text-base sm:text-lg lg:text-lg text-neutral100 line-clamp-4 sm:line-clamp-none">
+                      {collectibles?.description}
+                    </p>
                   </div>
-                  <p className="text-base sm:text-lg lg:text-lg text-neutral100 line-clamp-4 sm:line-clamp-none">
-                    {collectibles?.description}
-                  </p>
-                </div>
-                <div className="space-y-2 sm:space-y-3  block md2:hidden">
-                  <div className="flex h-2 sm:h-3 border rounded-lg border-1 border-neutral400">
-                    <Progress
-                      value={
-                        (collectibles?.mintedAmount / collectibles?.supply) *
-                        100
-                      }
-                      className={`w-full h-full ${
-                        collectibles?.mintedAmount === 0 ? "" : ""
-                      }`}
-                    />
-                  </div>
-                  <div className="flex justify-between items-center py-1 text-sm sm:text-base  text-neutral100">
-                    <span className="font-medium text-lg text-neutral100">
-                      Total minted
-                    </span>
-                    <h2>
-                      <span className="text-neutral50 font-medium text-lg">
-                        {collectibles?.mintedAmount}
-                      </span>
-                      <span className="text-brand font-medium text-lg">
-                        {" "}
-                        /{" "}
-                      </span>
-                      <span className="text-neutral100 font-medium text-lg">
-                        {collectibles?.supply}
-                      </span>{" "}
-                    </h2>
-                  </div>
-                </div>
-                <div className="hidden lg:block">
-                  <div className="flex gap-4 sm:gap-8 mt-2">
-                    {links.length > 0 && (
-                      <div className="flex gap-4 sm:gap-6">
-                        {links.map((link, i) => (
-                          <button
-                            key={i}
-                            onClick={() => handleSocialClick(link.url)}
-                            className="p-2 hover:bg-neutral800/10 rounded-lg transition-colors"
-                          >
-                            {link.icon}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Middle Column - Image and Progress */}
-              <div className="flex flex-col gap-4 sm:gap-6 w-full  order-1 lg:order-2">
-                <div className="w-full aspect-square relative rounded-2xl sm:rounded-3xl overflow-hidden max-h-[384px]">
-                  <Carousel className="w-full justify-center items-center flex">
-                    {collectibles?.logoKey && (
-                      <Image
-                        width={384}
-                        height={384}
-                        src={s3ImageUrlBuilder(collectibles?.logoKey)}
-                        className="object-cover rounded-2xl"
-                        alt={collectibles?.name || "Collection image"}
+                  <div className="space-y-2 sm:space-y-3  block md2:hidden">
+                    <div className="flex h-2 sm:h-3 border rounded-lg border-1 border-neutral400">
+                      <Progress
+                        value={
+                          (collectibles?.mintedAmount / collectibles?.supply) *
+                          100
+                        }
+                        className={`w-full h-full ${
+                          collectibles?.mintedAmount === 0 ? "" : ""
+                        }`}
                       />
-                    )}
-                  </Carousel>
+                    </div>
+                    <div className="flex justify-between items-center py-1 text-sm sm:text-base  text-neutral100">
+                      <span className="font-medium text-lg text-neutral100">
+                        Total minted
+                      </span>
+                      <h2>
+                        <span className="text-neutral50 font-medium text-lg">
+                          {collectibles?.mintedAmount}
+                        </span>
+                        <span className="text-brand font-medium text-lg">
+                          {" "}
+                          /{" "}
+                        </span>
+                        <span className="text-neutral100 font-medium text-lg">
+                          {collectibles?.supply}
+                        </span>{" "}
+                      </h2>
+                    </div>
+                  </div>
+                  <div className="hidden lg:block">
+                    <div className="flex gap-4 sm:gap-8 mt-2">
+                      {links.length > 0 && (
+                        <div className="flex gap-4 sm:gap-6">
+                          {links.map((link, i) => (
+                            <button
+                              key={i}
+                              onClick={() => handleSocialClick(link.url)}
+                              className="p-2 hover:bg-neutral800/10 rounded-lg transition-colors"
+                            >
+                              {link.icon}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="space-y-2 sm:space-y-3 hidden lg:block">
-                  <div className="flex h-2 sm:h-3 border rounded-lg border-1 border-neutral400">
-                    <Progress
-                      value={
-                        (collectibles?.mintedAmount / collectibles?.supply) *
-                        100
-                      }
-                      className={`w-full h-full ${
-                        collectibles?.mintedAmount === 0 ? "" : ""
-                      }`}
-                    />
+                {/* Middle Column - Image and Progress */}
+                <div className="flex flex-col gap-4 sm:gap-6 w-full  order-1 lg:order-2">
+                  <div className="w-full aspect-square relative rounded-2xl sm:rounded-3xl overflow-hidden max-h-[384px]">
+                    <Carousel className="w-full justify-center items-center flex">
+                      {collectibles?.logoKey && (
+                        <Image
+                          width={384}
+                          height={384}
+                          src={s3ImageUrlBuilder(collectibles?.logoKey)}
+                          className="object-cover rounded-2xl"
+                          alt={collectibles?.name || "Collection image"}
+                        />
+                      )}
+                    </Carousel>
                   </div>
-                  <div className="flex justify-between items-center py-1 text-sm sm:text-base  text-neutral100">
-                    <span className="font-medium text-lg text-neutral100">
-                      Total minted
-                    </span>
-                    <h2>
-                      <span className="text-neutral50 font-medium text-lg">
-                        {collectibles?.mintedAmount}
+
+                  <div className="space-y-2 sm:space-y-3 hidden lg:block">
+                    <div className="flex h-2 sm:h-3 border rounded-lg border-1 border-neutral400">
+                      <Progress
+                        value={
+                          (collectibles?.mintedAmount / collectibles?.supply) *
+                          100
+                        }
+                        className={`w-full h-full ${
+                          collectibles?.mintedAmount === 0 ? "" : ""
+                        }`}
+                      />
+                    </div>
+                    <div className="flex justify-between items-center py-1 text-sm sm:text-base  text-neutral100">
+                      <span className="font-medium text-lg text-neutral100">
+                        Total minted
                       </span>
-                      <span className="text-brand font-medium text-lg">
-                        {" "}
-                        /{" "}
-                      </span>
-                      <span className="text-neutral100 font-medium text-lg">
-                        {collectibles?.supply}
-                      </span>{" "}
-                    </h2>
+                      <h2>
+                        <span className="text-neutral50 font-medium text-lg">
+                          {collectibles?.mintedAmount}
+                        </span>
+                        <span className="text-brand font-medium text-lg">
+                          {" "}
+                          /{" "}
+                        </span>
+                        <span className="text-neutral100 font-medium text-lg">
+                          {collectibles?.supply}
+                        </span>{" "}
+                      </h2>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Right Column - Phases and Button */}
-              <div className="flex flex-col gap-4 sm:gap-6 w-full lg:gap-8 order-3">
-                <ScrollArea className="flex-grow">
-                  <div className="flex flex-col gap-4">
-                    <PhaseCard
-                      key={collectibles.id}
-                      maxMintPerWallet={collectibles.poMaxMintPerWallet}
-                      mintPrice={collectibles.poMintPrice}
-                      endsAt={collectibles.poEndsAt}
-                      startsAt={collectibles.poStartsAt}
-                      isActive={activePhase === "public"}
-                      onClick={() => handlePhaseClick("public")}
-                      createdAt={collectibles.createdAt}
-                    />
-                    {collectibles.isWhiteListed && (
-                      <WhiteListPhaseCard
-                        key={collectibles.id}
-                        maxMintPerWallet={collectibles.wlMaxMintPerWallet}
-                        mintPrice={collectibles.wlMintPrice}
-                        endsAt={collectibles.wlEndsAt}
-                        startsAt={collectibles.wlStartsAt}
-                        isActive={activePhase === "guaranteed"}
-                        onClick={() => handlePhaseClick("guaranteed")}
+                {/* Right Column - Phases and Button */}
+                <div className="flex flex-col gap-4 sm:gap-6 w-full lg:gap-8 order-3">
+                  <ScrollArea className="flex-grow">
+                    <div className="flex flex-col gap-4">
+                      {collectibles.isWhitelisted && (
+                        <PhaseCard
+                          phaseType="guaranteed"
+                          maxMintPerWallet={collectibles.wlMaxMintPerWallet}
+                          mintPrice={collectibles.wlMintPrice}
+                          endsAt={collectibles.wlEndsAt}
+                          startsAt={collectibles.wlStartsAt}
+                          isActive={selectedPhase === "guaranteed"}
+                          onClick={() => handlePhaseClick("guaranteed")}
+                          supply={collectibles.supply}
+                          mintedAmount={collectibles.mintedAmount}
+                        />
+                      )}
+                      <PhaseCard
+                        phaseType="public"
+                        maxMintPerWallet={collectibles.poMaxMintPerWallet}
+                        mintPrice={collectibles.poMintPrice}
+                        endsAt={collectibles.poEndsAt}
+                        startsAt={collectibles.poStartsAt}
+                        isActive={selectedPhase === "public"}
+                        onClick={() => handlePhaseClick("public")}
+                        supply={collectibles.supply}
+                        mintedAmount={collectibles.mintedAmount}
                       />
-                    )}
-                  </div>
-                </ScrollArea>
+                    </div>
+                  </ScrollArea>
 
-                {unixToISOString(collectibles.poStartsAt) >
-                now ? null : unixToISOString(collectibles.poEndsAt) < now &&
-                  unixToISOString(collectibles.poEndsAt) > "0" ? (
-                  <Button
-                    className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold mt-4"
-                    disabled={isLoading}
-                    onClick={handlCollectionClick}
-                  >
-                    {isLoading ? (
-                      <Loader2
-                        className="animate-spin"
-                        color="#111315"
-                        size={24}
-                      />
-                    ) : (
-                      "Go to collection"
-                    )}
-                  </Button>
-                ) : (
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold"
-                    disabled={isLoading}
-                    onClick={handleConfirm}
-                  >
-                    {isLoading ? (
-                      <Loader2
-                        className="animate-spin"
-                        color="#111315"
-                        size={24}
-                      />
-                    ) : (
-                      "Mint"
-                    )}
-                  </Button>
-                )}
-              </div>
-            </section>
-          </div>
-        )}
-      </DetailLayout>
-    </div>
+                  {shouldShowGoToCollection() ? (
+                    <Button
+                      className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold mt-4"
+                      disabled={isLoading}
+                      onClick={handlCollectionClick}
+                    >
+                      {isLoading ? (
+                        <Loader2
+                          className="animate-spin"
+                          color="#111315"
+                          size={24}
+                        />
+                      ) : (
+                        "Go to collection"
+                      )}
+                    </Button>
+                  ) : isMintActive() ? (
+                    <Button
+                      variant="primary"
+                      type="submit"
+                      className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold"
+                      disabled={isLoading}
+                      onClick={handleConfirm}
+                    >
+                      {isLoading ? (
+                        <Loader2
+                          className="animate-spin"
+                          color="#111315"
+                          size={24}
+                        />
+                      ) : (
+                        "Mint"
+                      )}
+                    </Button>
+                  ) : null}
+                </div>
+              </section>
+            </div>
+          )}
+        </DetailLayout>
+      </div>
     </>
   );
 };

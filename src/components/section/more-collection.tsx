@@ -25,18 +25,29 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
   currentAssetId,
 }) => {
   const [active, setActive] = useState(false);
+  const [searchFilter, setSearchFilter] = useState(""); // Add this state
   const [filteredCollection, setFilteredCollection] = useState(
     collection?.collectibles || []
   );
 
+  // Update the useEffect to include search filtering
   useEffect(() => {
     if (collection?.collectibles) {
-      const filtered = collection.collectibles.filter(
-        (item) => item.id !== currentAssetId
-      );
+      const filtered = collection.collectibles
+        .filter((item) => item.id !== currentAssetId)
+        .filter((item) => {
+          if (!searchFilter) return true;
+          return item.name?.toLowerCase().includes(searchFilter.toLowerCase());
+        });
       setFilteredCollection(filtered);
     }
-  }, [collection, currentAssetId]);
+  }, [collection, currentAssetId, searchFilter]); // Add searchFilter to dependencies
+
+  // Add search handler
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchFilter(event.target.value);
+  };
+
 
   return (
     <Tabs defaultValue="AllCard" className="">
@@ -52,14 +63,16 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
             />
             <input
               type="text"
-              placeholder="Search ID"
+              placeholder="Search Items"
+              value={searchFilter} // Add value
+              onChange={handleSearchChange}
               className="w-full h-12 rounded-xl pl-10 pr-4 bg-transparent border border-neutral400 text-neutral200"
             />
           </div>
 
           <div className="flex gap-4">
             <Select>
-              <SelectTrigger className="w-full md:w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50">
+              <SelectTrigger className="w-full hidden md:w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50">
                 <SelectValue placeholder="Volume" />
               </SelectTrigger>
               <SelectContent className="w-full -top-[53px] lg:left-0 md:w-60 rounded-xl bg-neutral600 bg-opacity-70 border-neutral400 backdrop-blur-lg pb-2 px-2">

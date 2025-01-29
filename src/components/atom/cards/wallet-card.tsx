@@ -9,6 +9,7 @@ export type ExtendedLayerType = {
   network: string;
   currencyId: string;
   comingSoon?: boolean;
+  chainId: string | null;
 };
 
 interface WalletCardProps {
@@ -70,7 +71,7 @@ export const WalletCard = ({
       ) : loading ? (
         <Loader2 className="h-4 w-4 animate-spin" />
       ) : connected ? (
-        <span className="text-xs bg-green-500 text-white px-2 py-1 rounded-full">
+        <span className="text-xs bg-success text-white px-2 py-1 rounded-full">
           Connected
         </span>
       ) : null}

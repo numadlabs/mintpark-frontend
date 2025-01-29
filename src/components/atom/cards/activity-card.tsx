@@ -15,8 +15,6 @@ const ActivityCard: React.FC<cardProps> = ({
   data,
   collectionName,
 }) => {
-  console.log("🚀 ~ imageUrl:", imageUrl);
-
   const getFormattedTime = (timestamp?: number) => {
     if (!timestamp) return "-";
 

@@ -53,7 +53,7 @@ export default function AssetDetail() {
   const collectionId = currentAsset?.collectionId;
 
   const { data: activity = [] } = useQuery({
-    queryKey: ["acitivtyData", id],
+    queryKey: ["activityData", id],
     queryFn: () => getCollectibleActivity(id),
     enabled: !!id,
   });
@@ -200,9 +200,17 @@ export default function AssetDetail() {
                       <h1 className="font-medium text-md text-neutral200">
                         Owned by
                       </h1>
-                      <p className="font-medium text-md text-neutral50">
+                      {/* <p className="font-medium text-md text-neutral50">
                         {currentAsset.ownedBy}
-                      </p>
+                      </p> */}
+                         <Link
+                        href={`https://explorer.testnet.citrea.xyz/address/${currentAsset.ownedBy}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-md text-neutral50 hover:text-brand transition-colors"
+                      >
+                        {currentAsset.ownedBy}
+                      </Link>
                     </div>
                     <div className="flex justify-between">
                       <h1 className="font-medium text-md text-neutral200">
@@ -272,7 +280,8 @@ export default function AssetDetail() {
                     <div className="flex flex-col gap-3 pt-3">
                       {activity?.map((item: any) => (
                         <ActivityCard
-                          key={item.id}
+                          // key={item.id}
+                          key={`${item.id}-${item.event}-${item.date}`}
                           data={item}
                           imageUrl={
                             currentAsset.highResolutionImageUrl

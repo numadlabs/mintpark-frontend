@@ -21,14 +21,11 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
   const [api, setApi] = React.useState<CarouselApi>();
   const [timeDisplay, setTimeDisplay] = useState("");
   const [status, setStatus] = useState("");
+  const [isClickable, setIsClickable] = useState(false);
 
   useEffect(() => {
     const updateTime = () => {
-      if (!data?.poEndsAt) {
-        setStatus("Indefinite");
-        setTimeDisplay("");
-        return;
-      }
+      if (!data) return;
 
       const now = moment();
       const convertToSeconds = (timestamp: number) => {
@@ -37,49 +34,116 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
           : timestamp;
       };
 
-      const startMoment = moment.unix(convertToSeconds(data?.poStartsAt));
-      const endMoment = moment.unix(convertToSeconds(data?.poEndsAt));
-
-      if (now.isAfter(endMoment)) {
+      // Early return if supply is reached
+      if (
+        data.supply &&
+        data.mintedAmount !== undefined &&
+        data.mintedAmount >= data.supply
+      ) {
         setStatus("Ended");
         setTimeDisplay("");
+        setIsClickable(false);
         return;
       }
 
-      if (now.isBetween(startMoment, endMoment)) {
-        setStatus("Ends in:");
-        const duration = moment.duration(endMoment.diff(now));
-        setTimeDisplay(
-          `${Math.floor(duration.asDays())}d ${duration
-            .hours()
+      const formatTimeDisplay = (duration: moment.Duration) => {
+        const days = Math.floor(duration.asDays());
+        const hours = duration.hours();
+        const minutes = duration.minutes();
+        const seconds = duration.seconds();
+
+        if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
+          return "";
+        }
+
+        if (days > 0) {
+          return `${days}d ${hours.toString().padStart(2, "0")}h ${minutes
             .toString()
-            .padStart(2, "0")}h ${duration
-            .minutes()
+            .padStart(2, "0")}m`;
+        } else if (hours > 0) {
+          return `${hours.toString().padStart(2, "0")}h ${minutes
             .toString()
-            .padStart(2, "0")}m`
-        );
-        return;
+            .padStart(2, "0")}m`;
+        } else if (minutes > 0) {
+          return `${minutes.toString().padStart(2, "0")}m ${seconds
+            .toString()
+            .padStart(2, "0")}s`;
+        } else {
+          return `${seconds.toString().padStart(2, "0")}s`;
+        }
+      };
+
+      const { wlStartsAt, wlEndsAt, poStartsAt, poEndsAt, isWhitelisted } =
+        data;
+
+      // Convert timestamps to moments
+      const wlStart = moment.unix(convertToSeconds(wlStartsAt));
+      const wlEnd = wlEndsAt ? moment.unix(convertToSeconds(wlEndsAt)) : null;
+      const poStart = moment.unix(convertToSeconds(poStartsAt));
+      const poEnd = poEndsAt ? moment.unix(convertToSeconds(poEndsAt)) : null;
+
+      // Handle Whitelist Period (if applicable)
+      if (isWhitelisted) {
+        if (now.isBefore(wlStart)) {
+          setStatus("WL starts in:");
+          setTimeDisplay(formatTimeDisplay(moment.duration(wlStart.diff(now))));
+          setIsClickable(false);
+          return;
+        }
+
+        if (wlEnd && now.isBetween(wlStart, wlEnd)) {
+          setStatus("WL ends in:");
+          setTimeDisplay(formatTimeDisplay(moment.duration(wlEnd.diff(now))));
+          setIsClickable(true);
+          return;
+        }
       }
 
-      if (now.isBefore(startMoment)) {
-        setStatus("Starts in:");
-        const duration = moment.duration(startMoment.diff(now));
-        setTimeDisplay(
-          `${Math.floor(duration.asDays())}d ${duration
-            .hours()
-            .toString()
-            .padStart(2, "0")}h ${duration
-            .minutes()
-            .toString()
-            .padStart(2, "0")}m`
-        );
+      // Handle Public Offering Period
+      // If there's no poEnd, it's an indefinite offering after poStart
+      if (!poEnd) {
+        if (now.isAfter(poStart)) {
+          setStatus("Indefinite");
+          setTimeDisplay("");
+          setIsClickable(true);
+          return;
+        }
+
+        if (now.isBefore(poStart)) {
+          setStatus("PO starts in:");
+          setTimeDisplay(formatTimeDisplay(moment.duration(poStart.diff(now))));
+          setIsClickable(false);
+          return;
+        }
+      } else {
+        // There is a poEnd date
+        if (now.isAfter(poEnd)) {
+          setStatus("Ended");
+          setTimeDisplay("");
+          setIsClickable(false);
+          return;
+        }
+
+        if (now.isBetween(poStart, poEnd)) {
+          setStatus("PO ends in:");
+          setTimeDisplay(formatTimeDisplay(moment.duration(poEnd.diff(now))));
+          setIsClickable(true);
+          return;
+        }
+
+        if (now.isBefore(poStart)) {
+          setStatus("PO starts in:");
+          setTimeDisplay(formatTimeDisplay(moment.duration(poStart.diff(now))));
+          setIsClickable(false);
+          return;
+        }
       }
     };
 
     updateTime();
-    const interval = setInterval(updateTime, 60000);
+    const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
-  }, [data?.poStartsAt, data?.poEndsAt]);
+  }, [data]);
 
   useEffect(() => {
     if (!api) return;

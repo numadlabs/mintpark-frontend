@@ -8,8 +8,8 @@ import { useAuth } from "../provider/auth-context-provider";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogFooter,
+  DialogTitle,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
@@ -51,7 +51,6 @@ export function WalletConnectionModal({
     connectWallet,
     disconnectWallet,
     isWalletConnected,
-    selectedLayerId,
   } = useAuth();
 
   const { data: layers = [] } = useQuery({
@@ -98,16 +97,10 @@ export function WalletConnectionModal({
       toast.success(
         `${authState.authenticated ? "Linked" : "Connected to"} ${layer.name}`
       );
-    } catch (error) {
+    } catch (error: any) {
       if (error instanceof Error && error.message === "WALLET_ALREADY_LINKED") {
         setCurrentLayer(layer);
         setShowLinkAlert(true);
-      } else {
-        toast.error(
-          `Failed to ${
-            authState.authenticated ? "link" : "connect"
-          } wallet. ${error}`
-        );
       }
     }
   };
@@ -126,11 +119,11 @@ export function WalletConnectionModal({
     <>
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="flex flex-col p-6 gap-6 max-w-[384px] w-full items-center">
-          <DialogHeader className="flex w-full">
+          <DialogTitle className="flex w-full">
             <div className="text-xl text-neutral00 font-bold text-center">
               Connect Wallet
             </div>
-          </DialogHeader>
+          </DialogTitle>
           <div className="h-[1px] w-full bg-white8" />
           <Tabs
             value={activeTab}
