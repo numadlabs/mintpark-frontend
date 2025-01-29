@@ -18,7 +18,6 @@ const convertToSeconds = (timestamp: number | null | undefined): number => {
   return timestampStr.length === 13 ? Math.floor(timestamp / 1000) : timestamp;
 };
 
-// Custom hook for launch status
 const useLaunchStatus = (data: LaunchDataType) => {
   const now = moment();
 
@@ -66,35 +65,59 @@ const useLaunchStatus = (data: LaunchDataType) => {
     if (!data.isWhitelisted) return false;
     if (!wlStartsAt) return false;
     if (poStartMoment && poStartMoment.isBefore(wlStartMoment)) return false;
-    if (wlEndMoment && now.isAfter(wlEndMoment)) return false;
     return true;
   };
 
   const shouldUseWl = shouldShowWhitelistTimer();
-  const activeStartMoment = shouldUseWl ? wlStartMoment : poStartMoment;
-  const activeEndMoment = shouldUseWl ? wlEndMoment : poEndMoment;
 
-  // Determine status based on current time
-  if (activeEndMoment && now.isAfter(activeEndMoment)) {
+  // Check transition between WL and PO periods
+  if (shouldUseWl && wlEndMoment && now.isAfter(wlEndMoment)) {
+    // If PO period exists
+    if (poStartMoment) {
+      // Gap between WL end and PO start
+      if (now.isBefore(poStartMoment)) {
+        return "Upcoming";
+      }
+      // PO period is active
+      if (!poEndMoment || now.isBefore(poEndMoment)) {
+        return "Live";
+      }
+      // PO period has ended
+      if (now.isAfter(poEndMoment)) {
+        return "Ended";
+      }
+    }
+    // No PO period after WL
     return "Ended";
   }
 
-  if (activeStartMoment && now.isBetween(activeStartMoment, activeEndMoment)) {
-    return "Live";
-  }
+  // Handle regular status checks
+  const activeStartMoment = shouldUseWl ? wlStartMoment : poStartMoment;
+  const activeEndMoment = shouldUseWl ? wlEndMoment : poEndMoment;
 
-  if (activeStartMoment && now.isBefore(activeStartMoment)) {
+  if (!activeStartMoment) {
     return "Upcoming";
   }
 
-  // Handle transition between WL and PO periods
-  if (
-    shouldUseWl &&
-    wlEndMoment &&
-    now.isAfter(wlEndMoment) &&
-    (!poEndMoment || now.isBefore(poEndMoment))
-  ) {
+  if (now.isBefore(activeStartMoment)) {
+    return "Upcoming";
+  }
+
+  if (!activeEndMoment || now.isBetween(activeStartMoment, activeEndMoment)) {
     return "Live";
+  }
+
+  if (now.isAfter(activeEndMoment)) {
+    // Check if there's a following period
+    if (shouldUseWl && poStartMoment) {
+      if (now.isBefore(poStartMoment)) {
+        return "Upcoming";
+      }
+      if (!poEndMoment || now.isBefore(poEndMoment)) {
+        return "Live";
+      }
+    }
+    return "Ended";
   }
 
   return "Upcoming";
