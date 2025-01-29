@@ -395,7 +395,7 @@ export default function Header() {
                   </button>
                 </div>
               ))}
-              {authState.authenticated && (
+              {/* {authState.authenticated && (
                 <div className="flex flex-col gap-8 pt-6 border-t border-neutral400">
                   <Link
                     href="/my-assets"
@@ -408,10 +408,10 @@ export default function Header() {
                     className="text-neutral00 text-lg font-medium"
                   >
                     Inscribe Orders
-                  </Link>
+                  </Link> 
                 </div>
-              )}
-              <div className="lg:flex flex-row overflow-hidden grid items-center gap-4">
+              )}*/}
+              <div className="lg:flex flex-row overflow-hidden grid items-center pt-6 border-t border-neutral400 gap-4 ">
                 <Select onValueChange={handleLayerSelect} value={defaultLayer}>
                   <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-auto">
                     <SelectValue
