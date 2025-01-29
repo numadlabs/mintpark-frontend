@@ -68,7 +68,7 @@ export const collectibleSchema = z.object({
 export const detailQuerySchema = z.object({
   collectibles: z.array(collectionDetailSchema),
   listedCollectibleCount: z.string(),
-  totalOwnerCount: z.number(),
+  hasMore: z.boolean(),
 });
 
 //Collection type

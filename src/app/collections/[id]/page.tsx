@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -24,6 +24,8 @@ import CollectionDetailSkeleton from "@/components/atom/skeleton/collection-deta
 import { motion, AnimatePresence } from "framer-motion";
 import { BITCOIN_IMAGE } from "@/lib/constants";
 
+const ITEMS_PER_PAGE = 10;
+
 const CollectionDetailPage = () => {
   const params = useParams();
   const { id } = params;
@@ -43,17 +45,37 @@ const CollectionDetailPage = () => {
     }
   }, [params]);
 
-  const { data: collection, isLoading: isQueryLoading } = useQuery({
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isQueryLoading,
+  } = useInfiniteQuery({
     queryKey: ["collectionData", id, orderBy, orderDirection],
-    queryFn: () =>
-      getListedCollectionById(id as string, orderBy, orderDirection),
+    queryFn: async ({ pageParam = 1 }) => {
+      // Calculate the correct offset and limit
+      const limit = ITEMS_PER_PAGE;
+      const offset = (pageParam - 1) * ITEMS_PER_PAGE;
+
+      return getListedCollectionById(
+        id as string,
+        orderBy,
+        orderDirection,
+        limit,
+        offset
+      );
+    },
+    initialPageParam: 1, // Start from page 1
+    getNextPageParam: (lastPage, allPages) => {
+      if (!lastPage?.hasMore) {
+        return undefined;
+      }
+      // Return the next page number
+      return allPages.length + 1;
+    },
     enabled: !!id,
     retry: 1,
-    initialData: {
-      collectibles: [],
-      listedCollectibleCount: "0",
-      totalOwnerCount: 0,
-    },
   });
 
   useEffect(() => {
@@ -69,19 +91,41 @@ const CollectionDetailPage = () => {
     }
   }, [searchParams]);
 
-  // const filteredCollectibles = collection?.collectibles?.filter((item: any) => {
-  //   if (!searchFilter) return true;
-  //   return item.name.includes(searchFilter);
-  // });
-  const filteredCollectibles =
-    collection?.collectibles?.filter((item: any) => {
-      if (!searchFilter) return true;
-      return item.name?.includes(searchFilter);
-    }) ?? [];
-
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchFilter(event.target.value);
   };
+
+  // Filter collectibles based on search
+  // const filteredCollectibles = React.useMemo(() => {
+  //   return allCollectibles.filter((item) => {
+  //     if (!searchFilter) return true;
+  //     return item.name?.toLowerCase().includes(searchFilter.toLowerCase());
+  //   });
+  // }, [allCollectibles, searchFilter]);
+
+  // Intersection Observer for infinite scroll
+  const loadMoreRef = React.useCallback(
+    (node: any) => {
+      if (!node) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          // Check if the element is intersecting and we have more pages to load
+          if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        },
+        {
+          rootMargin: "200px", // Start loading before reaching the end
+          threshold: 0.1,
+        }
+      );
+
+      observer.observe(node);
+      return () => observer.disconnect();
+    },
+    [hasNextPage, isFetchingNextPage, fetchNextPage]
+  );
 
   const links = [
     {
@@ -460,12 +504,31 @@ const CollectionDetailPage = () => {
                       <CollectibleCard data={item} />
                     </div>
                   ))} */}
-                  {filteredCollectibles.map((item: any) => (
+                  {/* {filteredCollectibles.map((item: any) => (
                     <div key={item.id}>
                       <CollectibleCard data={item} />
                     </div>
+                  ))} */}
+
+                  {data?.pages.map((page, i) => (
+                    <React.Fragment key={i}>
+                      {page?.collectibles.map((item: any) => (
+                        <div key={item.id}>
+                          <CollectibleCard data={item} />
+                        </div>
+                      ))}
+                    </React.Fragment>
                   ))}
                 </div>
+                {/* Loading indicator */}
+                {isFetchingNextPage && (
+                  <div className="w-full flex justify-center py-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral50"></div>
+                  </div>
+                )}
+
+                {/* Intersection observer target */}
+                <div ref={loadMoreRef} className="h-4 w-full" />
               </TabsContent>
 
               <TabsContent value="ColCard" className="w-full">
@@ -497,11 +560,24 @@ const CollectionDetailPage = () => {
                           <CollectibleCardList data={item} />
                         </div>
                       ))} */}
-                      {filteredCollectibles.map((item: any) => (
-                        <div key={item.id}>
-                          <CollectibleCardList data={item} />
-                        </div>
+                      {data?.pages.map((page, i) => (
+                        <React.Fragment key={i}>
+                          {page?.collectibles.map((item: any) => (
+                            <div key={item.id}>
+                              <CollectibleCardList data={item} />
+                            </div>
+                          ))}
+                        </React.Fragment>
                       ))}
+
+                      {isFetchingNextPage && (
+                        <div className="w-full flex justify-center py-4">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral50"></div>
+                        </div>
+                      )}
+
+                      {/* Intersection observer target */}
+                      <div ref={loadMoreRef} className="h-4 w-full" />
                     </div>
                   </div>
                 </div>
