@@ -62,7 +62,7 @@ export async function getLaunchByCollectionId(id: string) {
     });
 }
 
-export async function  getAllLayers(): Promise<LayerSchema[]> {
+export async function getAllLayers(): Promise<LayerSchema[]> {
   return axiosClient.get(`/api/v1/layers/`).then((response) => {
     if (response.data.success) {
       return response.data.data;
@@ -107,13 +107,13 @@ export async function getListedCollectionById(
   collectionId: string,
   orderBy: string,
   orderDirection: string,
-  query: number,
   limit: number,
   offset: number
 ): Promise<CollectionDetail | null> {
+  console.log("offset", offset);
   return axiosClient
     .get<CollectionDetailApiResponse>(
-      `/api/v1/collectibles/${collectionId}/collection/listable?orderBy=${orderBy}&orderDirection=${orderDirection}&limit=${limit}&offset=${offset}&query=${query}`
+      `/api/v1/collectibles/${collectionId}/collection/listable?orderBy=${orderBy}&orderDirection=${orderDirection}&limit=${limit}&offset=${offset}`
     )
     .then((response) => {
       if (response.data.success) {
