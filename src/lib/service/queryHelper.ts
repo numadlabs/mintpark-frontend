@@ -106,11 +106,14 @@ export async function getListedCollections(
 export async function getListedCollectionById(
   collectionId: string,
   orderBy: string,
-  orderDirection: string
+  orderDirection: string,
+  query: number,
+  limit: number,
+  offset: number
 ): Promise<CollectionDetail | null> {
   return axiosClient
     .get<CollectionDetailApiResponse>(
-      `/api/v1/collectibles/${collectionId}/collection/listable?orderBy=${orderBy}&orderDirection=${orderDirection}`
+      `/api/v1/collectibles/${collectionId}/collection/listable?orderBy=${orderBy}&orderDirection=${orderDirection}&limit=${limit}&offset=${offset}&query=${query}`
     )
     .then((response) => {
       if (response.data.success) {

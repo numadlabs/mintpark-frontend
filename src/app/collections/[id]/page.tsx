@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useQuery } from "@tanstack/react-query";
+import { infiniteQueryOptions, useQuery } from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
