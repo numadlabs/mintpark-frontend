@@ -108,6 +108,7 @@ import { Bai_Jamjuree } from "next/font/google";
 import "./globals.css";
 import { ErrorBoundary } from "@/components/error-boundary.tsx";
 import { Viewport } from "next";
+import { Analytics } from "@vercel/analytics/react";
 
 const bai_Jamjuree = Bai_Jamjuree({
   weight: ["400", "700"],
@@ -150,6 +151,7 @@ export default function RootLayout({
             </ErrorBoundary>
             <Toaster />
           </main>
+          <Analytics />
         </body>
       </html>
     </ReactQueryClientProvider>
