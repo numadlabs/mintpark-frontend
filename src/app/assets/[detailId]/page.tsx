@@ -61,13 +61,13 @@ export default function AssetDetail() {
   const { data: collection, isLoading: isQueryLoading } = useQuery({
     queryKey: ["collectionData", collectionId, "recent", "desc"],
     queryFn: () =>
-      getListedCollectionById(collectionId as string, "recent", "desc"),
+      getListedCollectionById(collectionId as string, "recent", "desc", 10, 0),
     enabled: !!collectionId,
     retry: 1,
     initialData: {
       collectibles: [],
       listedCollectibleCount: "0",
-      totalOwnerCount: 0,
+      hasMore: false,
     },
   });
 
@@ -203,7 +203,7 @@ export default function AssetDetail() {
                       {/* <p className="font-medium text-md text-neutral50">
                         {currentAsset.ownedBy}
                       </p> */}
-                         <Link
+                      <Link
                         href={`https://explorer.testnet.citrea.xyz/address/${currentAsset.ownedBy}`}
                         target="_blank"
                         rel="noopener noreferrer"

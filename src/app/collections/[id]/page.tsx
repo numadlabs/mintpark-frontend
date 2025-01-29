@@ -58,13 +58,6 @@ const CollectionDetailPage = () => {
       const limit = ITEMS_PER_PAGE;
       const offset = (pageParam - 1) * ITEMS_PER_PAGE;
 
-      console.log("Fetching with params:", {
-        orderBy,
-        orderDirection,
-        limit,
-        offset,
-      });
-
       return getListedCollectionById(
         id as string,
         orderBy,
@@ -85,12 +78,6 @@ const CollectionDetailPage = () => {
     retry: 1,
   });
 
-  // console.log("data", data);
-  // console.log("fetchNextPage", fetchNextPage);
-
-  // console.log("isFetchingNextPage", isFetchingNextPage);
-  // console.log("isQueryLoading", isQueryLoading);
-
   useEffect(() => {
     const data = searchParams.get("data");
     if (data) {
@@ -104,11 +91,6 @@ const CollectionDetailPage = () => {
     }
   }, [searchParams]);
 
-  // Flatten all pages of data into a single array
-  const allCollectibles = React.useMemo(() => {
-    if (!data?.pages) return [];
-    return data.pages.flatMap((page) => page?.collectibles || []);
-  }, [data?.pages]);
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchFilter(event.target.value);
   };
