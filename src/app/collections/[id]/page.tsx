@@ -217,6 +217,9 @@ const CollectionDetailPage = () => {
                   }
                   className="aspect-square rounded-xl w-40 lg:w-52"
                   alt="collection logo"
+                  priority
+                  quality={100}
+                  sizes="100%"
                 />
               </div>
               <div className="flex-1 lg:relative top-0 lg:top-7 space-y-4 lg:space-y-7">
