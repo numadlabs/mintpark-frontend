@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import LaunchDetailSkeleton from "@/components/atom/skeleton/launch-detail-skeleton";
 import ThreadIcon from "@/components/icon/thread";
 import moment from "moment";
+import ImageLoaderComponent from "@/components/atom/image-loader";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -356,7 +357,7 @@ const Page = () => {
                   <div className="w-full aspect-square relative rounded-2xl sm:rounded-3xl overflow-hidden max-h-[384px]">
                     <Carousel className="w-full justify-center items-center flex">
                       {collectibles?.logoKey && (
-                        <Image
+                        <ImageLoaderComponent
                           width={384}
                           height={384}
                           src={s3ImageUrlBuilder(collectibles?.logoKey)}
