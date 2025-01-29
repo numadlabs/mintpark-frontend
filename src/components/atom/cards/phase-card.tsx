@@ -51,9 +51,10 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
         const days = Math.floor(duration.asDays());
         const hours = duration.hours();
         const minutes = duration.minutes();
+        const seconds = duration.seconds();
 
-        // If all larger units are 0, return empty string
-        if (days === 0 && hours === 0 && minutes === 0) {
+        // Return empty string if all units are 0
+        if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
           return "";
         }
 
@@ -65,8 +66,12 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
           return `${hours.toString().padStart(2, "0")}h ${minutes
             .toString()
             .padStart(2, "0")}m`;
+        } else if (minutes > 0) {
+          return `${minutes.toString().padStart(2, "0")}m ${seconds
+            .toString()
+            .padStart(2, "0")}s`;
         } else {
-          return `${minutes.toString().padStart(2, "0")}m`;
+          return `${seconds.toString().padStart(2, "0")}s`;
         }
       };
 
@@ -78,12 +83,11 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
         const startMoment = moment.unix(convertToSeconds(startsAt));
 
         if (now.isBefore(startMoment)) {
-          const timeLeft = formatTimeDisplay(
-            moment.duration(startMoment.diff(now))
-          );
           setStatus("Starts in:");
-          setTimeDisplay(timeLeft);
-          setIsClickable(timeLeft === ""); // Becomes clickable when time display disappears
+          setTimeDisplay(
+            formatTimeDisplay(moment.duration(startMoment.diff(now)))
+          );
+          setIsClickable(false);
           return;
         } else {
           setStatus("Indefinite");
@@ -106,22 +110,20 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
         }
 
         if (now.isBetween(startMoment, endMoment)) {
-          const timeLeft = formatTimeDisplay(
-            moment.duration(endMoment.diff(now))
-          );
           setStatus("Ends in:");
-          setTimeDisplay(timeLeft);
+          setTimeDisplay(
+            formatTimeDisplay(moment.duration(endMoment.diff(now)))
+          );
           setIsClickable(true);
           return;
         }
 
         if (now.isBefore(startMoment)) {
-          const timeLeft = formatTimeDisplay(
-            moment.duration(startMoment.diff(now))
-          );
           setStatus("Starts in:");
-          setTimeDisplay(timeLeft);
-          setIsClickable(timeLeft === ""); // Becomes clickable when time display disappears
+          setTimeDisplay(
+            formatTimeDisplay(moment.duration(startMoment.diff(now)))
+          );
+          setIsClickable(false);
         }
       }
 
@@ -134,7 +136,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
     };
 
     updateTime();
-    // Update every second to check for time transitions
+    // Update every second instead of every minute to show seconds accurately
     const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, [startsAt, endsAt, supply, mintedAmount]);
