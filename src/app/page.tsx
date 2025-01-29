@@ -207,6 +207,7 @@ export default function Home() {
                   alt="banner"
                   width={0}
                   height={0}
+                  priority
                   sizes="100%"
                   className="object-cover rounded-[32px] w-full h-full"
                 />
