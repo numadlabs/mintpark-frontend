@@ -22,6 +22,10 @@ const convertToSeconds = (timestamp: number | null | undefined): number => {
 const useLaunchStatus = (data: LaunchDataType) => {
   const now = moment();
 
+  if (data.supply > 0 && data.mintedAmount >= data.supply) {
+    return "Ended";
+  }
+
   // Convert all timestamps
   const wlStartsAt = convertToSeconds(data.wlStartsAt);
   const wlEndsAt = convertToSeconds(data.wlEndsAt);
@@ -92,6 +96,7 @@ const useLaunchStatus = (data: LaunchDataType) => {
 
 const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
   const status = useLaunchStatus(data);
+  const isActive = status === "Live" || status === "Indefinite";
 
   return (
     <Link
@@ -139,7 +144,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
       </div>
 
       <div className="absolute top-6 left-6 flex flex-row gap-2 items-center justify-around w-fit h-[30px] sm:h-[34px] border border-transparent rounded-lg px-3 py-2 bg-neutral500 bg-opacity-[50%] text-sm sm:text-md text-neutral50 font-medium">
-        {status === "Live" && (
+        {isActive && (
           <div className="bg-success20 h-3 w-3 sm:h-4 sm:w-4 rounded-full flex justify-center items-center">
             <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-success rounded-full" />
           </div>

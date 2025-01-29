@@ -10,6 +10,7 @@ import {
 import { saveToken } from "../auth";
 import { STORAGE_KEYS, WALLET_CONFIGS } from "../constants";
 import { toast } from "sonner";
+import { connectUnisat } from "../wallet";
 
 type WalletType = "EVM" | "BITCOIN" | null;
 
@@ -151,7 +152,7 @@ const useWalletStore = create<WalletStore>()(
               "🚀 ~ connectWallet: ~ currentChainIdDecimal:",
               currentChainIdDecimal
             );
-            const targetChainIdDecimal = parseInt(layer.chainId);
+            const targetChainIdDecimal = 5115;
             console.log(
               "🚀 ~ connectWallet: ~ targetChainIdDecimal:",
               targetChainIdDecimal
@@ -270,6 +271,89 @@ const useWalletStore = create<WalletStore>()(
                 loading: false,
               },
             }));
+          } else if (walletConfig.type === "unisat") {
+            if (!window?.unisat)
+              throw new Error("Unisat wallet is not installed");
+
+            // Connect to Unisat wallet
+            address = await connectUnisat();
+            if (!address) throw new Error("Failed to connect to Unisat wallet");
+
+            // Get message to sign
+            const msgResponse = await generateMessageHandler({ address });
+            if (!msgResponse.success)
+              throw new Error("Failed to generate message");
+
+            // Sign message with Unisat
+            signedMessage = await window.unisat.signMessage(
+              msgResponse.data.message
+            );
+            pubkey = await window.unisat.getPublicKey();
+
+            let response;
+            if (isLinking && authState.authenticated) {
+              response = await loginWalletLink({
+                address,
+                layerId,
+                signedMessage,
+                pubkey,
+              });
+
+              if (response.data.hasAlreadyBeenLinkedToAnotherUser) {
+                set((state) => ({
+                  authState: { ...state.authState, loading: false },
+                }));
+
+                setStorageItem("pendingWalletLink", {
+                  address,
+                  layerId,
+                  signedMessage,
+                  pubkey,
+                });
+
+                throw new Error("WALLET_ALREADY_LINKED");
+              }
+            } else {
+              response = await loginHandler({
+                address,
+                layerId,
+                signedMessage,
+                pubkey,
+              });
+              saveToken(response.data.auth);
+            }
+
+            if (!response.success) {
+              throw new Error(`Authentication failed ${response.error}`);
+            }
+
+            const newWallet: ConnectedWallet = {
+              address,
+              layerId,
+              layerType: layer.layer,
+              network: layer.network,
+            };
+
+            const updatedWallets = [...get().connectedWallets, newWallet];
+            const hasOnlyBitcoin = updatedWallets.every((w) => {
+              const layerInfo = get().layers.find((l) => l.id === w.layerId);
+              return layerInfo?.layer === "BITCOIN";
+            });
+
+            set((state) => ({
+              connectedWallets: [...state.connectedWallets, newWallet],
+              authState: {
+                ...state.authState,
+                authenticated: true,
+                userLayerId: hasOnlyBitcoin ? null : response.data.userLayer.id,
+                userId: response.data.user.id,
+                layerId,
+                tokens: response.data.tokens,
+                loading: false,
+              },
+            }));
+          } else {
+            throw new Error("Unsupported wallet type");
           }
         } catch (error: any) {
           set((state) => ({

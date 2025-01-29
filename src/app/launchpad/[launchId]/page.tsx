@@ -17,14 +17,12 @@ import {
 } from "@/lib/service/queryHelper";
 import PhaseCard from "@/components/atom/cards/phase-card";
 import { useParams, useRouter } from "next/navigation";
-import WhiteListPhaseCard from "@/components/atom/cards/white-list-phase-card";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LaunchDetailSkeleton from "@/components/atom/skeleton/launch-detail-skeleton";
 import ThreadIcon from "@/components/icon/thread";
 import moment from "moment";
-import { error } from "console";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -218,20 +216,41 @@ const Page = () => {
     window.open(validUrl, "_blank", "noopener,noreferrer");
   };
 
+  const isMintActive = () => {
+    const now = moment().unix();
+
+    // If supply is reached, minting is not active
+    if (collectibles.supply === collectibles.mintedAmount) {
+      return false;
+    }
+
+    // Check whitelist period
+    const isInWhitelistPeriod =
+      collectibles.isWhitelisted &&
+      collectibles.wlStartsAt <= now &&
+      (collectibles.wlEndsAt === 0 || collectibles.wlEndsAt > now);
+
+    // Check public period
+    const isInPublicPeriod =
+      collectibles.poStartsAt <= now &&
+      (collectibles.poEndsAt === 0 || collectibles.poEndsAt > now);
+
+    return isInWhitelistPeriod || isInPublicPeriod;
+  };
+
   const shouldShowGoToCollection = () => {
-    // If both endsAt values are 0, show "Go to collection"
-    if (collectibles.poEndsAt === 0 && collectibles.wlEndsAt === 0) {
+    const now = moment().unix();
+
+    // Show "Go to Collection" if supply is reached
+    if (collectibles.supply === collectibles.mintedAmount) {
       return true;
     }
 
-    // If neither end time is 0, check if both phases have ended
-    if (collectibles.poEndsAt !== 0 && collectibles.wlEndsAt !== 0) {
-      const now = moment().unix();
-      return collectibles.poEndsAt < now && collectibles.wlEndsAt < now;
-    }
+    // Show "Go to Collection" if either phase has started but mint is not active
+    const hasEitherPhaseStarted =
+      collectibles.wlStartsAt <= now || collectibles.poStartsAt <= now;
 
-    // If either end time is not 0, show "Mint"
-    return false;
+    return hasEitherPhaseStarted && !isMintActive();
   };
 
   return (
@@ -393,6 +412,8 @@ const Page = () => {
                           startsAt={collectibles.wlStartsAt}
                           isActive={selectedPhase === "guaranteed"}
                           onClick={() => handlePhaseClick("guaranteed")}
+                          supply={collectibles.supply}
+                          mintedAmount={collectibles.mintedAmount}
                         />
                       )}
                       <PhaseCard
@@ -403,6 +424,8 @@ const Page = () => {
                         startsAt={collectibles.poStartsAt}
                         isActive={selectedPhase === "public"}
                         onClick={() => handlePhaseClick("public")}
+                        supply={collectibles.supply}
+                        mintedAmount={collectibles.mintedAmount}
                       />
                     </div>
                   </ScrollArea>
@@ -423,7 +446,7 @@ const Page = () => {
                         "Go to collection"
                       )}
                     </Button>
-                  ) : (
+                  ) : isMintActive() ? (
                     <Button
                       variant="primary"
                       type="submit"
@@ -441,7 +464,7 @@ const Page = () => {
                         "Mint"
                       )}
                     </Button>
-                  )}
+                  ) : null}
                 </div>
               </section>
             </div>
