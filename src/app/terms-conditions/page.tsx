@@ -30,12 +30,12 @@ const TermsConditions = () => {
               }}
             />
             <div
-              className="absolute inset-0 bg-neutral500 bg-opacity-[70%] z-50"
+              className="absolute inset-0 bg-neutral500 bg-opacity-[70%] z-30"
               style={{
                 backdropFilter: "blur(50px)",
               }}
             />
-            <div className="relative w-full h-full flex flex-col justify-center gap-12 z-50">
+            <div className="relative w-full h-full flex flex-col justify-center gap-12 z-30">
               <div className="flex flex-col items-center justify-center pt-8 pb-8 gap-4 sm:gap-6">
                 <h1 className="font-bold text-2xl sm:text-logoSize text-neutral50">
                   Terms and Conditions
