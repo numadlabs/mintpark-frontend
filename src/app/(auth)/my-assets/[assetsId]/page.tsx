@@ -35,6 +35,7 @@ import AssetDetailSkeleton from "@/components/atom/skeleton/asset-detail-skeleto
 import { Collectible } from "@/lib/validations/collection-validation";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import CancelListModal from "@/components/modal/cancel-list-modal";
+import Link from "next/link";
 
 export default function AssetsDetails() {
   const queryClient = useQueryClient();
@@ -250,9 +251,17 @@ export default function AssetsDetails() {
                       <h1 className="font-medium text-md text-neutral200">
                         Owned by
                       </h1>
-                      <p className="font-medium text-md text-neutral50">
+                      {/* <p className="font-medium text-md text-neutral50">
                         {currentAsset.ownedBy}
-                      </p>
+                      </p> */}
+                      <Link
+                        href={`https://explorer.testnet.citrea.xyz/address/${currentAsset.ownedBy}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-md text-neutral50 hover:text-brand transition-colors"
+                      >
+                        {currentAsset.ownedBy}
+                      </Link>
                     </div>
                     <div className="flex justify-between">
                       <h1 className="font-medium text-md text-neutral200">

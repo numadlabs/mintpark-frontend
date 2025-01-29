@@ -200,9 +200,17 @@ export default function AssetDetail() {
                       <h1 className="font-medium text-md text-neutral200">
                         Owned by
                       </h1>
-                      <p className="font-medium text-md text-neutral50">
+                      {/* <p className="font-medium text-md text-neutral50">
                         {currentAsset.ownedBy}
-                      </p>
+                      </p> */}
+                         <Link
+                        href={`https://explorer.testnet.citrea.xyz/address/${currentAsset.ownedBy}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-md text-neutral50 hover:text-brand transition-colors"
+                      >
+                        {currentAsset.ownedBy}
+                      </Link>
                     </div>
                     <div className="flex justify-between">
                       <h1 className="font-medium text-md text-neutral200">
