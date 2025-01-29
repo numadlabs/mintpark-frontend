@@ -7,8 +7,10 @@ import { BITCOIN_IMAGE } from "@/lib/constants";
 interface PhaseCardProps {
   maxMintPerWallet: number | string;
   mintPrice: number;
+  mintedAmount: number;
   endsAt: number;
   startsAt: number;
+  supply: number;
   isActive: boolean;
   onClick: () => void;
   phaseType: "guaranteed" | "public";
@@ -22,6 +24,8 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   isActive,
   onClick,
   phaseType,
+  supply,
+  mintedAmount,
 }) => {
   const [timeDisplay, setTimeDisplay] = useState("");
   const [status, setStatus] = useState("");
@@ -35,6 +39,13 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
           ? Math.floor(timestamp / 1000)
           : timestamp;
       };
+
+      if (supply > 0 && mintedAmount >= supply) {
+        setStatus("Ended");
+        setTimeDisplay("");
+        setIsClickable(false);
+        return;
+      }
 
       // Check if endsAt is 0 or null
       const isIndefiniteEnd = !endsAt || endsAt === 0;
@@ -126,7 +137,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
     updateTime();
     const interval = setInterval(updateTime, 60000);
     return () => clearInterval(interval);
-  }, [startsAt, endsAt]);
+  }, [startsAt, endsAt, supply, mintedAmount]);
 
   const borderClass =
     isActive && isClickable ? "border-brand" : "border-white8";
