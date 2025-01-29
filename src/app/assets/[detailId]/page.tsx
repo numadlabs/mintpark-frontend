@@ -272,7 +272,8 @@ export default function AssetDetail() {
                     <div className="flex flex-col gap-3 pt-3">
                       {activity?.map((item: any) => (
                         <ActivityCard
-                          key={item.id}
+                          // key={item.id}
+                          key={`${item.id}-${item.event}-${item.date}`}
                           data={item}
                           imageUrl={
                             currentAsset.highResolutionImageUrl

@@ -411,6 +411,122 @@ export default function Header() {
                   </Link>
                 </div>
               )}
+              <div className="lg:flex flex-row overflow-hidden grid items-center gap-4">
+                <Select onValueChange={handleLayerSelect} value={defaultLayer}>
+                  <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-auto">
+                    <SelectValue
+                      placeholder="Select layer"
+                      defaultValue={defaultLayer}
+                    >
+                      {isLayersLoading ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
+                          <span>Loading...</span>
+                        </div>
+                      ) : defaultLayer ? (
+                        <div className="flex flex-row gap-2 items-center">
+                          <Image
+                            src={getLayerImage(defaultLayer.split("-")[0])}
+                            alt={defaultLayer.split("-")[0]}
+                            width={24}
+                            height={24}
+                            className="rounded-full"
+                          />
+                          {defaultLayer
+                            .split("-")
+                            .map(capitalizeFirstLetter)
+                            .join(" ")}
+                        </div>
+                      ) : (
+                        <span>Select layer</span>
+                      )}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent className="flex max-w-[210px] flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
+                    <SelectGroup className="flex flex-col gap-2">
+                      {layers.map((layer: ExtendedLayerType) => (
+                        <SelectItem
+                          key={layer.id}
+                          value={`${layer.layer}-${layer.network}`}
+                          className={`flex flex-row items-center gap-2 w-[170px] ${
+                            layer.comingSoon
+                              ? "opacity-80 cursor-not-allowed"
+                              : "hover:bg-white8 duration-300 transition-all cursor-pointer"
+                          }`}
+                        >
+                          <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
+                            <Image
+                              src={getLayerImage(layer.layer)}
+                              alt={layer.layer}
+                              width={24}
+                              height={24}
+                              className="rounded-full"
+                            />
+                            <div className="flex items-center gap-2">
+                              {`${capitalizeFirstLetter(
+                                layer.layer
+                              )} ${capitalizeFirstLetter(layer.network)}`}
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+
+                {isAuthenticated ? (
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    onClick={() => setWalletModalOpen(true)}
+                    className="min-w-[170px]"
+                  >
+                    Connect Wallet
+                  </Button>
+                ) : authState.authenticated && currentWallet ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="flex flex-row items-center gap-2  w-auto bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
+                      <Image
+                        src="/Avatar.png"
+                        alt="avatar"
+                        width={24}
+                        height={24}
+                        className="rounded-full"
+                      />
+                      <span className="text-neutral50">
+                        {truncateAddress(currentWallet.address)}
+                      </span>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="flex flex-col gap-2 w-[210px] absolute p-2 border border-white4 bg-gray50 rounded-2xl backdrop-blur-xl">
+                      <Link href="/my-assets">
+                        <DropdownMenuItem className="flex flex-row justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                          <div className="flex flex-row items-center gap-2">
+                            <Wallet2 size={24} color="#D7D8D8" />
+                            My Assets
+                          </div>
+                          <ArrowRight2 size={16} color="#D7D8D8" />
+                        </DropdownMenuItem>
+                      </Link>
+                      <Link href="/orders">
+                        <DropdownMenuItem className="flex flex-row items-center justify-between text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                          <div className="flex flex-row items-center gap-2">
+                            <I3Dcube size={24} color="#D7D8D8" />
+                            <p>Inscribe Orders</p>
+                          </div>
+                          <ArrowRight2 size={16} color="#D7D8D8" />
+                        </DropdownMenuItem>
+                      </Link>
+                      <DropdownMenuItem
+                        className="text-neutral50 text-md font-medium flex flex-row gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
+                        onClick={handleLogOut}
+                      >
+                        <Logout size={24} color="#D7D8D8" />
+                        Log Out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : null}
+              </div>
             </div>
           </div>
         </div>
