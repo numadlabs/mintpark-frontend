@@ -47,6 +47,29 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
         return;
       }
 
+      const formatTimeDisplay = (duration: moment.Duration) => {
+        const days = Math.floor(duration.asDays());
+        const hours = duration.hours();
+        const minutes = duration.minutes();
+
+        // If all larger units are 0, return empty string
+        if (days === 0 && hours === 0 && minutes === 0) {
+          return "";
+        }
+
+        if (days > 0) {
+          return `${days}d ${hours.toString().padStart(2, "0")}h ${minutes
+            .toString()
+            .padStart(2, "0")}m`;
+        } else if (hours > 0) {
+          return `${hours.toString().padStart(2, "0")}h ${minutes
+            .toString()
+            .padStart(2, "0")}m`;
+        } else {
+          return `${minutes.toString().padStart(2, "0")}m`;
+        }
+      };
+
       // Check if endsAt is 0 or null
       const isIndefiniteEnd = !endsAt || endsAt === 0;
 
@@ -55,20 +78,12 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
         const startMoment = moment.unix(convertToSeconds(startsAt));
 
         if (now.isBefore(startMoment)) {
-          setStatus("Starts in:");
-          const duration = moment.duration(startMoment.diff(now));
-          setTimeDisplay(
-            `${
-              Math.floor(duration.asDays()) > 0
-                ? `${Math.floor(duration.asDays())}d `
-                : ""
-            }${
-              duration.hours() > 0
-                ? `${duration.hours().toString().padStart(2, "0")}h `
-                : ""
-            }${duration.minutes().toString().padStart(2, "0")}m`
+          const timeLeft = formatTimeDisplay(
+            moment.duration(startMoment.diff(now))
           );
-          setIsClickable(false);
+          setStatus("Starts in:");
+          setTimeDisplay(timeLeft);
+          setIsClickable(timeLeft === ""); // Becomes clickable when time display disappears
           return;
         } else {
           setStatus("Indefinite");
@@ -91,38 +106,22 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
         }
 
         if (now.isBetween(startMoment, endMoment)) {
-          setStatus("Ends in:");
-          const duration = moment.duration(endMoment.diff(now));
-          setTimeDisplay(
-            `${
-              Math.floor(duration.asDays()) > 0
-                ? `${Math.floor(duration.asDays())}d `
-                : ""
-            }${
-              duration.hours() > 0
-                ? `${duration.hours().toString().padStart(2, "0")}h `
-                : ""
-            }${duration.minutes().toString().padStart(2, "0")}m`
+          const timeLeft = formatTimeDisplay(
+            moment.duration(endMoment.diff(now))
           );
+          setStatus("Ends in:");
+          setTimeDisplay(timeLeft);
           setIsClickable(true);
           return;
         }
 
         if (now.isBefore(startMoment)) {
-          setStatus("Starts in:");
-          const duration = moment.duration(startMoment.diff(now));
-          setTimeDisplay(
-            `${
-              Math.floor(duration.asDays()) > 0
-                ? `${Math.floor(duration.asDays())}d `
-                : ""
-            }${
-              duration.hours() > 0
-                ? `${duration.hours().toString().padStart(2, "0")}h `
-                : ""
-            }${duration.minutes().toString().padStart(2, "0")}m`
+          const timeLeft = formatTimeDisplay(
+            moment.duration(startMoment.diff(now))
           );
-          setIsClickable(false);
+          setStatus("Starts in:");
+          setTimeDisplay(timeLeft);
+          setIsClickable(timeLeft === ""); // Becomes clickable when time display disappears
         }
       }
 
@@ -135,7 +134,8 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
     };
 
     updateTime();
-    const interval = setInterval(updateTime, 60000);
+    // Update every second to check for time transitions
+    const interval = setInterval(updateTime, 1000);
     return () => clearInterval(interval);
   }, [startsAt, endsAt, supply, mintedAmount]);
 

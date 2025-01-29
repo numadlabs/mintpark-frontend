@@ -37,29 +37,35 @@ const useLaunchStatus = (data: LaunchDataType) => {
     return "Invalid";
   }
 
-  // Handle cases where endsAt is 0 (Indefinite)
+  const wlStartMoment = wlStartsAt ? moment.unix(wlStartsAt) : null;
+  const wlEndMoment = wlEndsAt ? moment.unix(wlEndsAt) : null;
+  const poStartMoment = poStartsAt ? moment.unix(poStartsAt) : null;
+  const poEndMoment = poEndsAt ? moment.unix(poEndsAt) : null;
+
+  // Handle Indefinite status
   if (
     (wlEndsAt === 0 || poEndsAt === 0) &&
     (wlStartsAt > 0 || poStartsAt > 0)
   ) {
-    return "Indefinite";
-  }
+    const activeStartMoment =
+      data.isWhitelisted && wlStartMoment ? wlStartMoment : poStartMoment;
 
-  // Handle cases where startAt is not set (Upcoming)
-  if (!wlStartsAt && !poStartsAt) {
+    if (activeStartMoment && now.isAfter(activeStartMoment)) {
+      return "Indefinite";
+    }
     return "Upcoming";
   }
 
-  const wlStartMoment = moment.unix(wlStartsAt);
-  const wlEndMoment = wlEndsAt ? moment.unix(wlEndsAt) : null;
-  const poStartMoment = moment.unix(poStartsAt);
-  const poEndMoment = poEndsAt ? moment.unix(poEndsAt) : null;
+  // Handle cases where startAt is not set
+  if (!wlStartsAt && !poStartsAt) {
+    return "Upcoming";
+  }
 
   // Determine if whitelist period should be shown
   const shouldShowWhitelistTimer = () => {
     if (!data.isWhitelisted) return false;
     if (!wlStartsAt) return false;
-    if (poStartMoment.isBefore(wlStartMoment)) return false;
+    if (poStartMoment && poStartMoment.isBefore(wlStartMoment)) return false;
     if (wlEndMoment && now.isAfter(wlEndMoment)) return false;
     return true;
   };
@@ -73,11 +79,11 @@ const useLaunchStatus = (data: LaunchDataType) => {
     return "Ended";
   }
 
-  if (now.isBetween(activeStartMoment, activeEndMoment)) {
+  if (activeStartMoment && now.isBetween(activeStartMoment, activeEndMoment)) {
     return "Live";
   }
 
-  if (now.isBefore(activeStartMoment)) {
+  if (activeStartMoment && now.isBefore(activeStartMoment)) {
     return "Upcoming";
   }
 
