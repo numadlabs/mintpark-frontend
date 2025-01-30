@@ -85,14 +85,14 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
       // Handle Whitelist Period (if applicable)
       if (isWhitelisted) {
         if (now.isBefore(wlStart)) {
-          setStatus("WL starts in:");
+          setStatus("Starts in:");
           setTimeDisplay(formatTimeDisplay(moment.duration(wlStart.diff(now))));
           setIsClickable(false);
           return;
         }
 
         if (wlEnd && now.isBetween(wlStart, wlEnd)) {
-          setStatus("WL ends in:");
+          setStatus("Ends in:");
           setTimeDisplay(formatTimeDisplay(moment.duration(wlEnd.diff(now))));
           setIsClickable(true);
           return;
@@ -125,14 +125,14 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
         }
 
         if (now.isBetween(poStart, poEnd)) {
-          setStatus("PO ends in:");
+          setStatus("Ends in:");
           setTimeDisplay(formatTimeDisplay(moment.duration(poEnd.diff(now))));
           setIsClickable(true);
           return;
         }
 
         if (now.isBefore(poStart)) {
-          setStatus("PO starts in:");
+          setStatus("Starts in:");
           setTimeDisplay(formatTimeDisplay(moment.duration(poStart.diff(now))));
           setIsClickable(false);
           return;

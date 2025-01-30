@@ -2,7 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
 import { useParams, useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -25,6 +29,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BITCOIN_IMAGE } from "@/lib/constants";
 
 const ITEMS_PER_PAGE = 10;
+
+// Create a client
+const queryClient = new QueryClient();
+
+// Wrap the main component with the provider
+const CollectionDetailPageWrapper = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <CollectionDetailPage />
+    </QueryClientProvider>
+  );
+};
 
 const CollectionDetailPage = () => {
   const params = useParams();
@@ -54,7 +70,10 @@ const CollectionDetailPage = () => {
   } = useInfiniteQuery({
     queryKey: ["collectionData", id, orderBy, orderDirection],
     queryFn: async ({ pageParam = 1 }) => {
-      // Calculate the correct offset and limit
+      if (!id) {
+        throw new Error("Collection ID is required");
+      }
+
       const limit = ITEMS_PER_PAGE;
       const offset = (pageParam - 1) * ITEMS_PER_PAGE;
 
@@ -66,15 +85,14 @@ const CollectionDetailPage = () => {
         offset
       );
     },
-    initialPageParam: 1, // Start from page 1
+    initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       if (!lastPage?.hasMore) {
         return undefined;
       }
-      // Return the next page number
       return allPages.length + 1;
     },
-    enabled: !!id,
+    enabled: !!id, // Only run the query if we have an ID
     retry: 1,
   });
 
