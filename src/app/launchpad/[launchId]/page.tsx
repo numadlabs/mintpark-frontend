@@ -113,7 +113,7 @@ const Page = () => {
       if (response.data.singleMintTxHex) {
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(
-          response.data.singleMintTxHex
+          response.data.singleMintTxHex,
         );
         const tx = await signedTx?.wait();
         if (tx) {
@@ -122,7 +122,7 @@ const Page = () => {
       } else {
         await window.unisat.sendBitcoin(
           response.data.order.fundingAddress,
-          Math.ceil(response.data.order.fundingAmount)
+          Math.ceil(response.data.order.fundingAmount),
         );
         await new Promise((resolve) => setTimeout(resolve, 10000));
       }
@@ -137,7 +137,9 @@ const Page = () => {
         });
 
         if (orderRes?.success) {
-          toast.success("Successfully minted");
+          toast.success(
+            "Minting in progress! 🚀 Your NFTs are in the queue and will be sent to your wallet soon. Thanks for your patience!",
+          );
           router.push("/launchpad");
         }
       }
@@ -208,7 +210,7 @@ const Page = () => {
       ),
     },
   ].filter(
-    (link) => link.url !== null && link.url !== undefined && link.url !== ""
+    (link) => link.url !== null && link.url !== undefined && link.url !== "",
   );
 
   const handleSocialClick = (url: string | undefined) => {
@@ -260,7 +262,7 @@ const Page = () => {
         className="min-h-screen bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${s3ImageUrlBuilder(
-            collectibles?.logoKey || ""
+            collectibles?.logoKey || "",
           )})`,
         }}
       >
