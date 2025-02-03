@@ -148,9 +148,9 @@ export default function AssetsDetails() {
     <>
       <Header />
       <div className="w-full flex justify-center items-center">
-        <div className="flex flex-col gap-32 w-full max-w-[1216px]">
+        <div className="flex flex-col gap-16 w-full max-w-[1216px]">
           <div className="md:grid grid-cols-2 flex flex-col gap-16 justify-between pt-16 relative z-20">
-            <div className="w-full h-full relative flex items-center justify-center">
+            <div className="w-full h-auto relative flex items-center justify-center">
               <div className="z-10 w-full h-full blur-[90px] opacity-35 scale-120">
                 <Image
                   width={560}
@@ -160,7 +160,7 @@ export default function AssetsDetails() {
                       ? currentAsset.highResolutionImageUrl
                       : s3ImageUrlBuilder(currentAsset.fileKey)
                   }
-                  className="aspect-square rounded-xl relative z-20 md:h-full 3xl:h-[560px] 3xl:w-[560px] w-full h-[560px]"
+                  className="aspect-square rounded-xl relative z-20 md:h-[343px] 3xl:h-[560px] 3xl:w-[560px] w-[343px] h-auto md2:h-auto md2:w-full"
                   alt={`${currentAsset.name} logo`}
                 />
               </div>
@@ -172,7 +172,7 @@ export default function AssetsDetails() {
                     ? currentAsset.highResolutionImageUrl
                     : s3ImageUrlBuilder(currentAsset.fileKey)
                 }
-                className="aspect-square rounded-xl absolute z-20 w-[360px] h-[320px] md:h-[340px] lg:w-full lg:h-full top-0"
+                 className="aspect-square rounded-xl absolute z-20 w-[330px] h-auto md:h-[340px] md2:h-auto md2:w-full 2xl:w-[560px] 2xl:h-[560px] top-0"
                 alt={`${currentAsset.name} logo`}
               />
             </div>

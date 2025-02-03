@@ -8,6 +8,7 @@ const nextConfig = {
         : "https://api.mainnet.araafal.com", // production api
   },
   images: {
+    unoptimized: true,
     domains: [
       "numadlabs-coordinals-test.s3.eu-central-1.amazonaws.com",
       "d1orw8h9a3ark2.cloudfront.net",
