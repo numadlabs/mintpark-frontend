@@ -8,7 +8,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { confirmOrder, createBuyLaunch } from "@/lib/service/postRequest";
 import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -113,7 +112,7 @@ const Page = () => {
       if (response.data.singleMintTxHex) {
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(
-          response.data.singleMintTxHex,
+          response.data.singleMintTxHex
         );
         const tx = await signedTx?.wait();
         if (tx) {
@@ -122,7 +121,7 @@ const Page = () => {
       } else {
         await window.unisat.sendBitcoin(
           response.data.order.fundingAddress,
-          Math.ceil(response.data.order.fundingAmount),
+          Math.ceil(response.data.order.fundingAmount)
         );
         await new Promise((resolve) => setTimeout(resolve, 10000));
       }
@@ -138,7 +137,7 @@ const Page = () => {
 
         if (orderRes?.success) {
           toast.success(
-            "Minting in progress! 🚀 Your NFTs are in the queue and will be sent to your wallet soon. Thanks for your patience!",
+            "Minting in progress! 🚀 Your NFTs are in the queue and will be sent to your wallet soon. Thanks for your patience!"
           );
           router.push("/launchpad");
         }
@@ -190,9 +189,8 @@ const Page = () => {
     setSelectedPhase(phaseType);
   };
 
-  // this sesction add to /collection/collectionID
   const handlCollectionClick = () => {
-    router.push(`/collections/${id}`);
+    router.push(`/collections`);
   };
 
   if (isCollectiblesLoading || isLayerLoading) {
@@ -211,7 +209,7 @@ const Page = () => {
       ),
     },
   ].filter(
-    (link) => link.url !== null && link.url !== undefined && link.url !== "",
+    (link) => link.url !== null && link.url !== undefined && link.url !== ""
   );
 
   const handleSocialClick = (url: string | undefined) => {
@@ -263,7 +261,7 @@ const Page = () => {
         className="min-h-screen bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${s3ImageUrlBuilder(
-            collectibles?.logoKey || "",
+            collectibles?.logoKey || ""
           )})`,
         }}
       >
@@ -467,7 +465,7 @@ const Page = () => {
                       ) : (
                         "Mint"
                       )}
-                    </Button> 
+                    </Button>
                   ) : null}
                 </div>
               </section>
