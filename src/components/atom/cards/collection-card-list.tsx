@@ -24,8 +24,8 @@ const CollectionCardList: React.FC<CardProps> = ({ data, handleNav }) => {
             <Image
               width={64}
               height={64}
-              src={s3ImageUrlBuilder(data.logoKey)}
-              className="rounded-lg object-cover"
+              src={s3ImageUrlBuilder(data?.logoKey)}
+              className="rounded-lg object-cover hidde"
               alt={`${data.name || "Collection"} logo`}
             />
           </div>

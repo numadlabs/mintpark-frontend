@@ -45,7 +45,7 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({ data }) => {
             src={
               data.highResolutionImageUrl
                 ? data.highResolutionImageUrl
-                : s3ImageUrlBuilder(data.fileKey as string)
+                : s3ImageUrlBuilder(data.fileKey)
             }
             className="aspect-square rounded-lg"
             alt={`${data.name} image`}
