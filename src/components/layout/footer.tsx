@@ -9,6 +9,7 @@ export default function Footer() {
   const handleTermsClick = () => router.push("/terms-conditions");
   const handlePrivacyClick = () => router.push("/privacy-policy");
   const handleTwitter = () => router.push("https://x.com/mintpark_io");
+  const handleDocs =  () => router.push("https://docs.mintpark.io")
   const handleLogoClick = () => router.push("/");
   const handleCreate = () => router.push("/create");
   const handleLaunchapd = () => router.push("/launchpad");
@@ -67,6 +68,12 @@ export default function Footer() {
                   className="font-medium text-md text-neutral200 hover:text-neutral00 text-left transition-all duration-300 ease-out"
                 >
                   Twitter
+                </button>
+                <button
+                  onClick={handleDocs}
+                  className="font-medium text-md text-neutral200 hover:text-neutral00 text-left transition-all duration-300 ease-out"
+                >
+                  Docs
                 </button>
               </div>
             </div>
