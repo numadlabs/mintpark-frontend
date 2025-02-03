@@ -117,7 +117,7 @@ const OrderDetailModal: React.FC<ModalProps> = ({
           <p className="text-lg2 text-neutral100 font-medium">Total Amount</p>
           <p className="text-lg2 text-brand font-bold">
             {" "}
-            {formatPrice(fundingAmount/ 10 ** 8)} cBTC
+            {formatPrice(fundingAmount)} cBTC
           </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />

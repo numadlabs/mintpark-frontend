@@ -101,7 +101,7 @@ export default function AssetDetail() {
     <Layout>
       <Header />
       <div className="w-full flex justify-center ">
-        <div className="flex flex-col w-full gap-16 pt-10 max-w-[1216px]">
+        <div className="flex flex-col w-full gap-16 max-w-[1216px]">
           <div className="md:grid grid-cols-2 flex flex-col gap-16 justify-between pt-16 relative z-20">
             <div className="w-full h-auto relative flex items-center justify-center">
               <div className="z-10 w-full h-full blur-[90px] opacity-35 scale-120">

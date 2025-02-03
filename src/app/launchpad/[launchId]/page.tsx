@@ -190,8 +190,9 @@ const Page = () => {
     setSelectedPhase(phaseType);
   };
 
+  // this sesction add to /collection/collectionID
   const handlCollectionClick = () => {
-    router.push("/collections");
+    router.push(`/collections/${id}`);
   };
 
   if (isCollectiblesLoading || isLayerLoading) {
@@ -466,7 +467,7 @@ const Page = () => {
                       ) : (
                         "Mint"
                       )}
-                    </Button>
+                    </Button> 
                   ) : null}
                 </div>
               </section>
