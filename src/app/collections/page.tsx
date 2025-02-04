@@ -22,6 +22,8 @@ import CollectionSkeleton from "@/components/atom/skeleton/collection-skeletion"
 import CollectionsBanner from "@/components/section/collections-banner";
 import CollectionCardList from "@/components/atom/cards/collection-card-list";
 
+// sadsadasdasdsad
+
 interface CollectionsProps {
   params: {};
   searchParams: { detail?: string };
