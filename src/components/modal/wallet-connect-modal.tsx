@@ -70,8 +70,8 @@ export function WalletConnectionModal({
     switch (layer) {
       case "BITCOIN":
         return "/wallets/Bitcoin.png";
-      case "FRACTAL":
-        return "/wallets/Fractal.png";
+      case "SEPOLIA":
+        return "/wallets/hemi.png";
       case "CITREA":
         return "/wallets/Citrea.png";
       case "NUBIT":

@@ -65,6 +65,34 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
       },
     },
   },
+  HEMI: {
+    type: "metamask",
+    chainId: "743111", // 743111 in hex
+    name: "Hemi",
+    icon: "/wallets/hemi.png",
+    networks: {
+      TESTNET: {
+        chainId: "0xB56C7",
+        chainName: "Sepollia Testnet",
+        rpcUrls: ["https://testnet.rpc.hemi.network/rpc"],
+        blockExplorerUrls: ["https://eth-sepolia.public.blastapi.io"],
+      },
+    },
+  },
+  // HEMI: {
+  //   type: "metamask",
+  //   chainId: "743111", // 743111 in hex
+  //   name: "Hemi",
+  //   icon: "/wallets/Citrea.png",
+  //   networks: {
+  //     TESTNET: {
+  //       chainId: "0xB56C7",
+  //       chainName: "Citrea Testnet",
+  //       rpcUrls: ["https://testnet.rpc.imeh.net/rp"],
+  //       blockExplorerUrls: ["https://explorer.testnet.citrea.xyz"],
+  //     },
+  //   },
+  // },
   EDU: {
     type: "educhain",
     chainId: "656476", // 5115 in hex
