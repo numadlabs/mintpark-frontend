@@ -202,7 +202,10 @@ const Inscription = () => {
           console.log("create collection success", response);
           toast.success("Create collection success.");
 
-          if (currentLayer.layer === "CITREA") {
+          if (
+            currentLayer.layer === "CITREA" ||
+            currentLayer.layer === "HEMI"
+          ) {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
             await signedTx?.wait();

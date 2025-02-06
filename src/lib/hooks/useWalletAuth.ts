@@ -147,12 +147,16 @@ const useWalletStore = create<WalletStore>()(
             const chainId = await window.ethereum.request({
               method: "eth_chainId",
             });
-            const currentChainIdDecimal = parseInt(chainId, 16);
+            const currentChainIdDecimal = parseInt(layer.chainId, 16);
             console.log(
               "🚀 ~ connectWallet: ~ currentChainIdDecimal:",
               currentChainIdDecimal
             );
-            const targetChainIdDecimal = 5115;
+            const id = "5115";
+            const targetChainIdDecimal = parseInt(
+              layer.chainId ? layer.chainId : id
+            );
+
             console.log(
               "🚀 ~ connectWallet: ~ targetChainIdDecimal:",
               targetChainIdDecimal
@@ -170,9 +174,13 @@ const useWalletStore = create<WalletStore>()(
                       rpcUrls: ["https://rpc.testnet.citrea.xyz"],
                       // rpcUrls: [layer.rpcUrl],
                       nativeCurrency: {
-                        name: "cBTC",
-                        symbol: "cBTC",
+                        // name: "cBTC",
+                        // symbol: "cBTC",
+                        name: "ETH",
+                        symbol: "ETH",
                         decimals: 18,
+                        // name: layer.nativeCurrency?.name || "CORE",
+                        // symbol: layer.nativeCurrency?.symbol || "CBTC",
                       },
                     },
                   ],

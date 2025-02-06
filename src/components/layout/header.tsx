@@ -124,7 +124,7 @@ export default function Header() {
         return "/wallets/Fractal.png";
       case "CITREA":
         return "/wallets/Citrea.png";
-      case "HEMI":
+      case "SEPOLIA":
         return "/wallets/hemi.png";
       default:
         return "/wallets/Bitcoin.png"; // Changed default to Bitcoin instead of Nubit

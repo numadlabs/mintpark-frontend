@@ -142,6 +142,7 @@ export interface WalletInfo {
 }
 
 export interface Layer {
+  nativeCurrency: any;
   id: string;
   name: string;
   layer: string;
