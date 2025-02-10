@@ -128,11 +128,9 @@ const useWalletStore = create<WalletStore>()(
       connectWallet: async (layerId: string, isLinking: boolean = false) => {
         const { layers, connectedWallets, authState } = get();
         const layer = layers.find((l) => l.id === layerId);
-        console.log("🚀 ~ connectWallet: ~ layer:", layer);
         if (!layer) throw new Error("Layer not found");
 
         const walletConfig = WALLET_CONFIGS[layer.layer];
-        if (!walletConfig) throw new Error("Wallet configuration not found");
 
         set((state) => ({ authState: { ...state.authState, loading: true } }));
 
@@ -147,22 +145,18 @@ const useWalletStore = create<WalletStore>()(
             const chainId = await window.ethereum.request({
               method: "eth_chainId",
             });
-            const currentChainIdDecimal = parseInt(layer.chainId, 16);
-            console.log(
-              "🚀 ~ connectWallet: ~ currentChainIdDecimal:",
-              currentChainIdDecimal
-            );
-            const id = "5115";
-            const targetChainIdDecimal = parseInt(
-              layer.chainId ? layer.chainId : id
-            );
 
-            console.log(
-              "🚀 ~ connectWallet: ~ targetChainIdDecimal:",
-              targetChainIdDecimal
-            );
+            const currentChainIdDecimal = parseInt(chainId, 16);
+
+            const targetChainIdDecimal = parseInt(layer.chainId);
+
             const targetChainIdHex = `0x${targetChainIdDecimal.toString(16)}`;
 
+            console.log(
+              "🚀 ~ connectWallet: ~ currentChainIdDecimal:",
+              currentChainIdDecimal,
+            );
+            console.log("🚀 ~ connectWallet: ~  layer.chainId:", layer.chainId);
             if (currentChainIdDecimal.toString() !== layer.chainId) {
               try {
                 await window.ethereum.request({
@@ -171,7 +165,7 @@ const useWalletStore = create<WalletStore>()(
                     {
                       chainId: targetChainIdHex,
                       chainName: layer.name,
-                      rpcUrls: ["https://rpc.testnet.citrea.xyz"],
+                      rpcUrls: walletConfig.networks.TESTNET.rpcUrls,
                       // rpcUrls: [layer.rpcUrl],
                       nativeCurrency: {
                         // name: "cBTC",
@@ -195,12 +189,12 @@ const useWalletStore = create<WalletStore>()(
                     });
                   } catch (switchError) {
                     throw new Error(
-                      `Failed to switch network (Chain ID: ${layer.chainId})`
+                      `Failed to switch network (Chain ID: ${layer.chainId})`,
                     );
                   }
                 } else {
                   throw new Error(
-                    `Failed to add network (Chain ID: ${layer.chainId})`
+                    `Failed to add network (Chain ID: ${layer.chainId})`,
                   );
                 }
               }
@@ -213,10 +207,12 @@ const useWalletStore = create<WalletStore>()(
               .then((accounts: string[]) => accounts[0]);
 
             const msgResponse = await generateMessageHandler({ address });
+            console.log("🚀 ~ connectWallet: ~ msgResponse:", msgResponse);
             signedMessage = await window.ethereum.request({
               method: "personal_sign",
               params: [msgResponse.data.message, address],
             });
+            console.log("🚀 ~ connectWallet: ~ signedMessage:", signedMessage);
 
             let response;
             if (isLinking && authState.authenticated) {
@@ -294,7 +290,7 @@ const useWalletStore = create<WalletStore>()(
 
             // Sign message with Unisat
             signedMessage = await window.unisat.signMessage(
-              msgResponse.data.message
+              msgResponse.data.message,
             );
             pubkey = await window.unisat.getPublicKey();
 
@@ -432,7 +428,7 @@ const useWalletStore = create<WalletStore>()(
       disconnectWallet: async (layerId: string) => {
         set((state) => ({
           connectedWallets: state.connectedWallets.filter(
-            (w) => w.layerId !== layerId
+            (w) => w.layerId !== layerId,
           ),
         }));
 
@@ -480,8 +476,8 @@ const useWalletStore = create<WalletStore>()(
         authState: state.authState,
         selectedLayerId: state.selectedLayerId,
       }),
-    }
-  )
+    },
+  ),
 );
 
 export default useWalletStore;

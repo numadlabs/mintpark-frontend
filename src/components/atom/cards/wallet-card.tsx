@@ -57,7 +57,7 @@ export const WalletCard = ({
     <button
       className="flex items-center justify-between w-full p-4 rounded-xl border border-white8 hover:bg-white8 disabled:opacity-50 disabled:cursor-not-allowed"
       onClick={() => !layer.comingSoon && onConnect(layer)}
-      disabled={layer.comingSoon || loading}
+      // disabled={layer.comingSoon || loading}
     >
       <div className="flex items-center gap-3">
         <Image
