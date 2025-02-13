@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/accordion";
 import {
   getCollectibleActivity,
+  getCollectibleTraits,
   getCollectionById,
   getListedCollectionById,
 } from "@/lib/service/queryHelper";
@@ -58,25 +59,32 @@ export default function AssetDetail() {
     enabled: !!id,
   });
 
+  const { data: attribute = [] } = useQuery({
+    queryKey: ["attributeData", id],
+    queryFn: () => getCollectibleTraits(id),
+    enabled: !!id,
+  });
+
   const { data: collection, isLoading: isQueryLoading } = useQuery({
     queryKey: ["collectionData", collectionId, "recent", "desc"],
     queryFn: () =>
-      getListedCollectionById(collectionId as string, "recent", "desc", 10, 0),
+      getListedCollectionById(collectionId as string, "recent", "desc", 10, 0, ""),
     enabled: !!collectionId,
     retry: 1,
     initialData: {
       collectibles: [],
-      listedCollectibleCount: "0",
+      listedCollectibleCount: "10",
       hasMore: false,
     },
   });
+
+  console.log("first", collection)
 
   const toggleModal = () => {
     if (!authState.authenticated)
       return toast.error("Please connect wallet first");
     setIsVisible(!isVisible);
   };
-
   if (isCollectionLoading) {
     return (
       <Layout>
@@ -175,7 +183,36 @@ export default function AssetDetail() {
                   )}
                 </div>
               </div>
-              <Accordion type="multiple" className="w-full mt-8">
+              {/* this section is Attribute */}
+              <h1 className="font-medium text-xl text-neutral50 w-full">
+                Attributes
+              </h1>
+              <div className="grid grid-cols-3 gap-4">
+                {Array.isArray(attribute) && attribute.length > 0 ? (
+                  attribute.map((item: any) => (
+                    <div
+                      key={item.id}
+                      className="grid gap-2 rounded-2xl bg-white4 pt-4 pb-5 pr-5 pl-5"
+                    >
+                      <p className="text-neutral200 font-medium text-md">
+                        {item.name}
+                      </p>
+                      <p className="text-neutral50 font-medium text-lg">
+                        {item.value}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-3 text-start text-neutral200">
+                    No attributes available
+                  </div>
+                )}
+              </div>
+              <Accordion
+                type="multiple"
+                defaultValue={["item-1", "item-2"]}
+                className="w-full mt-8"
+              >
                 <AccordionItem value="item-1">
                   <AccordionTrigger className="font-medium text-xl text-neutral50 w-full">
                     Detail

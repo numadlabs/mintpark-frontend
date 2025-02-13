@@ -235,7 +235,6 @@
 //   );
 // }
 
-
 "use client";
 import {
   Select,
@@ -256,34 +255,54 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import AssetsSkeleton from "@/components/atom/skeleton/my-asset-skeleton";
 import { CollectibleSchema } from "@/lib/validations/asset-validation";
 import { SearchNormal } from "iconsax-react";
+import AssetsSideBar from "../collections/my-assets-sidebar";
+import { useParams } from "next/navigation";
 
 export default function Assets({ detail = false }: { detail: boolean }) {
+  const params = useParams();
+  const userId = params?.id as string;
   const [active, setActive] = useState(false);
   const [orderBy, setOrderBy] = useState("recent");
   const [orderDirection, setOrderDirection] = useState("desc");
   const [searchQuery, setSearchQuery] = useState("");
+  const [limit, setLimit] = useState(10);
+  const [offset, setOffset] = useState(0);
+  const [collectionIds, setCollectionIds] = useState("");
 
   const { authState } = useAuth();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["getListableById", authState.userId, orderBy, orderDirection],
+    queryKey: [
+      "getListableById",
+      authState.userId,
+      orderBy,
+      orderDirection,
+      limit,
+      offset,
+      collectionIds,
+    ],
     queryFn: () =>
       getListableById(
         authState?.userId as string,
         orderDirection,
         orderBy,
-        authState.userLayerId as string
+        authState.userLayerId as string,
+        limit,
+        offset,
+        collectionIds
       ),
     enabled: !!authState?.userId,
   });
 
+  console.log("sdasdasdasdasd", data);
+
   const filteredCollectibles = useMemo(() => {
     if (!data?.data?.collectibles) return [];
-    
+
     return data.data.collectibles.filter((item: CollectibleSchema) => {
       const searchTerms = searchQuery.toLowerCase().trim();
       if (!searchTerms) return true;
-      
+
       // Add any searchable fields here
       const searchableFields = [
         item.name,
@@ -291,8 +310,8 @@ export default function Assets({ detail = false }: { detail: boolean }) {
         item.uniqueIdx,
         // Add more fields as needed
       ].filter(Boolean); // Remove any undefined/null values
-      
-      return searchableFields.some(field => 
+
+      return searchableFields.some((field) =>
         field?.toLowerCase().includes(searchTerms)
       );
     });
@@ -334,6 +353,10 @@ export default function Assets({ detail = false }: { detail: boolean }) {
     );
   }
 
+  const toggleSideBar = () => {
+    setActive(!active);
+  };
+
   return (
     <>
       <Tabs
@@ -342,13 +365,16 @@ export default function Assets({ detail = false }: { detail: boolean }) {
       >
         <section className="flex flex-col md:flex-row gap-4 mb-4 md:mb-7">
           {detail ? (
-            <section className="flex flex-row justify-between w-full gap-4">
+            <section
+              onClick={toggleSideBar}
+              className="flex flex-row justify-between w-full gap-4"
+            >
               <Image
                 src={"/collections/sort.png"}
                 alt="burger"
                 width={20}
                 height={20}
-                className={`w-12 h-12 rounded-xl cursor-not-allowed p-3 ${
+                className={`w-12 h-12 rounded-xl p-3 ${
                   active
                     ? "bg-neutral500 hover:bg-neutral400 border-transparent"
                     : "bg-neutral600 border border-neutral500 hover:border-neutral400"
@@ -429,14 +455,16 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                 active ? "opacity-100 w-full md:w-[280px]" : "opacity-0 w-0"
               } transition-all`}
             >
-              <CollectionSideBar />
+              {active && <AssetsSideBar />}
+
             </div>
 
             <TabsContent value="All">
               <div
                 className={`grid w-full gap-4 sm:gap-6 ${
                   active
-                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                    // ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                    ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6"
                     : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6"
                 }`}
               >
