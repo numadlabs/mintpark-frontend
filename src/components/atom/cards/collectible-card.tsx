@@ -54,7 +54,7 @@ export default function CollectibleCard({ data }: { data: CollectionSchema }) {
               </div>
 
               <div className="absolute inset-0 w-full h-10 flex items-center justify-center bg-white4 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-white">View</span>
+                <span className="text-white"> {isListed ? "Buy Now" : "View"}</span>
               </div>
             </div>
           </div>

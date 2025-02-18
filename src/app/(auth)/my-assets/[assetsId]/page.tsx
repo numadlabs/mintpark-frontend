@@ -241,7 +241,7 @@ export default function AssetsDetails() {
                 )}
               </div>
               <div className="w-full h-[1px] bg-neutral500" />
-              <Accordion type="multiple" className="w-full">
+              <Accordion type="multiple"  defaultValue={["item-1", "item-2"]}  className="w-full">
                 <AccordionItem value="item-1">
                   <AccordionTrigger className="font-medium text-xl text-neutral50">
                     Detail
@@ -268,7 +268,7 @@ export default function AssetsDetails() {
                         Floor difference
                       </h1>
                       <p className="font-medium text-md text-success">
-                        {currentAsset.floorDifference ?? 0}%
+                        {currentAsset.floorDifference ?? "-"}%
                       </p>
                     </div>
                     <div className="flex justify-between">

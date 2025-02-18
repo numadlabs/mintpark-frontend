@@ -108,12 +108,13 @@ export async function getListedCollectionById(
   orderBy: string,
   orderDirection: string,
   limit: number,
-  offset: number
+  offset: number,
+  traitValuesByType: string,
 ): Promise<CollectionDetail | null> {
-  console.log("offset", offset);
+  console.log("traitValuesByType", traitValuesByType);
   return axiosClient
     .get<CollectionDetailApiResponse>(
-      `/api/v1/collectibles/${collectionId}/collection/listable?orderBy=${orderBy}&orderDirection=${orderDirection}&limit=${limit}&offset=${offset}`
+      `/api/v1/collectibles/${collectionId}/collection/listable?orderBy=${orderBy}&orderDirection=${orderDirection}&limit=${limit}&offset=${offset}=traitValuesByType&${traitValuesByType}`
     )
     .then((response) => {
       if (response.data.success) {
@@ -140,11 +141,14 @@ export async function getListableById(
   id: string,
   orderDirection: string,
   orderBy: string,
-  userLayerId: string
+  userLayerId: string,
+  limit:number,
+  offset:number,
+  collectionIds:string
 ): Promise<AssetSchema> {
   return axiosClient
     .get(
-      `/api/v1/collectibles/${id}/listable?orderDirection=${orderDirection}&orderBy=${orderBy}&userLayerId=${userLayerId}`
+      `/api/v1/collectibles/${id}/listable?orderDirection=${orderDirection}&orderBy=${orderBy}&userLayerId=${userLayerId}&limit=${limit}&offset=${offset}&collectionIds=${collectionIds}`
     )
     .then((response) => {
       if (response.data.success) {
@@ -175,6 +179,46 @@ export async function getCollectibleActivity(
     .then((response) => {
       if (response.data.success) {
         return response.data.data;
+      } else {
+        throw new Error(response.data.error);
+      }
+    });
+}
+
+// collection detail traits
+export async function getCollectibleTraits(id: string) {
+  return axiosClient
+    .get(`/api/v1/collectible-traits/${id}/collectible`)
+    .then((response) => {
+      if (response.data.success) {
+        return response.data.data.traits;
+      } else {
+        throw new Error(response.data.error);
+      }
+    });
+}
+
+// collection collectible trait types
+
+export async function getCollectibleTraitTypes(id: string) {
+  return axiosClient
+    .get(`/api/v1/trait-types/${id}/collection`)
+    .then((response) => {
+      if (response.data.success) {
+        return response.data.data.traitTypes;
+      } else {
+        throw new Error(response.data.error);
+      }
+    });
+}
+// collection collectible trait values
+
+export async function getCollectibleTraitValues(id: string) {
+  return axiosClient
+    .get(`/api/v1/trait-values/${id}/trait-type`)
+    .then((response) => {
+      if (response.data.success) {
+        return response.data.data.traitTypes;
       } else {
         throw new Error(response.data.error);
       }

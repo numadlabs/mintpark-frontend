@@ -102,7 +102,7 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({ data }) => {
                 {daysAgo} days ago
               </span>
               {data.price > 0 && (
-                <span className="hidden group-hover:block lg:absolute lg:-top-2 text-white bg-white bg-opacity-25 py-2 px-5 rounded-lg cursor-pointer transition-all duration-300 ease-in-out">
+                <span className="hidden group-hover:block lg:absolute lg:-top-2 text-neutral50 bg-white8 bg-opacity-[40%] pt-2 pb-2 pr-5 pl-5 rounded-lg cursor-pointer transition-all duration-300 ease-in-out">
                   Buy now
                 </span>
               )}
