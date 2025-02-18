@@ -7,7 +7,7 @@ import {
   QueryClientProvider,
   useInfiniteQuery,
 } from "@tanstack/react-query";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -45,25 +45,25 @@ const CollectionDetailPage = () => {
   const params = useParams();
   const id = params?.id as string;
   const [active, setActive] = useState(false);
-  const searchParams = useSearchParams();
   const [collectionData, setCollectionData] =
     useState<CollectionDataType | null>(null);
   const [orderBy, setOrderBy] = useState("recent");
   const [orderDirection, setOrderDirection] = useState("desc");
   const [searchFilter, setSearchFilter] = useState<string>("");
   const [traitValuesByType, setTraitValuesByType] = useState<string>("");
+  const [showOnlyListed, setShowOnlyListed] = useState(false);
 
   useEffect(() => {
-    const data = searchParams.get("data");
-    if (data) {
+    const savedData = localStorage.getItem(`collection-${id}`);
+    if (savedData) {
       try {
-        const parsedData = JSON.parse(data) as CollectionDataType;
+        const parsedData = JSON.parse(savedData);
         setCollectionData(parsedData);
       } catch (error) {
-        console.error("Failed to parse collection data:", error);
+        console.error("Failed to parse saved collection data:", error);
       }
     }
-  }, [searchParams]);
+  }, [id]);
 
   const {
     data,
@@ -119,8 +119,37 @@ const CollectionDetailPage = () => {
     enabled: Boolean(id),
   });
 
-  const collectibles =
-    data?.pages?.flatMap((page) => page?.collectibles ?? []) ?? [];
+  // Memoize the collectibles array
+  const collectibles = React.useMemo(() => {
+    return data?.pages?.flatMap((page) => page?.collectibles ?? []) ?? [];
+  }, [data?.pages]);
+
+  // Memoize the filtered collectibles using the memoized collectibles array
+  const filteredCollectibles = React.useMemo(() => {
+    let filtered = collectibles;
+
+    // Filter by availability - check listId instead of isListed
+    if (showOnlyListed) {
+      filtered = filtered.filter((item) => item.listId !== null);
+    }
+
+    // Filter by search
+    if (searchFilter) {
+      filtered = filtered.filter((item) => {
+        const collectionLastDigit =
+          collectionData?.name?.match(/\d+$/)?.[0] || "";
+        const itemId = item.name.toString();
+        const searchValue = searchFilter.toLowerCase();
+
+        return (
+          itemId.includes(searchValue) ||
+          itemId.includes(`${collectionLastDigit}${searchValue}`)
+        );
+      });
+    }
+
+    return filtered;
+  }, [collectibles, showOnlyListed, searchFilter, collectionData?.name]);
 
   const loadMoreRef = React.useCallback(
     (node: HTMLDivElement | null) => {
@@ -198,6 +227,10 @@ const CollectionDetailPage = () => {
 
   const toggleSideBar = () => {
     setActive(!active);
+  };
+
+  const handleAvailabilityChange = (onlyListed: boolean) => {
+    setShowOnlyListed(onlyListed);
   };
 
   if (!id || isQueryLoading) {
@@ -536,7 +569,12 @@ const CollectionDetailPage = () => {
                         : "w-0 opacity-0"
                     } transition-all duration-300`}
                   >
-                    {active && <CollectionSideBar id={id as string} />}
+                    {active && (
+                      <CollectionSideBar
+                        id={id as string}
+                        onAvailabilityChange={handleAvailabilityChange}
+                      />
+                    )}
                   </div>
                   <div
                     className={`grid gap-4 md:gap-6 lg:gap-8 ${
@@ -545,7 +583,12 @@ const CollectionDetailPage = () => {
                         : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6"
                     }`}
                   >
-                    {collectibles.map((item) => (
+                    {/* {collectibles.map((item) => (
+                      <div key={item.id}>
+                        <CollectibleCard data={item} />
+                      </div>
+                    ))} */}
+                    {filteredCollectibles.map((item) => (
                       <div key={item.id}>
                         <CollectibleCard data={item} />
                       </div>
@@ -573,7 +616,12 @@ const CollectionDetailPage = () => {
                     active ? "w-full sm:w-[280px] opacity-100" : "w-0 opacity-0"
                   } transition-all duration-300`}
                 >
-                  {active && <CollectionSideBar id={id as string} />}
+                  {active && (
+                    <CollectionSideBar
+                      id={id as string}
+                      onAvailabilityChange={handleAvailabilityChange}
+                    />
+                  )}
                 </div>
                 <div className="overflow-x-auto w-full">
                   <div className="min-w-[1216px] w-full flex border-b justify-between border-neutral400 font-medium text-md text-neutral200 px-3 pb-4">
@@ -599,7 +647,12 @@ const CollectionDetailPage = () => {
                   <div className="h-[754px]  w-full min-w-[1216px] border-t-2 border-neutral500">
                     {/* <div className="">{active && <CollectionSideBar />}</div> */}
                     <div className="flex flex-col pt-4 gap-4">
-                      {collectibles.map((item) => (
+                      {/* {collectibles.map((item) => (
+                        <div key={item.id}>
+                          <CollectibleCardList data={item} />
+                        </div>
+                      ))} */}
+                      {filteredCollectibles.map((item) => (
                         <div key={item.id}>
                           <CollectibleCardList data={item} />
                         </div>

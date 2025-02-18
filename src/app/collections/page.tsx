@@ -68,13 +68,31 @@ export default function Collections({ searchParams }: CollectionsProps) {
       ),
     enabled: !!id,
   });
-
   const handleNavigation = (collectionData: CollectionDataType) => {
-    const queryParams = new URLSearchParams({
-      id: collectionData.id,
-      data: JSON.stringify(collectionData),
-    }).toString();
-    router.push(`/collections/${collectionData.id}?${queryParams}`);
+    // Save minimal required data to localStorage...
+    localStorage.setItem(
+      `collection-${collectionData.id}`,
+      JSON.stringify({
+        name: collectionData.name,
+        description: collectionData.description,
+        logoKey: collectionData.logoKey,
+        creatorName: collectionData.creatorName,
+        floor: collectionData.floor,
+        volume: collectionData.volume,
+        ownerCount: collectionData.ownerCount,
+        supply: collectionData.supply,
+        discordUrl: collectionData.discordUrl,
+        twitterUrl: collectionData.twitterUrl,
+        websiteUrl: collectionData.websiteUrl,
+        // contractAddress: collectionData.contractAddress,
+        layerId: collectionData.layerId,
+        listedCount: collectionData.listedCount,
+        soldCount: collectionData.soldCount,
+        marketCap: collectionData.marketCap,
+      })
+    );
+
+    router.push(`/collections/${collectionData.id}`);
   };
 
   const collectionArray = Array.isArray(collection) ? collection : [];
@@ -200,7 +218,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                 active ? "w-full sm:w-[280px] opacity-100" : "w-0 opacity-0"
               } transition-all duration-300`}
             >
-              <CollectionSideBar id={id as string}/>
+              <CollectionSideBar id={id as string}  />
             </div>
             <div className="flex-grow">
               <TabsContent value="ColCard">

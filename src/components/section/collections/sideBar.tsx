@@ -17,6 +17,7 @@ import { useQuery } from "@tanstack/react-query";
 
 interface SidebarProps {
   id: string;
+  onAvailabilityChange?: (showOnlyListed: boolean) => void;
 }
 
 interface TraitType {
@@ -30,11 +31,9 @@ interface TraitValue {
   collectibleTraitCount: number;
 }
 
-const CollectionSideBar: React.FC<SidebarProps> = ({ id }) => {
-  const [selectedTraits, setSelectedTraits] = useState<Record<string, boolean>>(
-    {}
-  );
-  const [availability, setAvailability] = useState<string>("option-one");
+const CollectionSideBar: React.FC<SidebarProps> = ({ id, onAvailabilityChange }) => {
+  const [selectedTraits, setSelectedTraits] = useState<Record<string, boolean>>({});
+  const [availability, setAvailability] = useState<string>("all");
   const [expandedType, setExpandedType] = useState<string | null>(null);
 
   const { data: collection } = useQuery({
@@ -67,24 +66,31 @@ const CollectionSideBar: React.FC<SidebarProps> = ({ id }) => {
     setExpandedType(value === expandedType ? null : value);
   };
 
+  const handleAvailabilityChange = (value: string) => {
+    setAvailability(value);
+    if (onAvailabilityChange) {
+      onAvailabilityChange(value === "listed");
+    }
+  };
+
   return (
     <div className="w-full">
       <h2 className="font-bold text-lg text-neutral00 pb-4 border-b border-neutral500">
         Availability
       </h2>
       <RadioGroup
-        defaultValue="option-one"
+        value={availability}
         className="pt-4"
-        onValueChange={setAvailability}
+        onValueChange={handleAvailabilityChange}
       >
         <div
           className={`flex items-center space-x-2 border rounded-xl pl-4 pr-4 gap-3 w-[280px] ${
-            availability === "option-one" ? "bg-neutral500" : "bg-transparent"
+            availability === "all" ? "bg-neutral500" : "bg-transparent"
           } border-transparent text-neutral50`}
         >
-          <RadioGroupItem value="option-one" id="option-one" />
+          <RadioGroupItem value="all" id="all" />
           <Label
-            htmlFor="option-one"
+            htmlFor="all"
             className="w-full font-bold text-lg2 pt-3 pb-3"
           >
             All
@@ -92,12 +98,12 @@ const CollectionSideBar: React.FC<SidebarProps> = ({ id }) => {
         </div>
         <div
           className={`flex items-center space-x-2 border rounded-xl pl-4 pr-4 gap-3 w-[280px] ${
-            availability === "option-two" ? "bg-neutral500" : "bg-transparent"
+            availability === "listed" ? "bg-neutral500" : "bg-transparent"
           } border-transparent text-neutral50`}
         >
-          <RadioGroupItem value="option-two" id="option-two" />
+          <RadioGroupItem value="listed" id="listed" />
           <Label
-            htmlFor="option-two"
+            htmlFor="listed"
             className="w-full font-bold text-lg2 pt-3 pb-3"
           >
             For sale <span>({collection?.listedCollectibleCount || 0})</span>
