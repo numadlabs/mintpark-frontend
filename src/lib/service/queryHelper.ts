@@ -114,7 +114,7 @@ export async function getListedCollectionById(
   console.log("traitValuesByType", traitValuesByType);
   return axiosClient
     .get<CollectionDetailApiResponse>(
-      `/api/v1/collectibles/${collectionId}/collection/listable?orderBy=${orderBy}&orderDirection=${orderDirection}&limit=${limit}&offset=${offset}=traitValuesByType&${traitValuesByType}`
+      `/api/v1/collectibles/${collectionId}/collection/listable?orderBy=${orderBy}&orderDirection=${orderDirection}&limit=${limit}&offset=${offset}&traitValuesByType&${traitValuesByType}`
     )
     .then((response) => {
       if (response.data.success) {

@@ -28,6 +28,7 @@ interface ModalProps {
   uniqueIdx: string;
   price: number;
   listId: string | null;
+  isOwnListing: boolean;
 }
 
 const BuyAssetModal: React.FC<ModalProps> = ({
@@ -39,6 +40,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   uniqueIdx,
   price,
   listId,
+  isOwnListing
 }) => {
   const queryClient = useQueryClient();
   const params = useParams();
