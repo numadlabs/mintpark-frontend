@@ -167,3 +167,16 @@ export type BadgeType = {
   isBadge: boolean;
   creator: string;
 };
+
+export interface AddPhaseRequest {
+  collectionId: string;
+  phaseType: number;
+  price: string;
+  startTime: number;
+  endTime: number;
+  maxSupply: number;
+  maxPerWallet: number;
+  maxMintPerPhase: number;
+  merkleRoot?: string;
+  layerId: string;
+}

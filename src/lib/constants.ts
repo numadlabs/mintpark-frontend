@@ -1,29 +1,10 @@
 import { WalletConfig } from "@/types";
 
-export const BITCOIN_IMAGE = "/wallets/Bitcoin.png";
-
-export const rpcUrl = "http://seed2.coordinate.mara.technology",
-  rpcPort = 18332;
-
-export const maraUrl =
-  "http://btc-testnet-wallet.mara.technology:9130/unspents/list?address=&xpub=";
-
-export const fileSizeLimit = 3145728; //3MB in binary
-
-//native segwit
-export const outputSize = 31,
-  inputSize = 68;
-
 export const ASSETTYPE = {
   TOKEN: 0,
   NFTOFFCHAIN: 1,
   NFTONCHAIN: 2,
 };
-
-export const USED_UTXO_KEY = "used_utxo";
-
-export const RPC_USERNAME = "coordinate";
-export const RPC_PASSWORD = "coordinate";
 
 export const STORAGE_KEYS = {
   AUTH_TOKENS: "auth_tokens",
