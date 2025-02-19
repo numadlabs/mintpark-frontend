@@ -121,6 +121,7 @@ export interface WalletState {
 }
 
 export interface AuthState {
+  [x: string]: string | null | undefined;
   authenticated: boolean;
   loading: boolean;
   userLayerId: string | null;

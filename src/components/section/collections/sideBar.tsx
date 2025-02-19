@@ -31,8 +31,13 @@ interface TraitValue {
   collectibleTraitCount: number;
 }
 
-const CollectionSideBar: React.FC<SidebarProps> = ({ id, onAvailabilityChange }) => {
-  const [selectedTraits, setSelectedTraits] = useState<Record<string, boolean>>({});
+const CollectionSideBar: React.FC<SidebarProps> = ({
+  id,
+  onAvailabilityChange,
+}) => {
+  const [selectedTraits, setSelectedTraits] = useState<Record<string, boolean>>(
+    {}
+  );
   const [availability, setAvailability] = useState<string>("all");
   const [expandedType, setExpandedType] = useState<string | null>(null);
 
@@ -91,20 +96,20 @@ const CollectionSideBar: React.FC<SidebarProps> = ({ id, onAvailabilityChange })
           <RadioGroupItem value="all" id="all" />
           <Label
             htmlFor="all"
-            className="w-full font-bold text-lg2 pt-3 pb-3"
+            className="w-full cursor-pointer font-bold text-lg2 pt-3 pb-3"
           >
             All
           </Label>
         </div>
         <div
-          className={`flex items-center space-x-2 border rounded-xl pl-4 pr-4 gap-3 w-[280px] ${
+          className={`flex items-center space-x-2 border  rounded-xl pl-4 pr-4 gap-3 w-[280px] ${
             availability === "listed" ? "bg-neutral500" : "bg-transparent"
           } border-transparent text-neutral50`}
         >
           <RadioGroupItem value="listed" id="listed" />
           <Label
             htmlFor="listed"
-            className="w-full font-bold text-lg2 pt-3 pb-3"
+            className="w-full cursor-pointer font-bold text-lg2 pt-3 pb-3"
           >
             For sale <span>({collection?.listedCollectibleCount || 0})</span>
           </Label>
