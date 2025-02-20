@@ -48,7 +48,6 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
     setSearchFilter(event.target.value);
   };
 
-
   return (
     <Tabs defaultValue="AllCard" className="">
       <section className="flex flex-col md:flex-row justify-between gap-4 mb-7">
@@ -117,7 +116,7 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
         <div
           className={`${active ? "block w-[280px]" : "hidden"} transition-all`}
         >
-          <CollectionSideBar />
+          {/* <CollectionSideBar /> */}
         </div>
 
         <div

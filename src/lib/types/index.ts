@@ -84,6 +84,8 @@ export type LaunchDataType = {
   isWhitelisted: boolean;
   mintedAmount: number;
   createdAt: string;
+  isBadge:boolean;
+  badgeSupply:number;
 };
 
 export type ActivityType = {

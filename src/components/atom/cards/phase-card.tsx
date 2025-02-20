@@ -12,6 +12,8 @@ interface PhaseCardProps {
   startsAt: number;
   supply: number;
   isActive: boolean;
+  isBadge:boolean;
+  badgeSupply:number;
   onClick: () => void;
   phaseType: "guaranteed" | "public";
 }
@@ -26,6 +28,8 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   phaseType,
   supply,
   mintedAmount,
+  isBadge,
+  badgeSupply
 }) => {
   const [timeDisplay, setTimeDisplay] = useState("");
   const [status, setStatus] = useState("");
@@ -39,6 +43,13 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
           ? Math.floor(timestamp / 1000)
           : timestamp;
       };
+
+      if (isBadge && badgeSupply === null && phaseType === "public") {
+        setStatus("Indefinite");
+        setTimeDisplay("");
+        setIsClickable(true);
+        return;
+      }
 
       if (supply > 0 && mintedAmount >= supply) {
         setStatus("Ended");

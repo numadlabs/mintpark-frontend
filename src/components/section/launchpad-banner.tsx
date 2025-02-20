@@ -29,7 +29,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
 
       const now = moment();
       const convertToSeconds = (timestamp: number) => {
-        return timestamp.toString().length === 13
+        return timestamp?.toString().length === 13
           ? Math.floor(timestamp / 1000)
           : timestamp;
       };

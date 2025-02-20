@@ -11,13 +11,16 @@ import ProfileBannerSkeleton from "@/components/atom/skeleton/my-asset-banner-sk
 const Assets = () => {
   const { authState } = useAuth();
   const { data, isLoading } = useQuery({
-    queryKey: ["getListableById", authState.userId, "asc", "recent"],
+    queryKey: ["getListableById", authState.userId, "asc", "recent", 10, 0, []],
     queryFn: () =>
       getListableById(
         authState?.userId as string,
         "asc",
         "recent",
-        authState.userLayerId as string
+        authState.userLayerId as string,
+        10,  // default limit
+        0,   // default offset
+        ""   // default empty collection ids
       ),
     enabled: !!authState?.userId,
   });
