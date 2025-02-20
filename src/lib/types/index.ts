@@ -179,4 +179,5 @@ export interface AddPhaseRequest {
   maxMintPerPhase: number;
   merkleRoot?: string;
   layerId: string;
+  userLayerId:string | null;
 }
