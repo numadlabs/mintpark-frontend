@@ -9,9 +9,11 @@ import { toast } from "sonner";
 
 export const BACKEND_URL =
   process.env.NODE_ENV === "development"
+
     ? // ? "http://127.0.0.1:4000" // development api
       "https://mintpark-staging-e569c5c4d83c.herokuapp.com" // development api
     : "https://mintpark-production-0006d54da9fb.herokuapp.com";
+
 
 const instance = axios.create({
   baseURL: BACKEND_URL,
@@ -37,7 +39,7 @@ export const initializeAxios = (logoutHandler: () => void) => {
     },
     (error) => {
       return Promise.reject(error);
-    }
+    },
   );
 
   instance.interceptors.response.use(
@@ -55,7 +57,7 @@ export const initializeAxios = (logoutHandler: () => void) => {
             `${BACKEND_URL}/api/v1/users/refresh-token`,
             {
               refreshToken: getRefreshToken(),
-            }
+            },
           );
 
           if (res.status === 200) {
@@ -72,7 +74,7 @@ export const initializeAxios = (logoutHandler: () => void) => {
       }
 
       return error.response;
-    }
+    },
   );
 };
 const cache = new LRUCache({ max: 10 });
