@@ -40,7 +40,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
 
     setIsLoading(true);
     try {
-      if (connectedWallet.layerType === "CITREA") {
+      if (connectedWallet.layerType === "EVM") {
         if (!window.ethereum) throw new Error("MetaMask not installed");
 
         const balance = await window.ethereum.request({

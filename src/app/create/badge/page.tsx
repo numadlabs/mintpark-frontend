@@ -13,6 +13,7 @@ import Image from "next/image";
 import { LaunchType, BadgeType } from "@/lib/types";
 import TextArea from "@/components/ui/textArea";
 import {
+  addPhase,
   createBadgeCollection,
   createBadgeLaunch,
   ifpsLaunchItem,
@@ -33,6 +34,7 @@ import { BADGE_BATCH_SIZE } from "@/lib/utils";
 import Toggle from "@/components/ui/toggle";
 import UploadJsonFile from "@/components/section/upload-json-file";
 import UploadJsonCard from "@/components/atom/cards/upload-json-card";
+import { ethers } from "ethers";
 
 const Badge = () => {
   const router = useRouter();
@@ -100,6 +102,10 @@ const Badge = () => {
       queryClient.invalidateQueries({ queryKey: ["launchData"] });
       queryClient.invalidateQueries({ queryKey: ["collectionData"] });
     },
+  });
+
+  const { mutateAsync: addPhaseMutation } = useMutation({
+    mutationFn: addPhase,
   });
 
   const { mutateAsync: whitelistAddressesMutation } = useMutation({
@@ -178,7 +184,7 @@ const Badge = () => {
       toast.error("Layer information not available");
       return;
     }
-    if (currentLayer.layer === "CITREA" && !window.ethereum) {
+    if (currentLayer.layerType === "EVM" && !window.ethereum) {
       toast.error("Please install MetaMask extension to continue");
       return;
     }
@@ -203,7 +209,7 @@ const Badge = () => {
           setCollectionId(id);
           console.log("create collection success", response);
 
-          if (currentLayer.layer === "CITREA") {
+          if (currentLayer.layerType === "EVM") {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
             await signedTx?.wait();
@@ -293,6 +299,10 @@ const Badge = () => {
       return;
     }
 
+    if (!selectedLayerId) {
+      return toast.error("No selected layer");
+    }
+
     setIsLoading(true);
     const poStartsAt = calculateTimeUntilDate(POStartsAtDate, POStartsAtTime);
     const poEndsAt = calculateTimeUntilDate(POEndsAtDate, POEndsAtTime);
@@ -325,6 +335,29 @@ const Badge = () => {
         if (launchResponse && launchResponse.success) {
           const collectionId = launchResponse.data.launch.collectionId;
           const launchId = launchResponse.data.launch.id;
+
+          // Add public phase
+          const publicPhaseResponse = await addPhaseMutation({
+            collectionId,
+            phaseType: 2, // PhaseType.PUBLIC
+            price: POMintPrice.toString(),
+            startTime: poStartsAt,
+            endTime: poEndsAt,
+            maxSupply: 0, // Unlimited supply for public phase
+            maxPerWallet: POMaxMintPerWallet,
+            maxMintPerPhase: 0, // Unlimited mints for public phase
+            merkleRoot: ethers.ZeroHash, // No merkle root needed for public phase
+            layerId: selectedLayerId,
+            userLayerId: authState.userLayerId,
+          });
+
+          if (currentLayer.layerType === "EVM") {
+            const { signer } = await getSigner();
+            const signedTx = await signer?.sendTransaction(
+              publicPhaseResponse.data.unsignedTx
+            );
+            await signedTx?.wait();
+          }
 
           for (let i = 0; i < Math.ceil(supply / 25); i++) {
             const response = await launchItemMutation({

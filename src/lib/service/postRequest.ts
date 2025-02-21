@@ -49,7 +49,7 @@ export async function loginHandler({
     return axiosClient
       .post(
         `/api/v1/users/login`,
-        JSON.stringify({ address, signedMessage, layerId, pubkey }),
+        JSON.stringify({ address, signedMessage, layerId, pubkey })
       )
       .then((response) => {
         return response.data;
@@ -78,7 +78,7 @@ export async function loginWalletLink({
     return axiosClient
       .post(
         `/api/v1/users/link-account`,
-        JSON.stringify({ address, signedMessage, layerId, pubkey }),
+        JSON.stringify({ address, signedMessage, layerId, pubkey })
       )
       .then((response) => {
         return response.data;
@@ -107,7 +107,7 @@ export async function linkAccountToAnotherUser({
     return axiosClient
       .post(
         `/api/v1/users/link-account-to-another-user`,
-        JSON.stringify({ address, signedMessage, layerId, pubkey }),
+        JSON.stringify({ address, signedMessage, layerId, pubkey })
       )
       .then((response) => {
         return response.data;
@@ -159,7 +159,7 @@ export async function createMintCollectible({
     if (file instanceof File) {
       formData.append(`file`, file);
       console.log(
-        `Appending file ${index}: ${file.name}, size: ${file.size}, type: ${file.type}`,
+        `Appending file ${index}: ${file.name}, size: ${file.size}, type: ${file.type}`
       );
     } else {
       console.error(`Invalid file at index ${index}:`, file);
@@ -219,7 +219,7 @@ export async function insriptionCollectible({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
     );
   });
 
@@ -269,7 +269,7 @@ export async function createLaunchItems({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
     );
   });
 
@@ -319,7 +319,7 @@ export async function createLaunchItemsIPFS({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
     );
   });
 
@@ -543,7 +543,7 @@ export async function createBadgeLaunch({
   if (badge instanceof File) {
     formData.append("badge", badge);
     console.log(
-      `Appending file: ${badge.name}, size: ${badge.size}, type: ${badge.type}`,
+      `Appending file: ${badge.name}, size: ${badge.size}, type: ${badge.type}`
     );
   } else if (badge) {
     console.error("Invalid file:", badge);
@@ -749,7 +749,7 @@ export async function launchItems({ data }: { data: LaunchItemType }) {
     data.files.forEach((file, index) => {
       formData.append("files", file);
       console.log(
-        `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+        `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
       );
     });
   }
@@ -895,6 +895,7 @@ export async function addPhase({
   maxMintPerPhase,
   merkleRoot,
   layerId,
+  userLayerId,
 }: AddPhaseRequest) {
   const config: AxiosRequestConfig = {
     method: "post",
@@ -910,6 +911,7 @@ export async function addPhase({
       maxMintPerPhase,
       merkleRoot,
       layerId,
+      userLayerId,
     },
   };
   const response = await axiosClient.request(config);

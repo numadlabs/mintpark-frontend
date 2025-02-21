@@ -189,7 +189,7 @@ const IPFS = () => {
       toast.error("Layer information not available");
       return;
     }
-    if (currentLayer.layer === "CITREA" && !window.ethereum) {
+    if (currentLayer.layerType === "EVM" && !window.ethereum) {
       toast.error("Please install MetaMask extension to continue");
       return;
     }
