@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// AssetsSideBar.tsx
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -14,12 +15,16 @@ import { s3ImageUrlBuilder } from "@/lib/utils";
 interface AssetsSideBarProps {
   onAvailabilityChange: (value: string) => void;
   onCollectionsChange: (collections: string[]) => void;
+  selectedCollections: string[];
 }
 
-const AssetsSideBar = ({ onAvailabilityChange, onCollectionsChange }: AssetsSideBarProps) => {
+const AssetsSideBar = ({
+  onAvailabilityChange,
+  onCollectionsChange,
+  selectedCollections,
+}: AssetsSideBarProps) => {
   const { authState } = useAuth();
   const [availability, setAvailability] = useState<string>("all");
-  const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
 
   const { data: listableData, isLoading: isListableLoading } = useQuery({
     queryKey: [
@@ -29,7 +34,7 @@ const AssetsSideBar = ({ onAvailabilityChange, onCollectionsChange }: AssetsSide
       "desc",
       10,
       0,
-      selectedCollections.join(","),
+      selectedCollections
     ],
     queryFn: () =>
       getListableById(
@@ -39,7 +44,7 @@ const AssetsSideBar = ({ onAvailabilityChange, onCollectionsChange }: AssetsSide
         authState?.userLayerId as string,
         10,
         0,
-        selectedCollections.join(",")
+        selectedCollections
       ),
     enabled: !!authState?.userId && !!authState?.userLayerId,
   });
@@ -59,6 +64,11 @@ const AssetsSideBar = ({ onAvailabilityChange, onCollectionsChange }: AssetsSide
     retry: 1,
   });
 
+  useEffect(() => {
+    // Sync the selected collections with parent component
+    onCollectionsChange(selectedCollections);
+  }, [selectedCollections, onCollectionsChange]);
+
   if (isListableLoading || isCollectionLoading) {
     return <div className="w-full p-4">Loading...</div>;
   }
@@ -76,8 +86,8 @@ const AssetsSideBar = ({ onAvailabilityChange, onCollectionsChange }: AssetsSide
       ? selectedCollections.filter((id) => id !== collectionId)
       : [...selectedCollections, collectionId];
 
-    setSelectedCollections(newCollections);
     onCollectionsChange(newCollections);
+    console.log("asdsd", newCollections);
   };
 
   return (
@@ -121,6 +131,7 @@ const AssetsSideBar = ({ onAvailabilityChange, onCollectionsChange }: AssetsSide
       <h2 className="font-bold text-lg text-neutral00 pt-7 pb-4 border-b border-neutral500">
         Collections
       </h2>
+      
       <div className="space-y-2 pt-4 grid gap-3">
         {Array.isArray(collections) &&
           collections.map((collection) => (

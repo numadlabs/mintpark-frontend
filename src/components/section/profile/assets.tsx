@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import AssetsCard from "@/components/atom/cards/assets-card";
 import AssetsCardList from "@/components/atom/cards/assets-card-list";
 import { getListableById } from "@/lib/service/queryHelper";
@@ -30,12 +30,14 @@ export default function Assets({ detail = false }: { detail: boolean }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [limit, setLimit] = useState(10);
   const [offset, setOffset] = useState(0);
-  const [collectionIds, setCollectionIds] = useState("");
+  const [selectedCollectionIds, setSelectedCollectionIds] = useState<string[]>(
+    []
+  );
   const [availability, setAvailability] = useState("all");
 
   const { authState } = useAuth();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: [
       "getListableById",
       authState.userId,
@@ -43,7 +45,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
       orderDirection,
       limit,
       offset,
-      collectionIds,
+      selectedCollectionIds,
       availability,
     ],
     queryFn: () =>
@@ -54,17 +56,33 @@ export default function Assets({ detail = false }: { detail: boolean }) {
         authState.userLayerId as string,
         limit,
         offset,
-        collectionIds
+        selectedCollectionIds
       ),
     enabled: !!authState?.userId,
   });
+
+  useEffect(() => {
+    refetch();
+  }, [selectedCollectionIds, refetch]);
 
   const filteredCollectibles = useMemo(() => {
     if (!data?.data?.collectibles) return [];
 
     let filtered = data.data.collectibles;
+
+    // Filter by availability
     if (availability === "listed") {
-      filtered = filtered.filter((item: CollectibleSchema) => item.listId !== null && item.listedAt !== null);
+      filtered = filtered.filter(
+        (item: CollectibleSchema) =>
+          item.listId !== null && item.listedAt !== null
+      );
+    }
+
+    // Filter by collections
+    if (selectedCollectionIds.length > 0) {
+      filtered = filtered.filter((item: CollectibleSchema) =>
+        selectedCollectionIds.includes(item.collectionId)
+      );
     }
 
     // Filter by search query
@@ -84,7 +102,12 @@ export default function Assets({ detail = false }: { detail: boolean }) {
     }
 
     return filtered;
-  }, [data?.data?.collectibles, searchQuery, availability]);
+  }, [
+    data?.data?.collectibles,
+    searchQuery,
+    availability,
+    selectedCollectionIds,
+  ]);
 
   const handleOrderChange = (value: string) => {
     switch (value) {
@@ -111,7 +134,8 @@ export default function Assets({ detail = false }: { detail: boolean }) {
   };
 
   const handleCollectionsChange = (collections: string[]) => {
-    setCollectionIds(collections.join(","));
+    setSelectedCollectionIds(collections);
+    console.log("handleCollections", collections);
   };
 
   if (isLoading) {
@@ -233,9 +257,10 @@ export default function Assets({ detail = false }: { detail: boolean }) {
               } transition-all`}
             >
               {active && (
-                <AssetsSideBar 
+                <AssetsSideBar
                   onAvailabilityChange={handleAvailabilityChange}
                   onCollectionsChange={handleCollectionsChange}
+                  selectedCollections={selectedCollectionIds}
                 />
               )}
             </div>

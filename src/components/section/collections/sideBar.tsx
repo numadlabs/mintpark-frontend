@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -11,13 +11,15 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   getCollectibleTraitTypes,
   getCollectibleTraitValues,
-  getListedCollectionById,
 } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
+import { CollectionDataType } from "@/lib/types";
 
 interface SidebarProps {
   id: string;
   onAvailabilityChange?: (showOnlyListed: boolean) => void;
+  onTraitsChange?: (selectedTraits: Record<string, string[]>) => void;
+  collectionData: CollectionDataType | null;
 }
 
 interface TraitType {
@@ -34,19 +36,16 @@ interface TraitValue {
 const CollectionSideBar: React.FC<SidebarProps> = ({
   id,
   onAvailabilityChange,
+  onTraitsChange,
+  collectionData,
 }) => {
-  const [selectedTraits, setSelectedTraits] = useState<Record<string, boolean>>(
-    {}
-  );
+  const [selectedTraits, setSelectedTraits] = useState<
+    Record<string, string[]>
+  >({});
   const [availability, setAvailability] = useState<string>("all");
   const [expandedType, setExpandedType] = useState<string | null>(null);
 
-  const { data: collection } = useQuery({
-    queryKey: ["collectionData", id, "recent", "desc"],
-    queryFn: () => getListedCollectionById(id, "recent", "desc", 10, 0, ""),
-    enabled: !!id,
-    retry: 1,
-  });
+console.log("coll", collectionData);
 
   const { data: traitTypes = [] } = useQuery<TraitType[]>({
     queryKey: ["traitType", id],
@@ -60,12 +59,38 @@ const CollectionSideBar: React.FC<SidebarProps> = ({
     enabled: !!expandedType,
   });
 
-  const handleTraitSelect = (traitId: string) => {
-    setSelectedTraits((prev) => ({
-      ...prev,
-      [traitId]: !prev[traitId],
-    }));
+  console.log("pisda", traitValues);
+
+  const handleTraitSelect = (traitTypeId: string, traitValueId: string) => {
+    setSelectedTraits((prev) => {
+      const newTraits = { ...prev };
+      if (!newTraits[traitTypeId]) {
+        newTraits[traitTypeId] = [];
+      }
+
+      const valueIndex = newTraits[traitTypeId].indexOf(traitValueId);
+      if (valueIndex === -1) {
+        newTraits[traitTypeId] = [...newTraits[traitTypeId], traitValueId];
+      } else {
+        newTraits[traitTypeId] = newTraits[traitTypeId].filter(
+          (id) => id !== traitValueId
+        );
+      }
+
+      // Remove empty arrays
+      if (newTraits[traitTypeId].length === 0) {
+        delete newTraits[traitTypeId];
+      }
+
+      return newTraits;
+    });
   };
+
+  useEffect(() => {
+    if (onTraitsChange) {
+      onTraitsChange(selectedTraits);
+    }
+  }, [selectedTraits, onTraitsChange]);
 
   const handleAccordionChange = (value: string) => {
     setExpandedType(value === expandedType ? null : value);
@@ -111,7 +136,8 @@ const CollectionSideBar: React.FC<SidebarProps> = ({
             htmlFor="listed"
             className="w-full cursor-pointer font-bold text-lg2 pt-3 pb-3"
           >
-            For sale <span>({collection?.listedCollectibleCount || 0})</span>
+            For sale{" "}
+            <span>({collectionData?.listedCount || 0})</span>
           </Label>
         </div>
       </RadioGroup>
@@ -139,13 +165,17 @@ const CollectionSideBar: React.FC<SidebarProps> = ({
                       >
                         <Checkbox
                           id={value.id}
-                          checked={selectedTraits[value.id]}
+                          checked={selectedTraits[traitType.id]?.includes(
+                            value.id
+                          )}
                           className={`h-5 w-5 p-[2px] rounded-s ${
-                            selectedTraits[value.id]
+                            selectedTraits[traitType.id]?.includes(value.id)
                               ? "bg-brand text-background"
                               : "text-background"
                           }`}
-                          onClick={() => handleTraitSelect(value.id)}
+                          onClick={() =>
+                            handleTraitSelect(traitType.id, value.id)
+                          }
                         />
                         <label
                           htmlFor={value.id}
