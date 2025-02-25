@@ -70,7 +70,7 @@ const AssetsSideBar = ({
   }, [selectedCollections, onCollectionsChange]);
 
   if (isListableLoading || isCollectionLoading) {
-    return <div className="w-full p-4">Loading...</div>;
+    return <div className="w-full p-4 flex justify-center items-center">Loading...</div>;
   }
 
   const collections = listableData?.data?.collections || [];
@@ -87,7 +87,6 @@ const AssetsSideBar = ({
       : [...selectedCollections, collectionId];
 
     onCollectionsChange(newCollections);
-    console.log("asdsd", newCollections);
   };
 
   return (

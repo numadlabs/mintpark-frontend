@@ -218,7 +218,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                 active ? "w-full sm:w-[280px] opacity-100" : "w-0 opacity-0"
               } transition-all duration-300`}
             >
-              <CollectionSideBar id={id as string}  />
+              {/* <CollectionSideBar id={id as string}  /> */}
             </div>
             <div className="flex-grow">
               <TabsContent value="ColCard">

@@ -135,24 +135,25 @@ export default function Assets({ detail = false }: { detail: boolean }) {
 
   const handleCollectionsChange = (collections: string[]) => {
     setSelectedCollectionIds(collections);
-    console.log("handleCollections", collections);
   };
 
-  if (isLoading) {
-    return <AssetsSkeleton detail={detail} />;
-  }
 
-  if (!data?.data?.collectibles || data.data.collectibles.length === 0) {
-    return (
-      <>
-        <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
-          <p className="text-neutral200 font-medium text-lg">
-            No activity recorded
-          </p>
-        </div>
-      </>
-    );
-  }
+// // this loading
+//   if (isLoading) {
+//     return <AssetsSkeleton detail={detail=true} />;
+//   }
+// // this loading
+//   if (!data?.data?.collectibles || data.data.collectibles.length === 0) {
+//     return (
+//       <>
+//         <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
+//           <p className="text-neutral200 font-medium text-lg">
+//             No activity recorded
+//           </p>
+//         </div>
+//       </>
+//     );
+//   }
 
   const toggleSideBar = () => {
     setActive(!active);
@@ -253,7 +254,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
           >
             <div
               className={`flex ${
-                active ? "opacity-100 w-full md:w-[280px]" : "opacity-0 w-0"
+                active ? "opacity-100 w-full md:w-[280px] hidden lg:block sm:hidden" : "opacity-0 w-0"
               } transition-all`}
             >
               {active && (
@@ -269,7 +270,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
               <div
                 className={`grid w-full gap-4 sm:gap-6 ${
                   active
-                    ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6"
+                    ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6"
                     : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6"
                 }`}
               >

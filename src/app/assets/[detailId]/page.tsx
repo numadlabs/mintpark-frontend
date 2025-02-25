@@ -70,7 +70,14 @@ export default function AssetDetail() {
   const { data: collection, isLoading: isQueryLoading } = useQuery({
     queryKey: ["collectionData", collectionId, "recent", "desc"],
     queryFn: () =>
-      getListedCollectionById(collectionId as string, "recent", "desc", 10, 0, ""),
+      getListedCollectionById(
+        collectionId as string,
+        "recent",
+        "desc",
+        10,
+        0,
+        ""
+      ),
     enabled: !!collectionId,
     retry: 1,
     initialData: {
@@ -170,7 +177,7 @@ export default function AssetDetail() {
                     </div>
                   </div>
                 ) : null}
-                <div className="flex gap-4">
+                {/* <div className="flex gap-4">
                   {currentAsset.price > 0 ? (
                     <>
                       <Button
@@ -180,6 +187,35 @@ export default function AssetDetail() {
                       >
                         Buy now
                       </Button>
+                      {currentAsset.isOwnListing && (
+                        <Button
+                          variant="secondary"
+                          className="w-60 h-12"
+                          onClick={toggleCancelModal}
+                        >
+                          Cancel listing
+                        </Button>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-xl text-neutral50 font-medium">
+                      This asset is not listed
+                    </p>
+                  )}
+                </div> */}
+
+                <div className="flex gap-4">
+                  {currentAsset.price > 0 ? (
+                    <>
+                      {!currentAsset.isOwnListing && (
+                        <Button
+                          variant="primary"
+                          className="w-60 h-12 bg-brand500"
+                          onClick={toggleBuyModal}
+                        >
+                          Buy now
+                        </Button>
+                      )}
                       {currentAsset.isOwnListing && (
                         <Button
                           variant="secondary"
@@ -375,7 +411,6 @@ export default function AssetDetail() {
     </Layout>
   );
 }
-
 
 // "use client";
 
