@@ -42,7 +42,7 @@ import Toggle from "@/components/ui/toggle";
 import UploadJsonCard from "@/components/atom/cards/upload-json-card";
 import UploadJsonFile from "@/components/section/upload-json-file";
 import { ethers } from "ethers";
-import { MerkleTree } from 'merkletreejs';
+// import { MerkleTree } from 'merkletreejs';
 
 const IPFS = () => {
   const router = useRouter();
@@ -150,7 +150,7 @@ const IPFS = () => {
 
   const calculateTimeUntilDate = (
     dateString: string,
-    timeString: string
+    timeString: string,
   ): number => {
     try {
       // Input validation
@@ -339,10 +339,11 @@ const IPFS = () => {
   function generateMerkleRoot(addresses: string[]): string {
     const leaves = addresses.map((addr) =>
       // ethers.keccak256(ethers.encodePacked(["address"], [addr]))
-    ethers.solidityPacked(["address"], [addr]) 
+      ethers.solidityPacked(["address"], [addr]),
     );
-    const tree = new MerkleTree(leaves, ethers.keccak256, { sortPairs: true });
-    return tree.getHexRoot();
+    // const tree = new MerkleTree(leaves, ethers.keccak256, { sortPairs: true });
+    return "";
+    // return tree.getHexRoot();
   }
 
   const handleCreateLaunch = async () => {
@@ -388,7 +389,7 @@ const IPFS = () => {
         if (isChecked) {
           const wlStartsAt = calculateTimeUntilDate(
             WLStartsAtDate,
-            WLStartsAtTime
+            WLStartsAtTime,
           );
           const wlEndsAt = calculateTimeUntilDate(WLEndsAtDate, WLEndsAtTime);
 
@@ -410,7 +411,7 @@ const IPFS = () => {
           if (currentLayer.layerType === "EVM") {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(
-              whitelistPhaseResponse.data.unsignedTx
+              whitelistPhaseResponse.data.unsignedTx,
             );
             await signedTx?.wait();
           }
@@ -434,7 +435,7 @@ const IPFS = () => {
         if (currentLayer.layerType === "EVM") {
           const { signer } = await getSigner();
           const signedTx = await signer?.sendTransaction(
-            publicPhaseResponse.data.unsignedTx
+            publicPhaseResponse.data.unsignedTx,
           );
           await signedTx?.wait();
         }
@@ -450,7 +451,7 @@ const IPFS = () => {
           const currentBatchFiles = files.slice(start, end);
 
           const names = currentBatchFiles.map(
-            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
+            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
           );
 
           const launchItemsData: CreateLaunchParams = {
@@ -497,7 +498,7 @@ const IPFS = () => {
     } catch (error) {
       console.error("Error creating launch:", error);
       toast.error(
-        error instanceof Error ? error.message : "Error creating launch"
+        error instanceof Error ? error.message : "Error creating launch",
       );
     } finally {
       setIsLoading(false);
