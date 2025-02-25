@@ -220,11 +220,10 @@ const CollectionDetailPage = () => {
     window.open(validUrl, "_blank", "noopener,noreferrer");
   };
 
-  
   const handleTraitsChange = (traits: Record<string, string[]>) => {
     setTraitValuesByType(traits);
   };
-  
+
   const toggleSideBar = () => {
     setActive(!active);
   };
@@ -565,7 +564,7 @@ const CollectionDetailPage = () => {
                   <div
                     className={`${
                       active
-                        ? "w-full sm:w-[280px] opacity-100"
+                        ? "w-full sm:w-[280px] hidden lg:block sm:hidden opacity-100"
                         : "w-0 opacity-0"
                     } transition-all duration-300`}
                   >
@@ -579,9 +578,9 @@ const CollectionDetailPage = () => {
                     )}
                   </div>
                   <div
-                    className={`grid gap-4 md:gap-6 lg:gap-8 ${
+                    className={`grid gap-4 md:gap-6 h-fit lg:gap-8 ${
                       active
-                        ? "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6"
+                        ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6"
                         : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6"
                     }`}
                   >
@@ -615,7 +614,9 @@ const CollectionDetailPage = () => {
               >
                 <div
                   className={`${
-                    active ? "w-full sm:w-[280px] opacity-100" : "w-0 opacity-0"
+                    active
+                      ? "w-full sm:w-[280px] opacity-100 hidden lg:block sm:hidden"
+                      : "w-0 opacity-0"
                   } transition-all duration-300`}
                 >
                   {active && (

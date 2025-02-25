@@ -92,6 +92,13 @@ export interface NetworkConfig {
   chainName?: string;
   rpcUrls?: string[];
   blockExplorerUrls?: string[];
+  //new implement
+  nativeCurrency?: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+
 }
 
 export interface WalletStorage {
@@ -160,7 +167,12 @@ export interface WalletInfo {
 }
 
 export interface Layer {
-  nativeCurrency?: any;
+  // nativeCurrency?: any;
+  nativeCurrency?: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
   id: string;
   name: string;
   layer: string;
