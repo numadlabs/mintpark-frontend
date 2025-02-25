@@ -42,7 +42,6 @@ declare global {
 
 export default function Header() {
   const router = useRouter();
-  const [walletModal, setWalletModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [selectedLayer, setSelectedLayer] = useState("CITREA");
@@ -55,6 +54,7 @@ export default function Header() {
     setSelectedLayerId,
     getWalletForLayer,
     isWalletConnected,
+    connectedWallets,
   } = useAuth();
 
   const { data: dynamicLayers = [] } = useQuery({
@@ -81,7 +81,7 @@ export default function Header() {
         }
       } else if (dynamicLayers.length > 0) {
         const citreaLayer = dynamicLayers.find(
-          (l: LayerType) => l.layer === "CITREA"
+          (l: LayerType) => l.layer === "CITREA",
         );
         if (citreaLayer) {
           const layerString = `${citreaLayer.layer}-${citreaLayer.network}`;
@@ -112,10 +112,6 @@ export default function Header() {
     { title: "Collections", pageUrl: "/collections" },
   ];
 
-  const toggleWalletModal = () => {
-    setWalletModal(!walletModal);
-  };
-
   const getLayerImage = (layer: string) => {
     switch (layer) {
       case "BITCOIN":
@@ -134,7 +130,7 @@ export default function Header() {
   const handleLayerSelect = (value: string) => {
     const [layer, network] = value.split("-");
     const selectedLayer = layers.find(
-      (l: LayerType) => l.layer === layer && l.network === network
+      (l: LayerType) => l.layer === layer && l.network === network,
     );
 
     if (selectedLayer) {
@@ -154,7 +150,7 @@ export default function Header() {
   const handleNavigation = (
     pageUrl: string,
     requiresAuth?: boolean,
-    disabled?: boolean
+    disabled?: boolean,
   ) => {
     if (disabled) {
       toast.info("This feature is coming soon!");
@@ -166,10 +162,6 @@ export default function Header() {
     }
     router.push(pageUrl);
     setMobileMenuOpen(false);
-  };
-
-  const handleTwitterClick = () => {
-    window.open("https://x.com/mintpark_io", "_blank");
   };
 
   const currentWallet = selectedLayerId
@@ -204,7 +196,7 @@ export default function Header() {
                           handleNavigation(
                             item.pageUrl,
                             item.requiresAuth,
-                            item.disabled
+                            item.disabled,
                           )
                         }
                       />
@@ -248,32 +240,51 @@ export default function Header() {
                   </SelectTrigger>
                   <SelectContent className="mt-4 flex flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
                     <SelectGroup className="flex flex-col gap-2">
-                      {layers.map((layer: ExtendedLayerType) => (
-                        <SelectItem
-                          key={layer.id}
-                          value={`${layer.layer}-${layer.network}`}
-                          className={`flex flex-row items-center gap-2 w-[170px] ${
-                            layer.comingSoon
-                              ? "opacity-80 cursor-not-allowed"
-                              : "hover:bg-white8 duration-300 transition-all cursor-pointer"
-                          }`}
-                        >
-                          <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
-                            <Image
-                              src={getLayerImage(layer.layer)}
-                              alt={layer.layer}
-                              width={24}
-                              height={24}
-                              className="rounded-full"
-                            />
-                            <div className="flex items-center gap-2">
-                              {`${capitalizeFirstLetter(
-                                layer.layer
-                              )} ${capitalizeFirstLetter(layer.network)}`}
+                      {layers.map((layer) => {
+                        // Check if this layer is connected
+                        const isLayerConnected = connectedWallets?.some(
+                          (wallet) => {
+                            const foundLayer = layers.find(
+                              (l) => l.id === wallet.layerId,
+                            );
+                            return (
+                              foundLayer?.layer === layer.layer &&
+                              foundLayer?.network === layer.network
+                            );
+                          },
+                        );
+
+                        return (
+                          <SelectItem
+                            key={layer.id}
+                            value={`${layer.layer}-${layer.network}`}
+                            className={`flex flex-row items-center gap-2 w-[170px] ${
+                              layer.comingSoon
+                                ? "opacity-80 cursor-not-allowed"
+                                : "hover:bg-white8 duration-300 transition-all cursor-pointer"
+                            }`}
+                          >
+                            <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium w-full">
+                              <Image
+                                src={getLayerImage(layer.layer)}
+                                alt={layer.layer}
+                                width={24}
+                                height={24}
+                                className="rounded-full"
+                              />
+                              <div className="flex items-center gap-2 flex-1">
+                                {`${capitalizeFirstLetter(
+                                  layer.layer,
+                                )} ${capitalizeFirstLetter(layer.network)}`}
+                              </div>
+                              {/* Show connection status in dropdown */}
+                              {isLayerConnected && (
+                                <div className="w-2 h-2 bg-green-400 rounded-full ml-auto" />
+                              )}
                             </div>
-                          </div>
-                        </SelectItem>
-                      ))}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -386,7 +397,7 @@ export default function Header() {
                       handleNavigation(
                         item.pageUrl,
                         item.requiresAuth,
-                        item.disabled
+                        item.disabled,
                       )
                     }
                   >
@@ -408,7 +419,7 @@ export default function Header() {
                     className="text-neutral00 text-lg font-medium"
                   >
                     Inscribe Orders
-                  </Link> 
+                  </Link>
                 </div>
               )}*/}
               <div className="lg:flex flex-row overflow-hidden grid items-center pt-6 border-t border-neutral400 gap-4 ">
@@ -444,32 +455,51 @@ export default function Header() {
                   </SelectTrigger>
                   <SelectContent className="flex max-w-[210px] flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
                     <SelectGroup className="flex flex-col gap-2">
-                      {layers.map((layer: ExtendedLayerType) => (
-                        <SelectItem
-                          key={layer.id}
-                          value={`${layer.layer}-${layer.network}`}
-                          className={`flex flex-row items-center gap-2 w-[170px] ${
-                            layer.comingSoon
-                              ? "opacity-80 cursor-not-allowed"
-                              : "hover:bg-white8 duration-300 transition-all cursor-pointer"
-                          }`}
-                        >
-                          <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
-                            <Image
-                              src={getLayerImage(layer.layer)}
-                              alt={layer.layer}
-                              width={24}
-                              height={24}
-                              className="rounded-full"
-                            />
-                            <div className="flex items-center gap-2">
-                              {`${capitalizeFirstLetter(
-                                layer.layer
-                              )} ${capitalizeFirstLetter(layer.network)}`}
+                      {layers.map((layer) => {
+                        // Check if this layer is connected
+                        const isLayerConnected = connectedWallets?.some(
+                          (wallet) => {
+                            const foundLayer = layers.find(
+                              (l) => l.id === wallet.layerId,
+                            );
+                            return (
+                              foundLayer?.layer === layer.layer &&
+                              foundLayer?.network === layer.network
+                            );
+                          },
+                        );
+
+                        return (
+                          <SelectItem
+                            key={layer.id}
+                            value={`${layer.layer}-${layer.network}`}
+                            className={`flex flex-row items-center gap-2 w-[170px] ${
+                              layer.comingSoon
+                                ? "opacity-80 cursor-not-allowed"
+                                : "hover:bg-white8 duration-300 transition-all cursor-pointer"
+                            }`}
+                          >
+                            <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium w-full">
+                              <Image
+                                src={getLayerImage(layer.layer)}
+                                alt={layer.layer}
+                                width={24}
+                                height={24}
+                                className="rounded-full"
+                              />
+                              <div className="flex items-center gap-2 flex-1">
+                                {`${capitalizeFirstLetter(
+                                  layer.layer,
+                                )} ${capitalizeFirstLetter(layer.network)}`}
+                              </div>
+                              {/* Show connection status in dropdown */}
+                              {isLayerConnected && (
+                                <div className="w-2 h-2 bg-green-400 rounded-full ml-auto" />
+                              )}
                             </div>
-                          </div>
-                        </SelectItem>
-                      ))}
+                          </SelectItem>
+                        );
+                      })}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
