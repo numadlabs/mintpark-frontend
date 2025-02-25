@@ -51,6 +51,7 @@ export type CollectionDataType = {
   websiteUrl: string;
   twitterUrl: string;
   discordUrl: string;
+  listedCollectibleCount?: number;
 };
 
 export type MintCollectibleDataType = {

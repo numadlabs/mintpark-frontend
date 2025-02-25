@@ -18,9 +18,9 @@ const Assets = () => {
         "asc",
         "recent",
         authState.userLayerId as string,
-        10,  // default limit
-        0,   // default offset
-        ""   // default empty collection ids
+        10, // default limit
+        0, // default offset
+        [""] // default empty collection ids
       ),
     enabled: !!authState?.userId,
   });

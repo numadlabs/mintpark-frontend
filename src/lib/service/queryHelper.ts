@@ -103,18 +103,92 @@ export async function getListedCollections(
     });
 }
 
+// export async function getListedCollectionById(
+//   collectionId: string,
+//   orderBy: string,
+//   orderDirection: string,
+//   limit: number,
+//   offset: number,
+//   traitValuesByType: string
+// ): Promise<CollectionDetail | null> {
+//   console.log("traitValuesByType", traitValuesByType);
+//   return axiosClient
+//     .get<CollectionDetailApiResponse>(
+//       `/api/v1/collectibles/${collectionId}/collection/listable?orderBy=${orderBy}&orderDirection=${orderDirection}&limit=${limit}&offset=${offset}&traitValuesByType&${traitValuesByType}`
+//     )
+//     .then((response) => {
+//       if (response.data.success) {
+//         return response.data.data;
+//       } else {
+//         throw new Error(response.data.message);
+//       }
+//     });
+// }
+
+// export async function getListedCollectionById(
+//   collectionId: string,
+//   orderBy: string,
+//   orderDirection: string,
+//   limit: number,
+//   offset: number,
+//   traitValuesByType: string
+// ): Promise<CollectionDetail | null> {
+//   const params = new URLSearchParams({
+//     orderBy,
+//     orderDirection,
+//     limit: limit.toString(),
+//     offset: offset.toString(),
+//   });
+
+//   if (traitValuesByType.length > 0) {
+//     params.append(
+//       "traitValuesByType",
+//       `{${JSON.stringify(traitValuesByType)}}`
+//     );
+//   }
+
+//   return axiosClient
+//     .get<CollectionDetailApiResponse>(
+//       `/api/v1/collectibles/${collectionId}/collection/listable?${params.toString()}`
+//     )
+//     .then((response) => {
+//       if (response.data.success) {
+//         return response.data.data;
+//       } else {
+//         throw new Error(response.data.message);
+//       }
+//     });
+// }
+
 export async function getListedCollectionById(
   collectionId: string,
   orderBy: string,
   orderDirection: string,
   limit: number,
   offset: number,
-  traitValuesByType: string,
+  traitValuesByType: Record<string, string[]> | string // Update type to handle both
 ): Promise<CollectionDetail | null> {
-  console.log("traitValuesByType", traitValuesByType);
+  const params = new URLSearchParams({
+    orderBy,
+    orderDirection,
+    limit: limit.toString(),
+    offset: offset.toString(),
+  });
+
+  if (traitValuesByType) {
+    // If it's already a string (backwards compatibility), use it directly
+    // Otherwise, stringify it once here
+    const traitValuesParam =
+      typeof traitValuesByType === "string"
+        ? traitValuesByType
+        : JSON.stringify(traitValuesByType);
+
+    params.append("traitValuesByType", traitValuesParam);
+  }
+
   return axiosClient
     .get<CollectionDetailApiResponse>(
-      `/api/v1/collectibles/${collectionId}/collection/listable?orderBy=${orderBy}&orderDirection=${orderDirection}&limit=${limit}&offset=${offset}&traitValuesByType&${traitValuesByType}`
+      `/api/v1/collectibles/${collectionId}/collection/listable?${params.toString()}`
     )
     .then((response) => {
       if (response.data.success) {
@@ -142,20 +216,31 @@ export async function getListableById(
   orderDirection: string,
   orderBy: string,
   userLayerId: string,
-  limit:number,
-  offset:number,
-  collectionIds:string
+  limit: number,
+  offset: number,
+  collectionIds: string[]
 ): Promise<AssetSchema> {
+  // Create base query parameters
+  const params = new URLSearchParams({
+    orderDirection,
+    orderBy,
+    userLayerId,
+    limit: limit.toString(),
+    offset: offset.toString(),
+  });
+
+  // Add collectionIds as a single parameter if array is not empty
+  if (collectionIds.length > 0) {
+    params.append("collectionIds", JSON.stringify(collectionIds));
+  }
+
   return axiosClient
-    .get(
-      `/api/v1/collectibles/${id}/listable?orderDirection=${orderDirection}&orderBy=${orderBy}&userLayerId=${userLayerId}&limit=${limit}&offset=${offset}&collectionIds=${collectionIds}`
-    )
+    .get(`/api/v1/collectibles/${id}/listable?${params.toString()}`)
     .then((response) => {
       if (response.data.success) {
         return response.data;
-      } else {
-        throw new Error(response.data.error);
       }
+      throw new Error(response.data.error);
     });
 }
 

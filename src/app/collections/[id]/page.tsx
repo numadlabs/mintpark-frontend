@@ -50,7 +50,12 @@ const CollectionDetailPage = () => {
   const [orderBy, setOrderBy] = useState("recent");
   const [orderDirection, setOrderDirection] = useState("desc");
   const [searchFilter, setSearchFilter] = useState<string>("");
-  const [traitValuesByType, setTraitValuesByType] = useState<string>("");
+  const [traitValuesByType, setTraitValuesByType] = useState<
+    Record<string, string[]> | string
+  >({});
+  const [selectedTraits, setSelectedTraits] = useState<
+    Record<string, string[]>
+  >({});
   const [showOnlyListed, setShowOnlyListed] = useState(false);
 
   useEffect(() => {
@@ -84,33 +89,23 @@ const CollectionDetailPage = () => {
       if (!id) {
         throw new Error("Collection ID is required");
       }
-
       const limit = ITEMS_PER_PAGE;
       const offset = (pageParam - 1) * ITEMS_PER_PAGE;
 
-      try {
-        const response = await getListedCollectionById(
-          id,
-          orderBy,
-          orderDirection,
-          limit,
-          offset,
-          traitValuesByType
-        );
-
-        return {
-          collectibles: response?.collectibles ?? [],
-          hasMore: response?.hasMore ?? false,
-          totalCount: response?.listedCollectibleCount ?? 0,
-        };
-      } catch (error) {
-        console.error("Error fetching collection data:", error);
-        return {
-          collectibles: [],
-          hasMore: false,
-          totalCount: 0,
-        };
-      }
+      console.log("Calling getListedCollectionById with:", traitValuesByType); // Debug log
+      const response = await getListedCollectionById(
+        id,
+        orderBy,
+        orderDirection,
+        limit,
+        offset,
+        JSON.stringify(traitValuesByType) // Stringify only here if required
+      );
+      return {
+        collectibles: response?.collectibles ?? [],
+        hasMore: response?.hasMore ?? false,
+        totalCount: response?.listedCollectibleCount ?? 0,
+      };
     },
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
@@ -225,6 +220,11 @@ const CollectionDetailPage = () => {
     window.open(validUrl, "_blank", "noopener,noreferrer");
   };
 
+  
+  const handleTraitsChange = (traits: Record<string, string[]>) => {
+    setTraitValuesByType(traits);
+  };
+  
   const toggleSideBar = () => {
     setActive(!active);
   };
@@ -233,9 +233,9 @@ const CollectionDetailPage = () => {
     setShowOnlyListed(onlyListed);
   };
 
-  if (!id || isQueryLoading) {
-    return <CollectionDetailSkeleton />;
-  }
+  // if (!id || isQueryLoading) {
+  //   return <CollectionDetailSkeleton />;
+  // }
 
   if (error) {
     return (
@@ -573,6 +573,8 @@ const CollectionDetailPage = () => {
                       <CollectionSideBar
                         id={id as string}
                         onAvailabilityChange={handleAvailabilityChange}
+                        onTraitsChange={handleTraitsChange}
+                        collectionData={collectionData}
                       />
                     )}
                   </div>
@@ -620,6 +622,8 @@ const CollectionDetailPage = () => {
                     <CollectionSideBar
                       id={id as string}
                       onAvailabilityChange={handleAvailabilityChange}
+                      onTraitsChange={handleTraitsChange}
+                      collectionData={collectionData}
                     />
                   )}
                 </div>
