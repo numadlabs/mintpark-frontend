@@ -31,7 +31,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ExtendedLayerType, LayerType } from "@/lib/types";
 import { toast } from "sonner";
 import Badge from "../atom/badge";
-import { Loader2, MenuIcon } from "lucide-react";
+import { Check, Loader2, MenuIcon } from "lucide-react";
 import { WalletConnectionModal } from "../modal/wallet-connect-modal";
 
 declare global {
@@ -264,8 +264,9 @@ export default function Header() {
                                 : "hover:bg-white8 duration-300 transition-all cursor-pointer"
                             }`}
                           >
-                            <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium w-full">
-                              <Image
+                            <div className="flex justify-between gap-2 items-center text-md text-neutral50 font-medium w-full">
+                            <div className="flex gap-2">
+                            <Image
                                 src={getLayerImage(layer.layer)}
                                 alt={layer.layer}
                                 width={24}
@@ -277,10 +278,14 @@ export default function Header() {
                                   layer.layer,
                                 )} ${capitalizeFirstLetter(layer.network)}`}
                               </div>
+                            </div>
                               {/* Show connection status in dropdown */}
-                              {isLayerConnected && (
-                                <div className="w-2 h-2 bg-green-400 rounded-full ml-auto" />
+                           <div className="">
+                           {isLayerConnected && (
+                                // <div className="w-2 h-2 bg-success rounded-full" />
+                                <Check  className="w-5 h-5 text-neutral50"/>
                               )}
+                           </div>
                             </div>
                           </SelectItem>
                         );

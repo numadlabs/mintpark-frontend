@@ -1,6 +1,5 @@
 import { WalletConfig } from "@/types";
 
-
 export const BITCOIN_IMAGE = "/wallets/Bitcoin.png";
 
 export const rpcUrl = "http://seed2.coordinate.mara.technology",
@@ -66,17 +65,38 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
       },
     },
   },
+  // HEMI: {
+  //   type: "metamask",
+  //   chainId: "743111", // 743111 in hex
+  //   name: "Hemi",
+  //   icon: "/wallets/hemi.png",
+  //   networks: {
+  //     TESTNET: {
+  //       chainId: "0xB56C7",
+  //       chainName: "Sepollia Testnet",
+  //       rpcUrls: ["https://testnet.rpc.hemi.network/rpc"],
+  //       blockExplorerUrls: ["https://eth-sepolia.public.blastapi.io"],
+  //     },
+  //   },
+  // },
+
+// new implement
   HEMI: {
     type: "metamask",
-    chainId: "743111", // 743111 in hex
+    chainId: "0xB56C7",
     name: "Hemi",
     icon: "/wallets/hemi.png",
     networks: {
       TESTNET: {
-        chainId: "0xB56C7",
-        chainName: "Sepollia Testnet",
+        chainId: "0xB56C7", // Hexadecimal representation of 743111
+        chainName: "Hemi Testnet",
         rpcUrls: ["https://testnet.rpc.hemi.network/rpc"],
-        blockExplorerUrls: ["https://eth-sepolia.public.blastapi.io"],
+        blockExplorerUrls: ["https://testnet-explorer.hemi.network"],
+        nativeCurrency: {
+          name: "Hemi",
+          symbol: "HEMI", // Changed from cBTC to HEMI
+          decimals: 18,
+        },
       },
     },
   },

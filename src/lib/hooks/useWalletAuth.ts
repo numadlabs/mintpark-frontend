@@ -154,48 +154,108 @@ const useWalletStore = create<WalletStore>()(
 
             console.log(
               "🚀 ~ connectWallet: ~ currentChainIdDecimal:",
-              currentChainIdDecimal,
+              currentChainIdDecimal
             );
             console.log("🚀 ~ connectWallet: ~  layer.chainId:", layer.chainId);
+            // if (currentChainIdDecimal.toString() !== layer.chainId) {
+            //   try {
+            //     await window.ethereum.request({
+            //       method: "wallet_addEthereumChain",
+            //       params: [
+            //         {
+            //           chainId: targetChainIdHex,
+            //           chainName: layer.name,
+            //           rpcUrls: walletConfig.networks.TESTNET.rpcUrls,
+            //           // rpcUrls: [layer.rpcUrl],
+            //           nativeCurrency: {
+            //             name: "cBTC",
+            //             symbol: "cBTC",
+            //             decimals: 18,
+            //           },
+            //         },
+            //       ],
+            //     });
+            //   } catch (addError: any) {
+            //     console.log("add error", addError);
+            //     if (addError.code === 4902) {
+            //       try {
+            //         await window.ethereum.request({
+            //           method: "wallet_switchEthereumChain",
+            //           params: [{ chainId: targetChainIdHex }],
+            //         });
+            //       } catch (switchError) {
+            //         throw new Error(
+            //           `Failed to switch network (Chain ID: ${layer.chainId})`,
+            //         );
+            //       }
+            //     } else {
+            //       throw new Error(
+            //         `Failed to add network (Chain ID: ${layer.chainId})`,
+            //       );
+            //     }
+            //   }
+            // }
+
+            //new implement
             if (currentChainIdDecimal.toString() !== layer.chainId) {
               try {
+                // Try to switch to the network first before trying to add it
                 await window.ethereum.request({
-                  method: "wallet_addEthereumChain",
-                  params: [
-                    {
-                      chainId: targetChainIdHex,
-                      chainName: layer.name,
-                      rpcUrls: walletConfig.networks.TESTNET.rpcUrls,
-                      // rpcUrls: [layer.rpcUrl],
-                      nativeCurrency: {
-                        name: "cBTC",
-                        symbol: "cBTC",
-                        decimals: 18,
-                      },
-                    },
-                  ],
+                  method: "wallet_switchEthereumChain",
+                  params: [{ chainId: targetChainIdHex }],
                 });
-              } catch (addError: any) {
-                console.log("add error", addError);
-                if (addError.code === 4902) {
+              } catch (switchError: any) {
+                // This error code indicates the chain hasn't been added to MetaMask
+                if (switchError.code === 4902) {
                   try {
+                    // Get the network config from our WALLET_CONFIGS
+                    const networkConfig = walletConfig.networks.TESTNET;
+
                     await window.ethereum.request({
-                      method: "wallet_switchEthereumChain",
-                      params: [{ chainId: targetChainIdHex }],
+                      method: "wallet_addEthereumChain",
+                      params: [
+                        {
+                          chainId: targetChainIdHex,
+                          chainName: layer.name,
+                          rpcUrls: networkConfig.rpcUrls,
+                          blockExplorerUrls: networkConfig.blockExplorerUrls,
+                          nativeCurrency: networkConfig.nativeCurrency || {
+                            name: layer.name,
+                            symbol: layer.name.toUpperCase().substring(0, 5),
+                            decimals: 18,
+                          },
+                        },
+                      ],
                     });
-                  } catch (switchError) {
+                  } catch (addError: any) {
+                    console.log("add error", addError);
                     throw new Error(
-                      `Failed to switch network (Chain ID: ${layer.chainId})`,
+                      `Failed to add network (Chain ID: ${layer.chainId}): ${addError.message}`
                     );
                   }
                 } else {
                   throw new Error(
-                    `Failed to add network (Chain ID: ${layer.chainId})`,
+                    `Failed to switch network (Chain ID: ${layer.chainId}): ${switchError.message}`
                   );
                 }
               }
             }
 
+            // address = await window.ethereum
+            //   .request({
+            //     method: "eth_requestAccounts",
+            //   })
+            //   .then((accounts: string[]) => accounts[0]);
+
+            // const msgResponse = await generateMessageHandler({ address });
+            // console.log("🚀 ~ connectWallet: ~ msgResponse:", msgResponse);
+            // signedMessage = await window.ethereum.request({
+            //   method: "personal_sign",
+            //   params: [msgResponse.data.message, address],
+            // });
+            // console.log("🚀 ~ connectWallet: ~ signedMessage:", signedMessage);
+
+            // new implemment
             address = await window.ethereum
               .request({
                 method: "eth_requestAccounts",
@@ -209,7 +269,8 @@ const useWalletStore = create<WalletStore>()(
               params: [msgResponse.data.message, address],
             });
             console.log("🚀 ~ connectWallet: ~ signedMessage:", signedMessage);
-
+            //new implemment
+            
             let response;
             if (isLinking && authState.authenticated) {
               response = await loginWalletLink({
@@ -286,7 +347,7 @@ const useWalletStore = create<WalletStore>()(
 
             // Sign message with Unisat
             signedMessage = await window.unisat.signMessage(
-              msgResponse.data.message,
+              msgResponse.data.message
             );
             pubkey = await window.unisat.getPublicKey();
 
@@ -424,7 +485,7 @@ const useWalletStore = create<WalletStore>()(
       disconnectWallet: async (layerId: string) => {
         set((state) => ({
           connectedWallets: state.connectedWallets.filter(
-            (w) => w.layerId !== layerId,
+            (w) => w.layerId !== layerId
           ),
         }));
 
@@ -472,8 +533,8 @@ const useWalletStore = create<WalletStore>()(
         authState: state.authState,
         selectedLayerId: state.selectedLayerId,
       }),
-    },
-  ),
+    }
+  )
 );
 
 export default useWalletStore;
