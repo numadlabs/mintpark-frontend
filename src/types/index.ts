@@ -120,16 +120,33 @@ export interface WalletState {
   };
 }
 
+// export interface AuthState {
+//   [x: string]: string | null | undefined;
+//   authenticated: boolean;
+//   loading: boolean;
+//   userLayerId: string | null;
+//   userId: string | null;
+//   layerId: string | null;
+//   // primaryWallet: WalletInfo;
+//   // secondaryWallet: WalletInfo;
+//   // hasAlreadyBeenLinkedToAnotherUser
+//   tokens: {
+//     accessToken: string | null;
+//     refreshToken: string | null;
+//   };
+// }
+
 export interface AuthState {
-  [x: string]: string | null | undefined;
+  [x: string]: string | null | undefined | boolean | {
+    accessToken: string | null;
+    refreshToken: string | null;
+  };
+  
   authenticated: boolean;
   loading: boolean;
   userLayerId: string | null;
   userId: string | null;
   layerId: string | null;
-  // primaryWallet: WalletInfo;
-  // secondaryWallet: WalletInfo;
-  // hasAlreadyBeenLinkedToAnotherUser
   tokens: {
     accessToken: string | null;
     refreshToken: string | null;
@@ -143,7 +160,7 @@ export interface WalletInfo {
 }
 
 export interface Layer {
-  nativeCurrency: any;
+  nativeCurrency?: any;
   id: string;
   name: string;
   layer: string;

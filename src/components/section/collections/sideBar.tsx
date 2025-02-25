@@ -45,8 +45,6 @@ const CollectionSideBar: React.FC<SidebarProps> = ({
   const [availability, setAvailability] = useState<string>("all");
   const [expandedType, setExpandedType] = useState<string | null>(null);
 
-console.log("coll", collectionData);
-
   const { data: traitTypes = [] } = useQuery<TraitType[]>({
     queryKey: ["traitType", id],
     queryFn: () => getCollectibleTraitTypes(id),
@@ -58,8 +56,6 @@ console.log("coll", collectionData);
     queryFn: () => getCollectibleTraitValues(expandedType!),
     enabled: !!expandedType,
   });
-
-  console.log("pisda", traitValues);
 
   const handleTraitSelect = (traitTypeId: string, traitValueId: string) => {
     setSelectedTraits((prev) => {

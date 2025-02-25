@@ -42,6 +42,7 @@ import Toggle from "@/components/ui/toggle";
 import UploadJsonCard from "@/components/atom/cards/upload-json-card";
 import UploadJsonFile from "@/components/section/upload-json-file";
 import { ethers } from "ethers";
+import { MerkleTree } from 'merkletreejs';
 
 const IPFS = () => {
   const router = useRouter();
@@ -337,7 +338,8 @@ const IPFS = () => {
   // Add helper function for merkle root generation
   function generateMerkleRoot(addresses: string[]): string {
     const leaves = addresses.map((addr) =>
-      ethers.keccak256(ethers.encodePacked(["address"], [addr]))
+      // ethers.keccak256(ethers.encodePacked(["address"], [addr]))
+    ethers.solidityPacked(["address"], [addr]) 
     );
     const tree = new MerkleTree(leaves, ethers.keccak256, { sortPairs: true });
     return tree.getHexRoot();

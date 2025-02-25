@@ -102,7 +102,6 @@ const Page = () => {
         userLayerId: authState.userLayerId,
         feeRate: 1,
       });
-
       if (!response?.success) {
         throw new Error(response?.error || "Failed to create order");
       }
@@ -251,9 +250,9 @@ const Page = () => {
   const handlePhaseClick = (phaseType: "guaranteed" | "public") => {
     setSelectedPhase(phaseType);
   };
-
+// add to go to collection condition
   const handlCollectionClick = () => {
-    router.push(`/collections`);
+    router.push(`/collections/${collectibles.id}`);
   };
 
   // Helper function to calculate progress value
