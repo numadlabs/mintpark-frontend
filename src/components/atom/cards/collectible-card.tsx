@@ -6,10 +6,11 @@ import { CollectionSchema } from "@/lib/validations/collection-validation";
 
 interface CollectibleCardProps {
   data: CollectionSchema;
-  isOwnListing?: boolean;
+  // isOwnListing?: boolean;
 }
 
-export default function CollectibleCard({ data, isOwnListing = false }: CollectibleCardProps) {
+// export default function CollectibleCard({ data, isOwnListing = false }: CollectibleCardProps) {
+export default function CollectibleCard({ data }: CollectibleCardProps) {
   const isListed = data.price > 0;
 
   return (
@@ -60,11 +61,8 @@ export default function CollectibleCard({ data, isOwnListing = false }: Collecti
 
               <div className="absolute inset-0 w-full h-10 flex items-center justify-center bg-white4 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
                 <span className="text-white">
-                  {isListed 
-                    ? isOwnListing 
-                      ? "Cancel"
-                      : "Buy Now"
-                    : "View"}
+                  {/* {isListed ? (isOwnListing ? "Buy now" : "View") : "View"} */}
+                  Buy now
                 </span>
               </div>
             </div>
@@ -74,7 +72,6 @@ export default function CollectibleCard({ data, isOwnListing = false }: Collecti
     </Link>
   );
 }
-
 
 // import Image from "next/image";
 // import Link from "next/link";

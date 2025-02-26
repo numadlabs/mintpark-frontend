@@ -577,7 +577,9 @@ const CollectionDetailPage = () => {
                     ))} */}
                     {filteredCollectibles.map((item) => (
                       <div key={item.id}>
-                        <CollectibleCard data={item} isOwnListing={true} />
+                        <CollectibleCard data={item}
+                        //  isOwnListing={true} 
+                         />
                       </div>
                     ))}
                   </div>
@@ -647,7 +649,7 @@ const CollectionDetailPage = () => {
                         <div key={item.id}>
                           <CollectibleCardList
                             data={item}
-                            isOwnListing={true}
+                            // isOwnListing={true}
                           />
                         </div>
                       ))}
