@@ -81,7 +81,7 @@ export default function Header() {
         }
       } else if (dynamicLayers.length > 0) {
         const citreaLayer = dynamicLayers.find(
-          (l: LayerType) => l.layer === "CITREA",
+          (l: LayerType) => l.layer === "CITREA"
         );
         if (citreaLayer) {
           const layerString = `${citreaLayer.layer}-${citreaLayer.network}`;
@@ -130,7 +130,7 @@ export default function Header() {
   const handleLayerSelect = (value: string) => {
     const [layer, network] = value.split("-");
     const selectedLayer = layers.find(
-      (l: LayerType) => l.layer === layer && l.network === network,
+      (l: LayerType) => l.layer === layer && l.network === network
     );
 
     if (selectedLayer) {
@@ -150,7 +150,7 @@ export default function Header() {
   const handleNavigation = (
     pageUrl: string,
     requiresAuth?: boolean,
-    disabled?: boolean,
+    disabled?: boolean
   ) => {
     if (disabled) {
       toast.info("This feature is coming soon!");
@@ -196,7 +196,7 @@ export default function Header() {
                           handleNavigation(
                             item.pageUrl,
                             item.requiresAuth,
-                            item.disabled,
+                            item.disabled
                           )
                         }
                       />
@@ -245,13 +245,13 @@ export default function Header() {
                         const isLayerConnected = connectedWallets?.some(
                           (wallet) => {
                             const foundLayer = layers.find(
-                              (l) => l.id === wallet.layerId,
+                              (l) => l.id === wallet.layerId
                             );
                             return (
                               foundLayer?.layer === layer.layer &&
                               foundLayer?.network === layer.network
                             );
-                          },
+                          }
                         );
 
                         return (
@@ -265,27 +265,27 @@ export default function Header() {
                             }`}
                           >
                             <div className="flex justify-between gap-2 items-center text-md text-neutral50 font-medium w-full">
-                            <div className="flex gap-2">
-                            <Image
-                                src={getLayerImage(layer.layer)}
-                                alt={layer.layer}
-                                width={24}
-                                height={24}
-                                className="rounded-full"
-                              />
-                              <div className="flex items-center gap-2 flex-1">
-                                {`${capitalizeFirstLetter(
-                                  layer.layer,
-                                )} ${capitalizeFirstLetter(layer.network)}`}
+                              <div className="flex gap-2">
+                                <Image
+                                  src={getLayerImage(layer.layer)}
+                                  alt={layer.layer}
+                                  width={24}
+                                  height={24}
+                                  className="rounded-full"
+                                />
+                                <div className="flex items-center gap-2 flex-1">
+                                  {`${capitalizeFirstLetter(
+                                    layer.layer
+                                  )} ${capitalizeFirstLetter(layer.network)}`}
+                                </div>
                               </div>
-                            </div>
                               {/* Show connection status in dropdown */}
-                           <div className="">
-                           {isLayerConnected && (
-                                // <div className="w-2 h-2 bg-success rounded-full" />
-                                <Check  className="w-5 h-5 text-neutral50"/>
-                              )}
-                           </div>
+                              <div className="">
+                                {isLayerConnected && (
+                                  // <div className="w-2 h-2 bg-success rounded-full" />
+                                  <Check className="w-5 h-5 text-neutral50" />
+                                )}
+                              </div>
                             </div>
                           </SelectItem>
                         );
@@ -402,7 +402,7 @@ export default function Header() {
                       handleNavigation(
                         item.pageUrl,
                         item.requiresAuth,
-                        item.disabled,
+                        item.disabled
                       )
                     }
                   >
@@ -465,13 +465,13 @@ export default function Header() {
                         const isLayerConnected = connectedWallets?.some(
                           (wallet) => {
                             const foundLayer = layers.find(
-                              (l) => l.id === wallet.layerId,
+                              (l) => l.id === wallet.layerId
                             );
                             return (
                               foundLayer?.layer === layer.layer &&
                               foundLayer?.network === layer.network
                             );
-                          },
+                          }
                         );
 
                         return (
@@ -494,7 +494,7 @@ export default function Header() {
                               />
                               <div className="flex items-center gap-2 flex-1">
                                 {`${capitalizeFirstLetter(
-                                  layer.layer,
+                                  layer.layer
                                 )} ${capitalizeFirstLetter(layer.network)}`}
                               </div>
                               {/* Show connection status in dropdown */}

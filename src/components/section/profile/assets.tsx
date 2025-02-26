@@ -41,8 +41,9 @@ export default function Assets({ detail = false }: { detail: boolean }) {
     queryKey: [
       "getListableById",
       authState.userId,
-      orderBy,
       orderDirection,
+      orderBy,
+      authState.userLayerId as string,
       limit,
       offset,
       selectedCollectionIds,
@@ -109,6 +110,8 @@ export default function Assets({ detail = false }: { detail: boolean }) {
     selectedCollectionIds,
   ]);
 
+  console.log("first", authState.userLayerId);
+
   const handleOrderChange = (value: string) => {
     switch (value) {
       case "recent":
@@ -137,23 +140,22 @@ export default function Assets({ detail = false }: { detail: boolean }) {
     setSelectedCollectionIds(collections);
   };
 
-
-// // this loading
-//   if (isLoading) {
-//     return <AssetsSkeleton detail={detail=true} />;
-//   }
-// // this loading
-//   if (!data?.data?.collectibles || data.data.collectibles.length === 0) {
-//     return (
-//       <>
-//         <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
-//           <p className="text-neutral200 font-medium text-lg">
-//             No activity recorded
-//           </p>
-//         </div>
-//       </>
-//     );
-//   }
+  // // this loading
+  //   if (isLoading) {
+  //     return <AssetsSkeleton detail={detail=true} />;
+  //   }
+  // // this loading
+  //   if (!data?.data?.collectibles || data.data.collectibles.length === 0) {
+  //     return (
+  //       <>
+  //         <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
+  //           <p className="text-neutral200 font-medium text-lg">
+  //             No activity recorded
+  //           </p>
+  //         </div>
+  //       </>
+  //     );
+  //   }
 
   const toggleSideBar = () => {
     setActive(!active);
@@ -254,7 +256,9 @@ export default function Assets({ detail = false }: { detail: boolean }) {
           >
             <div
               className={`flex ${
-                active ? "opacity-100 w-full md:w-[280px] hidden lg:block sm:hidden" : "opacity-0 w-0"
+                active
+                  ? "opacity-100 w-full md:w-[280px] hidden lg:block sm:hidden"
+                  : "opacity-0 w-0"
               } transition-all`}
             >
               {active && (
