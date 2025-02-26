@@ -16,6 +16,14 @@ module.exports = {
       },
     },
     fontSize: {
+
+      'display-1': [
+        '64px',
+        {
+         lineHeight: '78px',
+         fontWeight: 'bold' 
+        }
+      ],
       xs: ["10px", "12px"],
       sm: ["12px", "16px"],
       md: ["14px", "18px"],
