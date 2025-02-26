@@ -72,6 +72,8 @@ export function WalletConnectionModal({
         return "/wallets/Bitcoin.png";
       case "SEPOLIA":
         return "/wallets/hemi.png";
+      case "HEMI":
+        return "/wallets/hemi.png";
       case "CITREA":
         return "/wallets/Citrea.png";
       case "NUBIT":
