@@ -110,7 +110,6 @@ export default function Assets({ detail = false }: { detail: boolean }) {
     selectedCollectionIds,
   ]);
 
-  console.log("first", authState.userLayerId);
 
   const handleOrderChange = (value: string) => {
     switch (value) {
