@@ -21,6 +21,7 @@ interface CardProps {
 const ProfileBanner: React.FC<CardProps> = ({ params }) => {
   const { authState, getAddressforCurrentLayer, selectedLayerId } = useAuth();
   const connectedWallet = getAddressforCurrentLayer();
+  console.log("connected wallet", connectedWallet);
   const [balance, setBalance] = useState({
     amount: 0,
     usdAmount: 0,
@@ -36,6 +37,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
   });
 
   const getBalance = async () => {
+    console.log("first");
     if (!connectedWallet) return;
 
     setIsLoading(true);

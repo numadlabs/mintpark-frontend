@@ -7,6 +7,7 @@ export const layerSchema = z.object({
   network: z.string(),
   currencyId: z.string(),
   chainId: z.string(),
+  layerType:z.string(),
 });
 
 export const currentLayerSchema = z.object({

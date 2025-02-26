@@ -349,7 +349,7 @@ const useWalletStore = create<WalletStore>()(
             const newWallet: ConnectedWallet = {
               address,
               layerId,
-              layerType: layer.layer,
+              layerType: layer.layerType,
               network: layer.network,
             };
             set((state) => ({
