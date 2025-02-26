@@ -565,14 +565,10 @@ export const WalletAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     authState: store.authState,
     selectedLayerId: store.selectedLayerId,
     setSelectedLayerId: store.setSelectedLayerId,
-    //todo layers iig store context dotroos ashiglah. API req 1 l udaa yvuulj hadgalj avna
+    updateAuthStateForLayer: store.updateAuthStateForLayer,
     layers: store.layers,
-    // connectPrimary: store.connectPrimary,
-    // connectSecondary: store.connectSecondary,
-    // switchWallets: store.switchWallets,
     onLogout: store.onLogout,
     setLayers: store.setLayers,
-
     connectedWallets: store.connectedWallets,
     connectWallet: store.connectWallet,
     disconnectWallet: store.disconnectWallet,

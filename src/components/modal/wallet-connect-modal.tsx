@@ -135,6 +135,7 @@ export function WalletConnectionModal({
               );
               if (selectedLayer) {
                 onLayerSelect(selectedLayer.layer, selectedLayer.network);
+                // No need to explicitly call updateAuthStateForLayer since setSelectedLayerId handles it
               }
             }}
             className="w-full"

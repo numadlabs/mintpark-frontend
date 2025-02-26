@@ -99,6 +99,7 @@ export interface WalletStore {
   layers: Layer[];
   selectedLayerId: string | null;
   setSelectedLayerId: (id: string) => void;
+  updateAuthStateForLayer: (layerId: string) => void;
   connectWallet: (layerId: string, isLinking?: boolean) => Promise<void>;
   disconnectWallet: (layerId: string) => Promise<void>;
   isWalletConnected: (layerId: string) => boolean;
@@ -123,6 +124,41 @@ const useWalletStore = create<WalletStore>()(
 
       setSelectedLayerId: (id: string) => {
         set({ selectedLayerId: id });
+        // Update the authState when the selected layer changes
+        get().updateAuthStateForLayer(id);
+      },
+
+      // New function to update authState based on the selected layer
+      updateAuthStateForLayer: (layerId: string) => {
+        const { connectedWallets, authState } = get();
+
+        // If the wallet for this layer is connected, update the authState to use this layer
+        const wallet = connectedWallets.find((w) => w.layerId === layerId);
+
+        if (wallet) {
+          set((state) => ({
+            authState: {
+              ...state.authState,
+              layerId: layerId,
+              // Maintain authentication state and other properties
+              authenticated: state.authState.authenticated,
+              userId: state.authState.userId,
+              tokens: state.authState.tokens,
+              // Update userLayerId for the current connected layer if needed
+              // (This can be layer-specific in some architectures)
+              userLayerId: state.authState.userLayerId,
+            },
+          }));
+        } else {
+          // If the selected layer is not connected, we don't change authentication status
+          // but we do update the layerId to reflect the selected layer
+          set((state) => ({
+            authState: {
+              ...state.authState,
+              layerId: layerId,
+            },
+          }));
+        }
       },
 
       connectWallet: async (layerId: string, isLinking: boolean = false) => {
@@ -157,6 +193,7 @@ const useWalletStore = create<WalletStore>()(
               currentChainIdDecimal
             );
             console.log("🚀 ~ connectWallet: ~  layer.chainId:", layer.chainId);
+
             // if (currentChainIdDecimal.toString() !== layer.chainId) {
             //   try {
             //     await window.ethereum.request({
@@ -256,6 +293,8 @@ const useWalletStore = create<WalletStore>()(
             // console.log("🚀 ~ connectWallet: ~ signedMessage:", signedMessage);
 
             // new implemment
+
+            // new implemment
             address = await window.ethereum
               .request({
                 method: "eth_requestAccounts",
@@ -270,7 +309,7 @@ const useWalletStore = create<WalletStore>()(
             });
             console.log("🚀 ~ connectWallet: ~ signedMessage:", signedMessage);
             //new implemment
-            
+
             let response;
             if (isLinking && authState.authenticated) {
               response = await loginWalletLink({
@@ -313,19 +352,12 @@ const useWalletStore = create<WalletStore>()(
               layerType: layer.layer,
               network: layer.network,
             };
-
-            const updatedWallets = [...get().connectedWallets, newWallet];
-            const hasOnlyBitcoin = updatedWallets.every((w) => {
-              const layerInfo = get().layers.find((l) => l.id === w.layerId);
-              return layerInfo?.layer === "BITCOIN";
-            });
-
             set((state) => ({
               connectedWallets: [...state.connectedWallets, newWallet],
               authState: {
                 ...state.authState,
                 authenticated: true,
-                userLayerId: hasOnlyBitcoin ? null : response.data.userLayer.id,
+                userLayerId: response.data.userLayer.id,
                 userId: response.data.user.id,
                 layerId,
                 tokens: response.data.tokens,
