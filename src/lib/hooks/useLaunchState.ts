@@ -1,11 +1,11 @@
 import { LaunchDataType } from "../types";
 
 export enum LAUNCH_STATE {
-  INDEFINITE = "INDEFINITE",
-  ENDED = "ENDED",
-  LIVE = "LIVE",
-  UPCOMING = "UPCOMING",
-  UNKNOWN = "UNKNOWN",
+  INDEFINITE = "Indefinite",
+  ENDED = "Ended",
+  LIVE = "Live",
+  UPCOMING = "Upcoming",
+  UNKNOWN = "Unknown",
 }
 
 export function useLaunchState({
@@ -29,7 +29,7 @@ export function useLaunchState({
   const publicUpcoming = !whitelistUpcoming && now < Number(poStartsAt);
   if (whitelistUpcoming || publicUpcoming) return LAUNCH_STATE.UPCOMING;
 
-  if (poEndsAt === null && !isSoldOut && now >= Number(poStartsAt))
+  if (!poEndsAt && !isSoldOut && now >= Number(poStartsAt))
     return LAUNCH_STATE.INDEFINITE;
 
   const isWhiteListActive =
