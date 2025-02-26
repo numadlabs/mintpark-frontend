@@ -22,11 +22,7 @@ import {
 import { Wallet2, I3Dcube, Logout, ArrowRight2 } from "iconsax-react";
 import { Button } from "../ui/button";
 import { getAllLayers, getLayerById } from "@/lib/service/queryHelper";
-import {
-  truncateAddress,
-  capitalizeFirstLetter,
-  storePriceData,
-} from "@/lib/utils";
+import { truncateAddress, capitalizeFirstLetter } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { ExtendedLayerType, LayerType } from "@/lib/types";
 import { toast } from "sonner";
@@ -34,10 +30,22 @@ import Badge from "../atom/badge";
 import { Check, Loader2, MenuIcon } from "lucide-react";
 import { WalletConnectionModal } from "../modal/wallet-connect-modal";
 
-declare global {
-  interface Window {
-    unisat: any;
-  }
+// Type definitions
+interface RouteItem {
+  title: string;
+  pageUrl: string;
+  requiresAuth?: boolean;
+  disabled?: boolean;
+  badge?: string;
+}
+
+interface WalletInfo {
+  address: string;
+  layerId: string;
+}
+
+interface LayerImageMap {
+  [key: string]: string;
 }
 
 export default function Header() {
@@ -45,7 +53,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [selectedLayer, setSelectedLayer] = useState("CITREA");
-  const [defaultLayer, setDefaultLayer] = useState<string>("CITREA-mainnet");
+  const [defaultLayer, setDefaultLayer] = useState("CITREA-mainnet");
 
   const {
     authState,
@@ -57,50 +65,40 @@ export default function Header() {
     connectedWallets,
   } = useAuth();
 
+  // Fetch all available layers
   const { data: dynamicLayers = [] } = useQuery({
     queryKey: ["layerData"],
-    queryFn: () => getAllLayers(),
+    queryFn: getAllLayers,
     staleTime: Infinity,
     gcTime: Infinity,
   });
 
+  // Fetch current selected layer data
   const { data: currentLayer, isLoading: isLayersLoading } = useQuery({
     queryKey: ["currentLayerData", selectedLayerId],
     queryFn: () => getLayerById(selectedLayerId as string),
     enabled: !!selectedLayerId,
   });
 
-  // Initialize default layer
+  // Set default layer on initial load
   useEffect(() => {
-    const initializeDefaultLayer = () => {
-      if (currentLayer) {
-        const layerString = `${currentLayer.layer}-${currentLayer.network}`;
-        setDefaultLayer(layerString);
-        if (currentLayer.price) {
-          storePriceData(currentLayer.price);
-        }
-      } else if (dynamicLayers.length > 0) {
-        const citreaLayer = dynamicLayers.find(
-          (l: LayerType) => l.layer === "CITREA"
-        );
-        if (citreaLayer) {
-          const layerString = `${citreaLayer.layer}-${citreaLayer.network}`;
-          setDefaultLayer(layerString);
-          setSelectedLayerId(citreaLayer.id);
-          setSelectedLayer(citreaLayer.id);
-        }
+    if (!selectedLayerId && dynamicLayers.length > 0) {
+      const citreaLayer = dynamicLayers.find((l) => l.layer === "CITREA");
+      if (citreaLayer) {
+        setDefaultLayer(`${citreaLayer.layer}-${citreaLayer.network}`);
+        setSelectedLayerId(citreaLayer.id);
+        setSelectedLayer(citreaLayer.layer);
       }
-    };
+    } else if (currentLayer) {
+      setDefaultLayer(`${currentLayer.layer}-${currentLayer.network}`);
+    }
+  }, [currentLayer, dynamicLayers, selectedLayerId, setSelectedLayerId]);
 
-    initializeDefaultLayer();
-  }, [currentLayer, dynamicLayers, setSelectedLayerId]);
+  // Combine dynamic and static layers
+  const layers = [...dynamicLayers];
 
-  // Static layers array is now empty since we removed Nubit
-  const staticLayers: (LayerType & { comingSoon?: boolean })[] = [];
-
-  const layers: ExtendedLayerType[] = [...dynamicLayers, ...staticLayers];
-
-  const routesData = [
+  // Define navigation routes
+  const routes: RouteItem[] = [
     {
       title: "Create",
       pageUrl: "/create",
@@ -112,54 +110,58 @@ export default function Header() {
     { title: "Collections", pageUrl: "/collections" },
   ];
 
-  const getLayerImage = (layer: string) => {
-    switch (layer) {
-      case "BITCOIN":
-        return "/wallets/Bitcoin.png";
-      case "FRACTAL":
-        return "/wallets/Fractal.png";
-      case "CITREA":
-        return "/wallets/Citrea.png";
-      case "SEPOLIA":
-        return "/wallets/hemi.png";
-      default:
-        return "/wallets/Bitcoin.png"; // Changed default to Bitcoin instead of Nubit
-    }
+  // Get layer image based on layer name
+  const getLayerImage = (layer: string): string => {
+    const imageMap: LayerImageMap = {
+      BITCOIN: "/wallets/Bitcoin.png",
+      FRACTAL: "/wallets/Fractal.png",
+      CITREA: "/wallets/Citrea.png",
+      SEPOLIA: "/wallets/hemi.png",
+      HEMI: "/wallets/hemi.png",
+      POLYGON_ZK: "/wallets/Polygon-1.png",
+    };
+
+    return imageMap[layer] || "/wallets/Bitcoin.png";
   };
 
-  const handleLayerSelect = (value: string) => {
+  // Handle layer selection
+  const handleLayerSelect = (value: string): void => {
     const [layer, network] = value.split("-");
-    const selectedLayer = layers.find(
-      (l: LayerType) => l.layer === layer && l.network === network
+    const matchingLayer = layers.find(
+      (l) => l.layer === layer && l.network === network
     );
 
-    if (selectedLayer) {
-      setSelectedLayerId(selectedLayer.id);
+    if (matchingLayer && selectedLayerId !== matchingLayer.id) {
+      setSelectedLayerId(matchingLayer.id);
       setDefaultLayer(value);
       setSelectedLayer(layer);
     }
   };
 
-  const handleLogOut = () => {
+  // Handle logout
+  const handleLogout = (): void => {
     if (authState.authenticated) {
       onLogout();
       toast.info("Logged out successfully");
     }
   };
 
+  // Handle navigation
   const handleNavigation = (
     pageUrl: string,
     requiresAuth?: boolean,
     disabled?: boolean
-  ) => {
+  ): void => {
     if (disabled) {
       toast.info("This feature is coming soon!");
       return;
     }
+
     if (requiresAuth && !authState.authenticated) {
       toast.error("Please connect your wallet");
       return;
     }
+
     router.push(pageUrl);
     setMobileMenuOpen(false);
   };
@@ -167,29 +169,99 @@ export default function Header() {
   const currentWallet = selectedLayerId
     ? getWalletForLayer(selectedLayerId)
     : undefined;
-
-  const isAuthenticated =
+  const isWalletDisconnected =
     selectedLayerId && !isWalletConnected(selectedLayerId);
+
+  // Render dropdown layer item
+  const renderLayerItem = (layer: ExtendedLayerType): React.ReactElement => {
+    const isLayerConnected = connectedWallets?.some((wallet: WalletInfo) => {
+      const foundLayer = layers.find((l) => l.id === wallet.layerId);
+      return (
+        foundLayer?.layer === layer.layer &&
+        foundLayer?.network === layer.network
+      );
+    });
+
+    return (
+      <SelectItem
+        key={layer.id}
+        value={`${layer.layer}-${layer.network}`}
+        className={`flex items-center gap-2 w-[170px] ${
+          layer.comingSoon
+            ? "opacity-80 cursor-not-allowed"
+            : "hover:bg-white8 duration-300 transition-all cursor-pointer"
+        }`}
+      >
+        <div className="flex justify-between gap-2 items-center text-md text-neutral50 font-medium w-full">
+          <div className="flex gap-2">
+            <Image
+              src={getLayerImage(layer.layer)}
+              alt={layer.layer}
+              width={24}
+              height={24}
+              className="rounded-full"
+            />
+            <div className="flex items-center gap-2 flex-1">
+              {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(
+                layer.network
+              )}`}
+            </div>
+          </div>
+          {isLayerConnected && <Check className="w-5 h-5 text-neutral50" />}
+        </div>
+      </SelectItem>
+    );
+  };
+
+  // Render current layer value
+  const renderCurrentLayerValue = (): React.ReactElement => {
+    if (isLayersLoading) {
+      return (
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
+          <span>Loading...</span>
+        </div>
+      );
+    }
+
+    if (defaultLayer) {
+      return (
+        <div className="flex flex-row gap-2 items-center w-max">
+          <Image
+            src={getLayerImage(defaultLayer.split("-")[0])}
+            alt={defaultLayer.split("-")[0]}
+            width={24}
+            height={24}
+            className="rounded-full"
+          />
+          {defaultLayer.split("-").map(capitalizeFirstLetter).join(" ")}
+        </div>
+      );
+    }
+
+    return <span>Select layer</span>;
+  };
 
   return (
     <>
       <div className="">
         <div className="h-[72px] w-full flex justify-center bg-neutral500 bg-opacity-50 backdrop-blur-4xl mt-5 rounded-3xl">
-          <div className="flex flex-row justify-between items-center max-w-[1920px] w-full">
-            <div className="flex flex-row justify-between items-center w-full pl-6 pr-4 h-full">
+          <div className="flex justify-between items-center max-w-[1920px] w-full">
+            <div className="flex justify-between items-center w-full pl-6 pr-4 h-full">
+              {/* Logo and Navigation */}
               <div className="flex gap-12">
-                <Link href={"/"}>
+                <Link href="/">
                   <Image
-                    src={"/Logo.svg"}
-                    draggable="false"
+                    src="/Logo.svg"
                     alt="coordinals"
                     width={40}
                     height={40}
                   />
                 </Link>
+
                 {/* Desktop Navigation */}
                 <div className="hidden lg:flex flex-row gap-2 text-neutral00">
-                  {routesData.map((item, index) => (
+                  {routes.map((item, index) => (
                     <div key={index} className="relative">
                       <HeaderItem
                         title={item.title}
@@ -207,97 +279,27 @@ export default function Header() {
                 </div>
               </div>
 
-              {/* Desktop Controls */}
-              <div className="hidden lg:flex flex-row overflow-hidden items-center gap-4">
+              {/* Desktop Controls - Layer selector and wallet */}
+              <div className="hidden lg:flex items-center gap-4">
+                {/* Layer Selector */}
                 <Select onValueChange={handleLayerSelect} value={defaultLayer}>
-                  <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
+                  <SelectTrigger className="flex items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
                     <SelectValue
                       placeholder="Select layer"
                       defaultValue={defaultLayer}
                     >
-                      {isLayersLoading ? (
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
-                          <span>Loading...</span>
-                        </div>
-                      ) : defaultLayer ? (
-                        <div className="flex flex-row gap-2 items-center w-max">
-                          <Image
-                            src={getLayerImage(defaultLayer.split("-")[0])}
-                            alt={defaultLayer.split("-")[0]}
-                            draggable="false"
-                            width={24}
-                            height={24}
-                            className="rounded-full"
-                          />
-                          {defaultLayer
-                            .split("-")
-                            .map(capitalizeFirstLetter)
-                            .join(" ")}
-                        </div>
-                      ) : (
-                        <span>Select layer</span>
-                      )}
+                      {renderCurrentLayerValue()}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="mt-4 flex flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
+                  <SelectContent className="mt-4 flex flex-col p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
                     <SelectGroup className="flex flex-col gap-2">
-                      {layers.map((layer) => {
-                        // Check if this layer is connected
-                        const isLayerConnected = connectedWallets?.some(
-                          (wallet) => {
-                            const foundLayer = layers.find(
-                              (l) => l.id === wallet.layerId
-                            );
-                            return (
-                              foundLayer?.layer === layer.layer &&
-                              foundLayer?.network === layer.network
-                            );
-                          }
-                        );
-
-                        return (
-                          <SelectItem
-                            key={layer.id}
-                            value={`${layer.layer}-${layer.network}`}
-                            className={`flex flex-row items-center gap-2 w-[170px] ${
-                              layer.comingSoon
-                                ? "opacity-80 cursor-not-allowed"
-                                : "hover:bg-white8 duration-300 transition-all cursor-pointer"
-                            }`}
-                          >
-                            <div className="flex justify-between gap-2 items-center text-md text-neutral50 font-medium w-full">
-                              <div className="flex gap-2">
-                                <Image
-                                  src={getLayerImage(layer.layer)}
-                                  alt={layer.layer}
-                                  width={24}
-                                  draggable="false"
-                                  height={24}
-                                  className="rounded-full"
-                                />
-                                <div className="flex items-center gap-2 flex-1">
-                                  {`${capitalizeFirstLetter(
-                                    layer.layer
-                                  )} ${capitalizeFirstLetter(layer.network)}`}
-                                </div>
-                              </div>
-                              {/* Show connection status in dropdown */}
-                              <div className="">
-                                {isLayerConnected && (
-                                  // <div className="w-2 h-2 bg-success rounded-full" />
-                                  <Check className="w-5 h-5 text-neutral50" />
-                                )}
-                              </div>
-                            </div>
-                          </SelectItem>
-                        );
-                      })}
+                      {layers.map(renderLayerItem)}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
 
-                {isAuthenticated ? (
+                {/* Wallet Connection */}
+                {isWalletDisconnected ? (
                   <Button
                     variant="secondary"
                     size="lg"
@@ -308,11 +310,10 @@ export default function Header() {
                   </Button>
                 ) : authState.authenticated && currentWallet ? (
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[136px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
+                    <DropdownMenuTrigger className="flex items-center gap-2 max-w-[136px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
                       <Image
                         src="/Avatar.png"
                         alt="avatar"
-                        draggable="false"
                         width={24}
                         height={24}
                         className="rounded-full"
@@ -323,8 +324,8 @@ export default function Header() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="flex flex-col gap-2 max-w-[215px] w-full p-2 border border-white4 bg-gray50 mt-4 rounded-2xl backdrop-blur-xl">
                       <Link href="/my-assets">
-                        <DropdownMenuItem className="flex flex-row justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                          <div className="flex flex-row items-center gap-2">
+                        <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                          <div className="flex items-center gap-2">
                             <Wallet2 size={24} color="#D7D8D8" />
                             My Assets
                           </div>
@@ -332,8 +333,8 @@ export default function Header() {
                         </DropdownMenuItem>
                       </Link>
                       <Link href="/orders">
-                        <DropdownMenuItem className="flex flex-row items-center justify-between text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                          <div className="flex flex-row items-center gap-2">
+                        <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                          <div className="flex items-center gap-2">
                             <I3Dcube size={24} color="#D7D8D8" />
                             <p>Inscribe Orders</p>
                           </div>
@@ -341,8 +342,8 @@ export default function Header() {
                         </DropdownMenuItem>
                       </Link>
                       <DropdownMenuItem
-                        className="text-neutral50 text-md font-medium flex flex-row gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
-                        onClick={handleLogOut}
+                        className="text-neutral50 text-md font-medium flex gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
+                        onClick={handleLogout}
                       >
                         <Logout size={24} color="#D7D8D8" />
                         Log Out
@@ -364,16 +365,16 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Only renders when open */}
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-neutral500 bg-opacity-95 backdrop-blur-lg">
           <div className="flex flex-col p-4 space-y-4">
+            {/* Mobile header */}
             <div className="flex justify-between items-center">
-              <Link href={"/"}>
+              <Link href="/">
                 <Image
-                  src={"/Logo.svg"}
+                  src="/Logo.svg"
                   alt="coordinals"
-                  draggable="false"
                   width={40}
                   height={40}
                 />
@@ -398,8 +399,9 @@ export default function Header() {
               </button>
             </div>
 
+            {/* Mobile navigation */}
             <div className="flex flex-col pt-8 gap-4">
-              {routesData.map((item, index) => (
+              {routes.map((item, index) => (
                 <div key={index} className="relative">
                   <button
                     className="text-neutral00 text-lg font-medium w-full text-left py-2"
@@ -416,107 +418,28 @@ export default function Header() {
                   </button>
                 </div>
               ))}
-              {/* {authState.authenticated && (
-                <div className="flex flex-col gap-8 pt-6 border-t border-neutral400">
-                  <Link
-                    href="/my-assets"
-                    className="text-neutral00 text-lg font-medium"
-                  >
-                    My Assets
-                  </Link>
-                  <Link
-                    href="/orders"
-                    className="text-neutral00 text-lg font-medium"
-                  >
-                    Inscribe Orders
-                  </Link>
-                </div>
-              )}*/}
-              <div className="lg:flex flex-row overflow-hidden grid items-center pt-6 border-t border-neutral400 gap-4 ">
+
+              {/* Mobile layer and wallet controls */}
+              <div className="grid items-center pt-6 border-t border-neutral400 gap-4">
+                {/* Same layer selector as desktop but with mobile styling */}
                 <Select onValueChange={handleLayerSelect} value={defaultLayer}>
-                  <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-auto">
+                  <SelectTrigger className="flex items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-auto">
                     <SelectValue
                       placeholder="Select layer"
                       defaultValue={defaultLayer}
                     >
-                      {isLayersLoading ? (
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
-                          <span>Loading...</span>
-                        </div>
-                      ) : defaultLayer ? (
-                        <div className="flex flex-row gap-2 items-center">
-                          <Image
-                            src={getLayerImage(defaultLayer.split("-")[0])}
-                            alt={defaultLayer.split("-")[0]}
-                            width={24}
-                            draggable="false"
-                            height={24}
-                            className="rounded-full"
-                          />
-                          {defaultLayer
-                            .split("-")
-                            .map(capitalizeFirstLetter)
-                            .join(" ")}
-                        </div>
-                      ) : (
-                        <span>Select layer</span>
-                      )}
+                      {renderCurrentLayerValue()}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="flex max-w-[210px] flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
+                  <SelectContent className="flex max-w-[210px] flex-col p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
                     <SelectGroup className="flex flex-col gap-2">
-                      {layers.map((layer) => {
-                        // Check if this layer is connected
-                        const isLayerConnected = connectedWallets?.some(
-                          (wallet) => {
-                            const foundLayer = layers.find(
-                              (l) => l.id === wallet.layerId
-                            );
-                            return (
-                              foundLayer?.layer === layer.layer &&
-                              foundLayer?.network === layer.network
-                            );
-                          }
-                        );
-
-                        return (
-                          <SelectItem
-                            key={layer.id}
-                            value={`${layer.layer}-${layer.network}`}
-                            className={`flex flex-row items-center gap-2 w-[170px] ${
-                              layer.comingSoon
-                                ? "opacity-80 cursor-not-allowed"
-                                : "hover:bg-white8 duration-300 transition-all cursor-pointer"
-                            }`}
-                          >
-                            <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium w-full">
-                              <Image
-                                src={getLayerImage(layer.layer)}
-                                alt={layer.layer}
-                                width={24}
-                                height={24}
-                                draggable="false"
-                                className="rounded-full"
-                              />
-                              <div className="flex items-center gap-2 flex-1">
-                                {`${capitalizeFirstLetter(
-                                  layer.layer
-                                )} ${capitalizeFirstLetter(layer.network)}`}
-                              </div>
-                              {/* Show connection status in dropdown */}
-                              {isLayerConnected && (
-                                <div className="w-2 h-2 bg-green-400 rounded-full ml-auto" />
-                              )}
-                            </div>
-                          </SelectItem>
-                        );
-                      })}
+                      {layers.map(renderLayerItem)}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
 
-                {isAuthenticated ? (
+                {/* Mobile wallet buttons */}
+                {isWalletDisconnected ? (
                   <Button
                     variant="secondary"
                     size="lg"
@@ -527,13 +450,12 @@ export default function Header() {
                   </Button>
                 ) : authState.authenticated && currentWallet ? (
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex flex-row items-center gap-2  w-auto bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
+                    <DropdownMenuTrigger className="flex items-center gap-2 w-auto bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
                       <Image
                         src="/Avatar.png"
                         alt="avatar"
                         width={24}
                         height={24}
-                        draggable="false"
                         className="rounded-full"
                       />
                       <span className="text-neutral50">
@@ -542,8 +464,8 @@ export default function Header() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="flex flex-col gap-2 w-[210px] absolute p-2 border border-white4 bg-gray50 rounded-2xl backdrop-blur-xl">
                       <Link href="/my-assets">
-                        <DropdownMenuItem className="flex flex-row justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                          <div className="flex flex-row items-center gap-2">
+                        <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                          <div className="flex items-center gap-2">
                             <Wallet2 size={24} color="#D7D8D8" />
                             My Assets
                           </div>
@@ -551,8 +473,8 @@ export default function Header() {
                         </DropdownMenuItem>
                       </Link>
                       <Link href="/orders">
-                        <DropdownMenuItem className="flex flex-row items-center justify-between text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                          <div className="flex flex-row items-center gap-2">
+                        <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                          <div className="flex items-center gap-2">
                             <I3Dcube size={24} color="#D7D8D8" />
                             <p>Inscribe Orders</p>
                           </div>
@@ -560,8 +482,8 @@ export default function Header() {
                         </DropdownMenuItem>
                       </Link>
                       <DropdownMenuItem
-                        className="text-neutral50 text-md font-medium flex flex-row gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
-                        onClick={handleLogOut}
+                        className="text-neutral50 text-md font-medium flex gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
+                        onClick={handleLogout}
                       >
                         <Logout size={24} color="#D7D8D8" />
                         Log Out
@@ -574,13 +496,15 @@ export default function Header() {
           </div>
         </div>
       )}
+
+      {/* Wallet connection modal */}
       <WalletConnectionModal
         open={walletModalOpen}
         onClose={() => setWalletModalOpen(false)}
         activeTab={selectedLayer}
         onTabChange={(tab) => {
           setSelectedLayer(tab);
-          const matchingLayer = layers.find((l: LayerType) => l.layer === tab);
+          const matchingLayer = layers.find((l) => l.layer === tab);
           if (matchingLayer) {
             setDefaultLayer(`${tab}-${matchingLayer.network}`);
             setSelectedLayerId(matchingLayer.id);
