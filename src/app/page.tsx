@@ -150,13 +150,12 @@ export default function Home() {
       {/* <div className="flex flex-col justify-center items-center"> */}
 
       <Layout>
-        <div className="w-full  max-w-[1920px] px-4 md2:px-[112px] 3xl:px-10">
+       
           <Header />
-        </div>
         <section className="w-full  flex flex-col gap-[56px] md:gap-[120px] mt-12 md:mt-[100px]">
           {/* Hero Section */}
 
-          <div className="w-full max-w-[1920px] px-4 md2:px-[112px] 3xl:px-10">
+
             <div className="w-full flex flex-col items-center gap-8 md:gap-12">
               <div className="flex flex-col gap-6 md:gap-8 items-center">
                 <div className="font-normal text-blueTitle md:text-headText artpast text-white text-center">
@@ -197,7 +196,7 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-          </div>
+
 
           <div className="relative w-full mx-auto ">
             <div className="relative z-10 w-full">
@@ -236,7 +235,7 @@ export default function Home() {
 
           {/* Services Section */}
 
-          <div className="max-w-[1920px] px-4 md2:px-[112px] 3xl:px-10 flex flex-col gap-16 justify-center items-center">
+          <div className="flex flex-col gap-16 justify-center items-center">
             <h1 className="font-bold text-center text-neutral00 text-3xl md:text-5xl">
               Our service
             </h1>
@@ -275,7 +274,7 @@ export default function Home() {
           </div>
 
           {/* Contact Forms Section */}
-          <div className="w-full max-w-[1920px] px-4 md2:px-[112px] 3xl:px-10 items-center justify-center flex ">
+          <div className="w-full items-center justify-center flex ">
             <div className="bg-[url('/homePage/contactBg.png')] bg-black/80 items-center max-w-[1216px] w-full bg-cover min-h-[480px] p-6 pt-12 pb-8 md:px-12 md:pb-12 flex flex-col md:flex-row justify-between rounded-[32px] border border-white4 border-b-0 gap-8">
               <div className="flex flex-col gap-2 sm:gap-6 w-full md:w-auto">
                 <span className="font-bold text-xl sm:text-3xl md:text-5xl flex flex-row sm:flex-col gap-1.5">

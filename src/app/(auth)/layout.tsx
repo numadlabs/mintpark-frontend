@@ -14,9 +14,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <div className="w-full overflow-x-hidden max-w-[1920px] px-4 md2:px-[112px] 3xl:px-10">
         {children}
       </div>
-      <div className="w-full">
-        <Footer />
-      </div>
+      <Footer />
     </div>
   );
 }
