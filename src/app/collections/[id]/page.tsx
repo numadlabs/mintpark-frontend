@@ -6,6 +6,7 @@ import {
   QueryClient,
   QueryClientProvider,
   useInfiniteQuery,
+  useQuery,
 } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,9 +22,8 @@ import DiscordIcon from "@/components/icon/hoverIcon";
 import ThreadIcon from "@/components/icon/thread";
 import CollectibleCard from "@/components/atom/cards/collectible-card";
 import CollectibleCardList from "@/components/atom/cards/collectible-card-list";
-import { getListedCollectionById } from "@/lib/service/queryHelper";
+import { getById, getListedCollectionById } from "@/lib/service/queryHelper";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
-import { CollectionDataType } from "@/lib/types";
 import CollectionDetailSkeleton from "@/components/atom/skeleton/collection-detail-skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import { BITCOIN_IMAGE } from "@/lib/constants";
@@ -45,8 +45,6 @@ const CollectionDetailPage = () => {
   const params = useParams();
   const id = params?.id as string;
   const [active, setActive] = useState(false);
-  const [collectionData, setCollectionData] =
-    useState<CollectionDataType | null>(null);
   const [orderBy, setOrderBy] = useState("recent");
   const [orderDirection, setOrderDirection] = useState("desc");
   const [searchFilter, setSearchFilter] = useState<string>("");
@@ -57,18 +55,6 @@ const CollectionDetailPage = () => {
     Record<string, string[]>
   >({});
   const [showOnlyListed, setShowOnlyListed] = useState(false);
-
-  useEffect(() => {
-    const savedData = localStorage.getItem(`collection-${id}`);
-    if (savedData) {
-      try {
-        const parsedData = JSON.parse(savedData);
-        setCollectionData(parsedData);
-      } catch (error) {
-        console.error("Failed to parse saved collection data:", error);
-      }
-    }
-  }, [id]);
 
   const {
     data,
@@ -113,6 +99,12 @@ const CollectionDetailPage = () => {
     enabled: Boolean(id),
   });
 
+  const { data: collection, isLoading } = useQuery({
+    queryKey: ["collectionData"],
+    queryFn: () => getById(id as string),
+    enabled: !!id,
+  });
+
   // Memoize the collectibles array
   const collectibles = React.useMemo(() => {
     return data?.pages?.flatMap((page) => page?.collectibles ?? []) ?? [];
@@ -130,20 +122,15 @@ const CollectionDetailPage = () => {
     // Filter by search
     if (searchFilter) {
       filtered = filtered.filter((item) => {
-        const collectionLastDigit =
-          collectionData?.name?.match(/\d+$/)?.[0] || "";
         const itemId = item.name.toString();
         const searchValue = searchFilter.toLowerCase();
 
-        return (
-          itemId.includes(searchValue) ||
-          itemId.includes(`${collectionLastDigit}${searchValue}`)
-        );
+        return itemId.includes(searchValue);
       });
     }
 
     return filtered;
-  }, [collectibles, showOnlyListed, searchFilter, collectionData?.name]);
+  }, [collectibles, showOnlyListed, searchFilter]);
 
   const loadMoreRef = React.useCallback(
     (node: HTMLDivElement | null) => {
@@ -169,19 +156,19 @@ const CollectionDetailPage = () => {
 
   const links = [
     {
-      url: collectionData?.websiteUrl,
+      url: collection?.websiteUrl,
       isIcon: true,
       icon: <Global size={34} className="hover:text-brand text-neutral00" />,
     },
     {
-      url: collectionData?.discordUrl,
+      url: collection?.discordUrl,
       isIcon: false,
       icon: (
         <DiscordIcon size={34} className="hover:text-brand text-neutral00" />
       ),
     },
     {
-      url: collectionData?.twitterUrl,
+      url: collection?.twitterUrl,
       isIcon: false,
       icon: (
         <ThreadIcon size={34} className="hover:text-brand text-neutral00" />
@@ -255,8 +242,8 @@ const CollectionDetailPage = () => {
               <div
                 className="absolute z-0 inset-0"
                 style={{
-                  backgroundImage: collectionData?.logoKey
-                    ? `url(${s3ImageUrlBuilder(collectionData.logoKey)})`
+                  backgroundImage: collection?.logoKey
+                    ? `url(${s3ImageUrlBuilder(collection.logoKey)})`
                     : "url(/path/to/fallback/image.png)",
                   backgroundPosition: "center",
                   backgroundSize: "cover",
@@ -273,8 +260,8 @@ const CollectionDetailPage = () => {
                   width={208}
                   height={208}
                   src={
-                    collectionData?.logoKey
-                      ? s3ImageUrlBuilder(collectionData.logoKey)
+                    collection?.logoKey
+                      ? s3ImageUrlBuilder(collection.logoKey)
                       : "/path/to/fallback/image.png"
                   }
                   className="aspect-square rounded-xl w-40 lg:w-52"
@@ -288,10 +275,10 @@ const CollectionDetailPage = () => {
                 <div className="flex flex-col lg:flex-row justify-between gap-4">
                   <div>
                     <h3 className="text-2xl lg:text-3xl font-bold text-neutral50 text-center md:text-left">
-                      {collectionData?.name}
+                      {collection?.name}
                     </h3>
                     <h2 className="text-lg lg:text-lg font-medium text-neutral100 text-center md:text-left">
-                      by {collectionData?.creatorName}
+                      by {collection?.creatorName}
                     </h2>
                   </div>
                   <div>
@@ -328,8 +315,8 @@ const CollectionDetailPage = () => {
                         />
                         <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
                           <span>
-                            {collectionData?.floor
-                              ? formatPrice(collectionData.floor)
+                            {collection?.floor
+                              ? formatPrice(collection.floor)
                               : "-"}
                           </span>{" "}
                           cBTC
@@ -351,8 +338,8 @@ const CollectionDetailPage = () => {
                         />
                         <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
                           <span>
-                            {collectionData?.volume
-                              ? formatPrice(collectionData?.volume)
+                            {collection?.volume
+                              ? formatPrice(collection?.volume)
                               : "-"}
                           </span>{" "}
                           cBTC
@@ -367,7 +354,7 @@ const CollectionDetailPage = () => {
                       <div className="flex items-center justify-center md:justify-start mt-2">
                         <Profile2User color="#d3f85a" />
                         <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
-                          <span>{collectionData?.ownerCount ?? 0}</span>
+                          <span>{collection?.ownerCount ?? 0}</span>
                         </p>
                       </div>
                     </div>
@@ -379,7 +366,7 @@ const CollectionDetailPage = () => {
                       <div className="flex items-center justify-center md:justify-start mt-2">
                         <Notepad color="#d3f85a" />
                         <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
-                          <span>{collectionData?.supply}</span>
+                          <span>{collection?.supply}</span>
                         </p>
                       </div>
                     </div>
@@ -407,8 +394,8 @@ const CollectionDetailPage = () => {
                     />
                     <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
                       <span>
-                        {collectionData?.floor
-                          ? formatPrice(collectionData.floor)
+                        {collection?.floor
+                          ? formatPrice(collection.floor)
                           : "-"}
                       </span>{" "}
                       cBTC
@@ -430,8 +417,8 @@ const CollectionDetailPage = () => {
                     />
                     <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
                       <span>
-                        {collectionData?.volume
-                          ? formatPrice(collectionData?.volume)
+                        {collection?.volume
+                          ? formatPrice(collection?.volume)
                           : "-"}
                       </span>{" "}
                       cBTC
@@ -446,7 +433,7 @@ const CollectionDetailPage = () => {
                   <div className="flex items-center justify-center md:justify-start mt-2">
                     <Profile2User color="#d3f85a" />
                     <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
-                      <span>{collectionData?.ownerCount ?? 0}</span>
+                      <span>{collection?.ownerCount ?? 0}</span>
                     </p>
                   </div>
                 </div>
@@ -456,13 +443,13 @@ const CollectionDetailPage = () => {
                   <div className="flex items-center justify-center md:justify-start mt-2">
                     <Notepad color="#d3f85a" />
                     <p className="ml-2 font-bold text-lg md:text-xl text-neutral50">
-                      <span>{collectionData?.supply}</span>
+                      <span>{collection?.supply}</span>
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="mt-8">{collectionData?.description}</div>
+            <div className="mt-8">{collection?.description}</div>
           </div>
         </section>
 
@@ -572,7 +559,7 @@ const CollectionDetailPage = () => {
                         id={id as string}
                         onAvailabilityChange={handleAvailabilityChange}
                         onTraitsChange={handleTraitsChange}
-                        collectionData={collectionData}
+                        collectionData={collection}
                       />
                     )}
                   </div>
@@ -623,7 +610,7 @@ const CollectionDetailPage = () => {
                       id={id as string}
                       onAvailabilityChange={handleAvailabilityChange}
                       onTraitsChange={handleTraitsChange}
-                      collectionData={collectionData}
+                      collectionData={collection}
                     />
                   )}
                 </div>

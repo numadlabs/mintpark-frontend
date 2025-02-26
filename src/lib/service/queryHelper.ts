@@ -62,6 +62,16 @@ export async function getLaunchByCollectionId(id: string) {
     });
 }
 
+export async function getById(id: string) {
+  return axiosClient.get(`/api/v1/collections/${id}`).then((response) => {
+    if (response.data.success) {
+      return response?.data.data;
+    } else {
+      throw new Error(response.data.error);
+    }
+  });
+}
+
 export async function getAllLayers(): Promise<LayerSchema[]> {
   return axiosClient.get(`/api/v1/layers/`).then((response) => {
     if (response.data.success) {

@@ -69,29 +69,6 @@ export default function Collections({ searchParams }: CollectionsProps) {
     enabled: !!id,
   });
   const handleNavigation = (collectionData: CollectionDataType) => {
-    // Save minimal required data to localStorage...
-    localStorage.setItem(
-      `collection-${collectionData.id}`,
-      JSON.stringify({
-        name: collectionData.name,
-        description: collectionData.description,
-        logoKey: collectionData.logoKey,
-        creatorName: collectionData.creatorName,
-        floor: collectionData.floor,
-        volume: collectionData.volume,
-        ownerCount: collectionData.ownerCount,
-        supply: collectionData.supply,
-        discordUrl: collectionData.discordUrl,
-        twitterUrl: collectionData.twitterUrl,
-        websiteUrl: collectionData.websiteUrl,
-        // contractAddress: collectionData.contractAddress,
-        layerId: collectionData.layerId,
-        listedCount: collectionData.listedCount,
-        soldCount: collectionData.soldCount,
-        marketCap: collectionData.marketCap,
-      })
-    );
-
     router.push(`/collections/${collectionData.id}`);
   };
 
