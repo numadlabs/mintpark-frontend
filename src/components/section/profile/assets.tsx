@@ -176,7 +176,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                 alt="burger"
                 width={20}
                 height={20}
-                className={`w-12 h-12 rounded-xl p-3 ${
+                className={`w-12 h-12 rounded-xl hidden lg:block sm:hidden p-3 ${
                   active
                     ? "bg-neutral500 hover:bg-neutral400 border-transparent"
                     : "bg-neutral600 border border-neutral500 hover:border-neutral400"

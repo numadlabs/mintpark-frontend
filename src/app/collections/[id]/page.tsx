@@ -92,7 +92,6 @@ const CollectionDetailPage = () => {
       const limit = ITEMS_PER_PAGE;
       const offset = (pageParam - 1) * ITEMS_PER_PAGE;
 
-      console.log("Calling getListedCollectionById with:", traitValuesByType); // Debug log
       const response = await getListedCollectionById(
         id,
         orderBy,
@@ -475,7 +474,7 @@ const CollectionDetailPage = () => {
               alt="sort"
               width={20}
               height={20}
-              className={`w-12 h-12 rounded-xl p-3 ${
+              className={`w-12 h-12 rounded-xl hidden lg:block sm:hidden p-3 ${
                 active
                   ? "bg-neutral500 hover:bg-neutral400 border-transparent"
                   : "bg-neutral600 border border-neutral500 hover:border-neutral400"

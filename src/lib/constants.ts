@@ -94,7 +94,7 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
         blockExplorerUrls: ["https://testnet-explorer.hemi.network"],
         nativeCurrency: {
           name: "Hemi",
-          symbol: "HEMI", // Changed from cBTC to HEMI
+          symbol: "cBTC", // Changed from cBTC to HEMI
           decimals: 18,
         },
       },
