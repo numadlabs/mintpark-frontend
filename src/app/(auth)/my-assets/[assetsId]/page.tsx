@@ -174,7 +174,7 @@ export default function AssetsDetails() {
                     ? currentAsset.highResolutionImageUrl
                     : s3ImageUrlBuilder(currentAsset.fileKey)
                 }
-                 className="aspect-square rounded-xl absolute z-20 w-[330px] h-auto md:h-[340px] md2:h-auto md2:w-full 2xl:w-[560px] 2xl:h-[560px] top-0"
+                className="aspect-square rounded-xl absolute z-20 w-[330px] h-auto md:h-[340px] md2:h-auto md2:w-full 2xl:w-[560px] 2xl:h-[560px] top-0"
                 alt={`${currentAsset.name} logo`}
               />
             </div>
@@ -243,7 +243,11 @@ export default function AssetsDetails() {
                 )}
               </div>
               <div className="w-full h-[1px] bg-neutral500" />
-              <Accordion type="multiple"  defaultValue={["item-1", "item-2"]}  className="w-full">
+              <Accordion
+                type="multiple"
+                defaultValue={["item-1", "item-2"]}
+                className="w-full"
+              >
                 <AccordionItem value="item-1">
                   <AccordionTrigger className="font-medium text-xl text-neutral50">
                     Detail
@@ -366,6 +370,7 @@ export default function AssetsDetails() {
         collectibleId={currentAsset.id}
         txid={txid}
         id={id}
+        isOwnListing={currentAsset.isOwnListing}
       />
       <CancelListModal
         open={cancelModal}
