@@ -98,7 +98,6 @@ export interface NetworkConfig {
     symbol: string;
     decimals: number;
   };
-
 }
 
 export interface WalletStorage {
@@ -144,11 +143,16 @@ export interface WalletState {
 // }
 
 export interface AuthState {
-  [x: string]: string | null | undefined | boolean | {
-    accessToken: string | null;
-    refreshToken: string | null;
-  };
-  
+  [x: string]:
+    | string
+    | null
+    | undefined
+    | boolean
+    | {
+        accessToken: string | null;
+        refreshToken: string | null;
+      };
+
   authenticated: boolean;
   loading: boolean;
   userLayerId: string | null;
@@ -179,4 +183,5 @@ export interface Layer {
   network: string;
   currencyId: string;
   chainId: string;
+  layerType: string;
 }
