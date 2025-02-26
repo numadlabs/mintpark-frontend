@@ -17,6 +17,7 @@ const UploadCardFit: React.FC<cardProps> = ({ image, onDelete, index }) => {
           alt="collection"
           width={0}
           height={0}
+          draggable="false"
           sizes="100%"
           className="w-full h-full object-contain"
         />

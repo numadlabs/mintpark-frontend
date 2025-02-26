@@ -23,6 +23,7 @@ const CollectionCardList: React.FC<CardProps> = ({ data, handleNav }) => {
           <div className="relative flex-shrink-0">
             <Image
               width={64}
+              draggable="false"
               height={64}
               src={s3ImageUrlBuilder(data?.logoKey)}
               className="rounded-lg object-cover"

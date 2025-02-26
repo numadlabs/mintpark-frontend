@@ -150,53 +150,47 @@ export default function Home() {
       {/* <div className="flex flex-col justify-center items-center"> */}
 
       <Layout>
-       
-          <Header />
+        <Header />
         <section className="w-full  flex flex-col gap-[56px] md:gap-[120px] mt-12 md:mt-[100px]">
           {/* Hero Section */}
 
-
-            <div className="w-full flex flex-col items-center gap-8 md:gap-12">
-              <div className="flex flex-col gap-6 md:gap-8 items-center">
-                <div className="font-normal text-blueTitle md:text-headText artpast text-white text-center">
-                  Empower Your{" "}
-                  <span className="font-normal text-blueTitle md:text-headText artpast text-brand">
-                    Art{" "}
-                  </span>
-                </div>
-
-                <div className="text-neutral100 font-medium text-center text-sm md:text-lg px-4">
-                  Turn your creativity into collectibles. Join the revolution of
-                  digital ownership {!isMobile && <br />} and showcase your
-                  unique art to the world.
-                </div>
+          <div className="w-full flex flex-col items-center gap-8 md:gap-12">
+            <div className="flex flex-col gap-6 md:gap-8 items-center">
+              <div className="font-normal text-blueTitle md:text-headText artpast text-white text-center">
+                Empower Your{" "}
+                <span className="font-normal text-blueTitle md:text-headText artpast text-brand">
+                  Art{" "}
+                </span>
               </div>
-              <div className="flex flex-row gap-4 md:gap-8 w-full items-center md:justify-center">
-                <div className="relative w-full md:w-auto">
-                  <Button
-                    variant="outline"
-                    className="w-full md:w-[200px] h-12 cursor-not-allowed"
-                    onClick={handleNavigation}
-                    disabled
-                  >
-                    Create
-                  </Button>
-                  <div className="absolute -top-3 -right-3 bg-brand text-neutral500 px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1">
-                    <span className="w-2 h-2 bg-neutral500 rounded-full animate-pulse"></span>
-                    Coming Soon
-                  </div>
-                </div>
-                <Link href="/collections" className="w-full md:w-auto">
-                  <Button
-                    variant="primary"
-                    className="w-full md:w-[200px] h-12"
-                  >
-                    Browse
-                  </Button>
-                </Link>
+
+              <div className="text-neutral100 font-medium text-center text-sm md:text-lg px-4">
+                Turn your creativity into collectibles. Join the revolution of
+                digital ownership {!isMobile && <br />} and showcase your unique
+                art to the world.
               </div>
             </div>
-
+            <div className="flex flex-row gap-4 md:gap-8 w-full items-center md:justify-center">
+              <div className="relative w-full md:w-auto">
+                <Button
+                  variant="outline"
+                  className="w-full md:w-[200px] h-12 cursor-not-allowed"
+                  onClick={handleNavigation}
+                  disabled
+                >
+                  Create
+                </Button>
+                <div className="absolute -top-3 -right-3 bg-brand text-neutral500 px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1">
+                  <span className="w-2 h-2 bg-neutral500 rounded-full animate-pulse"></span>
+                  Coming Soon
+                </div>
+              </div>
+              <Link href="/collections" className="w-full md:w-auto">
+                <Button variant="primary" className="w-full md:w-[200px] h-12">
+                  Browse
+                </Button>
+              </Link>
+            </div>
+          </div>
 
           <div className="relative w-full mx-auto ">
             <div className="relative z-10 w-full">
@@ -206,6 +200,7 @@ export default function Home() {
                     src="/homePage/homeBanner.png"
                     alt="blurred background"
                     width={0}
+                    draggable="false"
                     height={0}
                     priority
                     sizes="100%"
@@ -255,6 +250,7 @@ export default function Home() {
                       src={`/homePage/${item.image}.png`}
                       alt={item.title}
                       width={384}
+                      draggable="false"
                       height={228}
                       className="object-cover w-full"
                     />
@@ -451,6 +447,7 @@ export default function Home() {
                 <Image
                   src="/homePage/citreaMeme.png"
                   alt="citrea"
+                  draggable="false"
                   width={320}
                   height={320}
                   className="rounded-full object-cover "
@@ -461,6 +458,7 @@ export default function Home() {
                   src="/homePage/citreaMeme.png"
                   alt="citrea"
                   width={320}
+                  draggable="false"
                   height={320}
                   className="rounded-[32px] object-cover"
                 />

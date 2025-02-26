@@ -41,6 +41,7 @@ const AddTraitsModal: React.FC<ModalProps> = ({ open, onClose }) => {
                 src={URL.createObjectURL(imageFile[0])}
                 width={160}
                 height={160}
+                draggable="false"
                 alt="image"
                 sizes="100%"
                 className="rounded-xl object-cover"

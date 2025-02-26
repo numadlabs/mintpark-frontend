@@ -139,6 +139,7 @@ const AssetsSideBar = ({
                 <div className="flex gap-4 items-center">
                   <Image
                     width={40}
+                    draggable="false"
                     height={40}
                     src={
                       collection?.logoKey

@@ -259,6 +259,7 @@ const CollectionDetailPage = () => {
                 <Image
                   width={208}
                   height={208}
+                  draggable="false"
                   src={
                     collection?.logoKey
                       ? s3ImageUrlBuilder(collection.logoKey)
@@ -309,6 +310,7 @@ const CollectionDetailPage = () => {
                         <Image
                           width={24}
                           height={20}
+                          draggable="false"
                           src={BITCOIN_IMAGE}
                           alt="bitcoin"
                           className="aspect-square"
@@ -331,6 +333,7 @@ const CollectionDetailPage = () => {
                       <div className="flex items-center justify-center md:justify-start mt-2">
                         <Image
                           width={24}
+                          draggable="false"
                           height={20}
                           src={BITCOIN_IMAGE}
                           alt="bitcoin"
@@ -387,6 +390,7 @@ const CollectionDetailPage = () => {
                   <div className="flex items-center justify-center md:justify-start mt-2">
                     <Image
                       width={24}
+                      draggable="false"
                       height={20}
                       src={BITCOIN_IMAGE}
                       alt="bitcoin"
@@ -411,6 +415,7 @@ const CollectionDetailPage = () => {
                     <Image
                       width={24}
                       height={20}
+                      draggable="false"
                       src={BITCOIN_IMAGE}
                       alt="bitcoin"
                       className="aspect-square"
@@ -458,6 +463,7 @@ const CollectionDetailPage = () => {
           <button onClick={toggleSideBar}>
             <Image
               src="/collections/sort.png"
+              draggable="false"
               alt="sort"
               width={20}
               height={20}
@@ -472,6 +478,7 @@ const CollectionDetailPage = () => {
             <div className="relative w-full">
               <Image
                 src="/collections/search.png"
+                draggable="false"
                 alt="search"
                 width={20}
                 height={20}
@@ -513,6 +520,7 @@ const CollectionDetailPage = () => {
                     src="/collections/hashtag.png"
                     alt="grid"
                     width={20}
+                    draggable="false"
                     height={20}
                   />
                 </TabsTrigger>
@@ -525,6 +533,7 @@ const CollectionDetailPage = () => {
                     alt="list"
                     width={20}
                     height={20}
+                    draggable="false"
                   />
                 </TabsTrigger>
               </TabsList>

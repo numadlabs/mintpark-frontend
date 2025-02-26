@@ -15,6 +15,7 @@ const UploadCardFill: React.FC<cardProps> = ({ image, onDelete }) => {
           src={image}
           alt="collection"
           width={0}
+          draggable="false"
           height={0}
           sizes="100%"
           className="w-full h-full object-cover rounded-xl"

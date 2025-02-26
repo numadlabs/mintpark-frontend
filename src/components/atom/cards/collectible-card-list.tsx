@@ -43,6 +43,7 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({ data, isOwnListing
           <Image
             width={48}
             height={48}
+            draggable="false"
             src={
               data.highResolutionImageUrl
                 ? data.highResolutionImageUrl

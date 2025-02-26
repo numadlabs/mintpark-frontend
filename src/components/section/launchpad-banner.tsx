@@ -169,6 +169,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
                   src="/banner.png"
                   alt="mintparkBanner"
                   fill
+                  draggable="false"
                   className="object-cover"
                   priority
                 />
@@ -181,6 +182,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
                       src="/wallets/Citrea.png"
                       alt="citrea"
                       width={32}
+                      draggable="false"
                       height={32}
                       className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg"
                     />

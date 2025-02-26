@@ -768,6 +768,7 @@ const Inscription = () => {
                     width={0}
                     height={160}
                     sizes="100%"
+                    draggable="false"
                     className="w-[280px] h-[280px] object-cover rounded-3xl"
                   />
                 )}

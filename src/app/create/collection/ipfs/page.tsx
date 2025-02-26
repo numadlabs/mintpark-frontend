@@ -965,6 +965,7 @@ const IPFS = () => {
                     src={URL.createObjectURL(imageFile[0])}
                     alt="background"
                     width={0}
+                    draggable="false"
                     height={160}
                     sizes="100%"
                     className="w-[280px] h-[280px] object-cover rounded-3xl"
