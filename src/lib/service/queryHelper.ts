@@ -228,7 +228,8 @@ export async function getListableById(
   userLayerId: string,
   limit: number,
   offset: number,
-  collectionIds: string[]
+  collectionIds: string[],
+  availability: string
 ): Promise<AssetSchema> {
   // Create base query parameters
   const params = new URLSearchParams({
@@ -237,11 +238,19 @@ export async function getListableById(
     userLayerId,
     limit: limit.toString(),
     offset: offset.toString(),
+    // isListed: availability.toString(),
   });
 
   // Add collectionIds as a single parameter if array is not empty
   if (collectionIds.length > 0) {
     params.append("collectionIds", JSON.stringify(collectionIds));
+  }
+
+  // Only add isListed parameter if availability is "isListed"
+  if (availability === "isListed") {
+    params.append("isListed", "true");
+  } else if (availability === "notListed") {
+    params.append("isListed", "false");
   }
 
   return axiosClient

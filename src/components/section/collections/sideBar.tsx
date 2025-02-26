@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   getCollectibleTraitTypes,
   getCollectibleTraitValues,
+  getListedCollectionById,
 } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { CollectionDataType } from "@/lib/types";
@@ -44,6 +45,13 @@ const CollectionSideBar: React.FC<SidebarProps> = ({
   >({});
   const [availability, setAvailability] = useState<string>("all");
   const [expandedType, setExpandedType] = useState<string | null>(null);
+
+  const { data: collection } = useQuery({
+    queryKey: ["collectionData", id, "recent", "desc"],
+    queryFn: () => getListedCollectionById(id, "recent", "desc", 10, 0, ""),
+    enabled: !!id,
+    retry: 1,
+  });
 
   const { data: traitTypes = [] } = useQuery<TraitType[]>({
     queryKey: ["traitType", id],
@@ -133,7 +141,7 @@ const CollectionSideBar: React.FC<SidebarProps> = ({
             className="w-full cursor-pointer font-bold text-lg2 pt-3 pb-3"
           >
             For sale{" "}
-            <span>({collectionData?.listedCount || 0})</span>
+            <span>({collection?.listedCollectibleCount || 0})</span>
           </Label>
         </div>
       </RadioGroup>
