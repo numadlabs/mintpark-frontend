@@ -132,6 +132,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
             <div className="flex-shrink-0">
               <Image
                 width={120}
+                draggable="false"
                 height={120}
                 src={"/profile/proImg.png"}
                 className="aspect-square rounded-[200px] w-24 h-24 md:w-[120px] md:h-[120px]"
@@ -152,6 +153,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                   <Image
                     src={"/profile/copy.png"}
                     alt="copy"
+                    draggable="false"
                     width={24}
                     height={24}
                     className="w-5 h-5 sm:w-6 sm:h-6 cursor-pointer"
@@ -174,6 +176,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                       <Image
                         src={BITCOIN_IMAGE}
                         alt="crypto"
+                        draggable="false"
                         width={24}
                         height={24}
                         className="h-5 w-5 sm:h-6 sm:w-6"

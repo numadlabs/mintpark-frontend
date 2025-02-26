@@ -17,6 +17,7 @@ const AssetsCard: React.FC<CardProps> = ({ data }) => {
         <div className="w-full flex justify-center items-center">
           <Image
             width={248}
+            draggable="false"
             height={248}
             src={
               data.highResolutionImageUrl

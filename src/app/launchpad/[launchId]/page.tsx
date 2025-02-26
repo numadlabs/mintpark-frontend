@@ -410,7 +410,7 @@ const Page = () => {
                           width={384}
                           height={384}
                           src={s3ImageUrlBuilder(collectibles?.logoKey)}
-                          className="object-cover rounded-2xl"
+                          className="object-contain aspect-square rounded-2xl"
                           alt={collectibles?.name || "Collection image"}
                         />
                       )}

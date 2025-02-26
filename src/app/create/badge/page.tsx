@@ -868,6 +868,7 @@ const Badge = () => {
                   <Image
                     src={URL.createObjectURL(imageFile[0])}
                     alt="background"
+                    draggable="false"
                     width={0}
                     height={160}
                     sizes="100%"

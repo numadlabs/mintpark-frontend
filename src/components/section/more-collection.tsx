@@ -56,6 +56,7 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
             <Image
               src="/collections/search.png"
               alt="search"
+              draggable="false"
               width={20}
               height={20}
               className="absolute left-3 top-1/2 transform -translate-y-1/2 w-[17.08px] h-[17.08px]"
@@ -93,6 +94,7 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
                   src="/collections/hashtag.png"
                   alt="grid"
                   width={20}
+                  draggable="false"
                   height={20}
                 />
               </TabsTrigger>
@@ -104,6 +106,7 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
                   src="/collections/burger.png"
                   alt="list"
                   width={20}
+                  draggable="false"
                   height={20}
                 />
               </TabsTrigger>

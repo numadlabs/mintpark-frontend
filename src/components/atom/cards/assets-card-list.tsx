@@ -47,6 +47,7 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
         <div className="flex min-w-[392px] w-full max-w-[640px] gap-5 items-center">
           <Image
             width={48}
+            draggable="false"
             height={48}
             src={
               data.highResolutionImageUrl

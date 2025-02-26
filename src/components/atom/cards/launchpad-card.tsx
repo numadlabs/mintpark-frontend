@@ -58,6 +58,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
         <Image
           width={248}
           height={248}
+          draggable="false"
           src={data?.logoKey ? s3ImageUrlBuilder(data.logoKey) : ""}
           className="object-cover rounded-xl aspect-square"
           alt={`${data.name || "Launchpad"} logo`}

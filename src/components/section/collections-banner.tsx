@@ -72,6 +72,7 @@ const CollectionsBanner = () => {
       <Image
         src={slide.image}
         alt="mintpark-slide"
+        draggable="false"
         fill
         className="object-cover"
         priority={slide.id === 1}
@@ -82,6 +83,7 @@ const CollectionsBanner = () => {
             src={slide.walletImage}
             alt={`${slide.walletName} wallet`}
             width={72}
+            draggable="false"
             height={72}
             className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-lg"
           />

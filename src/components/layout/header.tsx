@@ -181,6 +181,7 @@ export default function Header() {
                 <Link href={"/"}>
                   <Image
                     src={"/Logo.svg"}
+                    draggable="false"
                     alt="coordinals"
                     width={40}
                     height={40}
@@ -224,6 +225,7 @@ export default function Header() {
                           <Image
                             src={getLayerImage(defaultLayer.split("-")[0])}
                             alt={defaultLayer.split("-")[0]}
+                            draggable="false"
                             width={24}
                             height={24}
                             className="rounded-full"
@@ -270,6 +272,7 @@ export default function Header() {
                                   src={getLayerImage(layer.layer)}
                                   alt={layer.layer}
                                   width={24}
+                                  draggable="false"
                                   height={24}
                                   className="rounded-full"
                                 />
@@ -309,6 +312,7 @@ export default function Header() {
                       <Image
                         src="/Avatar.png"
                         alt="avatar"
+                        draggable="false"
                         width={24}
                         height={24}
                         className="rounded-full"
@@ -369,6 +373,7 @@ export default function Header() {
                 <Image
                   src={"/Logo.svg"}
                   alt="coordinals"
+                  draggable="false"
                   width={40}
                   height={40}
                 />
@@ -445,6 +450,7 @@ export default function Header() {
                             src={getLayerImage(defaultLayer.split("-")[0])}
                             alt={defaultLayer.split("-")[0]}
                             width={24}
+                            draggable="false"
                             height={24}
                             className="rounded-full"
                           />
@@ -490,6 +496,7 @@ export default function Header() {
                                 alt={layer.layer}
                                 width={24}
                                 height={24}
+                                draggable="false"
                                 className="rounded-full"
                               />
                               <div className="flex items-center gap-2 flex-1">
@@ -526,6 +533,7 @@ export default function Header() {
                         alt="avatar"
                         width={24}
                         height={24}
+                        draggable="false"
                         className="rounded-full"
                       />
                       <span className="text-neutral50">

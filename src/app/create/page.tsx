@@ -94,6 +94,7 @@ const Create = () => {
               <Image
                 src={"/background.png"}
                 alt="background"
+                draggable="false"
                 width={0}
                 height={160}
                 sizes="100%"

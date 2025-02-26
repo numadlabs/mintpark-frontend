@@ -155,6 +155,7 @@ export default function AssetsDetails() {
                 <Image
                   width={560}
                   height={560}
+                  draggable="false"
                   src={
                     currentAsset.highResolutionImageUrl
                       ? currentAsset.highResolutionImageUrl
@@ -166,6 +167,7 @@ export default function AssetsDetails() {
               </div>
               <Image
                 width={560}
+                draggable="false"
                 height={560}
                 src={
                   currentAsset.highResolutionImageUrl

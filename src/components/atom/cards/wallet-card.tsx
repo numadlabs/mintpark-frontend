@@ -68,6 +68,7 @@ export const WalletCard = ({
           src={getWalletImage(layer.layer)}
           alt={layer.layer}
           width={32}
+          draggable="false"
           height={32}
         />
         <span className="font-medium text-neutral00">

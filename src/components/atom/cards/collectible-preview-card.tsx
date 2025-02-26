@@ -19,6 +19,7 @@ const CollectiblePreviewCard: React.FC<cardProps> = ({
         <Image
           src={image}
           alt="collection"
+          draggable="false"
           width={0}
           height={0}
           sizes="100%"

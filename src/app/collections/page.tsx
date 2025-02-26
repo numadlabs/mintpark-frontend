@@ -96,6 +96,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                 <Image
                   src="/collections/sort.png"
                   alt="sort"
+                  draggable="false"
                   width={20}
                   height={20}
                 />
@@ -110,6 +111,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                   src="/collections/search.png"
                   alt="search"
                   width={17}
+                  draggable="false"
                   height={17}
                   className="absolute left-3 top-1/2 -translate-y-1/2"
                 />
@@ -164,6 +166,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                   src="/collections/hashtag.png"
                   alt="grid view"
                   width={20}
+                  draggable="false"
                   height={20}
                 />
               </button>
@@ -176,7 +179,9 @@ export default function Collections({ searchParams }: CollectionsProps) {
                 <Image
                   src="/collections/burger.png"
                   alt="list view"
+                  
                   width={20}
+                  draggable="false"
                   height={20}
                 />
               </button>

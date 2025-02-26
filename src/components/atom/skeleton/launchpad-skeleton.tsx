@@ -3,7 +3,7 @@ import React from "react";
 
 const LaunchpadCardSkeleton = () => {
   return (
-    <div className="relative w-full flex flex-col backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-[20px] p-3 sm:p-4">
+    <div className="relative w-full max-w-[1920px] flex flex-col backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-[20px] p-3 sm:p-4">
       {/* Image skeleton - maintain aspect ratio */}
       <div className="relative w-full aspect-square">
         <Skeleton className="absolute inset-0 rounded-xl bg-neutral500" />

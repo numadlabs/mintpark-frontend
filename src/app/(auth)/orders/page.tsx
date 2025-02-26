@@ -117,6 +117,7 @@ const Orders = () => {
             <Image
               src="/collections/refresh.png"
               alt="refresh"
+              draggable="false"
               width={24}
               height={24}
               className="w-6 h-6"

@@ -151,6 +151,7 @@ const PendingListModal: React.FC<ModalProps> = ({
                 <Image
                   width={160}
                   height={160}
+                  draggable="false"
                   src={imageUrl}
                   className="aspect-square rounded-xl"
                   alt={`logo`}
@@ -190,6 +191,7 @@ const PendingListModal: React.FC<ModalProps> = ({
                 <Image
                   width={160}
                   height={160}
+                  draggable="false"
                   src={imageUrl}
                   className="aspect-square rounded-xl"
                   alt={`logo`}

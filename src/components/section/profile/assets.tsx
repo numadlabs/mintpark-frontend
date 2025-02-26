@@ -175,6 +175,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
               <Image
                 src={"/collections/sort.png"}
                 alt="burger"
+                draggable="false"
                 width={20}
                 height={20}
                 className={`w-12 h-12 rounded-xl hidden lg:block sm:hidden p-3 ${
@@ -228,6 +229,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                 <Image
                   src="/collections/hashtag.png"
                   alt="hashtag"
+                  draggable="false"
                   width={20}
                   height={20}
                 />
@@ -239,6 +241,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                 <Image
                   src="/collections/burger.png"
                   alt="burger"
+                  draggable="false"
                   width={20}
                   height={20}
                 />

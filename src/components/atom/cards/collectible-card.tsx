@@ -21,6 +21,7 @@ export default function CollectibleCard({ data }: CollectibleCardProps) {
       <div className="flex flex-col h-auto gap-4 justify-center items-center">
         <Image
           width={248}
+          draggable="false"
           height={248}
           src={
             data.highResolutionImageUrl

@@ -126,6 +126,7 @@ const WhiteListPhaseCard: React.FC<PhaseCardItemProps> = ({
             <Image
               width={20}
               height={20}
+              draggable="false"
               src={BITCOIN_IMAGE}
               alt="Bitcoin icon"
               className="aspect-square h-5 w-5"
