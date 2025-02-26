@@ -51,7 +51,7 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
   return (
     <Tabs defaultValue="AllCard" className="">
       <section className="flex flex-col md:flex-row justify-between gap-4 mb-7">
-        <div className="flex flex-col md:flex-row gap-4 w-full">
+        <div className="flex md:flex-row gap-4 w-full">
           <div className="relative w-full">
             <Image
               src="/collections/search.png"
