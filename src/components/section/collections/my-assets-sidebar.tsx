@@ -25,6 +25,7 @@ const AssetsSideBar = ({
 }: AssetsSideBarProps) => {
   const { authState } = useAuth();
   const [availability, setAvailability] = useState<string>("all");
+  console.log("availability", availability);
 
   const { data: listableData, isLoading: isListableLoading } = useQuery({
     queryKey: [
@@ -34,7 +35,7 @@ const AssetsSideBar = ({
       "desc",
       10,
       0,
-      selectedCollections
+      selectedCollections,
     ],
     queryFn: () =>
       getListableById(
@@ -44,33 +45,41 @@ const AssetsSideBar = ({
         authState?.userLayerId as string,
         10,
         0,
-        selectedCollections
+        selectedCollections,
+        availability
       ),
-    enabled: !!authState?.userId && !!authState?.userLayerId,
+    enabled: !!authState?.userId && !!authState?.userLayerId && !!availability,
   });
 
-  const { data: collectionData, isLoading: isCollectionLoading } = useQuery({
-    queryKey: ["collectionData", authState?.userId, "recent", "desc"],
-    queryFn: () =>
-      getListedCollectionById(
-        authState?.userId as string,
-        "recent",
-        "desc",
-        10,
-        0,
-        ""
-      ),
-    enabled: !!authState?.userId,
-    retry: 1,
-  });
+  // const { data: collectionData, isLoading: isCollectionLoading } = useQuery({
+  //   queryKey: ["collectionData", authState?.userId, "recent", "desc"],
+  //   queryFn: () =>
+  //     getListedCollectionById(
+  //       authState?.userId as string,
+  //       "recent",
+  //       "desc",
+  //       10,
+  //       0,
+  //       ""
+  //     ),
+  //   enabled: !!authState?.userId,
+  //   retry: 1,
+  // });
+
+  // console.log("colData", collectionData)
+  // // console.log("listcount", listCount);
 
   useEffect(() => {
     // Sync the selected collections with parent component
     onCollectionsChange(selectedCollections);
   }, [selectedCollections, onCollectionsChange]);
 
-  if (isListableLoading || isCollectionLoading) {
-    return <div className="w-full p-4 flex justify-center items-center">Loading...</div>;
+  if (isListableLoading) {
+    return (
+      <div className="w-full p-4 flex justify-center items-center">
+        Loading...
+      </div>
+    );
   }
 
   const collections = listableData?.data?.collections || [];
@@ -114,23 +123,21 @@ const AssetsSideBar = ({
         </div>
         <div
           className={`flex items-center space-x-2 border rounded-xl pl-4 pr-4 gap-3 w-[280px] ${
-            availability === "listed" ? "bg-neutral500" : "bg-transparent"
+            availability === "isListed" ? "bg-neutral500" : "bg-transparent"
           } border-transparent text-neutral50`}
         >
-          <RadioGroupItem value="listed" id="listed" />
+          <RadioGroupItem value="isListed" id="isListed" />
           <Label
-            htmlFor="listed"
+            htmlFor="isListed"
             className="w-full cursor-pointer font-bold text-lg2 pt-3 pb-3"
           >
             Listed <span>({listCount})</span>
           </Label>
         </div>
       </RadioGroup>
-
       <h2 className="font-bold text-lg text-neutral00 pt-7 pb-4 border-b border-neutral500">
         Collections
       </h2>
-      
       <div className="space-y-2 pt-4 grid gap-3">
         {Array.isArray(collections) &&
           collections.map((collection) => (
