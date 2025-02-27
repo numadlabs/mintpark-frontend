@@ -118,8 +118,7 @@ export const ErrorModal = ({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              {
-                "Something went wrong. Minting unsuccessful."}
+              {errorMessage}
             </motion.div>
             <motion.button
               onClick={onClose}
