@@ -28,7 +28,7 @@ import { Unlimited } from "iconsax-react";
 const Page = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { authState } = useAuth();
+  const { authState, selectedLayerId } = useAuth();
   const params = useParams();
   const id = params.launchId as string;
   const [isLoading, setIsLoading] = useState(false);
@@ -250,7 +250,7 @@ const Page = () => {
   const handlePhaseClick = (phaseType: "guaranteed" | "public") => {
     setSelectedPhase(phaseType);
   };
-// add to go to collection condition
+  // add to go to collection condition
   const handlCollectionClick = () => {
     router.push(`/collections/${collectibles.id}`);
   };
@@ -318,6 +318,10 @@ const Page = () => {
     const validUrl = url.startsWith("http") ? url : `https://${url}`;
     window.open(validUrl, "_blank", "noopener,noreferrer");
   };
+
+  if (collectibles.layerId !== selectedLayerId) {
+    router.push("/launchpad");
+  }
 
   return (
     <>
