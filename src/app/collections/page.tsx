@@ -21,6 +21,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import CollectionSkeleton from "@/components/atom/skeleton/collection-skeletion";
 import CollectionsBanner from "@/components/section/collections-banner";
 import CollectionCardList from "@/components/atom/cards/collection-card-list";
+import Layout from "@/components/layout/layout";
 
 interface CollectionsProps {
   params: {};
@@ -76,7 +77,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
   const collectionArray = Array.isArray(collection) ? collection : [];
 
   return (
-    <>
+    <Layout>
       <CollectionsBanner />
       <Tabs
         value={selectedInterval}
@@ -276,6 +277,6 @@ export default function Collections({ searchParams }: CollectionsProps) {
           </motion.div>
         </AnimatePresence>
       </Tabs>
-    </>
+    </Layout>
   );
 }

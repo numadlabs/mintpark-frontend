@@ -150,7 +150,6 @@ export default function Home() {
       {/* <div className="flex flex-col justify-center items-center"> */}
 
       <Layout>
-        <Header />
         <section className="w-full  flex flex-col gap-[56px] md:gap-[120px] mt-12 md:mt-[100px]">
           {/* Hero Section */}
 
@@ -194,8 +193,8 @@ export default function Home() {
 
           <div className="relative w-full mx-auto ">
             <div className="relative z-10 w-full">
-              <div className="relative w-full h-full max-w-[1920px] px-0 md2:px-[112px] 3xl:px-10">
-                <div className="absolute z-10 blur-[80px] mx-10  inset-y-0 overflow-hidden    ">
+              <div className="relative w-full h-full max-w-[1920px] px-0">
+                <div className="absolute z-10 blur-[80px] inset-y-0 overflow-hidden    ">
                   <Image
                     src="/homePage/homeBanner.png"
                     alt="blurred background"
@@ -208,7 +207,7 @@ export default function Home() {
                   />
                 </div>
 
-                <div className="relative z-20 w-full h-full px-6">
+                <div className="relative z-20 w-full h-full">
                   {" "}
                   {/* Original sharp image on top */}
                   <div className="relative w-full h-full">
@@ -453,7 +452,7 @@ export default function Home() {
                   className="rounded-full object-cover "
                 />
               </div>
-              <div className="absolute inset-0 z-50">
+              <div className="absolute inset-0 z-10">
                 <Image
                   src="/homePage/citreaMeme.png"
                   alt="citrea"

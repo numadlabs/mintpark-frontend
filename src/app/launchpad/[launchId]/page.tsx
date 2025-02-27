@@ -25,11 +25,16 @@ import moment from "moment";
 import ImageLoaderComponent from "@/components/atom/image-loader";
 import { Unlimited } from "iconsax-react";
 
+import SuccessModal from "@/components/modal/success-modal";
+import { ErrorModal } from "@/components/modal/error-launchpad-modal";
+
 const Page = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { authState, selectedLayerId } = useAuth();
   const params = useParams();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
   const id = params.launchId as string;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +53,19 @@ const Page = () => {
       toast.error(errorMessage);
     },
   });
+
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+  };
+
+  const handleViewCollection = () => {
+    setShowSuccessModal(false);
+    router.push("/launchpad");
+  };
+
+  const handleCloseErrorModal = () => {
+    setShowErrorModal(false);
+  };
 
   const { mutateAsync: confirmOrderMutation } = useMutation({
     mutationFn: confirmOrder,
@@ -80,23 +98,23 @@ const Page = () => {
   const handleConfirm = async () => {
     if (!authState.authenticated) {
       setError("Please connect wallet first");
-      toast.error("Please connect wallet first");
+      setShowErrorModal(true); // Show error modal instead of toast
       return;
     }
-
+  
     if (!currentLayer || !authState.userLayerId) {
       setError("Layer information not available");
-      toast.error("Layer information not available");
+      setShowErrorModal(true); // Show error modal instead of toast
       return;
     }
-
+  
     setIsLoading(true);
     setError(null);
-
+  
     try {
       let txid;
       let launchItemId;
-
+  
       const response = await createBuyLaunchMutation({
         id: collectibles.launchId,
         userLayerId: authState.userLayerId,
@@ -105,10 +123,10 @@ const Page = () => {
       if (!response?.success) {
         throw new Error(response?.error || "Failed to create order");
       }
-
+  
       const orderId = response.data.order.id;
       launchItemId = response.data.launchItem.id;
-
+  
       if (response.data.singleMintTxHex) {
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(
@@ -125,7 +143,7 @@ const Page = () => {
         );
         await new Promise((resolve) => setTimeout(resolve, 10000));
       }
-
+  
       if (orderId) {
         const orderRes = await confirmOrderMutation({
           orderId,
@@ -134,23 +152,29 @@ const Page = () => {
           userLayerId: authState.userLayerId,
           feeRate: 1,
         });
-
+  
         if (orderRes?.success) {
-          toast.success(
-            "Minting in progress! 🚀 Your NFTs are in the queue and will be sent to your wallet soon. Thanks for your patience!"
-          );
-          router.push("/launchpad");
+          // Show success modal instead of toast notification
+          setShowSuccessModal(true);
+          
+          // Still invalidate queries for data refresh
+          queryClient.invalidateQueries({
+            queryKey: ["collectiblesByCollections", id],
+          });
+          queryClient.invalidateQueries({ queryKey: ["launchData", id] });
+        } else {
+          throw new Error(orderRes?.error || "Failed to confirm order");
         }
       }
     } catch (error: any) {
       const errorMessage = error?.message || "An unexpected error occurred";
       setError(errorMessage);
-      toast.error(errorMessage);
+      // Show error modal instead of toast
+      setShowErrorModal(true);
     } finally {
       setIsLoading(false);
     }
   };
-
   const determineActivePhase = () => {
     const now = moment();
 
@@ -511,6 +535,17 @@ const Page = () => {
               </section>
             </div>
           )}
+          <SuccessModal 
+  open={showSuccessModal} 
+  onClose={handleCloseSuccessModal}
+  handleCreate={handleViewCollection}
+/>
+
+          <ErrorModal
+            isOpen={showErrorModal}
+            onClose={handleCloseErrorModal}
+            errorMessage={error || "An unexpected error occurred"}
+          />
         </DetailLayout>
       </div>
     </>
