@@ -23,10 +23,13 @@ export interface AssetsData {
     collectibles: CollectibleSchema[];
     totalCount: number;
     listCount: number;
+    collections: AssetColSchema[];
   };
 }
 
 import { Dispatch, SetStateAction } from "react";
+import { CollectionSchema } from "../validations/collection-validation";
+import { AssetColSchema } from "../validations/asset-validation";
 
 // Define the type for our assets context
 export interface AssetsContextType {
