@@ -96,6 +96,7 @@ export function WalletConnectionModal({
 
     try {
       await connectWallet(layer.id, authState.authenticated);
+      onClose();
       toast.success(
         `${authState.authenticated ? "Linked" : "Connected to"} ${layer.name}`
       );

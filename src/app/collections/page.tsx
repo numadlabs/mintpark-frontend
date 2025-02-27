@@ -55,6 +55,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
   const { data: collection = [], isLoading } = useQuery({
     queryKey: [
       "collectionData",
+      id,
       selectedInterval,
       orderConfig.orderBy,
       orderConfig.orderDirection,
@@ -179,7 +180,6 @@ export default function Collections({ searchParams }: CollectionsProps) {
                 <Image
                   src="/collections/burger.png"
                   alt="list view"
-                  
                   width={20}
                   draggable="false"
                   height={20}
