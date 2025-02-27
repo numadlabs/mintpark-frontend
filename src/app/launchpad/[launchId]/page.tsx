@@ -26,7 +26,7 @@ import ImageLoaderComponent from "@/components/atom/image-loader";
 import { Unlimited } from "iconsax-react";
 
 import SuccessModal from "@/components/modal/success-modal";
-import { ErrorModal } from "@/components/modal/error-launchpad-modal";
+import ErrorModal from "@/components/modal/error-modal";
 
 const Page = () => {
   const queryClient = useQueryClient();
