@@ -73,22 +73,22 @@ export default function Header() {
       // First, scroll to top when opening menu
       window.scrollTo(0, 0);
       // Then disable scrolling
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     };
-    
+
     const handleClose = () => {
       // Re-enable scrolling when closing menu
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
-    
+
     if (mobileMenuOpen) {
       handleOpen();
     } else {
       handleClose();
     }
-    
+
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
   }, [mobileMenuOpen]);
 
@@ -170,7 +170,7 @@ export default function Header() {
   const handleLayerSelect = (value: string): void => {
     const [layer, network] = value.split("-");
     const matchingLayer = layers.find(
-      (l) => l.layer === layer && l.network === network
+      (l) => l.layer === layer && l.network === network,
     );
 
     if (matchingLayer && selectedLayerId !== matchingLayer.id) {
@@ -193,7 +193,7 @@ export default function Header() {
   const handleNavigation = (
     pageUrl: string,
     requiresAuth?: boolean,
-    disabled?: boolean
+    disabled?: boolean,
   ): void => {
     if (disabled) {
       toast.info("This feature is coming soon!");
@@ -242,7 +242,7 @@ export default function Header() {
             />
             <div className="flex items-center gap-2 flex-1">
               {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(
-                layer.network
+                layer.network,
               )}`}
             </div>
           </div>
@@ -287,18 +287,18 @@ export default function Header() {
       opacity: 0,
       y: "-100%",
       transition: {
-        y: { stiffness: 1000 }
-      }
+        y: { stiffness: 1000 },
+      },
     },
     open: {
       opacity: 1,
       y: 0,
       transition: {
-        y: { stiffness: 1000, velocity: -100 }
-      }
-    }
+        y: { stiffness: 1000, velocity: -100 },
+      },
+    },
   };
-  
+
   // Listen for window resize to close mobile menu on desktop view
   useEffect(() => {
     const handleResize = () => {
@@ -306,14 +306,14 @@ export default function Header() {
         setMobileMenuOpen(false);
       }
     };
-    
-    window.addEventListener('resize', handleResize);
-    
+
+    window.addEventListener("resize", handleResize);
+
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, [mobileMenuOpen]);
-  
+
   const menuItemVariants = {
     closed: { x: -20, opacity: 0 },
     open: (i: any) => ({
@@ -321,14 +321,14 @@ export default function Header() {
       opacity: 1,
       transition: {
         delay: i * 0.1,
-        duration: 0.4
-      }
-    })
+        duration: 0.4,
+      },
+    }),
   };
-  
+
   const backdropVariants = {
     closed: { opacity: 0 },
-    open: { opacity: 1 }
+    open: { opacity: 1 },
   };
 
   return (
@@ -358,7 +358,7 @@ export default function Header() {
                           handleNavigation(
                             item.pageUrl,
                             item.requiresAuth,
-                            item.disabled
+                            item.disabled,
                           )
                         }
                       />
@@ -461,7 +461,7 @@ export default function Header() {
         {mobileMenuOpen && (
           <>
             {/* Backdrop */}
-            <motion.div 
+            <motion.div
               className="lg:hidden fixed inset-0 z-40 bg-neutral500 bg-opacity-40"
               initial="closed"
               animate="open"
@@ -469,9 +469,9 @@ export default function Header() {
               variants={backdropVariants}
               onClick={() => setMobileMenuOpen(false)}
             />
-            
+
             {/* Menu Panel - Always at the top of page */}
-            <motion.div 
+            <motion.div
               className="lg:hidden fixed inset-x-0 top-0 z-50 bg-neutral500 bg-opacity-95 backdrop-blur-lg pt-4 pb-6 h-auto min-h-screen overflow-y-auto"
               initial="closed"
               animate="open"
@@ -501,8 +501,8 @@ export default function Header() {
                 {/* Mobile navigation */}
                 <div className="flex flex-col pt-8 gap-5">
                   {routes.map((item, index) => (
-                    <motion.div 
-                      key={index} 
+                    <motion.div
+                      key={index}
                       className="relative"
                       custom={index}
                       variants={menuItemVariants}
@@ -513,7 +513,7 @@ export default function Header() {
                           handleNavigation(
                             item.pageUrl,
                             item.requiresAuth,
-                            item.disabled
+                            item.disabled,
                           )
                         }
                       >
@@ -524,13 +524,16 @@ export default function Header() {
                   ))}
 
                   {/* Mobile layer and wallet controls */}
-                  <motion.div 
+                  <motion.div
                     className="grid items-center pt-6 border-t border-neutral400 gap-4"
                     custom={routes.length}
                     variants={menuItemVariants}
                   >
                     {/* Same layer selector as desktop but with mobile styling */}
-                    <Select onValueChange={handleLayerSelect} value={defaultLayer}>
+                    <Select
+                      onValueChange={handleLayerSelect}
+                      value={defaultLayer}
+                    >
                       <SelectTrigger className="flex items-center h-12 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-full">
                         <SelectValue
                           placeholder="Select layer"
@@ -583,7 +586,7 @@ export default function Header() {
                               <ArrowRight2 size={16} color="#D7D8D8" />
                             </DropdownMenuItem>
                           </Link>
-                          <Link href="/orders">
+                          {/* <Link href="/orders">
                             <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
                               <div className="flex items-center gap-2">
                                 <I3Dcube size={24} color="#D7D8D8" />
@@ -591,7 +594,7 @@ export default function Header() {
                               </div>
                               <ArrowRight2 size={16} color="#D7D8D8" />
                             </DropdownMenuItem>
-                          </Link>
+                          </Link> */}
                           <DropdownMenuItem
                             className="text-neutral50 text-md font-medium flex gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
                             onClick={handleLogout}
