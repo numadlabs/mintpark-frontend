@@ -13,6 +13,7 @@ import {
 import {
   getCollectibleActivity,
   getCollectionById,
+  getLayerById,
 } from "@/lib/service/queryHelper";
 import {
   getSigner,
@@ -36,6 +37,7 @@ import { Collectible } from "@/lib/validations/collection-validation";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import CancelListModal from "@/components/modal/cancel-list-modal";
 import Link from "next/link";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 
 export default function AssetsDetails() {
   const queryClient = useQueryClient();
@@ -72,6 +74,12 @@ export default function AssetsDetails() {
     queryKey: ["activityData", id],
     queryFn: () => getCollectibleActivity(id as string),
     enabled: !!id,
+  });
+
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
   });
 
   const currentAsset = collectionData?.[0];
@@ -198,7 +206,10 @@ export default function AssetsDetails() {
                         <p>List price</p>
                       </span>
                       <span className="font-bold text-neutral50 text-lg">
-                        <h1>{formatPrice(currentAsset.price)} cBTC</h1>
+                        <h1>
+                          {formatPrice(currentAsset.price)}{" "}
+                          {getCurrencySymbol(currentLayer.layer)}
+                        </h1>
                       </span>
                     </div>
                   </div>

@@ -15,6 +15,7 @@ import {
   getCollectibleActivity,
   getCollectibleTraits,
   getCollectionById,
+  getLayerById,
   getListedCollectionById,
 } from "@/lib/service/queryHelper";
 import {
@@ -34,6 +35,7 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import { toast } from "sonner";
 import Link from "next/link";
 import MoreCollection from "@/components/section/more-collection";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 
 export default function AssetDetail() {
   const params = useParams();
@@ -48,6 +50,12 @@ export default function AssetDetail() {
     queryKey: ["collectionData", id],
     queryFn: () => getCollectionById(id),
     enabled: !!id,
+  });
+
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
   });
 
   const currentAsset = collectible?.[0];
@@ -93,7 +101,6 @@ export default function AssetDetail() {
   if (isCollectionLoading) {
     return (
       <Layout>
-        <Header />
         <AssetDetailSkeleton />
       </Layout>
     );
@@ -102,7 +109,6 @@ export default function AssetDetail() {
   if (!currentAsset) {
     return (
       <Layout>
-        <Header />
         <div className="flex justify-center items-center h-96">
           <p className="text-neutral200">Asset not found</p>
         </div>
@@ -112,7 +118,6 @@ export default function AssetDetail() {
 
   return (
     <Layout>
-      <Header />
       <div className="w-full flex justify-center ">
         <div className="flex flex-col w-full gap-16 max-w-[1216px]">
           <div className="md:grid grid-cols-2 flex flex-col gap-16 justify-between pt-16 relative z-20">
@@ -166,7 +171,7 @@ export default function AssetDetail() {
                         <h1>
                           {currentAsset.price &&
                             formatPrice(currentAsset.price)}{" "}
-                          cBTC
+                          {getCurrencySymbol(currentLayer.layer)}
                         </h1>
                       </span>
                     </div>

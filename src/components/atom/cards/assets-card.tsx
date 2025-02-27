@@ -2,15 +2,25 @@ import Image from "next/image";
 import { formatPrice, s3ImageUrlBuilder } from "@/lib/utils";
 import { CollectibleSchema } from "@/lib/validations/asset-validation";
 import Link from "next/link";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/components/provider/auth-context-provider";
+import { getLayerById } from "@/lib/service/queryHelper";
 
 interface CardProps {
   data: CollectibleSchema;
 }
 
 const AssetsCard: React.FC<CardProps> = ({ data }) => {
-  const isListed = (data?.price ?? 0) > 0;
+  const { authState } = useAuth();
 
- 
+  const isListed = (data?.price ?? 0) > 0;
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
+  });
+
   return (
     <Link href={`/my-assets/${data.id}`} className="block w-full ">
       <div className="flex flex-col w-full transition-transform hover:scale-[1.02] backdrop-blur-sm bg-gradient-to-br from-gradientStart to-transparent border border-neutral400 rounded-xl px-4 pt-4 pb-5">
@@ -45,7 +55,9 @@ const AssetsCard: React.FC<CardProps> = ({ data }) => {
                       </p>
                       <p className="text-neutral50 group-hover:hidden">
                         {formatPrice(data.price ?? 0)}
-                        <span className="ml-1">cBTC</span>
+                        <span className="ml-1">
+                          {getCurrencySymbol(currentLayer.layer)}
+                        </span>
                       </p>
                     </>
                   ) : (

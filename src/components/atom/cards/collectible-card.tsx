@@ -3,6 +3,10 @@ import Link from "next/link";
 import { CollectionDataType } from "@/lib/types";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
 import { CollectionSchema } from "@/lib/validations/collection-validation";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import { useAuth } from "@/components/provider/auth-context-provider";
+import { useQuery } from "@tanstack/react-query";
+import { getLayerById } from "@/lib/service/queryHelper";
 
 interface CollectibleCardProps {
   data: CollectionSchema;
@@ -11,6 +15,12 @@ interface CollectibleCardProps {
 
 // export default function CollectibleCard({ data, isOwnListing = false }: CollectibleCardProps) {
 export default function CollectibleCard({ data }: CollectibleCardProps) {
+  const { authState } = useAuth();
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
+  });
   const isListed = data.price > 0;
 
   return (
@@ -49,7 +59,9 @@ export default function CollectibleCard({ data }: CollectibleCardProps) {
                       </p>
                       <p className="text-neutral50">
                         {formatPrice(data.price)}
-                        <span className="ml-1">cBTC</span>
+                        <span className="ml-1">
+                          {getCurrencySymbol(currentLayer.layer)}
+                        </span>
                       </p>
                     </>
                   ) : (

@@ -133,7 +133,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
       >
         <CarouselContent>
           {/* Static banner slide */}
-          <CarouselItem>
+          {/* <CarouselItem>
             <div className="relative h-[320px] w-full">
               <div className="w-full h-full relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden">
                 <Image
@@ -168,7 +168,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
                 </div>
               </div>
             </div>
-          </CarouselItem>
+          </CarouselItem> */}
 
           {/* Dynamic data slide */}
           {data && data.logoKey && (

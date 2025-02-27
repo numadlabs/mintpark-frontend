@@ -26,7 +26,8 @@ import ImageLoaderComponent from "@/components/atom/image-loader";
 import { Unlimited } from "iconsax-react";
 
 import SuccessModal from "@/components/modal/success-modal";
-import { ErrorModal } from "@/components/modal/error-launchpad-modal";
+import ErrorModal from "@/components/modal/error-modal";
+import PendingModal from "@/components/modal/pending-modal";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -35,6 +36,7 @@ const Page = () => {
   const params = useParams();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showPendingModal, setShowPendingModal] = useState(false);
   const id = params.launchId as string;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +67,9 @@ const Page = () => {
 
   const handleCloseErrorModal = () => {
     setShowErrorModal(false);
+  };
+  const handleClosePendingModal = () => {
+    setShowPendingModal(false);
   };
 
   const { mutateAsync: confirmOrderMutation } = useMutation({
@@ -101,20 +106,21 @@ const Page = () => {
       setShowErrorModal(true); // Show error modal instead of toast
       return;
     }
-  
+
     if (!currentLayer || !authState.userLayerId) {
       setError("Layer information not available");
       setShowErrorModal(true); // Show error modal instead of toast
       return;
     }
-  
+
     setIsLoading(true);
+    setShowPendingModal(true);
     setError(null);
-  
+
     try {
       let txid;
       let launchItemId;
-  
+
       const response = await createBuyLaunchMutation({
         id: collectibles.launchId,
         userLayerId: authState.userLayerId,
@@ -123,10 +129,10 @@ const Page = () => {
       if (!response?.success) {
         throw new Error(response?.error || "Failed to create order");
       }
-  
+
       const orderId = response.data.order.id;
       launchItemId = response.data.launchItem.id;
-  
+
       if (response.data.singleMintTxHex) {
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(
@@ -143,7 +149,7 @@ const Page = () => {
         );
         await new Promise((resolve) => setTimeout(resolve, 10000));
       }
-  
+
       if (orderId) {
         const orderRes = await confirmOrderMutation({
           orderId,
@@ -152,11 +158,11 @@ const Page = () => {
           userLayerId: authState.userLayerId,
           feeRate: 1,
         });
-  
+
         if (orderRes?.success) {
           // Show success modal instead of toast notification
           setShowSuccessModal(true);
-          
+
           // Still invalidate queries for data refresh
           queryClient.invalidateQueries({
             queryKey: ["collectiblesByCollections", id],
@@ -173,6 +179,7 @@ const Page = () => {
       setShowErrorModal(true);
     } finally {
       setIsLoading(false);
+      setShowPendingModal(false);
     }
   };
   const determineActivePhase = () => {
@@ -343,8 +350,17 @@ const Page = () => {
     window.open(validUrl, "_blank", "noopener,noreferrer");
   };
 
-  if (collectibles.layerId !== selectedLayerId) {
-    router.push("/launchpad");
+  if (
+    !isCollectiblesLoading &&
+    !isLayerLoading &&
+    collectibles?.layerId !== selectedLayerId
+  ) {
+    router.replace("/launchpad");
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Redirecting...
+      </div>
+    );
   }
 
   return (
@@ -438,7 +454,7 @@ const Page = () => {
                           width={384}
                           height={384}
                           src={s3ImageUrlBuilder(collectibles?.logoKey)}
-                          className="object-contain aspect-square rounded-2xl"
+                          className="object-contain aspect-square rounded-2xl justify-center items-center"
                           alt={collectibles?.name || "Collection image"}
                         />
                       )}
@@ -535,16 +551,21 @@ const Page = () => {
               </section>
             </div>
           )}
-          <SuccessModal 
-  open={showSuccessModal} 
-  onClose={handleCloseSuccessModal}
-  handleCreate={handleViewCollection}
-/>
+          <SuccessModal
+            open={showSuccessModal}
+            onClose={handleCloseSuccessModal}
+            handleCreate={handleViewCollection}
+          />
 
           <ErrorModal
             isOpen={showErrorModal}
             onClose={handleCloseErrorModal}
             errorMessage={error || "An unexpected error occurred"}
+          />
+
+          <PendingModal
+            isOpen={showPendingModal}
+            onClose={handleClosePendingModal}
           />
         </DetailLayout>
       </div>

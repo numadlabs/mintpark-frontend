@@ -53,8 +53,8 @@ export default function Header() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
-  const [selectedLayer, setSelectedLayer] = useState("CITREA");
-  const [defaultLayer, setDefaultLayer] = useState("CITREA-mainnet");
+  const [selectedLayer, setSelectedLayer] = useState("HEMI");
+  const [defaultLayer, setDefaultLayer] = useState("HEMI-mainnet");
 
   const {
     authState,
@@ -123,7 +123,7 @@ export default function Header() {
 
     // Fall back to default behavior if no saved layer or match found
     if (!selectedLayerId && dynamicLayers.length > 0) {
-      const citreaLayer = dynamicLayers.find((l) => l.layer === "CITREA");
+      const citreaLayer = dynamicLayers.find((l) => l.layer === "HEMI");
       if (citreaLayer) {
         setDefaultLayer(`${citreaLayer.layer}-${citreaLayer.network}`);
         setSelectedLayerId(citreaLayer.id);
@@ -170,7 +170,7 @@ export default function Header() {
   const handleLayerSelect = (value: string): void => {
     const [layer, network] = value.split("-");
     const matchingLayer = layers.find(
-      (l) => l.layer === layer && l.network === network,
+      (l) => l.layer === layer && l.network === network
     );
 
     if (matchingLayer && selectedLayerId !== matchingLayer.id) {
@@ -193,7 +193,7 @@ export default function Header() {
   const handleNavigation = (
     pageUrl: string,
     requiresAuth?: boolean,
-    disabled?: boolean,
+    disabled?: boolean
   ): void => {
     if (disabled) {
       toast.info("This feature is coming soon!");
@@ -242,7 +242,7 @@ export default function Header() {
             />
             <div className="flex items-center gap-2 flex-1">
               {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(
-                layer.network,
+                layer.network
               )}`}
             </div>
           </div>
@@ -358,7 +358,7 @@ export default function Header() {
                           handleNavigation(
                             item.pageUrl,
                             item.requiresAuth,
-                            item.disabled,
+                            item.disabled
                           )
                         }
                       />
@@ -421,7 +421,7 @@ export default function Header() {
                           <ArrowRight2 size={16} color="#D7D8D8" />
                         </DropdownMenuItem>
                       </Link>
-                      <Link href="/orders">
+                      {/* <Link href="/orders">
                         <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
                           <div className="flex items-center gap-2">
                             <I3Dcube size={24} color="#D7D8D8" />
@@ -429,7 +429,7 @@ export default function Header() {
                           </div>
                           <ArrowRight2 size={16} color="#D7D8D8" />
                         </DropdownMenuItem>
-                      </Link>
+                      </Link> */}
                       <DropdownMenuItem
                         className="text-neutral50 text-md font-medium flex gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
                         onClick={handleLogout}
@@ -513,7 +513,7 @@ export default function Header() {
                           handleNavigation(
                             item.pageUrl,
                             item.requiresAuth,
-                            item.disabled,
+                            item.disabled
                           )
                         }
                       >

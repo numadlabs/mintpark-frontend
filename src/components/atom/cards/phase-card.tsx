@@ -3,6 +3,10 @@ import Image from "next/image";
 import { Lock1 } from "iconsax-react";
 import { BITCOIN_IMAGE } from "@/lib/constants";
 import { useLaunchState, LAUNCH_STATE } from "@/lib/hooks/useLaunchState";
+import { useAuth } from "@/components/provider/auth-context-provider";
+import { useQuery } from "@tanstack/react-query";
+import { getLayerById } from "@/lib/service/queryHelper";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 
 interface PhaseCardProps {
   maxMintPerWallet: number | string;
@@ -52,6 +56,12 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   badgeSupply,
   isWhitelisted = false,
 }) => {
+  const { authState } = useAuth();
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
+  });
   const [timeDisplay, setTimeDisplay] = useState("");
   const [status, setStatus] = useState("");
   const [isClickable, setIsClickable] = useState(false);
@@ -191,7 +201,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
             {mintPrice !== undefined && (
               <p className="text-neutral50">
                 <span className="mr-1">{mintPrice}</span>
-                cBTC
+                {getCurrencySymbol(currentLayer.layer)}
               </p>
             )}
           </div>

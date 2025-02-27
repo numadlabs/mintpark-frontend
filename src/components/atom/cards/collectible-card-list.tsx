@@ -3,6 +3,10 @@ import Image from "next/image";
 import { formatPrice, getPriceData, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
 import { CollectionSchema } from "@/lib/validations/collection-validation";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import { useQuery } from "@tanstack/react-query";
+import { getLayerById } from "@/lib/service/queryHelper";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 // Define the type for the component props
 interface ColDetailCardsProps {
@@ -29,7 +33,16 @@ const getDaysAgo = (createdAt: string) => {
   return diffDays;
 };
 
-const CollectibleCardList: React.FC<ColDetailCardsProps> = ({ data, isOwnListing = false }) => {
+const CollectibleCardList: React.FC<ColDetailCardsProps> = ({
+  data,
+  isOwnListing = false,
+}) => {
+  const { authState } = useAuth();
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
+  });
   const citreaPrice = getPriceData();
   const daysAgo = getDaysAgo(data.createdAt);
 
@@ -60,7 +73,10 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({ data, isOwnListing
           <div className="min-w-[200px] w-full max-w-[324px]  text-start">
             <p className="font-medium text-md text-neutral50 w-full">
               {formatPrice(data.price)}
-              <span className="ml-1">cBTC</span>
+              <span className="ml-1">
+                {" "}
+                {getCurrencySymbol(currentLayer.layer)}
+              </span>
             </p>
             <p>
               {" "}

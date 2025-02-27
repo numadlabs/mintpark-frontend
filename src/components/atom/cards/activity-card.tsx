@@ -4,6 +4,10 @@ import { TickCircle, ArrowRight } from "iconsax-react";
 import { ActivityType } from "@/lib/types";
 import { truncateAddress, formatPrice } from "@/lib/utils";
 import moment from "moment";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import { useQuery } from "@tanstack/react-query";
+import { getLayerById } from "@/lib/service/queryHelper";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 interface cardProps {
   imageUrl: string;
@@ -15,6 +19,7 @@ const ActivityCard: React.FC<cardProps> = ({
   data,
   collectionName,
 }) => {
+  const { selectedLayerId } = useAuth();
   const getFormattedTime = (timestamp?: number) => {
     if (!timestamp) return "-";
 
@@ -32,6 +37,11 @@ const ActivityCard: React.FC<cardProps> = ({
       return `${diffDays}d`;
     }
   };
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData", selectedLayerId],
+    queryFn: () => getLayerById(selectedLayerId as string),
+    enabled: !!selectedLayerId,
+  });
 
   return (
     <div className="flex items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap hover:bg-neutral400 hover:bg-opacity-30 cursor-pointer">
@@ -62,7 +72,7 @@ const ActivityCard: React.FC<cardProps> = ({
             : data?.price / 10 ** 18}{" "}
           {data?.activityType === "MINTED" || data?.activityType === "TRANSFER"
             ? ""
-            : "cBTC"}
+            : getCurrencySymbol(currentLayer.layer)}
         </p>
         <p className="text-sm text-neutral200 font-medium">
           {data?.activityType === "MINTED" || data?.activityType === "TRANSFER"

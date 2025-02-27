@@ -9,8 +9,14 @@ import { Check, Timer, X } from "lucide-react";
 import { Button } from "../ui/button";
 import { formatPrice } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { checkOrderStatus, getOrderById } from "@/lib/service/queryHelper";
+import {
+  checkOrderStatus,
+  getLayerById,
+  getOrderById,
+} from "@/lib/service/queryHelper";
 import { useRouter } from "next/navigation"; // Note: from 'navigation' instead of 'router'
+import { useAuth } from "../provider/auth-context-provider";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 
 interface modalProps {
   open: boolean;
@@ -29,6 +35,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
   navigateToCreate,
   txid,
 }) => {
+  const { authState } = useAuth();
   const [isPaid, setIsPaid] = useState(false);
   const { data: orders = [] } = useQuery({
     queryKey: ["orderData"],
@@ -44,6 +51,11 @@ const InscribeOrderModal: React.FC<modalProps> = ({
     refetchInterval: 5000,
   });
 
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
+  });
 
   const totalFee = orders?.networkFee + orders?.serviceFee;
   const router = useRouter();
@@ -168,7 +180,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         <div className="flex flex-row justify-between items-center -4 w-full bg-white4 rounded-2xl p-4">
           <p className="text-lg text-neutral100 font-medium">Total Amount</p>
           <p className="text-lg text-brand font-bold">
-            {formatPrice(totalFee)} cBTC
+            {formatPrice(totalFee)} {getCurrencySymbol(currentLayer.layer)}
           </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />
