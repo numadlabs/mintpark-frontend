@@ -80,17 +80,32 @@ export default function Header() {
     enabled: !!selectedLayerId,
   });
 
-  // Set default layer on initial load
   useEffect(() => {
+    // Try to get saved layer from localStorage first
+    const savedLayer = localStorage.getItem("selectedLayer");
+
+    if (savedLayer && dynamicLayers.length > 0) {
+      const matchingLayer = dynamicLayers.find((l) => l.layer === savedLayer);
+      if (matchingLayer) {
+        setSelectedLayer(savedLayer);
+        setDefaultLayer(`${matchingLayer.layer}-${matchingLayer.network}`);
+        setSelectedLayerId(matchingLayer.id);
+        return;
+      }
+    }
+
+    // Fall back to default behavior if no saved layer or match found
     if (!selectedLayerId && dynamicLayers.length > 0) {
       const citreaLayer = dynamicLayers.find((l) => l.layer === "CITREA");
       if (citreaLayer) {
         setDefaultLayer(`${citreaLayer.layer}-${citreaLayer.network}`);
         setSelectedLayerId(citreaLayer.id);
         setSelectedLayer(citreaLayer.layer);
+        localStorage.setItem("selectedLayer", citreaLayer.layer);
       }
     } else if (currentLayer) {
       setDefaultLayer(`${currentLayer.layer}-${currentLayer.network}`);
+      localStorage.setItem("selectedLayer", currentLayer.layer);
     }
   }, [currentLayer, dynamicLayers, selectedLayerId, setSelectedLayerId]);
 
@@ -135,6 +150,7 @@ export default function Header() {
       setSelectedLayerId(matchingLayer.id);
       setDefaultLayer(value);
       setSelectedLayer(layer);
+      localStorage.setItem("selectedLayer", layer);
     }
   };
 
@@ -500,6 +516,7 @@ export default function Header() {
         activeTab={selectedLayer}
         onTabChange={(tab) => {
           setSelectedLayer(tab);
+          localStorage.setItem("selectedLayer", tab);
           const matchingLayer = layers.find((l) => l.layer === tab);
           if (matchingLayer) {
             setDefaultLayer(`${tab}-${matchingLayer.network}`);
