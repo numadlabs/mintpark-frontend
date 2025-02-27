@@ -4,13 +4,8 @@ import Image from "next/image";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  getListableById,
-  getListedCollectionById,
-} from "@/lib/service/queryHelper";
-import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/components/provider/auth-context-provider";
 import { s3ImageUrlBuilder } from "@/lib/utils";
+import { useAssetsContext } from "@/lib/hooks/useAssetContext";
 
 interface AssetsSideBarProps {
   onAvailabilityChange: (value: string) => void;
@@ -23,58 +18,23 @@ const AssetsSideBar = ({
   onCollectionsChange,
   selectedCollections,
 }: AssetsSideBarProps) => {
-  const { authState } = useAuth();
-  const [availability, setAvailability] = useState<string>("all");
-  console.log("availability", availability);
+  // Get data from shared context
+  const {
+    assetsData,
+    isLoading,
+    filters: { availability },
+  } = useAssetsContext();
 
-  const { data: listableData, isLoading: isListableLoading } = useQuery({
-    queryKey: [
-      "getListableById",
-      authState?.userId,
-      "recent",
-      "desc",
-      10,
-      0,
-      selectedCollections,
-    ],
-    queryFn: () =>
-      getListableById(
-        authState?.userId as string,
-        "desc",
-        "recent",
-        authState?.userLayerId as string,
-        10,
-        0,
-        selectedCollections,
-        availability
-      ),
-    enabled: !!authState?.userId && !!authState?.userLayerId && !!availability,
-  });
-
-  // const { data: collectionData, isLoading: isCollectionLoading } = useQuery({
-  //   queryKey: ["collectionData", authState?.userId, "recent", "desc"],
-  //   queryFn: () =>
-  //     getListedCollectionById(
-  //       authState?.userId as string,
-  //       "recent",
-  //       "desc",
-  //       10,
-  //       0,
-  //       ""
-  //     ),
-  //   enabled: !!authState?.userId,
-  //   retry: 1,
-  // });
-
-  // console.log("colData", collectionData)
-  // // console.log("listcount", listCount);
+  // Extract collections and list count from shared data
+  const collections = assetsData?.data?.collections || [];
+  const listCount = assetsData?.data?.listCount || 0;
 
   useEffect(() => {
     // Sync the selected collections with parent component
     onCollectionsChange(selectedCollections);
   }, [selectedCollections, onCollectionsChange]);
 
-  if (isListableLoading) {
+  if (isLoading) {
     return (
       <div className="w-full p-4 flex justify-center items-center">
         Loading...
@@ -82,11 +42,7 @@ const AssetsSideBar = ({
     );
   }
 
-  const collections = listableData?.data?.collections || [];
-  const listCount = listableData?.data?.listCount || 0;
-
   const handleAvailabilityChange = (value: string) => {
-    setAvailability(value);
     onAvailabilityChange(value);
   };
 

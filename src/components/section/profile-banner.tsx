@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "../provider/auth-context-provider";
-import { AssetSchema } from "@/lib/validations/asset-validation";
-import { formatPriceBtc, formatPriceUsd, getPriceData } from "@/lib/utils";
+import { formatPriceBtc, formatPriceUsd } from "@/lib/utils";
 import { getLayerById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { BITCOIN_IMAGE } from "../../lib/constants";
+import { useAssetsContext } from "@/lib/hooks/useAssetContext";
 
 declare global {
   interface Window {
@@ -14,12 +14,8 @@ declare global {
   }
 }
 
-interface CardProps {
-  params: AssetSchema;
-}
-
-const ProfileBanner: React.FC<CardProps> = ({ params }) => {
-  const { authState, getAddressforCurrentLayer, selectedLayerId } = useAuth();
+const ProfileBanner: React.FC = () => {
+  const { getAddressforCurrentLayer, selectedLayerId } = useAuth();
   const connectedWallet = getAddressforCurrentLayer();
   const [balance, setBalance] = useState({
     amount: 0,
@@ -28,6 +24,9 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
   const [copySuccess, setCopySuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Get assets data from context
+  const { assetsData } = useAssetsContext();
 
   const { data: currentLayer, isLoading: isLayersLoading } = useQuery({
     queryKey: ["currentLayerData", selectedLayerId],
@@ -103,6 +102,10 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
     const suffix = address.slice(-4);
     return `${prefix}...${suffix}`;
   };
+
+  // Get totalCount and listCount from assetsData
+  const totalCount = assetsData?.data?.totalCount || 0;
+  const listCount = assetsData?.data?.listCount || 0;
 
   return (
     <section className="mt-[43.5px] w-full">
@@ -201,13 +204,13 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                     <p className="text-neutral100 text-sm sm:text-md font-medium">
                       Total items:
                     </p>
-                    <span className="text-md">{params?.data.totalCount}</span>
+                    <span className="text-md">{totalCount}</span>
                   </span>
                   <span className="py-3 px-4 flex justify-center gap-2 sm:gap-3 rounded-xl text-neutral50 bg-white4 items-center">
                     <p className="text-neutral100 text-sm sm:text-md font-medium">
                       Listed items:
                     </p>
-                    <span className="text-md">{params?.data.listCount}</span>
+                    <span className="text-md">{listCount}</span>
                   </span>
                 </div>
               </div>
