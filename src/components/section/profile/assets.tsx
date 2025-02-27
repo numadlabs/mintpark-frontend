@@ -60,7 +60,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
         ].filter(Boolean);
 
         return searchableFields.some((field) =>
-          field?.toLowerCase().includes(searchTerms),
+          field?.toLowerCase().includes(searchTerms)
         );
       });
     }
@@ -111,19 +111,19 @@ export default function Assets({ detail = false }: { detail: boolean }) {
     return <AssetsSkeleton detail={detail} />;
   }
 
-  // Show empty state
-  if (
-    !assetsData?.data?.collectibles ||
-    assetsData.data.collectibles.length === 0
-  ) {
-    return (
-      <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
-        <p className="text-neutral200 font-medium text-lg">
-          No activity recorded
-        </p>
-      </div>
-    );
-  }
+  // // Show empty state
+  // if (
+  //   !assetsData?.data?.collectibles ||
+  //   assetsData.data.collectibles.length === 0
+  // ) {
+  //   return (
+  //     <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
+  //       <p className="text-neutral200 font-medium text-lg">
+  //         No activity recorded
+  //       </p>
+  //     </div>
+  //   );
+  // }
 
   // Get filtered collectibles using the simplified function
   const collectibles = getCollectibles();
@@ -136,16 +136,14 @@ export default function Assets({ detail = false }: { detail: boolean }) {
       >
         <section className="flex flex-col md:flex-row gap-4 mb-4 md:mb-7">
           {detail ? (
-            <section
-              onClick={toggleSideBar}
-              className="flex flex-row justify-between w-full gap-4"
-            >
+            <section className="flex flex-row justify-between w-full gap-4">
               <Image
                 src={"/collections/sort.png"}
                 alt="burger"
                 draggable="false"
                 width={20}
                 height={20}
+                onClick={toggleSideBar}
                 className={`w-12 h-12 rounded-xl hidden lg:block sm:hidden p-3 ${
                   active
                     ? "bg-neutral500 hover:bg-neutral400 border-transparent"
