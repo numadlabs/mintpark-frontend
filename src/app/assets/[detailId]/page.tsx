@@ -101,7 +101,6 @@ export default function AssetDetail() {
   if (isCollectionLoading) {
     return (
       <Layout>
-        <Header />
         <AssetDetailSkeleton />
       </Layout>
     );
@@ -110,7 +109,6 @@ export default function AssetDetail() {
   if (!currentAsset) {
     return (
       <Layout>
-        <Header />
         <div className="flex justify-center items-center h-96">
           <p className="text-neutral200">Asset not found</p>
         </div>
@@ -120,7 +118,6 @@ export default function AssetDetail() {
 
   return (
     <Layout>
-      <Header />
       <div className="w-full flex justify-center ">
         <div className="flex flex-col w-full gap-16 max-w-[1216px]">
           <div className="md:grid grid-cols-2 flex flex-col gap-16 justify-between pt-16 relative z-20">
