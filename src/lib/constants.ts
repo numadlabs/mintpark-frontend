@@ -2,29 +2,6 @@ import { WalletConfig } from "@/types";
 
 export const BITCOIN_IMAGE = "/wallets/Bitcoin.png";
 
-export const rpcUrl = "http://seed2.coordinate.mara.technology",
-  rpcPort = 18332;
-
-export const maraUrl =
-  "http://btc-testnet-wallet.mara.technology:9130/unspents/list?address=&xpub=";
-
-export const fileSizeLimit = 3145728; //3MB in binary
-
-//native segwit
-export const outputSize = 31,
-  inputSize = 68;
-
-export const ASSETTYPE = {
-  TOKEN: 0,
-  NFTOFFCHAIN: 1,
-  NFTONCHAIN: 2,
-};
-
-export const USED_UTXO_KEY = "used_utxo";
-
-export const RPC_USERNAME = "coordinate";
-export const RPC_PASSWORD = "coordinate";
-
 export const STORAGE_KEYS = {
   AUTH_TOKENS: "auth_tokens",
   SELECTED_LAYER: "layerId",
@@ -62,6 +39,30 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
         chainName: "Citrea Testnet",
         rpcUrls: ["https://rpc.testnet.citrea.xyz"],
         blockExplorerUrls: ["https://explorer.testnet.citrea.xyz"],
+        nativeCurrency: {
+          name: "cBTC",
+          symbol: "cBTC",
+          decimals: 18,
+        },
+      },
+    },
+  },
+  SEPOLIA: {
+    type: "metamask",
+    chainId: "11155111", // 5115 in hex
+    name: "Sepolia",
+    icon: "/wallets/Citrea.png",
+    networks: {
+      TESTNET: {
+        chainId: "11155111",
+        chainName: "Sepolia Testnet",
+        rpcUrls: ["https://eth-sepolia.public.blastapi.io"],
+        blockExplorerUrls: ["https://explorer.testnet.citrea.xyz"],
+        nativeCurrency: {
+          name: "ETH",
+          symbol: "ETH",
+          decimals: 18,
+        },
       },
     },
   },
@@ -80,7 +81,7 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
   //   },
   // },
 
-// new implement
+  // new implement
   HEMI: {
     type: "metamask",
     chainId: "0xB56C7",
@@ -93,8 +94,8 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
         rpcUrls: ["https://testnet.rpc.hemi.network/rpc"],
         blockExplorerUrls: ["https://testnet-explorer.hemi.network"],
         nativeCurrency: {
-          name: "Hemi",
-          symbol: "cBTC", // Changed from cBTC to HEMI
+          name: "ETH",
+          symbol: "ETH",
           decimals: 18,
         },
       },
