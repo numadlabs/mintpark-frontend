@@ -23,16 +23,16 @@ const bannerData: BannerSlide[] = [
     description: "Mint Park is live on Hemi testnet! Start minting and trading NFTs.",
     walletName: "hemi"
   },
+  // {
+  //   id: 2,
+  //   image: "/banner.png",
+  //   walletImage: "/wallets/Citrea.png",
+  //   title: "We are live on Citrea testnet!",
+  //   description: "Mint Park is live on Citrea testnet! Start minting and trading NFTs.",
+  //   walletName: "citrea"
+  // },
   {
     id: 2,
-    image: "/banner.png",
-    walletImage: "/wallets/Citrea.png",
-    title: "We are live on Citrea testnet!",
-    description: "Mint Park is live on Citrea testnet! Start minting and trading NFTs.",
-    walletName: "citrea"
-  },
-  {
-    id: 3,
     image: "/banners/Nubit.png",
     walletImage: "/wallets/nubit.png",
     title: "Going Live on Nubit Soon!",
