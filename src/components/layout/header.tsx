@@ -24,7 +24,7 @@ import { Button } from "../ui/button";
 import { getAllLayers, getLayerById } from "@/lib/service/queryHelper";
 import { truncateAddress, capitalizeFirstLetter } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { ExtendedLayerType, LayerType } from "@/lib/types";
+import { LayerType } from "@/lib/types";
 import { toast } from "sonner";
 import Badge from "../atom/badge";
 import { Check, Loader2, MenuIcon } from "lucide-react";
@@ -118,7 +118,7 @@ export default function Header() {
       CITREA: "/wallets/Citrea.png",
       SEPOLIA: "/wallets/hemi.png",
       HEMI: "/wallets/hemi.png",
-      POLYGON_ZK: "/wallets/Polygon-1.png",
+      POLYGON_ZK: "",
     };
 
     return imageMap[layer] || "/wallets/Bitcoin.png";
@@ -173,7 +173,7 @@ export default function Header() {
     selectedLayerId && !isWalletConnected(selectedLayerId);
 
   // Render dropdown layer item
-  const renderLayerItem = (layer: ExtendedLayerType): React.ReactElement => {
+  const renderLayerItem = (layer: LayerType) => {
     const isLayerConnected = connectedWallets?.some((wallet: WalletInfo) => {
       const foundLayer = layers.find((l) => l.id === wallet.layerId);
       return (
@@ -186,11 +186,7 @@ export default function Header() {
       <SelectItem
         key={layer.id}
         value={`${layer.layer}-${layer.network}`}
-        className={`flex items-center gap-2 w-[170px] ${
-          layer.comingSoon
-            ? "opacity-80 cursor-not-allowed"
-            : "hover:bg-white8 duration-300 transition-all cursor-pointer"
-        }`}
+        className={`flex items-center gap-2 w-[170px]`}
       >
         <div className="flex justify-between gap-2 items-center text-md text-neutral50 font-medium w-full">
           <div className="flex gap-2">
@@ -214,7 +210,7 @@ export default function Header() {
   };
 
   // Render current layer value
-  const renderCurrentLayerValue = (): React.ReactElement => {
+  const renderCurrentLayerValue = () => {
     if (isLayersLoading) {
       return (
         <div className="flex items-center gap-2">
