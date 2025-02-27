@@ -16,7 +16,7 @@ const Launchpad = () => {
   const [interval, setInterval] = useState<string>("all");
 
   const { data: launch = [], isLoading } = useQuery({
-    queryKey: ["launchData", interval],
+    queryKey: ["launchData", selectedLayerId, interval],
     queryFn: () => fetchLaunchs(selectedLayerId as string, interval),
     enabled: !!selectedLayerId,
   });
