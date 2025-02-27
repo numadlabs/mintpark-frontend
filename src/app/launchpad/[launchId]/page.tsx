@@ -27,6 +27,7 @@ import { Unlimited } from "iconsax-react";
 
 import SuccessModal from "@/components/modal/success-modal";
 import ErrorModal from "@/components/modal/error-modal";
+import PendingModal from "@/components/modal/pending-modal";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -35,6 +36,7 @@ const Page = () => {
   const params = useParams();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showPendingModal, setShowPendingModal] = useState(false);
   const id = params.launchId as string;
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +68,10 @@ const Page = () => {
   const handleCloseErrorModal = () => {
     setShowErrorModal(false);
   };
+  const handleClosePendingModal = () => {
+    setShowPendingModal(false);
+  };
+
 
   const { mutateAsync: confirmOrderMutation } = useMutation({
     mutationFn: confirmOrder,
@@ -109,6 +115,7 @@ const Page = () => {
     }
   
     setIsLoading(true);
+    setShowPendingModal(true)
     setError(null);
   
     try {
@@ -173,6 +180,7 @@ const Page = () => {
       setShowErrorModal(true);
     } finally {
       setIsLoading(false);
+      setShowPendingModal(false);
     }
   };
   const determineActivePhase = () => {
@@ -545,6 +553,11 @@ const Page = () => {
             isOpen={showErrorModal}
             onClose={handleCloseErrorModal}
             errorMessage={error || "An unexpected error occurred"}
+          />
+
+          <PendingModal
+            isOpen={showPendingModal}
+            onClose={handleClosePendingModal}
           />
         </DetailLayout>
       </div>
