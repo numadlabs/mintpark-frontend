@@ -15,6 +15,7 @@ import {
   getCollectibleActivity,
   getCollectibleTraits,
   getCollectionById,
+  getLayerById,
   getListedCollectionById,
 } from "@/lib/service/queryHelper";
 import {
@@ -34,6 +35,7 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import { toast } from "sonner";
 import Link from "next/link";
 import MoreCollection from "@/components/section/more-collection";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 
 export default function AssetDetail() {
   const params = useParams();
@@ -48,6 +50,12 @@ export default function AssetDetail() {
     queryKey: ["collectionData", id],
     queryFn: () => getCollectionById(id),
     enabled: !!id,
+  });
+
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
   });
 
   const currentAsset = collectible?.[0];
@@ -166,7 +174,7 @@ export default function AssetDetail() {
                         <h1>
                           {currentAsset.price &&
                             formatPrice(currentAsset.price)}{" "}
-                          cBTC
+                          {getCurrencySymbol(currentLayer.layer)}
                         </h1>
                       </span>
                     </div>

@@ -4,12 +4,22 @@ import { getPriceData, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { CollectibleSchema } from "@/lib/validations/asset-validation";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import { useQuery } from "@tanstack/react-query";
+import { getLayerById } from "@/lib/service/queryHelper";
 
 interface cardProps {
   data: CollectibleSchema;
 }
 
 const AssetsCardList: React.FC<cardProps> = ({ data }) => {
+  const { selectedLayerId } = useAuth();
+
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData", selectedLayerId],
+    queryFn: () => getLayerById(selectedLayerId as string),
+    enabled: !!selectedLayerId,
+  });
   const citreaPrice = getPriceData();
 
   //todo end function uud uldsen bn
@@ -65,7 +75,9 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
           <div className="min-w-[200px] w-full max-w-[392px] grid gap-1">
             <p className="font-medium text-lg text-neutral50 w-full">
               {formatPrice(data.floor)}
-              <span className="ml-1">cBTC</span>
+              <span className="ml-1">
+                {getCurrencySymbol(currentLayer.layer)}
+              </span>
             </p>
             <p className="font-medium text-sm text-neutral200 w-full">
               <span className="mr-1">$</span>
@@ -103,10 +115,9 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
                 {daysAgo} days ago
               </span>
               {(data.price ?? 0) > 0 && (
-            
                 <span className="hidden group-hover:block lg:absolute lg:-top-5 text-neutral50 bg-white8 bg-opacity-[40%] pt-2 pb-2 pr-5 pl-5 rounded-lg cursor-pointer transition-all duration-300 ease-in-out">
-                List
-              </span>
+                  List
+                </span>
               )}
             </span>
           </div>
