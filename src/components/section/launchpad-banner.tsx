@@ -8,13 +8,32 @@ import {
   CarouselItem,
   type CarouselApi,
 } from "../ui/carousel";
-import moment from "moment";
 import Link from "next/link";
 import { Launchschema } from "@/lib/validations/launchpad-validation";
+import { useLaunchState, LAUNCH_STATE } from "@/lib/hooks/useLaunchState";
 
 interface BannerProps {
   data?: Launchschema;
 }
+
+const formatTimeDisplay = (targetTimestamp: number): string => {
+  const now = Math.floor(Date.now() / 1000);
+  const diff = Math.max(0, targetTimestamp - now);
+
+  if (diff === 0) return "";
+
+  const days = Math.floor(diff / (24 * 60 * 60));
+  const hours = Math.floor((diff % (24 * 60 * 60)) / (60 * 60));
+  const minutes = Math.floor((diff % (60 * 60)) / 60);
+  const seconds = Math.floor(diff % 60);
+
+  // If minutes are 0, show seconds instead
+  if (minutes === 0) {
+    return `${seconds}s`;
+  }
+
+  return `${days}d ${hours}h ${minutes}m`;
+};
 
 const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
   const [activeIndex, setActiveIndex] = React.useState(0);
@@ -23,127 +42,79 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
   const [status, setStatus] = useState("");
   const [isClickable, setIsClickable] = useState(false);
 
+  // Only call useLaunchState if data exists
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const launchState = data ? useLaunchState(data as any) : LAUNCH_STATE.UNKNOWN;
+
+  // Use these values safely by checking if data exists first
+  const startsAt = data?.poStartsAt ?? 0;
+  const endsAt = data?.poEndsAt ?? null;
+
   useEffect(() => {
-    const updateTime = () => {
-      if (!data) return;
+    const updateTimeDisplay = () => {
+      const now = Math.floor(Date.now() / 1000);
 
-      const now = moment();
-      const convertToSeconds = (timestamp: number) => {
-        return timestamp?.toString().length === 13
-          ? Math.floor(timestamp / 1000)
-          : timestamp;
-      };
-
-      // Early return if supply is reached
-      if (
-        data.supply &&
-        data.mintedAmount !== undefined &&
-        data.mintedAmount >= data.supply
-      ) {
-        setStatus("Ended");
-        setTimeDisplay("");
-        setIsClickable(false);
-        return;
-      }
-
-      const formatTimeDisplay = (duration: moment.Duration) => {
-        const days = Math.floor(duration.asDays());
-        const hours = duration.hours();
-        const minutes = duration.minutes();
-        const seconds = duration.seconds();
-
-        if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
-          return "";
-        }
-
-        if (days > 0) {
-          return `${days}d ${hours.toString().padStart(2, "0")}h ${minutes
-            .toString()
-            .padStart(2, "0")}m`;
-        } else if (hours > 0) {
-          return `${hours.toString().padStart(2, "0")}h ${minutes
-            .toString()
-            .padStart(2, "0")}m`;
-        } else if (minutes > 0) {
-          return `${minutes.toString().padStart(2, "0")}m ${seconds
-            .toString()
-            .padStart(2, "0")}s`;
-        } else {
-          return `${seconds.toString().padStart(2, "0")}s`;
-        }
-      };
-
-      const { wlStartsAt, wlEndsAt, poStartsAt, poEndsAt, isWhitelisted } =
-        data;
-
-      // Convert timestamps to moments
-      const wlStart = moment.unix(convertToSeconds(wlStartsAt));
-      const wlEnd = wlEndsAt ? moment.unix(convertToSeconds(wlEndsAt)) : null;
-      const poStart = moment.unix(convertToSeconds(poStartsAt));
-      const poEnd = poEndsAt ? moment.unix(convertToSeconds(poEndsAt)) : null;
-
-      // Handle Whitelist Period (if applicable)
-      if (isWhitelisted) {
-        if (now.isBefore(wlStart)) {
-          setStatus("Starts in:");
-          setTimeDisplay(formatTimeDisplay(moment.duration(wlStart.diff(now))));
+      switch (launchState) {
+        case LAUNCH_STATE.UPCOMING:
+          setStatus("Starts in");
+          setTimeDisplay(formatTimeDisplay(startsAt));
           setIsClickable(false);
-          return;
-        }
-
-        if (wlEnd && now.isBetween(wlStart, wlEnd)) {
+          break;
+        case LAUNCH_STATE.LIVE:
+          if (data?.poEndsAt === null) {
+            setStatus("Live");
+            setTimeDisplay("");
+          } else {
+            setStatus("Ends in:");
+            setTimeDisplay(formatTimeDisplay(endsAt as number));
+          }
+          setIsClickable(true);
+          break;
+        case LAUNCH_STATE.INDEFINITE:
           setStatus("Ends in:");
-          setTimeDisplay(formatTimeDisplay(moment.duration(wlEnd.diff(now))));
+          setTimeDisplay("Indefinite");
           setIsClickable(true);
-          return;
-        }
-      }
-
-      // Handle Public Offering Period
-      // If there's no poEnd, it's an indefinite offering after poStart
-      if (!poEnd) {
-        if (now.isAfter(poStart)) {
-          setStatus("Indefinite");
-          setTimeDisplay("");
-          setIsClickable(true);
-          return;
-        }
-
-        if (now.isBefore(poStart)) {
-          setStatus("PO starts in:");
-          setTimeDisplay(formatTimeDisplay(moment.duration(poStart.diff(now))));
-          setIsClickable(false);
-          return;
-        }
-      } else {
-        // There is a poEnd date
-        if (now.isAfter(poEnd)) {
-          setStatus("Ended");
+          break;
+        case LAUNCH_STATE.ENDED:
+          setStatus("Ended:");
           setTimeDisplay("");
           setIsClickable(false);
-          return;
-        }
-
-        if (now.isBetween(poStart, poEnd)) {
-          setStatus("Ends in:");
-          setTimeDisplay(formatTimeDisplay(moment.duration(poEnd.diff(now))));
-          setIsClickable(true);
-          return;
-        }
-
-        if (now.isBefore(poStart)) {
-          setStatus("Starts in:");
-          setTimeDisplay(formatTimeDisplay(moment.duration(poStart.diff(now))));
+          break;
+        default:
+          setStatus("Unknown");
+          setTimeDisplay("");
           setIsClickable(false);
-          return;
-        }
       }
     };
 
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
+    updateTimeDisplay();
+
+    // Determine the appropriate interval based on if we're showing seconds
+    const isShowingSeconds = () => {
+      const now = Math.floor(Date.now() / 1000);
+      let targetTimestamp = 0;
+
+      if (launchState === LAUNCH_STATE.UPCOMING) {
+        targetTimestamp = startsAt;
+      } else if (launchState === LAUNCH_STATE.LIVE && endsAt !== null) {
+        targetTimestamp = endsAt;
+      }
+
+      if (targetTimestamp > 0) {
+        const diff = Math.max(0, targetTimestamp - now);
+        const minutes = Math.floor((diff % (60 * 60)) / 60);
+        return minutes === 0 && diff > 0;
+      }
+
+      return false;
+    };
+
+    // Update every second if showing seconds, otherwise every minute
+    const intervalTime = isShowingSeconds() ? 1000 : 60000;
+    const interval = setInterval(updateTimeDisplay, intervalTime);
+
     return () => clearInterval(interval);
-  }, [data]);
+  }, [launchState, startsAt, endsAt, data]);
 
   useEffect(() => {
     if (!api) return;
