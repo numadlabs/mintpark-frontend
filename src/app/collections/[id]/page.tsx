@@ -575,7 +575,7 @@ const CollectionDetailPage = () => {
                   <div
                     className={`grid gap-4 md:gap-6 h-fit lg:gap-8 ${
                       active
-                        ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6"
+                        ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-6"
                         : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6"
                     }`}
                   >
