@@ -37,9 +37,15 @@ const SuccessModal: React.FC<ModalProps> = ({ open, onClose, handleCreate }) => 
             </div>
           </div>
           <div className="bg-white8 w-full h-[1px]" />
-          <DialogFooter className="grid grid-cols-1 gap-2 w-full">
-
-            <Button onClick={handleNavigation}>Done</Button>
+          <DialogFooter className="grid grid-cols-2 gap-2 w-full">
+            <Button
+              variant="secondary"
+              className="bg-white8 w-full"
+              onClick={handleCreate}
+            >
+              Create again
+            </Button>
+            <Button onClick={handleNavigation}>Go to Launchpad</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
