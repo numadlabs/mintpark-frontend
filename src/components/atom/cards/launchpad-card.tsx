@@ -5,127 +5,49 @@ import { LaunchDataType } from "@/lib/types";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { Unlimited } from "iconsax-react";
+import { useLaunchState } from "@/lib/hooks/useLaunchState";
+import { LAUNCH_STATE } from "@/lib/hooks/useLaunchState";
 
 interface LaunchProps {
   data: LaunchDataType;
   id: string;
 }
 
-// Helper function to convert timestamps to seconds
-const convertToSeconds = (timestamp: number | null | undefined): number => {
-  if (!timestamp) return 0;
-  const timestampStr = timestamp.toString();
-  return timestampStr.length === 13 ? Math.floor(timestamp / 1000) : timestamp;
-};
+const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
+  const status = useLaunchState(data);
+  const isActive =
+    status === LAUNCH_STATE.LIVE || status === LAUNCH_STATE.INDEFINITE;
 
-const useLaunchStatus = (data: LaunchDataType) => {
-  const now = moment();
-
-  if (data.supply > 0 && data.mintedAmount >= data.supply) {
-    return "Ended";
-  }
-
-  // Convert all timestamps
-  const wlStartsAt = convertToSeconds(data.wlStartsAt);
-  const wlEndsAt = convertToSeconds(data.wlEndsAt);
-  const poStartsAt = convertToSeconds(data.poStartsAt);
-  const poEndsAt = convertToSeconds(data.poEndsAt);
-
-  // Check for invalid timestamps first
-  if (!wlStartsAt && !wlEndsAt && !poStartsAt && !poEndsAt) {
-    return "Invalid";
-  }
-
-  const wlStartMoment = wlStartsAt ? moment.unix(wlStartsAt) : null;
-  const wlEndMoment = wlEndsAt ? moment.unix(wlEndsAt) : null;
-  const poStartMoment = poStartsAt ? moment.unix(poStartsAt) : null;
-  const poEndMoment = poEndsAt ? moment.unix(poEndsAt) : null;
-
-  // Handle Indefinite status
-  if (
-    (wlEndsAt === 0 || poEndsAt === 0) &&
-    (wlStartsAt > 0 || poStartsAt > 0)
-  ) {
-    const activeStartMoment =
-      data.isWhitelisted && wlStartMoment ? wlStartMoment : poStartMoment;
-
-    if (activeStartMoment && now.isAfter(activeStartMoment)) {
-      return "Indefinite";
+  const calculateProgress = () => {
+    if (data.isBadge && data.badgeSupply === null) {
+      return 0;
     }
-    return "Upcoming";
-  }
-
-  // Handle cases where startAt is not set
-  if (!wlStartsAt && !poStartsAt) {
-    return "Upcoming";
-  }
-
-  // Determine if whitelist period should be shown
-  const shouldShowWhitelistTimer = () => {
-    if (!data.isWhitelisted) return false;
-    if (!wlStartsAt) return false;
-    if (poStartMoment && poStartMoment.isBefore(wlStartMoment)) return false;
-    return true;
+    return data?.supply > 0 ? (data?.mintedAmount / data?.supply) * 100 : 0;
   };
 
-  const shouldUseWl = shouldShowWhitelistTimer();
-
-  // Check transition between WL and PO periods
-  if (shouldUseWl && wlEndMoment && now.isAfter(wlEndMoment)) {
-    // If PO period exists
-    if (poStartMoment) {
-      // Gap between WL end and PO start
-      if (now.isBefore(poStartMoment)) {
-        return "Upcoming";
-      }
-      // PO period is active
-      if (!poEndMoment || now.isBefore(poEndMoment)) {
-        return "Live";
-      }
-      // PO period has ended
-      if (now.isAfter(poEndMoment)) {
-        return "Ended";
-      }
+  const renderSupplyDisplay = () => {
+    const mintedAmount = data?.mintedAmount ?? 0;
+    if (data.isBadge && data.badgeSupply === null) {
+      return (
+        <span className="flex justify-end items-center gap-1">
+          <span className="text-neutral50">{mintedAmount}</span>{" "}
+          <span className="text-brand"> / </span>
+          {/* ∞ */}
+          <span className="text-neutral200">
+            <Unlimited size="18" color="#88898A" />
+          </span>{" "}
+        </span>
+      );
     }
-    // No PO period after WL
-    return "Ended";
-  }
-
-  // Handle regular status checks
-  const activeStartMoment = shouldUseWl ? wlStartMoment : poStartMoment;
-  const activeEndMoment = shouldUseWl ? wlEndMoment : poEndMoment;
-
-  if (!activeStartMoment) {
-    return "Upcoming";
-  }
-
-  if (now.isBefore(activeStartMoment)) {
-    return "Upcoming";
-  }
-
-  if (!activeEndMoment || now.isBetween(activeStartMoment, activeEndMoment)) {
-    return "Live";
-  }
-
-  if (now.isAfter(activeEndMoment)) {
-    // Check if there's a following period
-    if (shouldUseWl && poStartMoment) {
-      if (now.isBefore(poStartMoment)) {
-        return "Upcoming";
-      }
-      if (!poEndMoment || now.isBefore(poEndMoment)) {
-        return "Live";
-      }
-    }
-    return "Ended";
-  }
-
-  return "Upcoming";
-};
-
-const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
-  const status = useLaunchStatus(data);
-  const isActive = status === "Live" || status === "Indefinite";
+    return (
+      <span className="flex justify-end items-center gap-1">
+        <span className="text-neutral50">{mintedAmount}</span>{" "}
+        <span className="text-brand"> / </span>
+        <span className="text-neutral200">{data?.supply ?? 0}</span>{" "}
+      </span>
+    );
+  };
 
   return (
     <Link
@@ -136,6 +58,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
         <Image
           width={248}
           height={248}
+          draggable="false"
           src={data?.logoKey ? s3ImageUrlBuilder(data.logoKey) : ""}
           className="object-cover rounded-xl aspect-square"
           alt={`${data.name || "Launchpad"} logo`}
@@ -152,23 +75,18 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
           </p>
           <p className="font-bold text-sm sm:text-md text-neutral50">
             {formatPrice(
-              status.includes("WL") ? data.wlMintPrice : data.poMintPrice
+              status === LAUNCH_STATE.LIVE && data.isWhitelisted
+                ? data.wlMintPrice
+                : data.poMintPrice
             )}
             <span className="ml-1">cBTC</span>
           </p>
         </div>
         <div className="flex h-2 mt-1 border border-white8 rounded-lg border-1">
-          <Progress
-            value={
-              data?.supply > 0 ? (data?.mintedAmount / data?.supply) * 100 : 0
-            }
-            className="w-full h-full"
-          />
+          <Progress value={calculateProgress()} className="w-full h-full" />
         </div>
         <p className="pt-2 sm:pt-3 font-bold text-sm sm:text-md text-end">
-          {data?.mintedAmount ?? 0}
-          <span className="text-brand"> / </span>
-          {data?.supply ?? 0}
+          {renderSupplyDisplay()}
         </p>
       </div>
 

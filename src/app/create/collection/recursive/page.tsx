@@ -180,7 +180,7 @@ const Recursive = () => {
       toast.error("Layer information not available");
       return;
     }
-    if (currentLayer.layer === "CITREA" && !window.ethereum) {
+    if (currentLayer.layerType === "EVM" && !window.ethereum) {
       toast.error("Please install MetaMask extension to continue");
       return;
     }
@@ -783,6 +783,7 @@ const Recursive = () => {
                     src={URL.createObjectURL(imageFile[0])}
                     alt="background"
                     width={0}
+                    draggable="false"
                     height={160}
                     sizes="100%"
                     className="w-[280px] h-[280px] object-cover rounded-3xl"

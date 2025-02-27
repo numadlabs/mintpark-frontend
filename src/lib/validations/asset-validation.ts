@@ -79,3 +79,6 @@ export type AssetSchema = z.infer<typeof assetResponseSchema>;
 
 //Activity schema
 export type ActivitySchema = z.infer<typeof activitySchema>;
+
+//Assets sideBar schema
+export type AssetColSchema = z.infer<typeof collectionSchema>

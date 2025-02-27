@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Lock1 } from "iconsax-react";
-import moment from "moment";
 import { BITCOIN_IMAGE } from "@/lib/constants";
+import { useLaunchState, LAUNCH_STATE } from "@/lib/hooks/useLaunchState";
 
 interface PhaseCardProps {
   maxMintPerWallet: number | string;
@@ -12,9 +12,31 @@ interface PhaseCardProps {
   startsAt: number;
   supply: number;
   isActive: boolean;
+  isBadge: boolean;
+  badgeSupply: number;
   onClick: () => void;
   phaseType: "guaranteed" | "public";
+  isWhitelisted?: boolean;
 }
+
+const formatTimeDisplay = (targetTimestamp: number): string => {
+  const now = Math.floor(Date.now() / 1000);
+  const diff = Math.max(0, targetTimestamp - now);
+
+  if (diff === 0) return "";
+
+  const days = Math.floor(diff / (24 * 60 * 60));
+  const hours = Math.floor((diff % (24 * 60 * 60)) / (60 * 60));
+  const minutes = Math.floor((diff % (60 * 60)) / 60);
+  const seconds = Math.floor(diff % 60);
+
+  // If minutes are 0, show seconds instead
+  if (minutes === 0) {
+    return `${seconds}s`;
+  }
+
+  return `${days}d ${hours}h ${minutes}m`;
+};
 
 const PhaseCard: React.FC<PhaseCardProps> = ({
   maxMintPerWallet,
@@ -26,120 +48,104 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   phaseType,
   supply,
   mintedAmount,
+  isBadge,
+  badgeSupply,
+  isWhitelisted = false,
 }) => {
   const [timeDisplay, setTimeDisplay] = useState("");
   const [status, setStatus] = useState("");
   const [isClickable, setIsClickable] = useState(false);
 
+  const launchState = useLaunchState({
+    isWhitelisted,
+    wlStartsAt: phaseType === "guaranteed" ? startsAt : 0,
+    wlEndsAt: phaseType === "guaranteed" ? endsAt : 0,
+    poStartsAt: phaseType === "public" ? startsAt : 0,
+    poEndsAt: phaseType === "public" ? endsAt : 0,
+    mintedAmount,
+    supply,
+    isBadge,
+    badgeSupply,
+    id: "",
+    name: "",
+    creator: "",
+    description: "",
+    type: "",
+    logoKey: "",
+    layerId: "",
+    launchId: "",
+    wlMintPrice: 0,
+    wlMaxMintPerWallet: 0,
+    poMintPrice: 0,
+    poMaxMintPerWallet: 0,
+    createdAt: "",
+  });
+
   useEffect(() => {
-    const updateTime = () => {
-      const now = moment();
-      const convertToSeconds = (timestamp: number) => {
-        return timestamp.toString().length === 13
-          ? Math.floor(timestamp / 1000)
-          : timestamp;
-      };
+    const updateTimeDisplay = () => {
+      const now = Math.floor(Date.now() / 1000);
 
-      if (supply > 0 && mintedAmount >= supply) {
-        setStatus("Ended");
-        setTimeDisplay("");
-        setIsClickable(false);
-        return;
-      }
-
-      const formatTimeDisplay = (duration: moment.Duration) => {
-        const days = Math.floor(duration.asDays());
-        const hours = duration.hours();
-        const minutes = duration.minutes();
-        const seconds = duration.seconds();
-
-        // Return empty string if all units are 0
-        if (days === 0 && hours === 0 && minutes === 0 && seconds === 0) {
-          return "";
-        }
-
-        if (days > 0) {
-          return `${days}d ${hours.toString().padStart(2, "0")}h ${minutes
-            .toString()
-            .padStart(2, "0")}m`;
-        } else if (hours > 0) {
-          return `${hours.toString().padStart(2, "0")}h ${minutes
-            .toString()
-            .padStart(2, "0")}m`;
-        } else if (minutes > 0) {
-          return `${minutes.toString().padStart(2, "0")}m ${seconds
-            .toString()
-            .padStart(2, "0")}s`;
-        } else {
-          return `${seconds.toString().padStart(2, "0")}s`;
-        }
-      };
-
-      // Check if endsAt is 0 or null
-      const isIndefiniteEnd = !endsAt || endsAt === 0;
-
-      // If startsAt exists but endsAt is indefinite
-      if (startsAt && isIndefiniteEnd) {
-        const startMoment = moment.unix(convertToSeconds(startsAt));
-
-        if (now.isBefore(startMoment)) {
-          setStatus("Starts in:");
-          setTimeDisplay(
-            formatTimeDisplay(moment.duration(startMoment.diff(now)))
-          );
+      switch (launchState) {
+        case LAUNCH_STATE.UPCOMING:
+          setStatus("Starts in");
+          setTimeDisplay(formatTimeDisplay(startsAt));
           setIsClickable(false);
-          return;
-        } else {
-          setStatus("Indefinite");
-          setTimeDisplay("");
+          break;
+        case LAUNCH_STATE.LIVE:
+          if (endsAt === null) {
+            setStatus("Live");
+            setTimeDisplay("");
+          } else {
+            setStatus("Ends in:");
+            setTimeDisplay(formatTimeDisplay(endsAt));
+          }
           setIsClickable(true);
-          return;
-        }
-      }
-
-      // Handle case when both startsAt and endsAt exist
-      if (startsAt && endsAt) {
-        const startMoment = moment.unix(convertToSeconds(startsAt));
-        const endMoment = moment.unix(convertToSeconds(endsAt));
-
-        if (now.isAfter(endMoment)) {
-          setStatus("Ended");
-          setTimeDisplay("");
-          setIsClickable(false);
-          return;
-        }
-
-        if (now.isBetween(startMoment, endMoment)) {
+          break;
+        case LAUNCH_STATE.INDEFINITE:
           setStatus("Ends in:");
-          setTimeDisplay(
-            formatTimeDisplay(moment.duration(endMoment.diff(now)))
-          );
+          setTimeDisplay("Indefinite");
           setIsClickable(true);
-          return;
-        }
-
-        if (now.isBefore(startMoment)) {
-          setStatus("Starts in:");
-          setTimeDisplay(
-            formatTimeDisplay(moment.duration(startMoment.diff(now)))
-          );
+          break;
+        case LAUNCH_STATE.ENDED:
+          setStatus("Ended:");
+          setTimeDisplay("");
           setIsClickable(false);
-        }
-      }
-
-      // Handle case when neither exists
-      if (!startsAt && !endsAt) {
-        setStatus("Indefinite");
-        setTimeDisplay("");
-        setIsClickable(true);
+          break;
+        default:
+          setStatus("Unknown");
+          setTimeDisplay("");
+          setIsClickable(false);
       }
     };
 
-    updateTime();
-    // Update every second instead of every minute to show seconds accurately
-    const interval = setInterval(updateTime, 1000);
+    updateTimeDisplay();
+
+    // Determine the appropriate interval based on if we're showing seconds
+    const isShowingSeconds = () => {
+      const now = Math.floor(Date.now() / 1000);
+      let targetTimestamp = 0;
+
+      if (launchState === LAUNCH_STATE.UPCOMING) {
+        targetTimestamp = startsAt;
+      } else if (launchState === LAUNCH_STATE.LIVE && endsAt !== null) {
+        targetTimestamp = endsAt;
+      }
+
+      if (targetTimestamp > 0) {
+        const diff = Math.max(0, targetTimestamp - now);
+        const minutes = Math.floor((diff % (60 * 60)) / 60);
+        return minutes === 0 && diff > 0;
+      }
+
+      return false;
+    };
+
+    // Update every second if showing seconds, otherwise every minute
+    const intervalTime = isShowingSeconds() ? 1000 : 60000;
+    const interval = setInterval(updateTimeDisplay, intervalTime);
+
     return () => clearInterval(interval);
-  }, [startsAt, endsAt, supply, mintedAmount]);
+  }, [launchState, startsAt, endsAt]);
 
   const borderClass =
     isActive && isClickable ? "border-brand" : "border-white8";
@@ -177,6 +183,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
             <Image
               width={20}
               height={20}
+              draggable="false"
               src={BITCOIN_IMAGE}
               alt="Bitcoin icon"
               className="aspect-square h-5 w-5"

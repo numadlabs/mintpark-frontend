@@ -16,7 +16,7 @@ const Launchpad = () => {
   const [interval, setInterval] = useState<string>("all");
 
   const { data: launch = [], isLoading } = useQuery({
-    queryKey: ["launchData", interval],
+    queryKey: ["launchData", selectedLayerId, interval],
     queryFn: () => fetchLaunchs(selectedLayerId as string, interval),
     enabled: !!selectedLayerId,
   });
@@ -32,8 +32,6 @@ const Launchpad = () => {
   };
   return (
     <Layout>
-      <Header />
-      <div className="">
         <LaunchpadBanner data={launch?.[0]} />
         <Tabs
           className="text-neutral50 mt-14 sm:mt-14 lg:mt-12"
@@ -94,7 +92,6 @@ const Launchpad = () => {
                 ))}
           </TabsContent>
         </Tabs>
-      </div>
     </Layout>
   );
 };

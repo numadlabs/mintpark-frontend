@@ -42,6 +42,7 @@ const ActivityCard: React.FC<cardProps> = ({
           alt="image"
           width={48}
           height={48}
+          draggable="false"
           className="rounded-lg"
         />
         <p className="text-md text-neutral50 font-medium">{collectionName}</p>

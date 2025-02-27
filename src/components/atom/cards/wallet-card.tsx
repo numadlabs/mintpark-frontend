@@ -25,6 +25,10 @@ const getWalletImage = (layer: string) => {
       return "/wallets/Unisat.png";
     case "CITREA":
       return "/wallets/Metamask.png";
+    case "SEPOLIA":
+      return "/wallets/Metamask.png";
+    case "HEMI":
+      return "/wallets/Metamask.png";
     default:
       return "/wallets/Unisat.png";
   }
@@ -35,6 +39,10 @@ const getWalletName = (layer: string) => {
     case "BITCOIN":
       return "Unisat Wallet";
     case "CITREA":
+      return "MetaMask Wallet";
+    case "SEPOLIA":
+      return "MetaMask Wallet";
+    case "HEMI":
       return "MetaMask Wallet";
     default:
       return "Wallet";
@@ -53,13 +61,14 @@ export const WalletCard = ({
     <button
       className="flex items-center justify-between w-full p-4 rounded-xl border border-white8 hover:bg-white8 disabled:opacity-50 disabled:cursor-not-allowed"
       onClick={() => !layer.comingSoon && onConnect(layer)}
-      disabled={layer.comingSoon || loading}
+      // disabled={layer.comingSoon || loading}
     >
       <div className="flex items-center gap-3">
         <Image
           src={getWalletImage(layer.layer)}
           alt={layer.layer}
           width={32}
+          draggable="false"
           height={32}
         />
         <span className="font-medium text-neutral00">

@@ -21,6 +21,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import CollectionSkeleton from "@/components/atom/skeleton/collection-skeletion";
 import CollectionsBanner from "@/components/section/collections-banner";
 import CollectionCardList from "@/components/atom/cards/collection-card-list";
+import Layout from "@/components/layout/layout";
 
 interface CollectionsProps {
   params: {};
@@ -55,6 +56,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
   const { data: collection = [], isLoading } = useQuery({
     queryKey: [
       "collectionData",
+      id,
       selectedInterval,
       orderConfig.orderBy,
       orderConfig.orderDirection,
@@ -68,19 +70,14 @@ export default function Collections({ searchParams }: CollectionsProps) {
       ),
     enabled: !!id,
   });
-
   const handleNavigation = (collectionData: CollectionDataType) => {
-    const queryParams = new URLSearchParams({
-      id: collectionData.id,
-      data: JSON.stringify(collectionData),
-    }).toString();
-    router.push(`/collections/${collectionData.id}?${queryParams}`);
+    router.push(`/collections/${collectionData.id}`);
   };
 
   const collectionArray = Array.isArray(collection) ? collection : [];
 
   return (
-    <>
+    <Layout>
       <CollectionsBanner />
       <Tabs
         value={selectedInterval}
@@ -101,6 +98,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                 <Image
                   src="/collections/sort.png"
                   alt="sort"
+                  draggable="false"
                   width={20}
                   height={20}
                 />
@@ -115,6 +113,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                   src="/collections/search.png"
                   alt="search"
                   width={17}
+                  draggable="false"
                   height={17}
                   className="absolute left-3 top-1/2 -translate-y-1/2"
                 />
@@ -169,6 +168,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                   src="/collections/hashtag.png"
                   alt="grid view"
                   width={20}
+                  draggable="false"
                   height={20}
                 />
               </button>
@@ -182,6 +182,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                   src="/collections/burger.png"
                   alt="list view"
                   width={20}
+                  draggable="false"
                   height={20}
                 />
               </button>
@@ -200,7 +201,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                 active ? "w-full sm:w-[280px] opacity-100" : "w-0 opacity-0"
               } transition-all duration-300`}
             >
-              <CollectionSideBar />
+              {/* <CollectionSideBar id={id as string}  /> */}
             </div>
             <div className="flex-grow">
               <TabsContent value="ColCard">
@@ -276,6 +277,6 @@ export default function Collections({ searchParams }: CollectionsProps) {
           </motion.div>
         </AnimatePresence>
       </Tabs>
-    </>
+    </Layout>
   );
 }

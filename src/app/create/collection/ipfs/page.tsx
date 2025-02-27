@@ -19,6 +19,7 @@ import {
 } from "@/lib/types";
 import TextArea from "@/components/ui/textArea";
 import {
+  addPhase,
   createCollection,
   createLaunch,
   createLaunchItemsIPFS,
@@ -40,6 +41,8 @@ import { Button } from "@/components/ui/button";
 import Toggle from "@/components/ui/toggle";
 import UploadJsonCard from "@/components/atom/cards/upload-json-card";
 import UploadJsonFile from "@/components/section/upload-json-file";
+import { ethers } from "ethers";
+// import { MerkleTree } from 'merkletreejs';
 
 const IPFS = () => {
   const router = useRouter();
@@ -118,6 +121,10 @@ const IPFS = () => {
     mutationFn: whitelistAddresses,
   });
 
+  const { mutateAsync: addPhaseMutation } = useMutation({
+    mutationFn: addPhase,
+  });
+
   const updateFileInfo = (files: File[]) => {
     const newSizes = files.map((file) => file.size);
     setFileSizes((prevSizes) => [...prevSizes, ...newSizes]);
@@ -143,7 +150,7 @@ const IPFS = () => {
 
   const calculateTimeUntilDate = (
     dateString: string,
-    timeString: string
+    timeString: string,
   ): number => {
     try {
       // Input validation
@@ -183,7 +190,7 @@ const IPFS = () => {
       toast.error("Layer information not available");
       return;
     }
-    if (currentLayer.layer === "CITREA" && !window.ethereum) {
+    if (currentLayer.layerType === "EVM" && !window.ethereum) {
       toast.error("Please install MetaMask extension to continue");
       return;
     }
@@ -208,7 +215,7 @@ const IPFS = () => {
           console.log("create collection success", response);
           toast.success("Create collection success.");
 
-          if (currentLayer.layer === "CITREA") {
+          if (currentLayer.layerType === "EVM") {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
             await signedTx?.wait();
@@ -328,6 +335,17 @@ const IPFS = () => {
 
   const files = imageFiles.map((image) => image.file);
 
+  // Add helper function for merkle root generation
+  function generateMerkleRoot(addresses: string[]): string {
+    const leaves = addresses.map((addr) =>
+      // ethers.keccak256(ethers.encodePacked(["address"], [addr]))
+      ethers.solidityPacked(["address"], [addr]),
+    );
+    // const tree = new MerkleTree(leaves, ethers.keccak256, { sortPairs: true });
+    return "";
+    // return tree.getHexRoot();
+  }
+
   const handleCreateLaunch = async () => {
     setIsLoading(true);
     const poStartsAt = calculateTimeUntilDate(POStartsAtDate, POStartsAtTime);
@@ -351,6 +369,9 @@ const IPFS = () => {
         wlMaxMintPerWallet: WLMaxMintPerWallet,
         userLayerId: authState.userLayerId,
       };
+      if (!selectedLayerId) {
+        return toast.error("layer not selected");
+      }
 
       if (params && totalFileSize) {
         // Launch the collection
@@ -365,6 +386,60 @@ const IPFS = () => {
           throw new Error("Launch response missing collection ID");
         }
 
+        if (isChecked) {
+          const wlStartsAt = calculateTimeUntilDate(
+            WLStartsAtDate,
+            WLStartsAtTime,
+          );
+          const wlEndsAt = calculateTimeUntilDate(WLEndsAtDate, WLEndsAtTime);
+
+          // Add whitelist phase
+          const whitelistPhaseResponse = await addPhaseMutation({
+            collectionId,
+            phaseType: 1, // PhaseType.WHITELIST
+            price: WLMintPrice.toString(),
+            startTime: wlStartsAt,
+            endTime: wlEndsAt,
+            maxSupply: whitelistAddress.length, // Set max supply to whitelist size
+            maxPerWallet: WLMaxMintPerWallet,
+            maxMintPerPhase: whitelistAddress.length,
+            merkleRoot: generateMerkleRoot(whitelistAddress),
+            layerId: selectedLayerId,
+            userLayerId: authState.userLayerId,
+          });
+
+          if (currentLayer.layerType === "EVM") {
+            const { signer } = await getSigner();
+            const signedTx = await signer?.sendTransaction(
+              whitelistPhaseResponse.data.unsignedTx,
+            );
+            await signedTx?.wait();
+          }
+        }
+
+        // Add public phase
+        const publicPhaseResponse = await addPhaseMutation({
+          collectionId,
+          phaseType: 2, // PhaseType.PUBLIC
+          price: POMintPrice.toString(),
+          startTime: poStartsAt,
+          endTime: poEndsAt,
+          maxSupply: 0, // Unlimited supply for public phase
+          maxPerWallet: POMaxMintPerWallet,
+          maxMintPerPhase: 0, // Unlimited mints for public phase
+          merkleRoot: ethers.ZeroHash, // No merkle root needed for public phase
+          layerId: selectedLayerId,
+          userLayerId: authState.userLayerId,
+        });
+
+        if (currentLayer.layerType === "EVM") {
+          const { signer } = await getSigner();
+          const signedTx = await signer?.sendTransaction(
+            publicPhaseResponse.data.unsignedTx,
+          );
+          await signedTx?.wait();
+        }
+
         const launchCollectionId = launchResponse.data.launch.collectionId;
         console.log("Launch Collection ID:", launchCollectionId);
         const launchId = launchResponse.data.launch.id;
@@ -376,7 +451,7 @@ const IPFS = () => {
           const currentBatchFiles = files.slice(start, end);
 
           const names = currentBatchFiles.map(
-            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
+            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`,
           );
 
           const launchItemsData: CreateLaunchParams = {
@@ -423,7 +498,7 @@ const IPFS = () => {
     } catch (error) {
       console.error("Error creating launch:", error);
       toast.error(
-        error instanceof Error ? error.message : "Error creating launch"
+        error instanceof Error ? error.message : "Error creating launch",
       );
     } finally {
       setIsLoading(false);
@@ -890,6 +965,7 @@ const IPFS = () => {
                     src={URL.createObjectURL(imageFile[0])}
                     alt="background"
                     width={0}
+                    draggable="false"
                     height={160}
                     sizes="100%"
                     className="w-[280px] h-[280px] object-cover rounded-3xl"

@@ -18,6 +18,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
     >
       <Image
         width={248}
+        draggable="false"
         height={248}
         src={s3ImageUrlBuilder(data?.logoKey)}
         className="object-cover aspect-square rounded-xl"

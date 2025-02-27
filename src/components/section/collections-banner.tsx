@@ -14,8 +14,17 @@ interface BannerSlide {
 }
 
 const bannerData: BannerSlide[] = [
+
   {
     id: 1,
+    image: "/banners/hemi.png",
+    walletImage: "/wallets/hemi.png",
+    title: "We are live on Hemi testnet!",
+    description: "Mint Park is live on Hemi testnet! Start minting and trading NFTs.",
+    walletName: "hemi"
+  },
+  {
+    id: 2,
     image: "/banner.png",
     walletImage: "/wallets/Citrea.png",
     title: "We are live on Citrea testnet!",
@@ -23,21 +32,14 @@ const bannerData: BannerSlide[] = [
     walletName: "citrea"
   },
   {
-    id: 2,
+    id: 3,
     image: "/banners/Nubit.png",
     walletImage: "/wallets/nubit.png",
     title: "Going Live on Nubit Soon!",
     description: "We are excited to announce that we will be live on Nubit soon!",
     walletName: "nubit"
   },
-  {
-    id: 3,
-    image: "/banners/hemi.png",
-    walletImage: "/wallets/hemi.png",
-    title: "Going Live on Hemi Soon!",
-    description: "We're excited to be live on the Hemi Network soon, stay tuned!",
-    walletName: "hemi"
-  }
+
 ];
 
 const CollectionsBanner = () => {
@@ -70,6 +72,7 @@ const CollectionsBanner = () => {
       <Image
         src={slide.image}
         alt="mintpark-slide"
+        draggable="false"
         fill
         className="object-cover"
         priority={slide.id === 1}
@@ -80,6 +83,7 @@ const CollectionsBanner = () => {
             src={slide.walletImage}
             alt={`${slide.walletName} wallet`}
             width={72}
+            draggable="false"
             height={72}
             className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-lg"
           />

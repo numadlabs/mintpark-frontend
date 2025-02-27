@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "../provider/auth-context-provider";
-import { AssetSchema } from "@/lib/validations/asset-validation";
-import { formatPriceBtc, formatPriceUsd, getPriceData } from "@/lib/utils";
+import { formatPriceBtc, formatPriceUsd } from "@/lib/utils";
 import { getLayerById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { BITCOIN_IMAGE } from "../../lib/constants";
+import { useAssetsContext } from "@/lib/hooks/useAssetContext";
 
 declare global {
   interface Window {
@@ -14,12 +14,8 @@ declare global {
   }
 }
 
-interface CardProps {
-  params: AssetSchema;
-}
-
-const ProfileBanner: React.FC<CardProps> = ({ params }) => {
-  const { authState, getAddressforCurrentLayer, selectedLayerId } = useAuth();
+const ProfileBanner: React.FC = () => {
+  const { getAddressforCurrentLayer, selectedLayerId } = useAuth();
   const connectedWallet = getAddressforCurrentLayer();
   const [balance, setBalance] = useState({
     amount: 0,
@@ -28,6 +24,9 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
   const [copySuccess, setCopySuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Get assets data from context
+  const { assetsData } = useAssetsContext();
 
   const { data: currentLayer, isLoading: isLayersLoading } = useQuery({
     queryKey: ["currentLayerData", selectedLayerId],
@@ -40,7 +39,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
 
     setIsLoading(true);
     try {
-      if (connectedWallet.layerType === "CITREA") {
+      if (connectedWallet.layerType === "EVM") {
         if (!window.ethereum) throw new Error("MetaMask not installed");
 
         const balance = await window.ethereum.request({
@@ -104,6 +103,10 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
     return `${prefix}...${suffix}`;
   };
 
+  // Get totalCount and listCount from assetsData
+  const totalCount = assetsData?.data?.totalCount || 0;
+  const listCount = assetsData?.data?.listCount || 0;
+
   return (
     <section className="mt-[43.5px] w-full">
       <div className="relative z-10 h-auto min-h-[216px] w-full rounded-3xl overflow-hidden">
@@ -132,6 +135,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
             <div className="flex-shrink-0">
               <Image
                 width={120}
+                draggable="false"
                 height={120}
                 src={"/profile/proImg.png"}
                 className="aspect-square rounded-[200px] w-24 h-24 md:w-[120px] md:h-[120px]"
@@ -152,6 +156,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                   <Image
                     src={"/profile/copy.png"}
                     alt="copy"
+                    draggable="false"
                     width={24}
                     height={24}
                     className="w-5 h-5 sm:w-6 sm:h-6 cursor-pointer"
@@ -174,6 +179,7 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                       <Image
                         src={BITCOIN_IMAGE}
                         alt="crypto"
+                        draggable="false"
                         width={24}
                         height={24}
                         className="h-5 w-5 sm:h-6 sm:w-6"
@@ -198,13 +204,13 @@ const ProfileBanner: React.FC<CardProps> = ({ params }) => {
                     <p className="text-neutral100 text-sm sm:text-md font-medium">
                       Total items:
                     </p>
-                    <span className="text-md">{params?.data.totalCount}</span>
+                    <span className="text-md">{totalCount}</span>
                   </span>
                   <span className="py-3 px-4 flex justify-center gap-2 sm:gap-3 rounded-xl text-neutral50 bg-white4 items-center">
                     <p className="text-neutral100 text-sm sm:text-md font-medium">
                       Listed items:
                     </p>
-                    <span className="text-md">{params?.data.listCount}</span>
+                    <span className="text-md">{listCount}</span>
                   </span>
                 </div>
               </div>

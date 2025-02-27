@@ -47,6 +47,7 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
         <div className="flex min-w-[392px] w-full max-w-[640px] gap-5 items-center">
           <Image
             width={48}
+            draggable="false"
             height={48}
             src={
               data.highResolutionImageUrl
@@ -102,9 +103,10 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
                 {daysAgo} days ago
               </span>
               {(data.price ?? 0) > 0 && (
-                <span className="hidden w-full group-hover:block lg:absolute lg:-top-2 Lg:left-12 text-white bg-white bg-opacity-25 py-2 px-5 rounded-lg cursor-pointer transition-all duration-300 ease-in-out">
-                  List
-                </span>
+            
+                <span className="hidden group-hover:block lg:absolute lg:-top-5 text-neutral50 bg-white8 bg-opacity-[40%] pt-2 pb-2 pr-5 pl-5 rounded-lg cursor-pointer transition-all duration-300 ease-in-out">
+                List
+              </span>
               )}
             </span>
           </div>

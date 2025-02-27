@@ -28,6 +28,7 @@ interface ModalProps {
   collectibleId: string;
   txid: string;
   id: string;
+  isOwnListing: boolean;
 }
 
 const PendingListModal: React.FC<ModalProps> = ({
@@ -40,9 +41,9 @@ const PendingListModal: React.FC<ModalProps> = ({
   collectibleId,
   txid,
   id,
+  isOwnListing,
 }) => {
   const queryClient = useQueryClient();
-  const router = useRouter();
   const [price, setPrice] = useState<string>("0");
   const [isLoading, setIsLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -132,53 +133,7 @@ const PendingListModal: React.FC<ModalProps> = ({
     <>
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="flex flex-col p-6 gap-6 max-w-[592px] w-full items-center">
-          {success ? (
-            <div className="flex flex-col gap-6 w-full items-center justify-center">
-              <div className="flex flex-col gap-6 justify-center items-center w-full">
-                <div className="flex justify-center p-3 items-center rounded-2xl bg-white8">
-                  <Check size={40} color="#FFEE32" />
-                </div>
-                <div className="flex flex-col gap-3">
-                  <p className="text-center text-2xl text-brand font-bold">
-                    Listing Successful!
-                  </p>
-                  <p className="text-lg font-medium text-neutral50">
-                    Your listing was completed successfully.
-                  </p>
-                </div>
-              </div>
-              <div className="w-full flex flex-col gap-8 py-8 bg-white4 justify-center items-center rounded-2xl">
-                <Image
-                  width={160}
-                  height={160}
-                  src={imageUrl}
-                  className="aspect-square rounded-xl"
-                  alt={`logo`}
-                />
-                <div className="flex flex-col gap-2 justify-center items-center">
-                  <p className="text-brand text-lg font-medium">
-                    {collectionName}
-                  </p>
-                  <p className="text-xl text-neutral00 font-bold">{name}</p>
-                </div>
-              </div>
-              <div className="bg-white8 w-full h-[1px]" />
-              <div className="flex flex-row items-center w-full justify-between rounded-2xl p-4 bg-white8">
-                <p className="text-neutral100 text-lg font-medium">
-                  Listing price
-                </p>
-                <p className="text-brand text-lg font-bold">{price}</p>
-              </div>
-              <div className="bg-white8 w-full h-[1px]" />
-              <Button
-                variant={"secondary"}
-                onClick={onClose}
-                className="w-full"
-              >
-                Done
-              </Button>
-            </div>
-          ) : (
+          {success === false && isOwnListing === false ? (
             <div className="flex flex-col gap-6 w-full items-center">
               <DialogHeader className="flex w-full">
                 <div className="text-xl text-neutral00 font-bold text-center">
@@ -190,6 +145,7 @@ const PendingListModal: React.FC<ModalProps> = ({
                 <Image
                   width={160}
                   height={160}
+                  draggable="false"
                   src={imageUrl}
                   className="aspect-square rounded-xl"
                   alt={`logo`}
@@ -239,6 +195,53 @@ const PendingListModal: React.FC<ModalProps> = ({
               >
                 <X size={20} color="#D7D8D8" />
               </button>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-6 w-full items-center justify-center">
+              <div className="flex flex-col gap-6 justify-center items-center w-full">
+                <div className="flex justify-center p-3 items-center rounded-2xl bg-white8">
+                  <Check size={40} color="#FFEE32" />
+                </div>
+                <div className="flex flex-col gap-3">
+                  <p className="text-center text-2xl text-brand font-bold">
+                    Listing Successful!
+                  </p>
+                  <p className="text-lg font-medium text-neutral50">
+                    Your listing was completed successfully.
+                  </p>
+                </div>
+              </div>
+              <div className="w-full flex flex-col gap-8 py-8 bg-white4 justify-center items-center rounded-2xl">
+                <Image
+                  width={160}
+                  height={160}
+                  draggable="false"
+                  src={imageUrl}
+                  className="aspect-square rounded-xl"
+                  alt={`logo`}
+                />
+                <div className="flex flex-col gap-2 justify-center items-center">
+                  <p className="text-brand text-lg font-medium">
+                    {collectionName}
+                  </p>
+                  <p className="text-xl text-neutral00 font-bold">{name}</p>
+                </div>
+              </div>
+              <div className="bg-white8 w-full h-[1px]" />
+              <div className="flex flex-row items-center w-full justify-between rounded-2xl p-4 bg-white8">
+                <p className="text-neutral100 text-lg font-medium">
+                  Listing price
+                </p>
+                <p className="text-brand text-lg font-bold">{price}</p>
+              </div>
+              <div className="bg-white8 w-full h-[1px]" />
+              <Button
+                variant={"secondary"}
+                onClick={onClose}
+                className="w-full"
+              >
+                Done
+              </Button>
             </div>
           )}
         </DialogContent>

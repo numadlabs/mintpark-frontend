@@ -92,6 +92,12 @@ export interface NetworkConfig {
   chainName?: string;
   rpcUrls?: string[];
   blockExplorerUrls?: string[];
+  //new implement
+  nativeCurrency?: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
 }
 
 export interface WalletStorage {
@@ -120,15 +126,38 @@ export interface WalletState {
   };
 }
 
+// export interface AuthState {
+//   [x: string]: string | null | undefined;
+//   authenticated: boolean;
+//   loading: boolean;
+//   userLayerId: string | null;
+//   userId: string | null;
+//   layerId: string | null;
+//   // primaryWallet: WalletInfo;
+//   // secondaryWallet: WalletInfo;
+//   // hasAlreadyBeenLinkedToAnotherUser
+//   tokens: {
+//     accessToken: string | null;
+//     refreshToken: string | null;
+//   };
+// }
+
 export interface AuthState {
+  [x: string]:
+    | string
+    | null
+    | undefined
+    | boolean
+    | {
+        accessToken: string | null;
+        refreshToken: string | null;
+      };
+
   authenticated: boolean;
   loading: boolean;
   userLayerId: string | null;
   userId: string | null;
   layerId: string | null;
-  // primaryWallet: WalletInfo;
-  // secondaryWallet: WalletInfo;
-  // hasAlreadyBeenLinkedToAnotherUser
   tokens: {
     accessToken: string | null;
     refreshToken: string | null;
@@ -142,10 +171,17 @@ export interface WalletInfo {
 }
 
 export interface Layer {
+  // nativeCurrency?: any;
+  nativeCurrency?: {
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
   id: string;
   name: string;
   layer: string;
   network: string;
   currencyId: string;
   chainId: string;
+  layerType: string;
 }

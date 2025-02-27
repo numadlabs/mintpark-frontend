@@ -43,6 +43,7 @@ export const collectionDetailSchema = z.object({
   ownedBy: z.string().nullable(),
   listedAt: z.date().nullable(),
   listId: z.string().nullable(),
+  isOwnListing:z.boolean(),
 });
 
 export const collectibleSchema = z.object({
@@ -62,6 +63,7 @@ export const collectibleSchema = z.object({
   listedAt: z.date().nullable(),
   listId: z.string().nullable(),
   inscriptionId: z.string(),
+  isOwnListing:z.boolean(),
 });
 
 // Schema for the complete API response

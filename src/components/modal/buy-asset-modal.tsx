@@ -28,6 +28,7 @@ interface ModalProps {
   uniqueIdx: string;
   price: number;
   listId: string | null;
+  isOwnListing: boolean;
 }
 
 const BuyAssetModal: React.FC<ModalProps> = ({
@@ -39,6 +40,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   uniqueIdx,
   price,
   listId,
+  isOwnListing
 }) => {
   const queryClient = useQueryClient();
   const params = useParams();
@@ -152,6 +154,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
               <div className="flex flex-col gap-6 justify-center items-center w-full bg-white4 rounded-2xl p-8">
                 <Image
                   width={160}
+                  draggable="false"
                   height={160}
                   src={fileKey}
                   className="aspect-square rounded-xl"
@@ -186,6 +189,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                 <Image
                   width={160}
                   height={160}
+                  draggable="false"
                   src={fileKey}
                   className="aspect-square rounded-xl"
                   alt={`logo`}

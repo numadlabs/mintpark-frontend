@@ -30,22 +30,16 @@ const SuccessModal: React.FC<ModalProps> = ({ open, onClose, handleCreate }) => 
               <TickCircle size={48} color="#FFEE32" />
             </div>
             <div className="flex flex-col gap-3 justify-center items-center">
-              <p className="text-brand text-2xl font-bold">Success!</p>
+              <p className="text-brand text-2xl font-bold">Minting Successful!</p>
               <p className="text-lg text-neutral50 font-medium">
-                Your collection is in Launchpad now!
+              Your minting was completed successfully.
               </p>
             </div>
           </div>
           <div className="bg-white8 w-full h-[1px]" />
-          <DialogFooter className="grid grid-cols-2 gap-2 w-full">
-            <Button
-              variant="secondary"
-              className="bg-white8 w-full"
-              onClick={handleCreate}
-            >
-              Create again
-            </Button>
-            <Button onClick={handleNavigation}>Go to Launchpad</Button>
+          <DialogFooter className="grid grid-cols-1 gap-2 w-full">
+
+            <Button onClick={handleNavigation}>Done</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

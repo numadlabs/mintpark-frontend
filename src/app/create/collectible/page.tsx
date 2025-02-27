@@ -94,7 +94,7 @@ const SingleCollectible = () => {
       // Calculate file sizes and types
       const newFileSizes = Array.from(files).map((file) => file.size);
       const newFileTypeSizes = Array.from(files).map(
-        (file) => file.type.length
+        (file) => file.type.length,
       );
       const newFileTypes = new Set(Array.from(files).map((file) => file.type));
 
@@ -117,10 +117,10 @@ const SingleCollectible = () => {
   const handleDelete = (indexToDelete: number) => {
     // Create new arrays without the deleted items
     const newImageFile = Array.from(imageFile).filter(
-      (_, index) => index !== indexToDelete
+      (_, index) => index !== indexToDelete,
     );
     const newImageFiles = imageFiles.filter(
-      (_, index) => index !== indexToDelete
+      (_, index) => index !== indexToDelete,
     );
 
     // Update state with the new arrays directly
@@ -167,7 +167,7 @@ const SingleCollectible = () => {
           const { deployContractTxHex } = collectionResponse.data;
           console.log("create collection success", collectionResponse);
 
-          if (currentLayer.layer === "CITREA") {
+          if (currentLayer.layerType === "EVM") {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
             await signedTx?.wait();
@@ -185,7 +185,7 @@ const SingleCollectible = () => {
         const response = await createCollectiblesMutation({ data: params });
         console.log("🚀 ~ handlePay ~ response:", response);
         if (response && response.success) {
-          if (currentLayer.layer === "CITREA") {
+          if (currentLayer.layerType === "EVM") {
             const { batchMintTxHex } = response.data;
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(batchMintTxHex);
@@ -194,11 +194,11 @@ const SingleCollectible = () => {
           } else if (currentLayer.layer === "FRACTAL") {
             console.log(
               response.data.order.fundingAddress,
-              response.data.order.fundingAmount
+              response.data.order.fundingAmount,
             );
             await window.unisat.sendBitcoin(
               response.data.order.fundingAddress,
-              Math.ceil(response.data.order.fundingAmount)
+              Math.ceil(response.data.order.fundingAmount),
             );
           }
           await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -321,6 +321,7 @@ const SingleCollectible = () => {
                     src={URL.createObjectURL(imageFile[0])}
                     alt="background"
                     width={0}
+                    draggable="false"
                     height={160}
                     sizes="100%"
                     className="w-[280px] h-[280px] object-cover rounded-3xl"

@@ -16,6 +16,14 @@ module.exports = {
       },
     },
     fontSize: {
+
+      'display-1': [
+        '64px',
+        {
+         lineHeight: '78px',
+         fontWeight: 'bold' 
+        }
+      ],
       xs: ["10px", "12px"],
       sm: ["12px", "16px"],
       md: ["14px", "18px"],
@@ -82,6 +90,7 @@ module.exports = {
         gray50: "rgba(32, 34, 36, 0.5)",
         gray70: "rgba(255, 255, 255, 0.7)",
         brandBlack: "var(--Black-less-opacity, rgba(52, 61, 64, 0.50))",
+        gray500op50: "var(--Black-less-opacity, rgba(32, 34, 36, 0.50))",
         bannerBlack: "var(--Black-less-opacity, rgba(33, 37, 41, 0.70))",
         neutral00: "#ffffff",
         neutral50: "#D7D8D8",

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion"; // Import framer-motion
 import HeaderItem from "../ui/headerItem";
 import { useAuth } from "../provider/auth-context-provider";
 import {
@@ -22,31 +23,38 @@ import {
 import { Wallet2, I3Dcube, Logout, ArrowRight2 } from "iconsax-react";
 import { Button } from "../ui/button";
 import { getAllLayers, getLayerById } from "@/lib/service/queryHelper";
-import {
-  truncateAddress,
-  capitalizeFirstLetter,
-  storePriceData,
-} from "@/lib/utils";
+import { truncateAddress, capitalizeFirstLetter } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { ExtendedLayerType, LayerType } from "@/lib/types";
+import { LayerType } from "@/lib/types";
 import { toast } from "sonner";
 import Badge from "../atom/badge";
-import { Loader2, MenuIcon } from "lucide-react";
+import { Check, Loader2, MenuIcon, X } from "lucide-react";
 import { WalletConnectionModal } from "../modal/wallet-connect-modal";
 
-declare global {
-  interface Window {
-    unisat: any;
-  }
+// Type definitions
+interface RouteItem {
+  title: string;
+  pageUrl: string;
+  requiresAuth?: boolean;
+  disabled?: boolean;
+  badge?: string;
+}
+
+interface WalletInfo {
+  address: string;
+  layerId: string;
+}
+
+interface LayerImageMap {
+  [key: string]: string;
 }
 
 export default function Header() {
   const router = useRouter();
-  const [walletModal, setWalletModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [selectedLayer, setSelectedLayer] = useState("CITREA");
-  const [defaultLayer, setDefaultLayer] = useState<string>("CITREA-mainnet");
+  const [defaultLayer, setDefaultLayer] = useState("CITREA-mainnet");
 
   const {
     authState,
@@ -55,52 +63,84 @@ export default function Header() {
     setSelectedLayerId,
     getWalletForLayer,
     isWalletConnected,
+    connectedWallets,
   } = useAuth();
 
+  // State to track scroll position when menu opens
+  // Handle mobile menu open/close
+  useEffect(() => {
+    const handleOpen = () => {
+      // First, scroll to top when opening menu
+      window.scrollTo(0, 0);
+      // Then disable scrolling
+      document.body.style.overflow = "hidden";
+    };
+
+    const handleClose = () => {
+      // Re-enable scrolling when closing menu
+      document.body.style.overflow = "";
+    };
+
+    if (mobileMenuOpen) {
+      handleOpen();
+    } else {
+      handleClose();
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
+  // Fetch all available layers
   const { data: dynamicLayers = [] } = useQuery({
     queryKey: ["layerData"],
-    queryFn: () => getAllLayers(),
+    queryFn: getAllLayers,
     staleTime: Infinity,
     gcTime: Infinity,
   });
 
+  // Fetch current selected layer data
   const { data: currentLayer, isLoading: isLayersLoading } = useQuery({
     queryKey: ["currentLayerData", selectedLayerId],
     queryFn: () => getLayerById(selectedLayerId as string),
     enabled: !!selectedLayerId,
   });
 
-  // Initialize default layer
   useEffect(() => {
-    const initializeDefaultLayer = () => {
-      if (currentLayer) {
-        const layerString = `${currentLayer.layer}-${currentLayer.network}`;
-        setDefaultLayer(layerString);
-        if (currentLayer.price) {
-          storePriceData(currentLayer.price);
-        }
-      } else if (dynamicLayers.length > 0) {
-        const citreaLayer = dynamicLayers.find(
-          (l: LayerType) => l.layer === "CITREA"
-        );
-        if (citreaLayer) {
-          const layerString = `${citreaLayer.layer}-${citreaLayer.network}`;
-          setDefaultLayer(layerString);
-          setSelectedLayerId(citreaLayer.id);
-          setSelectedLayer(citreaLayer.id);
-        }
+    // Try to get saved layer from localStorage first
+    const savedLayer = localStorage.getItem("selectedLayer");
+
+    if (savedLayer && dynamicLayers.length > 0) {
+      const matchingLayer = dynamicLayers.find((l) => l.layer === savedLayer);
+      if (matchingLayer) {
+        setSelectedLayer(savedLayer);
+        setDefaultLayer(`${matchingLayer.layer}-${matchingLayer.network}`);
+        setSelectedLayerId(matchingLayer.id);
+        return;
       }
-    };
+    }
 
-    initializeDefaultLayer();
-  }, [currentLayer, dynamicLayers, setSelectedLayerId]);
+    // Fall back to default behavior if no saved layer or match found
+    if (!selectedLayerId && dynamicLayers.length > 0) {
+      const citreaLayer = dynamicLayers.find((l) => l.layer === "CITREA");
+      if (citreaLayer) {
+        setDefaultLayer(`${citreaLayer.layer}-${citreaLayer.network}`);
+        setSelectedLayerId(citreaLayer.id);
+        setSelectedLayer(citreaLayer.layer);
+        localStorage.setItem("selectedLayer", citreaLayer.layer);
+      }
+    } else if (currentLayer) {
+      setDefaultLayer(`${currentLayer.layer}-${currentLayer.network}`);
+      localStorage.setItem("selectedLayer", currentLayer.layer);
+    }
+  }, [currentLayer, dynamicLayers, selectedLayerId, setSelectedLayerId]);
 
-  // Static layers array is now empty since we removed Nubit
-  const staticLayers: (LayerType & { comingSoon?: boolean })[] = [];
+  // Combine dynamic and static layers
+  const layers = [...dynamicLayers];
 
-  const layers: ExtendedLayerType[] = [...dynamicLayers, ...staticLayers];
-
-  const routesData = [
+  // Define navigation routes
+  const routes: RouteItem[] = [
     {
       title: "Create",
       pageUrl: "/create",
@@ -112,91 +152,205 @@ export default function Header() {
     { title: "Collections", pageUrl: "/collections" },
   ];
 
-  const toggleWalletModal = () => {
-    setWalletModal(!walletModal);
+  // Get layer image based on layer name
+  const getLayerImage = (layer: string): string => {
+    const imageMap: LayerImageMap = {
+      BITCOIN: "/wallets/Bitcoin.png",
+      FRACTAL: "/wallets/Fractal.png",
+      CITREA: "/wallets/Citrea.png",
+      SEPOLIA: "/wallets/hemi.png",
+      HEMI: "/wallets/hemi.png",
+      POLYGON_ZK: "",
+    };
+
+    return imageMap[layer] || "/wallets/Bitcoin.png";
   };
 
-  const getLayerImage = (layer: string) => {
-    switch (layer) {
-      case "BITCOIN":
-        return "/wallets/Bitcoin.png";
-      case "FRACTAL":
-        return "/wallets/Fractal.png";
-      case "CITREA":
-        return "/wallets/Citrea.png";
-      case "HEMI":
-        return "/wallets/hemi.png";
-      default:
-        return "/wallets/Bitcoin.png"; // Changed default to Bitcoin instead of Nubit
-    }
-  };
-
-  const handleLayerSelect = (value: string) => {
+  // Handle layer selection
+  const handleLayerSelect = (value: string): void => {
     const [layer, network] = value.split("-");
-    const selectedLayer = layers.find(
-      (l: LayerType) => l.layer === layer && l.network === network
+    const matchingLayer = layers.find(
+      (l) => l.layer === layer && l.network === network,
     );
 
-    if (selectedLayer) {
-      setSelectedLayerId(selectedLayer.id);
+    if (matchingLayer && selectedLayerId !== matchingLayer.id) {
+      setSelectedLayerId(matchingLayer.id);
       setDefaultLayer(value);
       setSelectedLayer(layer);
+      localStorage.setItem("selectedLayer", layer);
     }
   };
 
-  const handleLogOut = () => {
+  // Handle logout
+  const handleLogout = (): void => {
     if (authState.authenticated) {
       onLogout();
       toast.info("Logged out successfully");
     }
   };
 
+  // Handle navigation
   const handleNavigation = (
     pageUrl: string,
     requiresAuth?: boolean,
-    disabled?: boolean
-  ) => {
+    disabled?: boolean,
+  ): void => {
     if (disabled) {
       toast.info("This feature is coming soon!");
       return;
     }
+
     if (requiresAuth && !authState.authenticated) {
       toast.error("Please connect your wallet");
       return;
     }
+
     router.push(pageUrl);
     setMobileMenuOpen(false);
-  };
-
-  const handleTwitterClick = () => {
-    window.open("https://x.com/mintpark_io", "_blank");
   };
 
   const currentWallet = selectedLayerId
     ? getWalletForLayer(selectedLayerId)
     : undefined;
-
-  const isAuthenticated =
+  const isWalletDisconnected =
     selectedLayerId && !isWalletConnected(selectedLayerId);
+
+  // Render dropdown layer item
+  const renderLayerItem = (layer: LayerType) => {
+    const isLayerConnected = connectedWallets?.some((wallet: WalletInfo) => {
+      const foundLayer = layers.find((l) => l.id === wallet.layerId);
+      return (
+        foundLayer?.layer === layer.layer &&
+        foundLayer?.network === layer.network
+      );
+    });
+
+    return (
+      <SelectItem
+        key={layer.id}
+        value={`${layer.layer}-${layer.network}`}
+        className={`flex items-center gap-2 w-[170px]`}
+      >
+        <div className="flex justify-between gap-2 items-center text-md text-neutral50 font-medium w-full">
+          <div className="flex gap-2">
+            <Image
+              src={getLayerImage(layer.layer)}
+              alt={layer.layer}
+              width={24}
+              height={24}
+              className="rounded-full"
+            />
+            <div className="flex items-center gap-2 flex-1">
+              {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(
+                layer.network,
+              )}`}
+            </div>
+          </div>
+          {isLayerConnected && <Check className="w-5 h-5 text-neutral50" />}
+        </div>
+      </SelectItem>
+    );
+  };
+
+  // Render current layer value
+  const renderCurrentLayerValue = () => {
+    if (isLayersLoading) {
+      return (
+        <div className="flex items-center gap-2">
+          <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
+          <span>Loading...</span>
+        </div>
+      );
+    }
+
+    if (defaultLayer) {
+      return (
+        <div className="flex flex-row gap-2 items-center w-max">
+          <Image
+            src={getLayerImage(defaultLayer.split("-")[0])}
+            alt={defaultLayer.split("-")[0]}
+            width={24}
+            height={24}
+            className="rounded-full"
+          />
+          {defaultLayer.split("-").map(capitalizeFirstLetter).join(" ")}
+        </div>
+      );
+    }
+
+    return <span>Select layer</span>;
+  };
+
+  // Animation variants
+  const menuVariants = {
+    closed: {
+      opacity: 0,
+      y: "-100%",
+      transition: {
+        y: { stiffness: 1000 },
+      },
+    },
+    open: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        y: { stiffness: 1000, velocity: -100 },
+      },
+    },
+  };
+
+  // Listen for window resize to close mobile menu on desktop view
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024 && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [mobileMenuOpen]);
+
+  const menuItemVariants = {
+    closed: { x: -20, opacity: 0 },
+    open: (i: any) => ({
+      x: 0,
+      opacity: 1,
+      transition: {
+        delay: i * 0.1,
+        duration: 0.4,
+      },
+    }),
+  };
+
+  const backdropVariants = {
+    closed: { opacity: 0 },
+    open: { opacity: 1 },
+  };
 
   return (
     <>
       <div className="">
-        <div className="h-[72px] w-full flex justify-center bg-neutral500 bg-opacity-50 backdrop-blur-4xl mt-5 rounded-3xl">
-          <div className="flex flex-row justify-between items-center max-w-[1920px] w-full">
-            <div className="flex flex-row justify-between items-center w-full pl-6 pr-4 h-full">
+        <div className="h-[72px] w-full flex justify-center bg-gray500op50 backdrop-blur-[60px] mt-5 rounded-3xl sticky top-5 left-0 right-0 z-30 max-w-[1920px] mx-auto">
+          <div className="flex justify-between items-center w-full">
+            <div className="flex justify-between items-center w-full pl-6 pr-4 h-full">
+              {/* Logo and Navigation */}
               <div className="flex gap-12">
-                <Link href={"/"}>
+                <Link href="/">
                   <Image
-                    src={"/Logo.svg"}
+                    src="/Logo.svg"
                     alt="coordinals"
                     width={40}
                     height={40}
                   />
                 </Link>
+
                 {/* Desktop Navigation */}
                 <div className="hidden lg:flex flex-row gap-2 text-neutral00">
-                  {routesData.map((item, index) => (
+                  {routes.map((item, index) => (
                     <div key={index} className="relative">
                       <HeaderItem
                         title={item.title}
@@ -204,7 +358,7 @@ export default function Header() {
                           handleNavigation(
                             item.pageUrl,
                             item.requiresAuth,
-                            item.disabled
+                            item.disabled,
                           )
                         }
                       />
@@ -214,71 +368,27 @@ export default function Header() {
                 </div>
               </div>
 
-              {/* Desktop Controls */}
-              <div className="hidden lg:flex flex-row overflow-hidden items-center gap-4">
+              {/* Desktop Controls - Layer selector and wallet */}
+              <div className="hidden lg:flex items-center gap-4">
+                {/* Layer Selector */}
                 <Select onValueChange={handleLayerSelect} value={defaultLayer}>
-                  <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
+                  <SelectTrigger className="flex items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
                     <SelectValue
                       placeholder="Select layer"
                       defaultValue={defaultLayer}
                     >
-                      {isLayersLoading ? (
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
-                          <span>Loading...</span>
-                        </div>
-                      ) : defaultLayer ? (
-                        <div className="flex flex-row gap-2 items-center w-max">
-                          <Image
-                            src={getLayerImage(defaultLayer.split("-")[0])}
-                            alt={defaultLayer.split("-")[0]}
-                            width={24}
-                            height={24}
-                            className="rounded-full"
-                          />
-                          {defaultLayer
-                            .split("-")
-                            .map(capitalizeFirstLetter)
-                            .join(" ")}
-                        </div>
-                      ) : (
-                        <span>Select layer</span>
-                      )}
+                      {renderCurrentLayerValue()}
                     </SelectValue>
                   </SelectTrigger>
-                  <SelectContent className="mt-4 flex flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
+                  <SelectContent className="mt-4 flex flex-col p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
                     <SelectGroup className="flex flex-col gap-2">
-                      {layers.map((layer: ExtendedLayerType) => (
-                        <SelectItem
-                          key={layer.id}
-                          value={`${layer.layer}-${layer.network}`}
-                          className={`flex flex-row items-center gap-2 w-[170px] ${
-                            layer.comingSoon
-                              ? "opacity-80 cursor-not-allowed"
-                              : "hover:bg-white8 duration-300 transition-all cursor-pointer"
-                          }`}
-                        >
-                          <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
-                            <Image
-                              src={getLayerImage(layer.layer)}
-                              alt={layer.layer}
-                              width={24}
-                              height={24}
-                              className="rounded-full"
-                            />
-                            <div className="flex items-center gap-2">
-                              {`${capitalizeFirstLetter(
-                                layer.layer
-                              )} ${capitalizeFirstLetter(layer.network)}`}
-                            </div>
-                          </div>
-                        </SelectItem>
-                      ))}
+                      {layers.map(renderLayerItem)}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
 
-                {isAuthenticated ? (
+                {/* Wallet Connection */}
+                {isWalletDisconnected ? (
                   <Button
                     variant="secondary"
                     size="lg"
@@ -289,7 +399,7 @@ export default function Header() {
                   </Button>
                 ) : authState.authenticated && currentWallet ? (
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex flex-row items-center gap-2 max-w-[136px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
+                    <DropdownMenuTrigger className="flex items-center gap-2 max-w-[136px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
                       <Image
                         src="/Avatar.png"
                         alt="avatar"
@@ -303,8 +413,8 @@ export default function Header() {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="flex flex-col gap-2 max-w-[215px] w-full p-2 border border-white4 bg-gray50 mt-4 rounded-2xl backdrop-blur-xl">
                       <Link href="/my-assets">
-                        <DropdownMenuItem className="flex flex-row justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                          <div className="flex flex-row items-center gap-2">
+                        <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                          <div className="flex items-center gap-2">
                             <Wallet2 size={24} color="#D7D8D8" />
                             My Assets
                           </div>
@@ -312,8 +422,8 @@ export default function Header() {
                         </DropdownMenuItem>
                       </Link>
                       <Link href="/orders">
-                        <DropdownMenuItem className="flex flex-row items-center justify-between text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                          <div className="flex flex-row items-center gap-2">
+                        <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                          <div className="flex items-center gap-2">
                             <I3Dcube size={24} color="#D7D8D8" />
                             <p>Inscribe Orders</p>
                           </div>
@@ -321,8 +431,8 @@ export default function Header() {
                         </DropdownMenuItem>
                       </Link>
                       <DropdownMenuItem
-                        className="text-neutral50 text-md font-medium flex flex-row gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
-                        onClick={handleLogOut}
+                        className="text-neutral50 text-md font-medium flex gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
+                        onClick={handleLogout}
                       >
                         <Logout size={24} color="#D7D8D8" />
                         Log Out
@@ -333,211 +443,185 @@ export default function Header() {
               </div>
 
               {/* Mobile Menu Button */}
-              <button
+              <motion.button
                 className="lg:hidden p-2 text-neutral50"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                whileTap={{ scale: 0.9 }}
               >
                 <MenuIcon size={24} />
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>
+        {/* No spacer needed for sticky header */}
       </div>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-neutral500 bg-opacity-95 backdrop-blur-lg">
-          <div className="flex flex-col p-4 space-y-4">
-            <div className="flex justify-between items-center">
-              <Link href={"/"}>
-                <Image
-                  src={"/Logo.svg"}
-                  alt="coordinals"
-                  width={40}
-                  height={40}
-                />
-              </Link>
-              <button
-                className="p-2 text-neutral50"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
+      {/* Mobile Menu - Using AnimatePresence for animations */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="lg:hidden fixed inset-0 z-40 bg-neutral500 bg-opacity-40"
+              initial="closed"
+              animate="open"
+              exit="closed"
+              variants={backdropVariants}
+              onClick={() => setMobileMenuOpen(false)}
+            />
 
-            <div className="flex flex-col pt-8 gap-4">
-              {routesData.map((item, index) => (
-                <div key={index} className="relative">
-                  <button
-                    className="text-neutral00 text-lg font-medium w-full text-left py-2"
-                    onClick={() =>
-                      handleNavigation(
-                        item.pageUrl,
-                        item.requiresAuth,
-                        item.disabled
-                      )
-                    }
-                  >
-                    {item.title}
-                    {item.badge && <Badge label={item.badge} />}
-                  </button>
-                </div>
-              ))}
-              {/* {authState.authenticated && (
-                <div className="flex flex-col gap-8 pt-6 border-t border-neutral400">
-                  <Link
-                    href="/my-assets"
-                    className="text-neutral00 text-lg font-medium"
-                  >
-                    My Assets
+            {/* Menu Panel - Always at the top of page */}
+            <motion.div
+              className="lg:hidden fixed inset-x-0 top-0 z-50 bg-neutral500 bg-opacity-95 backdrop-blur-lg pt-4 pb-6 h-auto min-h-screen overflow-y-auto"
+              initial="closed"
+              animate="open"
+              exit="closed"
+              variants={menuVariants}
+            >
+              <div className="flex flex-col px-6 space-y-4">
+                {/* Mobile header */}
+                <div className="flex justify-between items-center">
+                  <Link href="/">
+                    <Image
+                      src="/Logo.svg"
+                      alt="coordinals"
+                      width={40}
+                      height={40}
+                    />
                   </Link>
-                  <Link
-                    href="/orders"
-                    className="text-neutral00 text-lg font-medium"
+                  <motion.button
+                    className="p-2 text-neutral50"
+                    onClick={() => setMobileMenuOpen(false)}
+                    whileTap={{ scale: 0.9 }}
                   >
-                    Inscribe Orders
-                  </Link> 
+                    <X size={24} />
+                  </motion.button>
                 </div>
-              )}*/}
-              <div className="lg:flex flex-row overflow-hidden grid items-center pt-6 border-t border-neutral400 gap-4 ">
-                <Select onValueChange={handleLayerSelect} value={defaultLayer}>
-                  <SelectTrigger className="flex flex-row items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-auto">
-                    <SelectValue
-                      placeholder="Select layer"
-                      defaultValue={defaultLayer}
+
+                {/* Mobile navigation */}
+                <div className="flex flex-col pt-8 gap-5">
+                  {routes.map((item, index) => (
+                    <motion.div
+                      key={index}
+                      className="relative"
+                      custom={index}
+                      variants={menuItemVariants}
                     >
-                      {isLayersLoading ? (
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
-                          <span>Loading...</span>
-                        </div>
-                      ) : defaultLayer ? (
-                        <div className="flex flex-row gap-2 items-center">
-                          <Image
-                            src={getLayerImage(defaultLayer.split("-")[0])}
-                            alt={defaultLayer.split("-")[0]}
-                            width={24}
-                            height={24}
-                            className="rounded-full"
-                          />
-                          {defaultLayer
-                            .split("-")
-                            .map(capitalizeFirstLetter)
-                            .join(" ")}
-                        </div>
-                      ) : (
-                        <span>Select layer</span>
-                      )}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent className="flex max-w-[210px] flex-col items-center justify-center p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
-                    <SelectGroup className="flex flex-col gap-2">
-                      {layers.map((layer: ExtendedLayerType) => (
-                        <SelectItem
-                          key={layer.id}
-                          value={`${layer.layer}-${layer.network}`}
-                          className={`flex flex-row items-center gap-2 w-[170px] ${
-                            layer.comingSoon
-                              ? "opacity-80 cursor-not-allowed"
-                              : "hover:bg-white8 duration-300 transition-all cursor-pointer"
-                          }`}
+                      <button
+                        className="text-neutral00 text-lg font-medium w-full text-left py-2 flex items-center"
+                        onClick={() =>
+                          handleNavigation(
+                            item.pageUrl,
+                            item.requiresAuth,
+                            item.disabled,
+                          )
+                        }
+                      >
+                        {item.title}
+                        {item.badge && <Badge label={item.badge} />}
+                      </button>
+                    </motion.div>
+                  ))}
+
+                  {/* Mobile layer and wallet controls */}
+                  <motion.div
+                    className="grid items-center pt-6 border-t border-neutral400 gap-4"
+                    custom={routes.length}
+                    variants={menuItemVariants}
+                  >
+                    {/* Same layer selector as desktop but with mobile styling */}
+                    <Select
+                      onValueChange={handleLayerSelect}
+                      value={defaultLayer}
+                    >
+                      <SelectTrigger className="flex items-center h-12 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-full">
+                        <SelectValue
+                          placeholder="Select layer"
+                          defaultValue={defaultLayer}
                         >
-                          <div className="flex flex-row gap-2 items-center text-md text-neutral50 font-medium">
+                          {renderCurrentLayerValue()}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent className="flex max-w-[210px] flex-col p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
+                        <SelectGroup className="flex flex-col gap-2">
+                          {layers.map(renderLayerItem)}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+
+                    {/* Mobile wallet buttons */}
+                    {isWalletDisconnected ? (
+                      <Button
+                        variant="secondary"
+                        size="lg"
+                        onClick={() => setWalletModalOpen(true)}
+                        className="w-full"
+                      >
+                        Connect Wallet
+                      </Button>
+                    ) : authState.authenticated && currentWallet ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger className="flex items-center justify-between gap-2 w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-3 rounded-xl backdrop-blur-xl">
+                          <div className="flex items-center gap-2">
                             <Image
-                              src={getLayerImage(layer.layer)}
-                              alt={layer.layer}
+                              src="/Avatar.png"
+                              alt="avatar"
                               width={24}
                               height={24}
                               className="rounded-full"
                             />
-                            <div className="flex items-center gap-2">
-                              {`${capitalizeFirstLetter(
-                                layer.layer
-                              )} ${capitalizeFirstLetter(layer.network)}`}
-                            </div>
+                            <span className="text-neutral50">
+                              {truncateAddress(currentWallet.address)}
+                            </span>
                           </div>
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-
-                {isAuthenticated ? (
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    onClick={() => setWalletModalOpen(true)}
-                    className="min-w-[170px]"
-                  >
-                    Connect Wallet
-                  </Button>
-                ) : authState.authenticated && currentWallet ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="flex flex-row items-center gap-2  w-auto bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
-                      <Image
-                        src="/Avatar.png"
-                        alt="avatar"
-                        width={24}
-                        height={24}
-                        className="rounded-full"
-                      />
-                      <span className="text-neutral50">
-                        {truncateAddress(currentWallet.address)}
-                      </span>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="flex flex-col gap-2 w-[210px] absolute p-2 border border-white4 bg-gray50 rounded-2xl backdrop-blur-xl">
-                      <Link href="/my-assets">
-                        <DropdownMenuItem className="flex flex-row justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                          <div className="flex flex-row items-center gap-2">
-                            <Wallet2 size={24} color="#D7D8D8" />
-                            My Assets
-                          </div>
-                          <ArrowRight2 size={16} color="#D7D8D8" />
-                        </DropdownMenuItem>
-                      </Link>
-                      <Link href="/orders">
-                        <DropdownMenuItem className="flex flex-row items-center justify-between text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                          <div className="flex flex-row items-center gap-2">
-                            <I3Dcube size={24} color="#D7D8D8" />
-                            <p>Inscribe Orders</p>
-                          </div>
-                          <ArrowRight2 size={16} color="#D7D8D8" />
-                        </DropdownMenuItem>
-                      </Link>
-                      <DropdownMenuItem
-                        className="text-neutral50 text-md font-medium flex flex-row gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
-                        onClick={handleLogOut}
-                      >
-                        <Logout size={24} color="#D7D8D8" />
-                        Log Out
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : null}
+                          <div className="text-neutral50">▼</div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="flex flex-col gap-2 w-full p-2 border border-white4 bg-gray50 rounded-2xl backdrop-blur-xl">
+                          <Link href="/my-assets">
+                            <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                              <div className="flex items-center gap-2">
+                                <Wallet2 size={24} color="#D7D8D8" />
+                                My Assets
+                              </div>
+                              <ArrowRight2 size={16} color="#D7D8D8" />
+                            </DropdownMenuItem>
+                          </Link>
+                          {/* <Link href="/orders">
+                            <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                              <div className="flex items-center gap-2">
+                                <I3Dcube size={24} color="#D7D8D8" />
+                                <p>Inscribe Orders</p>
+                              </div>
+                              <ArrowRight2 size={16} color="#D7D8D8" />
+                            </DropdownMenuItem>
+                          </Link> */}
+                          <DropdownMenuItem
+                            className="text-neutral50 text-md font-medium flex gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
+                            onClick={handleLogout}
+                          >
+                            <Logout size={24} color="#D7D8D8" />
+                            Log Out
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : null}
+                  </motion.div>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Wallet connection modal */}
       <WalletConnectionModal
         open={walletModalOpen}
         onClose={() => setWalletModalOpen(false)}
         activeTab={selectedLayer}
         onTabChange={(tab) => {
           setSelectedLayer(tab);
-          const matchingLayer = layers.find((l: LayerType) => l.layer === tab);
+          localStorage.setItem("selectedLayer", tab);
+          const matchingLayer = layers.find((l) => l.layer === tab);
           if (matchingLayer) {
             setDefaultLayer(`${tab}-${matchingLayer.network}`);
             setSelectedLayerId(matchingLayer.id);

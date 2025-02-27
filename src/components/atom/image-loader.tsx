@@ -51,6 +51,7 @@ const ImageLoader: React.FC<ImageLoaderProps> = ({
         alt={alt}
         width={width}
         height={height}
+        draggable="false"
         className={`${className} ${
           isLoading ? "opacity-0" : "opacity-100"
         } transition-opacity duration-300`}

@@ -70,8 +70,10 @@ export function WalletConnectionModal({
     switch (layer) {
       case "BITCOIN":
         return "/wallets/Bitcoin.png";
-      case "FRACTAL":
-        return "/wallets/Fractal.png";
+      case "SEPOLIA":
+        return "/wallets/hemi.png";
+      case "HEMI":
+        return "/wallets/hemi.png";
       case "CITREA":
         return "/wallets/Citrea.png";
       case "NUBIT":
@@ -94,6 +96,7 @@ export function WalletConnectionModal({
 
     try {
       await connectWallet(layer.id, authState.authenticated);
+      onClose();
       toast.success(
         `${authState.authenticated ? "Linked" : "Connected to"} ${layer.name}`
       );
@@ -135,6 +138,7 @@ export function WalletConnectionModal({
               );
               if (selectedLayer) {
                 onLayerSelect(selectedLayer.layer, selectedLayer.network);
+                // No need to explicitly call updateAuthStateForLayer since setSelectedLayerId handles it
               }
             }}
             className="w-full"

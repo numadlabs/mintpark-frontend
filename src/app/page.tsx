@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/accordion";
 import { serviceData } from "@/lib/constants";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import Footer from "@/components/layout/footer";
 
 interface FormData {
   name: string;
@@ -146,10 +147,12 @@ export default function Home() {
 
   return (
     <>
+      {/* <div className="flex flex-col justify-center items-center"> */}
+
       <Layout>
-        <Header />
-        <section className="w-full flex flex-col gap-[56px] md:gap-[100px] 2xl:gap-[200px] mt-12 md:mt-[100px]">
+        <section className="w-full  flex flex-col gap-[56px] md:gap-[120px] mt-12 md:mt-[100px]">
           {/* Hero Section */}
+
           <div className="w-full flex flex-col items-center gap-8 md:gap-12">
             <div className="flex flex-col gap-6 md:gap-8 items-center">
               <div className="font-normal text-blueTitle md:text-headText artpast text-white text-center">
@@ -158,6 +161,7 @@ export default function Home() {
                   Art{" "}
                 </span>
               </div>
+
               <div className="text-neutral100 font-medium text-center text-sm md:text-lg px-4">
                 Turn your creativity into collectibles. Join the revolution of
                 digital ownership {!isMobile && <br />} and showcase your unique
@@ -186,42 +190,51 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div className="relative w-full mx-auto">
-            <div className="relative z-10 w-full">
-              {/* Blurred background banner */}
-              {/* <div className="w-full relative h-60 md:h-[360px] 3xl:h-[540px] blur-[35px] sm:blur-[45px] md:blur-[55px] rounded-[32px] opacity-35 scale-110 overflow-hidden">
-              <Image
-                src="/homePage/homeBanner.png"
-                alt="banner"
-                width={0}
-                height={0}
-                sizes="100%"
-                className="object-cover rounded-[32px] w-full h-full"
-              />
-            </div> */}
 
-              {/* Main banner image */}
-              <div className="inset-0 z-50 w-full h-full">
-                <Image
-                  src="/homePage/homeBanner.png"
-                  alt="banner"
-                  width={0}
-                  height={0}
-                  priority
-                  sizes="100%"
-                  className="object-cover rounded-[32px] w-full h-full"
-                />
+          <div className="relative w-full mx-auto ">
+            <div className="relative z-10 w-full">
+              <div className="relative w-full h-full max-w-[1920px] px-0">
+                <div className="absolute z-10 blur-[80px] inset-y-0 overflow-hidden    ">
+                  <Image
+                    src="/homePage/homeBanner.png"
+                    alt="blurred background"
+                    width={0}
+                    draggable="false"
+                    height={0}
+                    priority
+                    sizes="100%"
+                    className="object-cover w-full h-full scale-110 "
+                  />
+                </div>
+
+                <div className="relative z-20 w-full h-full">
+                  {" "}
+                  {/* Original sharp image on top */}
+                  <div className="relative w-full h-full">
+                    <Image
+                      src="/homePage/homeBanner.png"
+                      alt="banner"
+                      width={0}
+                      draggable="false"
+                      height={0}
+                      priority
+                      sizes="100%"
+                      className="object-cover rounded-3xl w-full h-full"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Services Section */}
-          <div className="w-full flex flex-col gap-16 justify-center items-center">
+
+          <div className="flex flex-col gap-16 justify-center items-center">
             <h1 className="font-bold text-center text-neutral00 text-3xl md:text-5xl">
               Our service
             </h1>
             <ScrollArea className="w-full max-w-[1216px]">
-              <div className="flex flex-row lg:grid lg:grid-cols-3 items-center gap-4 sm:gap-8">
+              <div className=" grid-cols-1 grid lg:grid-cols-3 items-center gap-4 sm:gap-8">
                 {serviceData.map((item) => (
                   <div
                     key={item.id}
@@ -236,6 +249,7 @@ export default function Home() {
                       src={`/homePage/${item.image}.png`}
                       alt={item.title}
                       width={384}
+                      draggable="false"
                       height={228}
                       className="object-cover w-full"
                     />
@@ -255,8 +269,8 @@ export default function Home() {
           </div>
 
           {/* Contact Forms Section */}
-          <div className="w-full items-center justify-center flex">
-            <div className="bg-[url('/homePage/contactBg.png')] items-center max-w-[1216px] w-full bg-cover min-h-[480px] p-6 pt-12 pb-8 md:px-12 md:pb-12 flex flex-col md:flex-row justify-between rounded-[32px] border border-white4 border-b-0 gap-8">
+          <div className="w-full items-center justify-center flex ">
+            <div className="bg-[url('/homePage/contactBg.png')] bg-black/80 items-center max-w-[1216px] w-full bg-cover min-h-[480px] p-6 pt-12 pb-8 md:px-12 md:pb-12 flex flex-col md:flex-row justify-between rounded-[32px] border border-white4 border-b-0 gap-8">
               <div className="flex flex-col gap-2 sm:gap-6 w-full md:w-auto">
                 <span className="font-bold text-xl sm:text-3xl md:text-5xl flex flex-row sm:flex-col gap-1.5">
                   Let&apos;s Build <br />
@@ -428,20 +442,22 @@ export default function Home() {
           {/* About Section */}
           <div className="flex flex-col items-center w-full gap-8 md:gap-16 mb-12">
             <div className="relative w-full max-w-[320px] aspect-square">
-              <div className="relative z-10 w-full h-full blur-[45px] md:blur-[90px] opacity-35">
+              <div className="absolute z-10 w-full h-full blur-[45px] md:blur-[90px] opacity-35">
                 <Image
                   src="/homePage/citreaMeme.png"
                   alt="citrea"
+                  draggable="false"
                   width={320}
                   height={320}
-                  className="rounded-[32px] object-cover"
+                  className="rounded-full object-cover "
                 />
               </div>
-              <div className="absolute inset-0 z-50">
+              <div className="absolute inset-0 z-10">
                 <Image
                   src="/homePage/citreaMeme.png"
                   alt="citrea"
                   width={320}
+                  draggable="false"
                   height={320}
                   className="rounded-[32px] object-cover"
                 />

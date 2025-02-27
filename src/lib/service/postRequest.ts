@@ -11,6 +11,7 @@ import {
   InscriptionCollectible,
   LaunchParams,
   CreateLaunchParams,
+  AddPhaseRequest,
 } from "../types";
 import { collectibleFormData } from "./formHelper";
 
@@ -880,6 +881,41 @@ export async function whitelistAddresses({
   } catch (error) {
     console.log("Error:", error);
   }
+}
+
+// Frontend: service/postRequest.ts
+export async function addPhase({
+  collectionId,
+  phaseType,
+  price,
+  startTime,
+  endTime,
+  maxSupply,
+  maxPerWallet,
+  maxMintPerPhase,
+  merkleRoot,
+  layerId,
+  userLayerId,
+}: AddPhaseRequest) {
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/collections/phase`,
+    data: {
+      collectionId,
+      phaseType,
+      price,
+      startTime,
+      endTime,
+      maxSupply,
+      maxPerWallet,
+      maxMintPerPhase,
+      merkleRoot,
+      layerId,
+      userLayerId,
+    },
+  };
+  const response = await axiosClient.request(config);
+  return response.data;
 }
 
 export async function ifpsLaunchItem({

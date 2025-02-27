@@ -18,7 +18,7 @@ const ProfileDetail = () => {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="Assets">
-          <Assets detail />
+          <Assets detail={true} />
         </TabsContent>
         <TabsContent value="Activity">
           <Activity />

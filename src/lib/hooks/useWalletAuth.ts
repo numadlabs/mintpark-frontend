@@ -23,6 +23,7 @@ export interface Wallet {
 export interface ConnectedWallet {
   address: string;
   layerId: string;
+  layer: string;
   layerType: string;
   network: string;
 }
@@ -99,6 +100,7 @@ export interface WalletStore {
   layers: Layer[];
   selectedLayerId: string | null;
   setSelectedLayerId: (id: string) => void;
+  updateAuthStateForLayer: (layerId: string) => void;
   connectWallet: (layerId: string, isLinking?: boolean) => Promise<void>;
   disconnectWallet: (layerId: string) => Promise<void>;
   isWalletConnected: (layerId: string) => boolean;
@@ -123,16 +125,49 @@ const useWalletStore = create<WalletStore>()(
 
       setSelectedLayerId: (id: string) => {
         set({ selectedLayerId: id });
+        // Update the authState when the selected layer changes
+        get().updateAuthStateForLayer(id);
+      },
+
+      // New function to update authState based on the selected layer
+      updateAuthStateForLayer: (layerId: string) => {
+        const { connectedWallets, authState } = get();
+
+        // If the wallet for this layer is connected, update the authState to use this layer
+        const wallet = connectedWallets.find((w) => w.layerId === layerId);
+
+        if (wallet) {
+          set((state) => ({
+            authState: {
+              ...state.authState,
+              layerId: layerId,
+              // Maintain authentication state and other properties
+              authenticated: state.authState.authenticated,
+              userId: state.authState.userId,
+              tokens: state.authState.tokens,
+              // Update userLayerId for the current connected layer if needed
+              // (This can be layer-specific in some architectures)
+              userLayerId: state.authState.userLayerId,
+            },
+          }));
+        } else {
+          // If the selected layer is not connected, we don't change authentication status
+          // but we do update the layerId to reflect the selected layer
+          set((state) => ({
+            authState: {
+              ...state.authState,
+              layerId: layerId,
+            },
+          }));
+        }
       },
 
       connectWallet: async (layerId: string, isLinking: boolean = false) => {
         const { layers, connectedWallets, authState } = get();
         const layer = layers.find((l) => l.id === layerId);
-        console.log("🚀 ~ connectWallet: ~ layer:", layer);
         if (!layer) throw new Error("Layer not found");
 
         const walletConfig = WALLET_CONFIGS[layer.layer];
-        if (!walletConfig) throw new Error("Wallet configuration not found");
 
         set((state) => ({ authState: { ...state.authState, loading: true } }));
 
@@ -147,57 +182,120 @@ const useWalletStore = create<WalletStore>()(
             const chainId = await window.ethereum.request({
               method: "eth_chainId",
             });
+
             const currentChainIdDecimal = parseInt(chainId, 16);
-            console.log(
-              "🚀 ~ connectWallet: ~ currentChainIdDecimal:",
-              currentChainIdDecimal
-            );
-            const targetChainIdDecimal = 5115;
-            console.log(
-              "🚀 ~ connectWallet: ~ targetChainIdDecimal:",
-              targetChainIdDecimal
-            );
+
+            const targetChainIdDecimal = parseInt(layer.chainId);
+
             const targetChainIdHex = `0x${targetChainIdDecimal.toString(16)}`;
 
+            console.log(
+              "🚀 ~ connectWallet: ~ currentChainIdDecimal:",
+              currentChainIdDecimal,
+            );
+            console.log("🚀 ~ connectWallet: ~  layer.chainId:", layer.chainId);
+
+            // if (currentChainIdDecimal.toString() !== layer.chainId) {
+            //   try {
+            //     await window.ethereum.request({
+            //       method: "wallet_addEthereumChain",
+            //       params: [
+            //         {
+            //           chainId: targetChainIdHex,
+            //           chainName: layer.name,
+            //           rpcUrls: walletConfig.networks.TESTNET.rpcUrls,
+            //           // rpcUrls: [layer.rpcUrl],
+            //           nativeCurrency: {
+            //             name: "cBTC",
+            //             symbol: "cBTC",
+            //             decimals: 18,
+            //           },
+            //         },
+            //       ],
+            //     });
+            //   } catch (addError: any) {
+            //     console.log("add error", addError);
+            //     if (addError.code === 4902) {
+            //       try {
+            //         await window.ethereum.request({
+            //           method: "wallet_switchEthereumChain",
+            //           params: [{ chainId: targetChainIdHex }],
+            //         });
+            //       } catch (switchError) {
+            //         throw new Error(
+            //           `Failed to switch network (Chain ID: ${layer.chainId})`,
+            //         );
+            //       }
+            //     } else {
+            //       throw new Error(
+            //         `Failed to add network (Chain ID: ${layer.chainId})`,
+            //       );
+            //     }
+            //   }
+            // }
+
+            //new implement
             if (currentChainIdDecimal.toString() !== layer.chainId) {
               try {
+                // Try to switch to the network first before trying to add it
                 await window.ethereum.request({
-                  method: "wallet_addEthereumChain",
-                  params: [
-                    {
-                      chainId: targetChainIdHex,
-                      chainName: layer.name,
-                      rpcUrls: ["https://rpc.testnet.citrea.xyz"],
-                      // rpcUrls: [layer.rpcUrl],
-                      nativeCurrency: {
-                        name: "cBTC",
-                        symbol: "cBTC",
-                        decimals: 18,
-                      },
-                    },
-                  ],
+                  method: "wallet_switchEthereumChain",
+                  params: [{ chainId: targetChainIdHex }],
                 });
-              } catch (addError: any) {
-                console.log("add error", addError);
-                if (addError.code === 4902) {
+              } catch (switchError: any) {
+                // This error code indicates the chain hasn't been added to MetaMask
+                if (switchError.code === 4902) {
                   try {
+                    // Get the network config from our WALLET_CONFIGS
+                    const networkConfig = walletConfig.networks.TESTNET;
+
                     await window.ethereum.request({
-                      method: "wallet_switchEthereumChain",
-                      params: [{ chainId: targetChainIdHex }],
+                      method: "wallet_addEthereumChain",
+                      params: [
+                        {
+                          chainId: targetChainIdHex,
+                          chainName: layer.name,
+                          rpcUrls: networkConfig.rpcUrls,
+                          blockExplorerUrls: networkConfig.blockExplorerUrls,
+                          nativeCurrency: networkConfig.nativeCurrency || {
+                            name: layer.name,
+                            symbol: layer.name.toUpperCase().substring(0, 5),
+                            decimals: 18,
+                          },
+                        },
+                      ],
                     });
-                  } catch (switchError) {
+                  } catch (addError: any) {
+                    console.log("add error", addError);
                     throw new Error(
-                      `Failed to switch network (Chain ID: ${layer.chainId})`
+                      `Failed to add network (Chain ID: ${layer.chainId}): ${addError.message}`,
                     );
                   }
                 } else {
                   throw new Error(
-                    `Failed to add network (Chain ID: ${layer.chainId})`
+                    `Failed to switch network (Chain ID: ${layer.chainId}): ${switchError.message}`,
                   );
                 }
               }
             }
 
+            // address = await window.ethereum
+            //   .request({
+            //     method: "eth_requestAccounts",
+            //   })
+            //   .then((accounts: string[]) => accounts[0]);
+
+            // const msgResponse = await generateMessageHandler({ address });
+            // console.log("🚀 ~ connectWallet: ~ msgResponse:", msgResponse);
+            // signedMessage = await window.ethereum.request({
+            //   method: "personal_sign",
+            //   params: [msgResponse.data.message, address],
+            // });
+            // console.log("🚀 ~ connectWallet: ~ signedMessage:", signedMessage);
+
+            // new implemment
+
+            // new implemment
             address = await window.ethereum
               .request({
                 method: "eth_requestAccounts",
@@ -205,10 +303,13 @@ const useWalletStore = create<WalletStore>()(
               .then((accounts: string[]) => accounts[0]);
 
             const msgResponse = await generateMessageHandler({ address });
+            console.log("🚀 ~ connectWallet: ~ msgResponse:", msgResponse);
             signedMessage = await window.ethereum.request({
               method: "personal_sign",
               params: [msgResponse.data.message, address],
             });
+            console.log("🚀 ~ connectWallet: ~ signedMessage:", signedMessage);
+            //new implemment
 
             let response;
             if (isLinking && authState.authenticated) {
@@ -249,22 +350,16 @@ const useWalletStore = create<WalletStore>()(
             const newWallet: ConnectedWallet = {
               address,
               layerId,
-              layerType: layer.layer,
+              layerType: layer.layerType,
+              layer: layer.layer,
               network: layer.network,
             };
-
-            const updatedWallets = [...get().connectedWallets, newWallet];
-            const hasOnlyBitcoin = updatedWallets.every((w) => {
-              const layerInfo = get().layers.find((l) => l.id === w.layerId);
-              return layerInfo?.layer === "BITCOIN";
-            });
-
             set((state) => ({
               connectedWallets: [...state.connectedWallets, newWallet],
               authState: {
                 ...state.authState,
                 authenticated: true,
-                userLayerId: hasOnlyBitcoin ? null : response.data.userLayer.id,
+                userLayerId: response.data.userLayer.id,
                 userId: response.data.user.id,
                 layerId,
                 tokens: response.data.tokens,
@@ -286,7 +381,7 @@ const useWalletStore = create<WalletStore>()(
 
             // Sign message with Unisat
             signedMessage = await window.unisat.signMessage(
-              msgResponse.data.message
+              msgResponse.data.message,
             );
             pubkey = await window.unisat.getPublicKey();
 
@@ -331,6 +426,7 @@ const useWalletStore = create<WalletStore>()(
               address,
               layerId,
               layerType: layer.layer,
+              layer: layer.layer,
               network: layer.network,
             };
 
@@ -382,6 +478,8 @@ const useWalletStore = create<WalletStore>()(
             signedMessage,
           });
 
+          console.log("🚀 ~ proceedWithLinking: ~ response:", response);
+
           if (!response.success) {
             throw new Error("Failed to link wallet to account");
           }
@@ -394,7 +492,8 @@ const useWalletStore = create<WalletStore>()(
           const newWallet: ConnectedWallet = {
             address,
             layerId,
-            layerType: layer.layer,
+            layerType: layer.layerType,
+            layer: layer.layer,
             network: layer.network,
           };
 
@@ -402,6 +501,11 @@ const useWalletStore = create<WalletStore>()(
             connectedWallets: [...state.connectedWallets, newWallet],
             authState: {
               ...state.authState,
+              authenticated: true,
+              userLayerId: response.data.userLayer.id,
+              userId: response.data.user.id,
+              layerId,
+              tokens: response.data.tokens,
               loading: false,
             },
           }));
@@ -424,7 +528,7 @@ const useWalletStore = create<WalletStore>()(
       disconnectWallet: async (layerId: string) => {
         set((state) => ({
           connectedWallets: state.connectedWallets.filter(
-            (w) => w.layerId !== layerId
+            (w) => w.layerId !== layerId,
           ),
         }));
 
@@ -472,8 +576,8 @@ const useWalletStore = create<WalletStore>()(
         authState: state.authState,
         selectedLayerId: state.selectedLayerId,
       }),
-    }
-  )
+    },
+  ),
 );
 
 export default useWalletStore;

@@ -27,6 +27,7 @@ const Banner: React.FC<bannerProps> = ({
           src={image}
           alt="background"
           width={0}
+          draggable="false"
           height={160}
           sizes="100%"
           className="w-full h-full object-cover rounded-3xl"
