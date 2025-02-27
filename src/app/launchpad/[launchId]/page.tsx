@@ -72,7 +72,6 @@ const Page = () => {
     setShowPendingModal(false);
   };
 
-
   const { mutateAsync: confirmOrderMutation } = useMutation({
     mutationFn: confirmOrder,
     onSuccess: () => {
@@ -107,21 +106,21 @@ const Page = () => {
       setShowErrorModal(true); // Show error modal instead of toast
       return;
     }
-  
+
     if (!currentLayer || !authState.userLayerId) {
       setError("Layer information not available");
       setShowErrorModal(true); // Show error modal instead of toast
       return;
     }
-  
+
     setIsLoading(true);
-    setShowPendingModal(true)
+    setShowPendingModal(true);
     setError(null);
-  
+
     try {
       let txid;
       let launchItemId;
-  
+
       const response = await createBuyLaunchMutation({
         id: collectibles.launchId,
         userLayerId: authState.userLayerId,
@@ -130,10 +129,10 @@ const Page = () => {
       if (!response?.success) {
         throw new Error(response?.error || "Failed to create order");
       }
-  
+
       const orderId = response.data.order.id;
       launchItemId = response.data.launchItem.id;
-  
+
       if (response.data.singleMintTxHex) {
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(
@@ -150,7 +149,7 @@ const Page = () => {
         );
         await new Promise((resolve) => setTimeout(resolve, 10000));
       }
-  
+
       if (orderId) {
         const orderRes = await confirmOrderMutation({
           orderId,
@@ -159,11 +158,11 @@ const Page = () => {
           userLayerId: authState.userLayerId,
           feeRate: 1,
         });
-  
+
         if (orderRes?.success) {
           // Show success modal instead of toast notification
           setShowSuccessModal(true);
-          
+
           // Still invalidate queries for data refresh
           queryClient.invalidateQueries({
             queryKey: ["collectiblesByCollections", id],
@@ -351,8 +350,17 @@ const Page = () => {
     window.open(validUrl, "_blank", "noopener,noreferrer");
   };
 
-  if (collectibles.layerId !== selectedLayerId) {
-    router.push("/launchpad");
+  if (
+    !isCollectiblesLoading &&
+    !isLayerLoading &&
+    collectibles?.layerId !== selectedLayerId
+  ) {
+    router.replace("/launchpad");
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Redirecting...
+      </div>
+    );
   }
 
   return (
@@ -543,11 +551,11 @@ const Page = () => {
               </section>
             </div>
           )}
-          <SuccessModal 
-  open={showSuccessModal} 
-  onClose={handleCloseSuccessModal}
-  handleCreate={handleViewCollection}
-/>
+          <SuccessModal
+            open={showSuccessModal}
+            onClose={handleCloseSuccessModal}
+            handleCreate={handleViewCollection}
+          />
 
           <ErrorModal
             isOpen={showErrorModal}

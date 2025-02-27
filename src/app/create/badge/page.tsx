@@ -35,6 +35,7 @@ import Toggle from "@/components/ui/toggle";
 import UploadJsonFile from "@/components/section/upload-json-file";
 import UploadJsonCard from "@/components/atom/cards/upload-json-card";
 import { ethers } from "ethers";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 
 const Badge = () => {
   const router = useRouter();
@@ -773,7 +774,7 @@ const Badge = () => {
                     </div>
                     <div className="absolute right-4">
                       <p className="text-md text-neutral200 font-medium">
-                        cBTC
+                        {getCurrencySymbol(currentLayer.layer)}
                       </p>
                     </div>
                   </div>

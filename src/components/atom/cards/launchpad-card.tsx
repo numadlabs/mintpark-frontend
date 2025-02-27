@@ -8,6 +8,10 @@ import Link from "next/link";
 import { Unlimited } from "iconsax-react";
 import { useLaunchState } from "@/lib/hooks/useLaunchState";
 import { LAUNCH_STATE } from "@/lib/hooks/useLaunchState";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import { useQuery } from "@tanstack/react-query";
+import { getLayerById } from "@/lib/service/queryHelper";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 interface LaunchProps {
   data: LaunchDataType;
@@ -15,6 +19,12 @@ interface LaunchProps {
 }
 
 const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
+  const { authState } = useAuth();
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
+  });
   const status = useLaunchState(data);
   const isActive =
     status === LAUNCH_STATE.LIVE || status === LAUNCH_STATE.INDEFINITE;
@@ -79,7 +89,9 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
                 ? data.wlMintPrice
                 : data.poMintPrice
             )}
-            <span className="ml-1">cBTC</span>
+            <span className="ml-1">
+              {getCurrencySymbol(currentLayer.layer)}
+            </span>
           </p>
         </div>
         <div className="flex h-2 mt-1 border border-white8 rounded-lg border-1">

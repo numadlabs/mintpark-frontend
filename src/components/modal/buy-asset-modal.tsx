@@ -10,7 +10,7 @@ import { Button } from "../ui/button";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { formatPrice, getSigner } from "@/lib/utils";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   generateBuyHex,
   buyListedCollectible,
@@ -18,6 +18,8 @@ import {
 import { toast } from "sonner";
 import { Check } from "lucide-react";
 import { useAuth } from "../provider/auth-context-provider";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import { getLayerById } from "@/lib/service/queryHelper";
 
 interface ModalProps {
   open: boolean;
@@ -40,7 +42,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   uniqueIdx,
   price,
   listId,
-  isOwnListing
+  isOwnListing,
 }) => {
   const queryClient = useQueryClient();
   const params = useParams();
@@ -50,6 +52,12 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   const router = useRouter();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
+  });
+
   const { mutateAsync: generateBuyHexMutation } = useMutation({
     mutationFn: generateBuyHex,
   });
@@ -209,7 +217,8 @@ const BuyAssetModal: React.FC<ModalProps> = ({
                       List Price
                     </p>
                     <p className="text-lg text-neutral50 font-bold">
-                      {formatPrice(price)} cBTC
+                      {formatPrice(price)}{" "}
+                      {getCurrencySymbol(currentLayer.layer)}
                     </p>
                   </div>
                 </div>

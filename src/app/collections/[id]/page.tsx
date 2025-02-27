@@ -22,12 +22,18 @@ import DiscordIcon from "@/components/icon/hoverIcon";
 import ThreadIcon from "@/components/icon/thread";
 import CollectibleCard from "@/components/atom/cards/collectible-card";
 import CollectibleCardList from "@/components/atom/cards/collectible-card-list";
-import { getById, getListedCollectionById } from "@/lib/service/queryHelper";
+import {
+  getById,
+  getLayerById,
+  getListedCollectionById,
+} from "@/lib/service/queryHelper";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
 import CollectionDetailSkeleton from "@/components/atom/skeleton/collection-detail-skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import { BITCOIN_IMAGE } from "@/lib/constants";
 import CollectionSideBar from "@/components/section/collections/sideBar";
+import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -42,6 +48,7 @@ const CollectionDetailPageWrapper = () => {
 };
 
 const CollectionDetailPage = () => {
+  const { authState } = useAuth();
   const params = useParams();
   const id = params?.id as string;
   const [active, setActive] = useState(false);
@@ -97,6 +104,12 @@ const CollectionDetailPage = () => {
       return lastPage?.hasMore ? allPages.length + 1 : undefined;
     },
     enabled: Boolean(id),
+  });
+
+  const { data: currentLayer = [] } = useQuery({
+    queryKey: ["currentLayerData", authState.layerId],
+    queryFn: () => getLayerById(authState.layerId as string),
+    enabled: !!authState.layerId,
   });
 
   const { data: collection, isLoading } = useQuery({
@@ -232,6 +245,7 @@ const CollectionDetailPage = () => {
       </div>
     );
   }
+
   return (
     <>
       <Tabs defaultValue="AllCard" className="mt-[43.5px] mb-10">
@@ -321,7 +335,7 @@ const CollectionDetailPage = () => {
                               ? formatPrice(collection.floor)
                               : "-"}
                           </span>{" "}
-                          cBTC
+                          {getCurrencySymbol(currentLayer.layer)}
                         </p>
                       </div>
                     </div>
@@ -345,7 +359,7 @@ const CollectionDetailPage = () => {
                               ? formatPrice(collection?.volume)
                               : "-"}
                           </span>{" "}
-                          cBTC
+                          {getCurrencySymbol(currentLayer.layer)}
                         </p>
                       </div>
                     </div>
@@ -402,7 +416,7 @@ const CollectionDetailPage = () => {
                           ? formatPrice(collection.floor)
                           : "-"}
                       </span>{" "}
-                      cBTC
+                      {getCurrencySymbol(currentLayer.layer)}
                     </p>
                   </div>
                 </div>
@@ -426,7 +440,7 @@ const CollectionDetailPage = () => {
                           ? formatPrice(collection?.volume)
                           : "-"}
                       </span>{" "}
-                      cBTC
+                      {getCurrencySymbol(currentLayer.layer)}
                     </p>
                   </div>
                 </div>
@@ -586,9 +600,10 @@ const CollectionDetailPage = () => {
                     ))} */}
                     {filteredCollectibles.map((item) => (
                       <div key={item.id}>
-                        <CollectibleCard data={item}
-                        //  isOwnListing={true} 
-                         />
+                        <CollectibleCard
+                          data={item}
+                          //  isOwnListing={true}
+                        />
                       </div>
                     ))}
                   </div>
