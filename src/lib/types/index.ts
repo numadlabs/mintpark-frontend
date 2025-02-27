@@ -21,8 +21,6 @@ export type LayerType = {
   network: string;
 };
 
-export type ExtendedLayerType = LayerType & { comingSoon?: boolean };
-
 export type CollectionDataType = {
   id: string;
   creatorName: string;
@@ -85,8 +83,8 @@ export type LaunchDataType = {
   isWhitelisted: boolean;
   mintedAmount: number;
   createdAt: string;
-  isBadge:boolean;
-  badgeSupply:number;
+  isBadge: boolean;
+  badgeSupply: number;
 };
 
 export type ActivityType = {
@@ -182,5 +180,5 @@ export interface AddPhaseRequest {
   maxMintPerPhase: number;
   merkleRoot?: string;
   layerId: string;
-  userLayerId:string | null;
+  userLayerId: string | null;
 }
