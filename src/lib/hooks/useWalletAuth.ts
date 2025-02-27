@@ -23,6 +23,7 @@ export interface Wallet {
 export interface ConnectedWallet {
   address: string;
   layerId: string;
+  layer: string;
   layerType: string;
   network: string;
 }
@@ -190,7 +191,7 @@ const useWalletStore = create<WalletStore>()(
 
             console.log(
               "🚀 ~ connectWallet: ~ currentChainIdDecimal:",
-              currentChainIdDecimal
+              currentChainIdDecimal,
             );
             console.log("🚀 ~ connectWallet: ~  layer.chainId:", layer.chainId);
 
@@ -267,12 +268,12 @@ const useWalletStore = create<WalletStore>()(
                   } catch (addError: any) {
                     console.log("add error", addError);
                     throw new Error(
-                      `Failed to add network (Chain ID: ${layer.chainId}): ${addError.message}`
+                      `Failed to add network (Chain ID: ${layer.chainId}): ${addError.message}`,
                     );
                   }
                 } else {
                   throw new Error(
-                    `Failed to switch network (Chain ID: ${layer.chainId}): ${switchError.message}`
+                    `Failed to switch network (Chain ID: ${layer.chainId}): ${switchError.message}`,
                   );
                 }
               }
@@ -350,6 +351,7 @@ const useWalletStore = create<WalletStore>()(
               address,
               layerId,
               layerType: layer.layerType,
+              layer: layer.layer,
               network: layer.network,
             };
             set((state) => ({
@@ -379,7 +381,7 @@ const useWalletStore = create<WalletStore>()(
 
             // Sign message with Unisat
             signedMessage = await window.unisat.signMessage(
-              msgResponse.data.message
+              msgResponse.data.message,
             );
             pubkey = await window.unisat.getPublicKey();
 
@@ -424,6 +426,7 @@ const useWalletStore = create<WalletStore>()(
               address,
               layerId,
               layerType: layer.layer,
+              layer: layer.layer,
               network: layer.network,
             };
 
@@ -475,6 +478,8 @@ const useWalletStore = create<WalletStore>()(
             signedMessage,
           });
 
+          console.log("🚀 ~ proceedWithLinking: ~ response:", response);
+
           if (!response.success) {
             throw new Error("Failed to link wallet to account");
           }
@@ -487,7 +492,8 @@ const useWalletStore = create<WalletStore>()(
           const newWallet: ConnectedWallet = {
             address,
             layerId,
-            layerType: layer.layer,
+            layerType: layer.layerType,
+            layer: layer.layer,
             network: layer.network,
           };
 
@@ -495,6 +501,11 @@ const useWalletStore = create<WalletStore>()(
             connectedWallets: [...state.connectedWallets, newWallet],
             authState: {
               ...state.authState,
+              authenticated: true,
+              userLayerId: response.data.userLayer.id,
+              userId: response.data.user.id,
+              layerId,
+              tokens: response.data.tokens,
               loading: false,
             },
           }));
@@ -517,7 +528,7 @@ const useWalletStore = create<WalletStore>()(
       disconnectWallet: async (layerId: string) => {
         set((state) => ({
           connectedWallets: state.connectedWallets.filter(
-            (w) => w.layerId !== layerId
+            (w) => w.layerId !== layerId,
           ),
         }));
 
@@ -565,8 +576,8 @@ const useWalletStore = create<WalletStore>()(
         authState: state.authState,
         selectedLayerId: state.selectedLayerId,
       }),
-    }
-  )
+    },
+  ),
 );
 
 export default useWalletStore;

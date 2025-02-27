@@ -37,7 +37,7 @@ export async function getOrderById(id: string) {
 
 export async function fetchLaunchs(
   layerId: string,
-  interval: string
+  interval: string,
 ): Promise<Launchschema[]> {
   return axiosClient
     .get(`/api/v1/launchpad?layerId=${layerId}&interval=${interval}`)
@@ -96,18 +96,18 @@ export async function getListedCollections(
   layerId: string,
   interval: string,
   orderBy: string,
-  orderDirection: string
+  orderDirection: string,
 ): Promise<Collection[]> {
   return axiosClient
     .get<CollectionApiResponse>(
-      `/api/v1/collections/listed?layerId=${layerId}&interval=${interval}&orderBy=${orderBy}&orderDirection=${orderDirection}`
+      `/api/v1/collections/listed?layerId=${layerId}&interval=${interval}&orderBy=${orderBy}&orderDirection=${orderDirection}`,
     )
     .then((response) => {
       if (response.data.success && response.data.data) {
         return response.data.data;
       } else {
         throw new Error(
-          response.data.message || "Failed to fetch listed collections"
+          response.data.message || "Failed to fetch listed collections",
         );
       }
     });
@@ -176,7 +176,7 @@ export async function getListedCollectionById(
   orderDirection: string,
   limit: number,
   offset: number,
-  traitValuesByType: Record<string, string[]> | string // Update type to handle both
+  traitValuesByType: Record<string, string[]> | string, // Update type to handle both
 ): Promise<CollectionDetail | null> {
   const params = new URLSearchParams({
     orderBy,
@@ -198,7 +198,7 @@ export async function getListedCollectionById(
 
   return axiosClient
     .get<CollectionDetailApiResponse>(
-      `/api/v1/collectibles/${collectionId}/collection/listable?${params.toString()}`
+      `/api/v1/collectibles/${collectionId}/collection/listable?${params.toString()}`,
     )
     .then((response) => {
       if (response.data.success) {
@@ -210,7 +210,7 @@ export async function getListedCollectionById(
 }
 
 export async function getCollectionById(
-  id: string
+  id: string,
 ): Promise<Collectible[] | null> {
   return axiosClient.get(`/api/v1/collectibles/${id}`).then((response) => {
     if (response.data.success) {
@@ -229,8 +229,9 @@ export async function getListableById(
   limit: number,
   offset: number,
   collectionIds: string[],
-  availability: string
+  availability: string,
 ): Promise<AssetSchema> {
+  console.log("query triggered date", new Date().getMilliseconds());
   // Create base query parameters
   const params = new URLSearchParams({
     orderDirection,
@@ -276,7 +277,7 @@ export async function checkOrderStatus(id: string, txid?: string) {
 }
 
 export async function getCollectibleActivity(
-  id: string
+  id: string,
 ): Promise<ActivitySchema[]> {
   return axiosClient
     .get(`/api/v1/collectibles/${id}/activity`)
