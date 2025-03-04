@@ -17,7 +17,7 @@ export const PendingModal = ({
 }) => {
   const steps = [
     { id: 1, title: "Initiating Transaction", description: "Starting the payment process" },
-    { id: 2, title: "Processing Payment", description: "Your payment is being processed" },
+    { id: 2, title: "Waiting for onchain confirmation.", description: "Your payment is being processed." },
     { id: 3, title: "Confirming Mint", description: "Finalizing your NFT mint" }
   ];
 
@@ -34,7 +34,7 @@ export const PendingModal = ({
           
           <div className="flex flex-col gap-3 justify-center items-center w-full px-8">
             <p className="text-brand text-2xl font-bold">Transaction in Progress</p>
-            <p className="text-base text-neutral100 text-center mb-2">
+            <p className="text-neutral100 text-start mb-2">
               Please wait while we process your transaction. This may take a few moments.
             </p>
             
@@ -46,10 +46,10 @@ export const PendingModal = ({
             {/* Steps */}
             <div className="w-full space-y-4">
               {steps.map((step) => (
-                <div key={step.id} className="flex items-start">
+                <div key={step.id} className="flex items-start  gap-3">
                   <div className={`flex-shrink-0 h-6 w-6 rounded-full mt-0.5 flex items-center justify-center ${
                     step.id < currentStep ? "bg-brand" : 
-                    step.id === currentStep ? "bg-brand/20 border-2 border-brand" : 
+                    step.id === currentStep ? "bg-brand/20" : 
                     "bg-neutral400"
                   }`}>
                     {step.id < currentStep ? (
@@ -60,23 +60,22 @@ export const PendingModal = ({
                       <div className="h-2 w-2 bg-brand rounded-full"></div>
                     ) : null}
                   </div>
-                  <div className="ml-3">
-                    <p className={`text-sm font-medium ${
+                  <div>
+                    <p className={`text-md2 font-medium ${
                       step.id <= currentStep ? "text-neutral50" : "text-neutral200"
                     }`}>
                       {step.title}
                     </p>
-                    <p className="text-xs text-neutral200">
+                    <p className="text-md text-neutral200">
                       {step.description}
                     </p>
                   </div>
                 </div>
               ))}
             </div>
-          </div>z
-          
-          <div className="px-8 py-3 bg-neutral800/10 rounded-lg mt-2 w-[90%] text-center">
-            <p className="text-sm text-neutral100">
+          </div>
+          <div className="px-8 bg-neutral800/10 rounded-lg mt-2 w-[90%] text-center">
+            <p className="text-md text-neutral100">
               Please keep this window open until the process completes
             </p>
           </div>
