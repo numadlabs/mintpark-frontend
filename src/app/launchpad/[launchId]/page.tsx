@@ -36,6 +36,7 @@ const Page = () => {
   const params = useParams();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const [steps, setSteps] = useState(0);
   const [showPendingModal, setShowPendingModal] = useState(false);
   const id = params.launchId as string;
   const [isLoading, setIsLoading] = useState(false);
@@ -120,7 +121,7 @@ const Page = () => {
     try {
       let txid;
       let launchItemId;
-
+      setSteps(1);
       const response = await createBuyLaunchMutation({
         id: collectibles.launchId,
         userLayerId: authState.userLayerId,
@@ -134,6 +135,7 @@ const Page = () => {
       launchItemId = response.data.launchItem.id;
 
       if (response.data.singleMintTxHex) {
+        setSteps(2)
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(
           response.data.singleMintTxHex
@@ -151,6 +153,7 @@ const Page = () => {
       }
 
       if (orderId) {
+        setSteps(3)
         const orderRes = await confirmOrderMutation({
           orderId,
           txid,
@@ -566,6 +569,7 @@ const Page = () => {
           <PendingModal
             isOpen={showPendingModal}
             onClose={handleClosePendingModal}
+            currentStep={steps} 
           />
         </DetailLayout>
       </div>
