@@ -463,7 +463,6 @@ const Inscription = () => {
   return (
     <Layout>
       <div className="flex flex-col w-full h-max bg-background pb-[148px]">
-        <Header />
         <div className="flex flex-col items-center gap-16 z-50 mt-12">
           <Banner
             title={"Create Collection"}

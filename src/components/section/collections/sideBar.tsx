@@ -18,7 +18,7 @@ import { CollectionDataType } from "@/lib/types";
 
 interface SidebarProps {
   id: string;
-  onAvailabilityChange?: (showOnlyListed: boolean) => void;
+  onAvailabilityChange?: (isListed: boolean) => void;
   onTraitsChange?: (selectedTraits: Record<string, string[]>) => void;
   collectionData: CollectionDataType | null;
 }
@@ -48,7 +48,8 @@ const CollectionSideBar: React.FC<SidebarProps> = ({
 
   const { data: collection } = useQuery({
     queryKey: ["collectionData", id, "recent", "desc"],
-    queryFn: () => getListedCollectionById(id, "recent", "desc", 10, 0, ""),
+    queryFn: () =>
+      getListedCollectionById(id, "recent", "desc", 10, 0, false, {}),
     enabled: !!id,
     retry: 1,
   });
@@ -90,21 +91,19 @@ const CollectionSideBar: React.FC<SidebarProps> = ({
     });
   };
 
+  const handleAccordionChange = (value: string) => {
+    setExpandedType(value === expandedType ? null : value);
+  };
+
   useEffect(() => {
     if (onTraitsChange) {
       onTraitsChange(selectedTraits);
     }
   }, [selectedTraits, onTraitsChange]);
 
-  const handleAccordionChange = (value: string) => {
-    setExpandedType(value === expandedType ? null : value);
-  };
-
   const handleAvailabilityChange = (value: string) => {
     setAvailability(value);
-    if (onAvailabilityChange) {
-      onAvailabilityChange(value === "listed");
-    }
+    onAvailabilityChange?.(value === "isListed");
   };
 
   return (
@@ -132,16 +131,15 @@ const CollectionSideBar: React.FC<SidebarProps> = ({
         </div>
         <div
           className={`flex items-center space-x-2 border  rounded-xl pl-4 pr-4 gap-3 w-[280px] ${
-            availability === "listed" ? "bg-neutral500" : "bg-transparent"
+            availability === "isListed" ? "bg-neutral500" : "bg-transparent"
           } border-transparent text-neutral50`}
         >
-          <RadioGroupItem value="listed" id="listed" />
+          <RadioGroupItem value="isListed" id="isListed" />
           <Label
-            htmlFor="listed"
+            htmlFor="isListed"
             className="w-full cursor-pointer font-bold text-lg2 pt-3 pb-3"
           >
-            For sale{" "}
-            <span>({collection?.listedCollectibleCount || 0})</span>
+            For sale <span>({collection?.listedCollectibleCount || 0})</span>
           </Label>
         </div>
       </RadioGroup>
