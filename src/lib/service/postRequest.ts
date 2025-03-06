@@ -865,13 +865,16 @@ export async function mintFeeOfCitrea({
 export async function whitelistAddresses({
   launchId,
   addresses,
+  phase,
 }: {
+  phase:string;
   launchId: string;
   addresses: string[];
 }) {
   try {
     return axiosClient
       .post(`/api/v1/launchpad/whitelist-addresses`, {
+        phase,
         launchId,
         addresses,
       })

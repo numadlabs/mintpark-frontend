@@ -136,6 +136,7 @@ export type LayerTypes = {
 export type LaunchType = {
   collectionId: string | null;
   isWhitelisted: boolean;
+  hasFCFS:boolean;
   poStartsAt: number;
   poEndsAt: number;
   poMintPrice: number;
@@ -144,6 +145,10 @@ export type LaunchType = {
   wlEndsAt?: number;
   wlMintPrice?: number;
   wlMaxMintPerWallet?: number;
+  fcfsStartsAt?:number;
+  fcfsSEndsAt?:number;
+  fcfsMintPrice?:number;
+  fcfsMaxMintPerWallet?:number;
   userLayerId: string | null;
 };
 
