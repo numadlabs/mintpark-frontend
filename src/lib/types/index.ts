@@ -72,10 +72,9 @@ export type LaunchDataType = {
   logoKey: string;
   layerId: string;
   launchId: string;
-
   hasFCFS: boolean;
-  fcfsStartsAt: string | null;
-  fcfsEndsAt: string | null;
+  fcfsStartsAt: number;
+  fcfsEndsAt: number;
   fcfsMintPrice: number;
   fcfsMaxMintPerWallet: number;
   wlStartsAt: number;

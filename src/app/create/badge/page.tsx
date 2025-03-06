@@ -186,6 +186,30 @@ const Badge = () => {
           // Assuming the JSON file contains an array of addresses
           if (Array.isArray(jsonData.addresses)) {
             setWhitelistAddress(jsonData.addresses);
+          } else {
+            toast.error("Invalid JSON format. Expected an array of addresses.");
+          }
+        } catch (error) {
+          console.error("Error parsing JSON:", error);
+          toast.error("Invalid JSON file");
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
+
+  const handleFcfsFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type === "application/json") {
+      setFcfsJsonFile(file);
+      // Read and parse the JSON file
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const jsonData = JSON.parse(e.target?.result as string);
+          // Assuming the JSON file contains an array of addresses
+          if (Array.isArray(jsonData.addresses)) {
             setfcfslistAddress(jsonData.addresses);
           } else {
             toast.error("Invalid JSON format. Expected an array of addresses.");
@@ -501,7 +525,7 @@ const Badge = () => {
             setStep={step}
             stepperData={stepperData}
           />
-          {step == 1 && (
+          {step == 0 && (
             <div className="w-[592px] items-start flex flex-col gap-16">
               <div className="flex flex-col w-full gap-6">
                 <p className="font-bold text-profileTitle text-neutral50">
@@ -562,7 +586,7 @@ const Badge = () => {
               </div>
             </div>
           )}
-          {step == 0 && (
+          {step == 1 && (
             <div className="w-[592px] items-start flex flex-col gap-16">
               <div className="flex flex-col w-full gap-4">
                 <div className="flex flex-row justify-between items-center">
@@ -765,12 +789,12 @@ const Badge = () => {
                       <UploadJsonCard
                         title={fcfsjsonFile.name}
                         size={formatFileSize(fcfsjsonFile.size)}
-                        onDelete={handleDeleteJson}
+                        onDelete={handleFcfsDeleteJson}
                       />
                     ) : (
                       <UploadJsonFile
                         text="Accepted file types: JSON"
-                        handleImageUpload={handleFileUpload}
+                        handleImageUpload={handleFcfsFileUpload}
                       />
                     )}
                     <div className="flex flex-col gap-4">
