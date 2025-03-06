@@ -395,35 +395,11 @@ const Badge = () => {
           const collectionId = launchResponse.data.launch.collectionId;
           const launchId = launchResponse.data.launch.id;
 
-          if (isSecondChecked) {
-            // Add FCFS
-            const FCFSresponse = await addPhaseMutation({
-              collectionId,
-              phaseType: 1, // PhaseType.FSFS
-              price: FCFSMintPrice.toString(),
-              startTime: fcfsStartsAt,
-              endTime: fcfsEndsAt,
-              maxSupply: FCFSMaxMintPerWallet * fcfslistAddress.length, // Heden address bgag tus bur hed mint hiih bolomjtoigoor urjeed maxSupply ni garj irne
-              maxPerWallet: FCFSMaxMintPerWallet,
-              maxMintPerPhase: FCFSMaxMintPerWallet, // Unlimited mints for public phase
-              layerId: selectedLayerId,
-              userLayerId: authState.userLayerId,
-            });
-
-            if (currentLayer.layerType === "EVM") {
-              const { signer } = await getSigner();
-              const signedTx = await signer?.sendTransaction(
-                FCFSresponse.data.unsignedTx
-              );
-              await signedTx?.wait();
-            }
-          }
-
           if (isChecked) {
             // Add white list
             const whresponse = await addPhaseMutation({
               collectionId,
-              phaseType: 1, // PhaseType.FSFS
+              phaseType: 0, // PhaseType.whiteList
               price: WLMintPrice.toString(),
               startTime: wlStartsAt,
               endTime: wlEndsAt,
@@ -442,6 +418,33 @@ const Badge = () => {
               await signedTx?.wait();
             }
           }
+
+          if (isSecondChecked) {
+            // Add FCFS
+            const FCFSresponse = await addPhaseMutation({
+              collectionId,
+              phaseType: 1, // PhaseType.FSFS
+              price: FCFSMintPrice.toString(),
+              startTime: fcfsStartsAt,
+              endTime: fcfsEndsAt,
+              maxSupply: FCFSMaxMintPerWallet * fcfslistAddress.length, // Heden address bgag tus bur hed mint hiih bolomjtoigoor urjeed maxSupply ni garj irne
+              maxPerWallet: FCFSMaxMintPerWallet,
+              maxMintPerPhase: FCFSMaxMintPerWallet, // Unlimited mints for public phase
+              layerId: selectedLayerId,
+              userLayerId: authState.userLayerId,
+              merkleRoot: "",
+            });
+
+            if (currentLayer.layerType === "EVM") {
+              const { signer } = await getSigner();
+              const signedTx = await signer?.sendTransaction(
+                FCFSresponse.data.unsignedTx
+              );
+              await signedTx?.wait();
+            }
+          }
+
+     
 
           // Add public phase
           const publicPhaseResponse = await addPhaseMutation({
@@ -915,7 +918,7 @@ const Badge = () => {
                     </div>
                     <div className="flex flex-col gap-3">
                       <p className="text-neutral50 text-lg font-medium">
-                        Whitelist mint price
+                        FCFS mint price
                       </p>
                       <div className="relative flex items-center">
                         <Input
