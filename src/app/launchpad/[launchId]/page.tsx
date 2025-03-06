@@ -42,10 +42,10 @@ const Page = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activePhase, setActivePhase] = useState<
-    "guaranteed" | "public" | null
+    "guaranteed" | "public" | "FCFS" | null
   >(null);
   const [selectedPhase, setSelectedPhase] = useState<
-    "guaranteed" | "public" | null
+    "guaranteed" | "public" | "FCFS" | null
   >(null);
 
   const { mutateAsync: createBuyLaunchMutation } = useMutation({
@@ -135,7 +135,7 @@ const Page = () => {
       launchItemId = response.data.launchItem.id;
 
       if (response.data.singleMintTxHex) {
-        setSteps(2)
+        setSteps(2);
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(
           response.data.singleMintTxHex
@@ -153,7 +153,7 @@ const Page = () => {
       }
 
       if (orderId) {
-        setSteps(3)
+        setSteps(3);
         const orderRes = await confirmOrderMutation({
           orderId,
           txid,
@@ -198,6 +198,16 @@ const Page = () => {
       }
     }
 
+    // Check FCFS list phase
+    if (collectibles.hasFCFS) {
+      const fcfsStart = moment.unix(collectibles.fcfsStartsAt);
+      const fcfsEnd = moment.unix(collectibles.fcfsEndsAt);
+
+      if (now.isBetween(fcfsStart, fcfsEnd)) {
+        return "FCFS";
+      }
+    }
+
     // Check Public phase
     const poStart = moment.unix(collectibles.poStartsAt);
     const poEnd = moment.unix(collectibles.poEndsAt);
@@ -220,12 +230,18 @@ const Page = () => {
         collectibles.wlStartsAt <= now &&
         (collectibles.wlEndsAt === 0 || collectibles.wlEndsAt > now);
 
+      // Check fcfs period
+      const isInFcfslistPeriod =
+        collectibles.hasFCFS &&
+        collectibles.fcfsStartsAt <= now &&
+        (collectibles.fcfsEndsAt === 0 || collectibles.fcfsEndsAt > now);
+
       // Check public period
       const isInPublicPeriod =
         collectibles.poStartsAt <= now &&
         (collectibles.poEndsAt === 0 || collectibles.poEndsAt > now);
 
-      return isInWhitelistPeriod || isInPublicPeriod;
+      return isInWhitelistPeriod || isInPublicPeriod || isInFcfslistPeriod;
     }
 
     // If supply is reached for non-infinite supply, minting is not active
@@ -242,12 +258,18 @@ const Page = () => {
       collectibles.wlStartsAt <= now &&
       (collectibles.wlEndsAt === 0 || collectibles.wlEndsAt > now);
 
+    // Check fcfs period
+    const isInFcfslistPeriod =
+      collectibles.hasFCFS &&
+      collectibles.fcfsStartsAt <= now &&
+      (collectibles.fcfsEndsAt === 0 || collectibles.fcfsEndsAt > now);
+
     // Check public period
     const isInPublicPeriod =
       collectibles.poStartsAt <= now &&
       (collectibles.poEndsAt === 0 || collectibles.poEndsAt > now);
 
-    return isInWhitelistPeriod || isInPublicPeriod;
+    return isInWhitelistPeriod || isInPublicPeriod || isInFcfslistPeriod;
   };
 
   const shouldShowGoToCollection = () => {
@@ -256,7 +278,9 @@ const Page = () => {
     // For badges with infinite supply, only show when not active
     if (collectibles.isBadge && collectibles.badgeSupply === null) {
       const hasEitherPhaseStarted =
-        collectibles.wlStartsAt <= now || collectibles.poStartsAt <= now;
+        collectibles.wlStartsAt <= now ||
+        collectibles.poStartsAt <= now ||
+        collectibles.fcfsStartsAt <= now;
       return hasEitherPhaseStarted && !isMintActive();
     }
 
@@ -267,7 +291,9 @@ const Page = () => {
 
     // Show "Go to Collection" if either phase has started but mint is not active
     const hasEitherPhaseStarted =
-      collectibles.wlStartsAt <= now || collectibles.poStartsAt <= now;
+      collectibles.wlStartsAt <= now ||
+      collectibles.poStartsAt <= now ||
+      collectibles.fcfsStartsAt <= now;
 
     return hasEitherPhaseStarted && !isMintActive();
   };
@@ -281,7 +307,7 @@ const Page = () => {
     }
   }, [collectibles]);
 
-  const handlePhaseClick = (phaseType: "guaranteed" | "public") => {
+  const handlePhaseClick = (phaseType: "guaranteed" | "public" | "FCFS") => {
     setSelectedPhase(phaseType);
   };
   // add to go to collection condition
@@ -499,6 +525,21 @@ const Page = () => {
                           badgeSupply={collectibles.badgeSupply}
                         />
                       )}
+                         {collectibles.hasFCFS && (
+                        <PhaseCard
+                          phaseType="FCFS"
+                          maxMintPerWallet={collectibles.fcfsMaxMintPerWallet}
+                          mintPrice={collectibles.fcfsMintPrice}
+                          endsAt={collectibles.fcfsEndsAt}
+                          startsAt={collectibles.fcfsStartsAt}
+                          isActive={selectedPhase === "FCFS"}
+                          onClick={() => handlePhaseClick("FCFS")}
+                          supply={collectibles.supply}
+                          mintedAmount={collectibles.mintedAmount}
+                          isBadge={collectibles.isBadge}
+                          badgeSupply={collectibles.badgeSupply}
+                        />
+                      )}
                       <PhaseCard
                         phaseType="public"
                         maxMintPerWallet={collectibles.poMaxMintPerWallet}
@@ -569,7 +610,7 @@ const Page = () => {
           <PendingModal
             isOpen={showPendingModal}
             onClose={handleClosePendingModal}
-            currentStep={steps} 
+            currentStep={steps}
           />
         </DetailLayout>
       </div>

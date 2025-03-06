@@ -139,7 +139,7 @@ const Badge = () => {
 
   const calculateTimeUntilDate = (
     dateString: string,
-    timeString: string,
+    timeString: string
   ): number => {
     try {
       // Input validation
@@ -357,7 +357,7 @@ const Badge = () => {
     // fcfs
     const fcfsStartsAt = calculateTimeUntilDate(
       FCFSStartsAtDate,
-      FCFSStartsAtTime,
+      FCFSStartsAtTime
     );
     const fcfsEndsAt = calculateTimeUntilDate(FCFSEndsAtDate, FCFSEndsAtTime);
 
@@ -413,7 +413,31 @@ const Badge = () => {
             if (currentLayer.layerType === "EVM") {
               const { signer } = await getSigner();
               const signedTx = await signer?.sendTransaction(
-                FCFSresponse.data.unsignedTx,
+                FCFSresponse.data.unsignedTx
+              );
+              await signedTx?.wait();
+            }
+          }
+
+          if (isChecked) {
+            // Add white list
+            const whresponse = await addPhaseMutation({
+              collectionId,
+              phaseType: 1, // PhaseType.FSFS
+              price: WLMintPrice.toString(),
+              startTime: wlStartsAt,
+              endTime: wlEndsAt,
+              maxSupply: WLMaxMintPerWallet * whitelistAddress.length, // Heden address bgag tus bur hed mint hiih bolomjtoigoor urjeed maxSupply ni garj irne
+              maxPerWallet: WLMaxMintPerWallet,
+              maxMintPerPhase: WLMaxMintPerWallet, // Unlimited mints for public phase
+              layerId: selectedLayerId,
+              userLayerId: authState.userLayerId,
+            });
+
+            if (currentLayer.layerType === "EVM") {
+              const { signer } = await getSigner();
+              const signedTx = await signer?.sendTransaction(
+                whresponse.data.unsignedTx
               );
               await signedTx?.wait();
             }
@@ -436,7 +460,7 @@ const Badge = () => {
           if (currentLayer.layerType === "EVM") {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(
-              publicPhaseResponse.data.unsignedTx,
+              publicPhaseResponse.data.unsignedTx
             );
             await signedTx?.wait();
           }
@@ -522,7 +546,7 @@ const Badge = () => {
     } catch (error) {
       console.error("Error creating launch:", error);
       toast.error(
-        error instanceof Error ? error.message : "Error creating launch",
+        error instanceof Error ? error.message : "Error creating launch"
       );
     } finally {
       setIsLoading(false);
