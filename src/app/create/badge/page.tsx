@@ -61,8 +61,10 @@ const Badge = () => {
     setPOMintPrice,
     POMaxMintPerWallet,
     setPOMaxMintPerWallet,
+    // whiteList phase
     WLStartsAtDate,
     setWLStartsAtDate,
+    // asdasd
     WLStartsAtTime,
     setWLStartsAtTime,
     WLEndsAtDate,
@@ -73,6 +75,19 @@ const Badge = () => {
     setWLMintPrice,
     WLMaxMintPerWallet,
     setWLMaxMintPerWallet,
+    // fcfs phase
+    FCFSStartsAtDate,
+    setFCFSStartsAtDate,
+    FCFSStartsAtTime,
+    setFCFSStartsAtTime,
+    FCFSEndsAtDate,
+    setFCFSEndsAtDate,
+    FCFSEndsAtTime,
+    setFCFSEndsAtTime,
+    FCFSMintPrice,
+    setFCFSMintPrice,
+    FCFSMaxMintPerWallet,
+    setFCFSMaxMintPerWallet,
     txid,
     setTxid,
     supply,
@@ -87,7 +102,9 @@ const Badge = () => {
   const stepperData = ["Details", "Launch", "Upload", "Confirm"];
   const [successModal, setSuccessModal] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [isSecondChecked, setIsSecondChecked] = useState(false);
   const [whitelistAddress, setWhitelistAddress] = useState<string[]>([]);
+  const [fcfslistAddress, setfcfslistAddress] = useState<string[]>([]);
 
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createBadgeCollection,
@@ -168,6 +185,7 @@ const Badge = () => {
           // Assuming the JSON file contains an array of addresses
           if (Array.isArray(jsonData.addresses)) {
             setWhitelistAddress(jsonData.addresses);
+            setfcfslistAddress(jsonData.addresses);
           } else {
             toast.error("Invalid JSON format. Expected an array of addresses.");
           }
@@ -309,19 +327,32 @@ const Badge = () => {
     const poEndsAt = calculateTimeUntilDate(POEndsAtDate, POEndsAtTime);
     const wlStartsAt = calculateTimeUntilDate(WLStartsAtDate, WLStartsAtTime);
     const wlEndsAt = calculateTimeUntilDate(WLEndsAtDate, WLEndsAtTime);
+    // fcfs
+    const fcfsStartsAt = calculateTimeUntilDate(
+      FCFSStartsAtDate,
+      FCFSStartsAtTime
+    );
+    const fcfsSEndsAt = calculateTimeUntilDate(FCFSEndsAtDate, FCFSEndsAtTime);
 
     try {
       const params: LaunchType = {
         collectionId: collectionId,
         isWhitelisted: isChecked ? true : false,
+        hasFCFS: isSecondChecked ? true : false,
         poStartsAt: poStartsAt,
         poEndsAt: poEndsAt,
         poMintPrice: POMintPrice,
         poMaxMintPerWallet: POMaxMintPerWallet,
+        // white list types
         wlStartsAt: wlStartsAt,
         wlEndsAt: wlEndsAt,
         wlMintPrice: WLMintPrice,
         wlMaxMintPerWallet: WLMaxMintPerWallet,
+        // FCFS
+        fcfsStartsAt: fcfsStartsAt,
+        fcfsSEndsAt: fcfsSEndsAt,
+        fcfsMintPrice: FCFSMintPrice,
+        fcfsMaxMintPerWallet: FCFSMaxMintPerWallet,
         userLayerId: authState.userLayerId,
       };
 
@@ -336,6 +367,8 @@ const Badge = () => {
         if (launchResponse && launchResponse.success) {
           const collectionId = launchResponse.data.launch.collectionId;
           const launchId = launchResponse.data.launch.id;
+          // add to phase
+          const phase = launchResponse.data.phase;
 
           // Add public phase
           const publicPhaseResponse = await addPhaseMutation({
@@ -395,6 +428,8 @@ const Badge = () => {
               ) {
                 const batch = whitelistAddress.slice(i * 50, (i + 1) * 50);
                 whResponse = await whitelistAddressesMutation({
+                  // phase: "WHITELIST",
+                  phase: phase,
                   launchId: launchId,
                   addresses: batch,
                 });
@@ -406,6 +441,31 @@ const Badge = () => {
             } catch (error) {
               console.error("Error processing whitelist:", error);
               toast.error("Error processing whitelist addresses");
+            }
+          } else {
+            toggleSuccessModal();
+          }
+          // Process fcfs if enabled
+          if (isSecondChecked) {
+            try {
+              let whResponse;
+              // Process whitelist addresses in batches of 50
+              for (let i = 0; i < Math.ceil(fcfslistAddress.length / 50); i++) {
+                const batch = fcfslistAddress.slice(i * 50, (i + 1) * 50);
+                whResponse = await whitelistAddressesMutation({
+                  // phase: "FCFS_WHITELIST",
+                  phase: phase,
+                  launchId: launchId,
+                  addresses: batch,
+                });
+              }
+              if (whResponse && whResponse.success) {
+                console.log("FCFS processing completed");
+                toggleSuccessModal();
+              }
+            } catch (error) {
+              console.error("Error processing FCFS list:", error);
+              toast.error("Error processing FCFS addresses");
             }
           } else {
             toggleSuccessModal();
@@ -427,6 +487,10 @@ const Badge = () => {
     setIsChecked(!isChecked);
   };
 
+  const toggleSecondWhiteList = () => {
+    setIsSecondChecked(!isSecondChecked);
+  };
+
   return (
     <Layout>
       <div className="flex flex-col w-full h-max bg-background pb-[148px]">
@@ -437,7 +501,7 @@ const Badge = () => {
             setStep={step}
             stepperData={stepperData}
           />
-          {step == 0 && (
+          {step == 1 && (
             <div className="w-[592px] items-start flex flex-col gap-16">
               <div className="flex flex-col w-full gap-6">
                 <p className="font-bold text-profileTitle text-neutral50">
@@ -498,7 +562,7 @@ const Badge = () => {
               </div>
             </div>
           )}
-          {step == 1 && (
+          {step == 0 && (
             <div className="w-[592px] items-start flex flex-col gap-16">
               <div className="flex flex-col w-full gap-4">
                 <div className="flex flex-row justify-between items-center">
@@ -660,6 +724,164 @@ const Badge = () => {
                         type="number"
                         onChange={(e) =>
                           setWLMaxMintPerWallet(parseInt(e.target.value))
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-4 w-full">
+                <div className="flex flex-row w-full justify-between">
+                  <p className="font-bold text-profileTitle text-neutral50">
+                    Include first come, first serve
+                  </p>
+                  <Toggle
+                    isChecked={isSecondChecked}
+                    onChange={toggleSecondWhiteList}
+                  />
+                </div>
+                {isSecondChecked && (
+                  <div className="w-full flex flex-col gap-8">
+                    <p className="text-neutral200 text-lg">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Proin ac ornare nisi. Aliquam eget semper risus, sed
+                      commodo elit. Curabitur sed congue magna. Donec ultrices
+                      dui nec ullamcorper aliquet. Nunc efficitur mauris id mi
+                      venenatis imperdiet. Integer mauris lectus, pretium eu
+                      nibh molestie, rutrum lobortis tortor. Duis sit amet sem
+                      fermentum, consequat est nec, ultricies justo.
+                    </p>
+                    <Button
+                      className="w-fit flex gap-3 items-center"
+                      variant={"outline"}
+                    >
+                      <span>
+                        <DocumentDownload size={24} color="#FFFFFF" />
+                      </span>
+                      Download sample .json for connect formatting
+                    </Button>
+                    {jsonFile ? (
+                      <UploadJsonCard
+                        title={jsonFile.name}
+                        size={formatFileSize(jsonFile.size)}
+                        onDelete={handleDeleteJson}
+                      />
+                    ) : (
+                      <UploadJsonFile
+                        text="Accepted file types: JSON"
+                        handleImageUpload={handleFileUpload}
+                      />
+                    )}
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-row justify-between items-center">
+                        <p className="text-neutral50 text-xl font-medium">
+                          Start date
+                        </p>
+                        <div className="flex flex-row gap-4">
+                          <div className="relative flex items-center">
+                            <Input
+                              type="birthdaytime"
+                              placeholder="YYYY - MM - DD"
+                              className="pl-10 w-[184px]"
+                              value={FCFSStartsAtDate}
+                              onChange={(e) =>
+                                setFCFSStartsAtDate(e.target.value)
+                              }
+                            />
+                            <div className="absolute left-4">
+                              <Calendar2 size={20} color="#D7D8D8" />
+                            </div>
+                          </div>
+                          <div className="relative flex items-center">
+                            <Input
+                              placeholder="HH : MM"
+                              className="pl-10 w-[184px]"
+                              value={FCFSStartsAtTime}
+                              onChange={(e) =>
+                                setFCFSStartsAtTime(e.target.value)
+                              }
+                            />
+                            <div className="absolute left-4">
+                              <Clock size={20} color="#D7D8D8" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-row justify-between items-center">
+                        <p className="text-neutral50 text-xl font-medium">
+                          End date
+                        </p>
+                        <div className="flex flex-row gap-4">
+                          <div className="relative flex items-center">
+                            <Input
+                              type="birthdaytime"
+                              placeholder="YYYY - MM - DD"
+                              className="pl-10 w-[184px]"
+                              value={FCFSEndsAtDate}
+                              onChange={(e) =>
+                                setFCFSEndsAtDate(e.target.value)
+                              }
+                            />
+                            <div className="absolute left-4">
+                              <Calendar2 size={20} color="#D7D8D8" />
+                            </div>
+                          </div>
+                          <div className="relative flex items-center">
+                            <Input
+                              placeholder="HH : MM"
+                              className="pl-10 w-[184px]"
+                              value={FCFSEndsAtTime}
+                              onChange={(e) =>
+                                setFCFSEndsAtTime(e.target.value)
+                              }
+                            />
+                            <div className="absolute left-4">
+                              <Clock size={20} color="#D7D8D8" />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <p className="text-neutral50 text-lg font-medium">
+                        Whitelist mint price
+                      </p>
+                      <div className="relative flex items-center">
+                        <Input
+                          onReset={reset}
+                          placeholder="Amount"
+                          className="w-full pl-10"
+                          type="number"
+                          value={FCFSMintPrice}
+                          onChange={(e) =>
+                            setFCFSMintPrice(Number(e.target.value))
+                          }
+                        />
+                        <div className="absolute left-4">
+                          <Bitcoin size={20} color="#D7D8D8" />
+                        </div>
+                        <div className="absolute right-4">
+                          <p className="text-md text-neutral200 font-medium">
+                            BTC
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-neutral200 text-sm pl-4">
+                        Enter 0 for free mints
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <p className="text-lg text-neutral50 font-medium">
+                        Max mint per wallet
+                      </p>
+                      <Input
+                        onReset={reset}
+                        placeholder="0"
+                        value={FCFSMaxMintPerWallet}
+                        type="number"
+                        onChange={(e) =>
+                          setFCFSMaxMintPerWallet(parseInt(e.target.value))
                         }
                       />
                     </div>
@@ -918,6 +1140,43 @@ const Badge = () => {
                       </p>
                       <p className="text-neutral50 text-lg font-bold">
                         {WLMaxMintPerWallet}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {isSecondChecked && (
+                <div className="flex flex-col gap-8 w-full">
+                  <p className="text-[28px] leading-9 text-neutral50 font-bold">
+                    WhiteList phase
+                  </p>
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral200 text-lg">Start date</p>
+                      <p className="text-neutral50 text-lg font-bold">
+                        {FCFSStartsAtDate},{FCFSStartsAtTime}
+                      </p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral200 text-lg">End date</p>
+                      <p className="text-neutral50 text-lg font-bold">
+                        {FCFSStartsAtDate},{FCFSStartsAtDate}
+                      </p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral200 text-lg">
+                        Public mint price
+                      </p>
+                      <p className="text-neutral50 text-lg font-bold">
+                        {FCFSMintPrice}
+                      </p>
+                    </div>
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral200 text-lg">
+                        Max mint per wallet
+                      </p>
+                      <p className="text-neutral50 text-lg font-bold">
+                        {FCFSMaxMintPerWallet}
                       </p>
                     </div>
                   </div>

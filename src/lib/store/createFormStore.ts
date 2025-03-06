@@ -25,6 +25,7 @@ interface FormState {
   setPOMintPrice: (POMintPrice: number) => void;
   POMaxMintPerWallet: number;
   setPOMaxMintPerWallet: (POMaxMintPerWallet: number) => void;
+  // whiteList phase
   WLStartsAtDate: string;
   setWLStartsAtDate: (WLStartsAtDate: string) => void;
   WLStartsAtTime: string;
@@ -37,6 +38,19 @@ interface FormState {
   setWLMintPrice: (WLMintPrice: number) => void;
   WLMaxMintPerWallet: number;
   setWLMaxMintPerWallet: (WLMaxMintPerWallet: number) => void;
+  //fcfsList phase
+  FCFSStartsAtDate: string;
+  setFCFSStartsAtDate: (FCFSStartsAtDate: string) => void;
+  FCFSStartsAtTime: string;
+  setFCFSStartsAtTime: (FCFSStartsAtTime: string) => void;
+  FCFSEndsAtDate: string;
+  setFCFSEndsAtDate: (FCFSEndsAtDate: string) => void;
+  FCFSEndsAtTime: string;
+  setFCFSEndsAtTime: (FCFSEndsAtTime: string) => void;
+  FCFSMintPrice: number;
+  setFCFSMintPrice: (FCFSMintPrice: number) => void;
+  FCFSMaxMintPerWallet: number;
+  setFCFSMaxMintPerWallet: (FCFSMaxMintPerWallet: number) => void;
   supply: number;
   setSupply: (supply: number) => void;
   txid: string;
@@ -70,6 +84,7 @@ const useCreateFormState = create<FormState>((set) => ({
   POMaxMintPerWallet: 0,
   setPOMaxMintPerWallet: (POMaxMintPerWallet: number) =>
     set({ POMaxMintPerWallet }),
+  // whiteList phase
   WLStartsAtDate: "",
   setWLStartsAtDate: (WLStartsAtDate: string) => set({ WLStartsAtDate }),
   WLStartsAtTime: "",
@@ -83,6 +98,20 @@ const useCreateFormState = create<FormState>((set) => ({
   WLMaxMintPerWallet: 0,
   setWLMaxMintPerWallet: (WLMaxMintPerWallet: number) =>
     set({ WLMaxMintPerWallet }),
+  // fcfsList phase
+  FCFSStartsAtDate: "",
+  setFCFSStartsAtDate: (FCFSStartsAtDate: string) => set({ FCFSStartsAtDate }),
+  FCFSStartsAtTime: "",
+  setFCFSStartsAtTime: (FCFSStartsAtTime: string) => set({ FCFSStartsAtTime }),
+  FCFSEndsAtDate: "",
+  setFCFSEndsAtDate: (FCFSEndsAtDate: string) => set({ FCFSEndsAtDate }),
+  FCFSEndsAtTime: "",
+  setFCFSEndsAtTime: (FCFSEndsAtTime: string) => set({ FCFSEndsAtTime }),
+  FCFSMintPrice: 0,
+  setFCFSMintPrice: (FCFSMintPrice: number) => set({ FCFSMintPrice }),
+  FCFSMaxMintPerWallet: 0,
+  setFCFSMaxMintPerWallet: (FCFSMaxMintPerWallet: number) =>
+    set({ FCFSMaxMintPerWallet }),
   supply: 0,
   setSupply: (supply) => set({ supply }),
   txid: "",
@@ -107,6 +136,12 @@ const useCreateFormState = create<FormState>((set) => ({
       WLEndsAtDate: "",
       WLEndsAtTime: "",
       WLMintPrice: 0,
+      FCFSStartsAtDate: "",
+      FCFSStartsAtTime: "",
+      FCFSEndsAtDate: "",
+      FCFSEndsAtTime: "",
+      FCFSMintPrice: 0,
+      FCFSMaxMintPerWallet: 0,
       supply: 0,
       txid: "",
     }),

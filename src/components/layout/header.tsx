@@ -229,7 +229,7 @@ export default function Header() {
       <SelectItem
         key={layer.id}
         value={`${layer.layer}-${layer.network}`}
-        className={`flex items-center gap-2 w-[170px]`}
+        className={`flex items-center rounded-lg gap-2 w-[180px]`}
       >
         <div className="flex justify-between gap-2 items-center text-md text-neutral50 font-medium w-full">
           <div className="flex gap-2">
