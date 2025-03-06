@@ -360,7 +360,7 @@ const Badge = () => {
       FCFSStartsAtDate,
       FCFSStartsAtTime
     );
-    const fcfsSEndsAt = calculateTimeUntilDate(FCFSEndsAtDate, FCFSEndsAtTime);
+    const fcfsEndsAt = calculateTimeUntilDate(FCFSEndsAtDate, FCFSEndsAtTime);
 
     try {
       const params: LaunchType = {
@@ -378,7 +378,7 @@ const Badge = () => {
         wlMaxMintPerWallet: WLMaxMintPerWallet,
         // FCFS
         fcfsStartsAt: fcfsStartsAt,
-        fcfsSEndsAt: fcfsSEndsAt,
+        fcfsEndsAt: fcfsEndsAt,
         fcfsMintPrice: FCFSMintPrice,
         fcfsMaxMintPerWallet: FCFSMaxMintPerWallet,
         userLayerId: authState.userLayerId,

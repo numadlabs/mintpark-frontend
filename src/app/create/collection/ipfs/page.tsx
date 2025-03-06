@@ -482,7 +482,7 @@ const IPFS = () => {
               whResponse = await whitelistAddressesMutation({
                 launchId: launchId,
                 addresses: batch,
-                phase: ""
+                phase: "WHITELIST",
               });
             }
             if (whResponse && whResponse.success) {

@@ -151,7 +151,7 @@ export type LaunchType = {
   wlMintPrice?: number;
   wlMaxMintPerWallet?: number;
   fcfsStartsAt?: number;
-  fcfsSEndsAt?: number;
+  fcfsEndsAt?: number;
   fcfsMintPrice?: number;
   fcfsMaxMintPerWallet?: number;
   userLayerId: string | null;
