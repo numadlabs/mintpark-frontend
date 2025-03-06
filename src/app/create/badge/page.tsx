@@ -99,6 +99,7 @@ const Badge = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [collectionId, setCollectionId] = useState<string>("");
   const [jsonFile, setJsonFile] = useState<File | null>(null);
+  const [fcfsjsonFile, setFcfsJsonFile] = useState<File | null>();
   const stepperData = ["Details", "Launch", "Upload", "Confirm"];
   const [successModal, setSuccessModal] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -275,6 +276,9 @@ const Badge = () => {
   const handleDeleteJson = () => {
     setJsonFile(null);
   };
+  const handleFcfsDeleteJson = () => {
+    setFcfsJsonFile(null);
+  };
 
   const toggleSuccessModal = () => {
     setSuccessModal(!successModal);
@@ -367,8 +371,6 @@ const Badge = () => {
         if (launchResponse && launchResponse.success) {
           const collectionId = launchResponse.data.launch.collectionId;
           const launchId = launchResponse.data.launch.id;
-          // add to phase
-          const phase = launchResponse.data.phase;
 
           // Add public phase
           const publicPhaseResponse = await addPhaseMutation({
@@ -428,8 +430,7 @@ const Badge = () => {
               ) {
                 const batch = whitelistAddress.slice(i * 50, (i + 1) * 50);
                 whResponse = await whitelistAddressesMutation({
-                  // phase: "WHITELIST",
-                  phase: phase,
+                  phase: "WHITELIST",
                   launchId: launchId,
                   addresses: batch,
                 });
@@ -453,8 +454,7 @@ const Badge = () => {
               for (let i = 0; i < Math.ceil(fcfslistAddress.length / 50); i++) {
                 const batch = fcfslistAddress.slice(i * 50, (i + 1) * 50);
                 whResponse = await whitelistAddressesMutation({
-                  // phase: "FCFS_WHITELIST",
-                  phase: phase,
+                  phase: "FCFS_WHITELIST",
                   launchId: launchId,
                   addresses: batch,
                 });
@@ -761,10 +761,10 @@ const Badge = () => {
                       </span>
                       Download sample .json for connect formatting
                     </Button>
-                    {jsonFile ? (
+                    {fcfsjsonFile ? (
                       <UploadJsonCard
-                        title={jsonFile.name}
-                        size={formatFileSize(jsonFile.size)}
+                        title={fcfsjsonFile.name}
+                        size={formatFileSize(fcfsjsonFile.size)}
                         onDelete={handleDeleteJson}
                       />
                     ) : (

@@ -1,12 +1,14 @@
-enum LAUNCH_STATE {
-  INDEFINITE = "INDEFINITE",
-  ENDED = "ENDED",
-  LIVE = "LIVE",
-  UPCOMING = "UPCOMING",
-  UNKNOWN = "UNKNOWN"
+import { LaunchDataType } from "../types";
+
+export enum LAUNCH_STATE {
+  INDEFINITE = "Indefinite",
+  ENDED = "Ended",
+  LIVE = "Live",
+  UPCOMING = "Upcoming",
+  UNKNOWN = "Unknown",
 }
 
-function determineLaunchState({
+export function useLaunchState({
   isWhitelisted,
   wlStartsAt,
   wlEndsAt,
@@ -21,21 +23,8 @@ function determineLaunchState({
   mintedAmount,
   supply,
   isBadge,
-  badgeSupply
-}: {
-  isWhitelisted: boolean;
-  wlStartsAt: string | null;
-  wlEndsAt: string | null;
-  hasFCFS: boolean;
-  fcfsStartsAt: string | null;
-  fcfsEndsAt: string | null;
-  poStartsAt: string;
-  poEndsAt: string | null;
-  mintedAmount: number;
-  supply: number;
-  isBadge: boolean;
-  badgeSupply: number | null;
-}): LAUNCH_STATE {
+  badgeSupply,
+}: LaunchDataType): LAUNCH_STATE {
   if (isWhitelisted && (!wlStartsAt || !wlEndsAt)) return LAUNCH_STATE.UNKNOWN;
   if (hasFCFS && (!fcfsStartsAt || !fcfsEndsAt)) return LAUNCH_STATE.UNKNOWN;
 
@@ -68,47 +57,3 @@ function determineLaunchState({
 
   return LAUNCH_STATE.ENDED;
 }
-
-// import { LaunchDataType } from "../types";
-
-// export enum LAUNCH_STATE {
-//   INDEFINITE = "Indefinite",
-//   ENDED = "Ended",
-//   LIVE = "Live",
-//   UPCOMING = "Upcoming",
-//   UNKNOWN = "Unknown",
-// }
-
-// export function useLaunchState({
-//   isWhitelisted,
-//   wlStartsAt,
-//   wlEndsAt,
-//   poStartsAt,
-//   poEndsAt,
-//   mintedAmount,
-//   supply,
-//   isBadge,
-//   badgeSupply,
-// }: LaunchDataType): LAUNCH_STATE {
-//   if (isWhitelisted && (!wlStartsAt || !wlEndsAt)) return LAUNCH_STATE.UNKNOWN;
-
-//   const now = Math.floor(Date.now() / 1000);
-//   const isInfiniteSupplyBadge = isBadge && badgeSupply === null;
-//   const isSoldOut = !isInfiniteSupplyBadge && mintedAmount >= supply;
-
-//   const whitelistUpcoming = isWhitelisted && now < Number(wlStartsAt);
-//   const publicUpcoming = !whitelistUpcoming && now < Number(poStartsAt);
-//   if (whitelistUpcoming || publicUpcoming) return LAUNCH_STATE.UPCOMING;
-
-//   if (!poEndsAt && !isSoldOut && now >= Number(poStartsAt))
-//     return LAUNCH_STATE.INDEFINITE;
-
-//   const isWhiteListActive =
-//     isWhitelisted && now >= Number(wlStartsAt) && now < Number(wlEndsAt);
-//   const isPublicOfferingActive =
-//     now >= Number(poStartsAt) && poEndsAt !== null && now <= Number(poEndsAt);
-//   if ((isWhiteListActive || isPublicOfferingActive) && !isSoldOut)
-//     return LAUNCH_STATE.LIVE;
-
-//   return LAUNCH_STATE.ENDED;
-// }
