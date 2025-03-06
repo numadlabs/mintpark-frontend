@@ -110,6 +110,7 @@ export type InscriptionCollectible = {
 export type LaunchParams = {
   collectionId: string | null;
   isWhitelisted: boolean;
+  hasFCFS: boolean;
   poStartsAt: number;
   poEndsAt?: number;
   poMintPrice: number;
@@ -118,6 +119,10 @@ export type LaunchParams = {
   wlEndsAt?: number;
   wlMintPrice?: number;
   wlMaxMintPerWallet?: number;
+  fcfsStartsAt?: number;
+  fcfsEndsAt?: number;
+  fcfsMintPrice?: number;
+  fcfsMaxMintPerWallet?: number;
   userLayerId: string | null;
 };
 

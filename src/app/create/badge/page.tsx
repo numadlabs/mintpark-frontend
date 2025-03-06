@@ -1221,7 +1221,7 @@ const Badge = () => {
               {isSecondChecked && (
                 <div className="flex flex-col gap-8 w-full">
                   <p className="text-[28px] leading-9 text-neutral50 font-bold">
-                    WhiteList phase
+                    FCFS phase
                   </p>
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-row justify-between items-center">
