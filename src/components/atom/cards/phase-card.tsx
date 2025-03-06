@@ -71,12 +71,12 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   const launchState = useLaunchState({
     isWhitelisted,
     hasFCFS,
+    fcfsStartsAt: phaseType === "FCFS" ? startsAt : 0,
+    fcfsEndsAt: phaseType === "FCFS" ? endsAt : 0,
     wlStartsAt: phaseType === "guaranteed" ? startsAt : 0,
     wlEndsAt: phaseType === "guaranteed" ? endsAt : 0,
     poStartsAt: phaseType === "public" ? startsAt : 0,
     poEndsAt: phaseType === "public" ? endsAt : 0,
-    fcfsEndsAt: phaseType === "FCFS" ? startsAt : 0,
-    fcfsStartsAt: phaseType === "FCFS" ? startsAt : 0,
     mintedAmount,
     supply,
     isBadge,
@@ -182,7 +182,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
       <div className="flex justify-between w-full">
         <div className="flex flex-row gap-2 items-center bg-white8 px-3 py-2 text-md font-medium rounded-lg">
           <p className={phaseTextClass}>
-            {phaseType === "guaranteed" ? "Guaranteed" : "Public"}
+            {phaseType === "guaranteed" ? "FCFS" : "Public"}
           </p>
           {!isClickable && <Lock1 size={16} color="#D7D8D8" />}
         </div>
