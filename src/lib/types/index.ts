@@ -72,6 +72,12 @@ export type LaunchDataType = {
   logoKey: string;
   layerId: string;
   launchId: string;
+
+  hasFCFS: boolean;
+  fcfsStartsAt: string | null;
+  fcfsEndsAt: string | null;
+  fcfsMintPrice: number;
+  fcfsMaxMintPerWallet: number;
   wlStartsAt: number;
   wlEndsAt: number;
   wlMintPrice: number;
@@ -136,7 +142,7 @@ export type LayerTypes = {
 export type LaunchType = {
   collectionId: string | null;
   isWhitelisted: boolean;
-  hasFCFS:boolean;
+  hasFCFS: boolean;
   poStartsAt: number;
   poEndsAt: number;
   poMintPrice: number;
@@ -145,10 +151,10 @@ export type LaunchType = {
   wlEndsAt?: number;
   wlMintPrice?: number;
   wlMaxMintPerWallet?: number;
-  fcfsStartsAt?:number;
-  fcfsSEndsAt?:number;
-  fcfsMintPrice?:number;
-  fcfsMaxMintPerWallet?:number;
+  fcfsStartsAt?: number;
+  fcfsSEndsAt?: number;
+  fcfsMintPrice?: number;
+  fcfsMaxMintPerWallet?: number;
   userLayerId: string | null;
 };
 
