@@ -308,6 +308,7 @@ const Recursive = () => {
       const params: LaunchParams = {
         collectionId: collectionId,
         isWhitelisted: false,
+        hasFCFS:false,
         poStartsAt: poStartsAt,
         poEndsAt: poEndsAt,
         poMintPrice: POMintPrice,
