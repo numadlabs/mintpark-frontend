@@ -8,8 +8,15 @@ export default function Footer() {
 
   const handleTermsClick = () => router.push("/terms-conditions");
   const handlePrivacyClick = () => router.push("/privacy-policy");
-  const handleTwitter = () => router.push("https://x.com/mintpark_io");
-  const handleDocs =  () => router.push("https://docs.mintpark.io")
+  // const handleTwitter = () => router.push("https://x.com/mintpark_io");
+  // const handleDocs =  () => router.push("https://docs.mintpark.io");
+  const handleTwitter = () => {
+    window.open("https://x.com/mintpark_io", "_blank", "noopener,noreferrer");
+  };
+
+  const handleDocs = () => {
+    window.open("https://docs.mintpark.io", "_blank", "noopener,noreferrer");
+  };
   const handleLogoClick = () => router.push("/");
   const handleCreate = () => router.push("/create");
   const handleLaunchapd = () => router.push("/launchpad");

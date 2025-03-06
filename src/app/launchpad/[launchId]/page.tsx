@@ -598,7 +598,7 @@ const Page = () => {
                       className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold"
                       disabled={true}
                     >
-                      Coming Soon
+                      Minting Soon
                     </Button>
                   )}
                 </div>
