@@ -19,8 +19,9 @@ interface PhaseCardProps {
   isBadge: boolean;
   badgeSupply: number;
   onClick: () => void;
-  phaseType: "guaranteed" | "public";
+  phaseType: "guaranteed" | "FCFS" | "public";
   isWhitelisted?: boolean;
+  hasFCFS?: boolean;
 }
 
 const formatTimeDisplay = (targetTimestamp: number): string => {
@@ -55,6 +56,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   isBadge,
   badgeSupply,
   isWhitelisted = false,
+  hasFCFS = false,
 }) => {
   const { authState } = useAuth();
   const { data: currentLayer = [] } = useQuery({
@@ -68,10 +70,13 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
 
   const launchState = useLaunchState({
     isWhitelisted,
+    hasFCFS,
     wlStartsAt: phaseType === "guaranteed" ? startsAt : 0,
     wlEndsAt: phaseType === "guaranteed" ? endsAt : 0,
     poStartsAt: phaseType === "public" ? startsAt : 0,
     poEndsAt: phaseType === "public" ? endsAt : 0,
+    fcfsEndsAt: phaseType === "FCFS" ? startsAt : 0,
+    fcfsStartsAt: phaseType === "FCFS" ? startsAt : 0,
     mintedAmount,
     supply,
     isBadge,
@@ -86,6 +91,8 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
     launchId: "",
     wlMintPrice: 0,
     wlMaxMintPerWallet: 0,
+    fcfsMintPrice: 0,
+    fcfsMaxMintPerWallet: 0,
     poMintPrice: 0,
     poMaxMintPerWallet: 0,
     createdAt: "",
