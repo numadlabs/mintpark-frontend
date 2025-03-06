@@ -507,8 +507,8 @@ const Page = () => {
                 </div>
 
                 {/* Right Column - Phases and Button */}
-                <div className="flex flex-col gap-4 sm:gap-6 w-full lg:gap-8 order-3">
-                  <ScrollArea className="flex-grow">
+                <div className="flex flex-col gap-4 sm:gap-4 w-full lg:gap-4 order-3">
+                  <ScrollArea className="flex-grow h-[384px] w-full">
                     <div className="flex flex-col gap-4">
                       {collectibles.isWhitelisted && (
                         <PhaseCard
@@ -525,7 +525,8 @@ const Page = () => {
                           badgeSupply={collectibles.badgeSupply}
                         />
                       )}
-                         {collectibles.hasFCFS && (
+
+                      {collectibles.hasFCFS && (
                         <PhaseCard
                           phaseType="FCFS"
                           maxMintPerWallet={collectibles.fcfsMaxMintPerWallet}
@@ -540,6 +541,7 @@ const Page = () => {
                           badgeSupply={collectibles.badgeSupply}
                         />
                       )}
+
                       <PhaseCard
                         phaseType="public"
                         maxMintPerWallet={collectibles.poMaxMintPerWallet}
@@ -590,7 +592,15 @@ const Page = () => {
                         "Mint"
                       )}
                     </Button>
-                  ) : null}
+                  ) : (
+                    <Button
+                      variant="secondary"
+                      className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold"
+                      disabled={true}
+                    >
+                      Coming Soon
+                    </Button>
+                  )}
                 </div>
               </section>
             </div>

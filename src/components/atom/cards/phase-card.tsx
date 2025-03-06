@@ -36,11 +36,15 @@ const formatTimeDisplay = (targetTimestamp: number): string => {
   const seconds = Math.floor(diff % 60);
 
   // If minutes are 0, show seconds instead
-  if (minutes === 0) {
+  if (days === 0 && hours === 0 && minutes === 0) {
     return `${seconds}s`;
+  } else if (days === 0 && hours === 0) {
+    return `${minutes}m ${seconds}s`;
+  } else if (days === 0) {
+    return `${hours}h ${minutes}m`;
+  } else {
+    return `${days}d ${hours}h ${minutes}m`;
   }
-
-  return `${days}d ${hours}h ${minutes}m`;
 };
 
 const PhaseCard: React.FC<PhaseCardProps> = ({
@@ -68,47 +72,41 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   const [status, setStatus] = useState("");
   const [isClickable, setIsClickable] = useState(false);
 
-  const launchState = useLaunchState({
-    isWhitelisted,
-    hasFCFS,
-    fcfsStartsAt: phaseType === "FCFS" ? startsAt : 0,
-    fcfsEndsAt: phaseType === "FCFS" ? endsAt : 0,
-    wlStartsAt: phaseType === "guaranteed" ? startsAt : 0,
-    wlEndsAt: phaseType === "guaranteed" ? endsAt : 0,
-    poStartsAt: phaseType === "public" ? startsAt : 0,
-    poEndsAt: phaseType === "public" ? endsAt : 0,
-    mintedAmount,
-    supply,
-    isBadge,
-    badgeSupply,
-    id: "",
-    name: "",
-    creator: "",
-    description: "",
-    type: "",
-    logoKey: "",
-    layerId: "",
-    launchId: "",
-    wlMintPrice: 0,
-    wlMaxMintPerWallet: 0,
-    fcfsMintPrice: 0,
-    fcfsMaxMintPerWallet: 0,
-    poMintPrice: 0,
-    poMaxMintPerWallet: 0,
-    createdAt: "",
-  });
+  function determinePhaseState(phase: string, startsAt: number, endsAt: number | null) {
+    const now = Math.floor(Date.now() / 1000);
+    
+    // For public phase with no end date
+    if (phase === 'public' && now >= startsAt && endsAt === null) return 'INDEFINITE';
+    
+    // For guaranteed phase whitelist conditions
+    if (phase === 'guaranteed' && isWhitelisted && now >= startsAt && (endsAt === null || now <= endsAt)) {
+      return 'LIVE';
+    }
+    
+    // For FCFS phase conditions - only accessible if user has FCFS access
+    if (phase === 'FCFS' && hasFCFS && now >= startsAt && (endsAt === null || now <= endsAt)) {
+      return 'LIVE';
+    }
+    
+    // General cases for any phase type
+    if (now >= startsAt && (endsAt === null || now <= endsAt)) return 'LIVE';
+    if (endsAt !== null && now > endsAt) return 'ENDED';
+  
+    return 'UPCOMING';
+  }
 
   useEffect(() => {
     const updateTimeDisplay = () => {
       const now = Math.floor(Date.now() / 1000);
+      const launchState = determinePhaseState(phaseType, startsAt, endsAt);
 
       switch (launchState) {
-        case LAUNCH_STATE.UPCOMING:
+        case 'UPCOMING':
           setStatus("Starts in");
           setTimeDisplay(formatTimeDisplay(startsAt));
           setIsClickable(false);
           break;
-        case LAUNCH_STATE.LIVE:
+        case 'LIVE':
           if (endsAt === null) {
             setStatus("Live");
             setTimeDisplay("");
@@ -118,13 +116,13 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
           }
           setIsClickable(true);
           break;
-        case LAUNCH_STATE.INDEFINITE:
-          setStatus("Ends in:");
+        case 'INDEFINITE':
+          setStatus("Live");
           setTimeDisplay("Indefinite");
           setIsClickable(true);
           break;
-        case LAUNCH_STATE.ENDED:
-          setStatus("Ended:");
+        case 'ENDED':
+          setStatus("Ended");
           setTimeDisplay("");
           setIsClickable(false);
           break;
@@ -142,9 +140,9 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
       const now = Math.floor(Date.now() / 1000);
       let targetTimestamp = 0;
 
-      if (launchState === LAUNCH_STATE.UPCOMING) {
+      if (determinePhaseState(phaseType, startsAt, endsAt) === 'UPCOMING') {
         targetTimestamp = startsAt;
-      } else if (launchState === LAUNCH_STATE.LIVE && endsAt !== null) {
+      } else if (determinePhaseState(phaseType, startsAt, endsAt) === 'LIVE' && endsAt !== null) {
         targetTimestamp = endsAt;
       }
 
@@ -162,7 +160,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
     const interval = setInterval(updateTimeDisplay, intervalTime);
 
     return () => clearInterval(interval);
-  }, [launchState, startsAt, endsAt]);
+  }, [phaseType, startsAt, endsAt, isWhitelisted, hasFCFS]);
 
   const borderClass =
     isActive && isClickable ? "border-brand" : "border-white8";
@@ -182,7 +180,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
       <div className="flex justify-between w-full">
         <div className="flex flex-row gap-2 items-center bg-white8 px-3 py-2 text-md font-medium rounded-lg">
           <p className={phaseTextClass}>
-            {phaseType === "guaranteed" ? "FCFS" : "Public"}
+            {phaseType === "guaranteed" ? "Guaranteed" : phaseType === "FCFS" ? "FCFS" : "Public"}
           </p>
           {!isClickable && <Lock1 size={16} color="#D7D8D8" />}
         </div>
