@@ -19,8 +19,8 @@ const bannerData: BannerSlide[] = [
     id: 1,
     image: "/banners/hemi.png",
     walletImage: "/wallets/hemi.png",
-    title: "We are live on Hemi testnet!",
-    description: "Mint Park is live on Hemi testnet! Start minting and trading NFTs.",
+    title: "We are live on Hemi Mainnet!",
+    description: "Mint Park is live on Hemi Mainnet! Start minting and trading NFTs.",
     walletName: "hemi"
   },
   // {

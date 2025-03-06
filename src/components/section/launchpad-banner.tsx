@@ -133,11 +133,11 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
       >
         <CarouselContent>
           {/* Static banner slide */}
-          {/* <CarouselItem>
+          <CarouselItem>
             <div className="relative h-[320px] w-full">
               <div className="w-full h-full relative rounded-xl sm:rounded-2xl lg:rounded-3xl overflow-hidden">
                 <Image
-                  src="/banner.png"
+                  src="/banners/hemi.png"
                   alt="mintparkBanner"
                   fill
                   draggable="false"
@@ -150,25 +150,25 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
                       We are live on
                     </p>
                     <Image
-                      src="/wallets/Citrea.png"
-                      alt="citrea"
+                      src="/wallets/hemi.png"
+                      alt="hemi"
                       width={32}
                       draggable="false"
                       height={32}
                       className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg"
                     />
                     <p className="text-xl sm:text-2xl lg:text-3xl text-neutral00 font-bold">
-                      Citrea testnet!
+                      Hemi Mainnet!
                     </p>
                   </div>
                   <p className="text-sm lg:text-lg text-neutral50 px-4 text-center">
-                    Mint Park is live on Citrea testnet! Start minting and
-                    trading NFTs.
+                    Mint Park is live on Hemi Mainnet! Start minting and trading
+                    NFTs.
                   </p>
                 </div>
               </div>
             </div>
-          </CarouselItem> */}
+          </CarouselItem>
 
           {/* Dynamic data slide */}
           {data && data.logoKey && (
