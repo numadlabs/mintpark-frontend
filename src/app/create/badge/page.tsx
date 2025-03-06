@@ -139,7 +139,7 @@ const Badge = () => {
 
   const calculateTimeUntilDate = (
     dateString: string,
-    timeString: string
+    timeString: string,
   ): number => {
     try {
       // Input validation
@@ -197,7 +197,6 @@ const Badge = () => {
       reader.readAsText(file);
     }
   };
-
 
   const handleFcfsFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -358,7 +357,7 @@ const Badge = () => {
     // fcfs
     const fcfsStartsAt = calculateTimeUntilDate(
       FCFSStartsAtDate,
-      FCFSStartsAtTime
+      FCFSStartsAtTime,
     );
     const fcfsEndsAt = calculateTimeUntilDate(FCFSEndsAtDate, FCFSEndsAtTime);
 
@@ -396,6 +395,30 @@ const Badge = () => {
           const collectionId = launchResponse.data.launch.collectionId;
           const launchId = launchResponse.data.launch.id;
 
+          if (isSecondChecked) {
+            // Add FCFS
+            const FCFSresponse = await addPhaseMutation({
+              collectionId,
+              phaseType: 1, // PhaseType.FSFS
+              price: FCFSMintPrice.toString(),
+              startTime: fcfsStartsAt,
+              endTime: fcfsEndsAt,
+              maxSupply: FCFSMaxMintPerWallet * fcfslistAddress.length, // Heden address bgag tus bur hed mint hiih bolomjtoigoor urjeed maxSupply ni garj irne
+              maxPerWallet: FCFSMaxMintPerWallet,
+              maxMintPerPhase: FCFSMaxMintPerWallet, // Unlimited mints for public phase
+              layerId: selectedLayerId,
+              userLayerId: authState.userLayerId,
+            });
+
+            if (currentLayer.layerType === "EVM") {
+              const { signer } = await getSigner();
+              const signedTx = await signer?.sendTransaction(
+                FCFSresponse.data.unsignedTx,
+              );
+              await signedTx?.wait();
+            }
+          }
+
           // Add public phase
           const publicPhaseResponse = await addPhaseMutation({
             collectionId,
@@ -406,7 +429,6 @@ const Badge = () => {
             maxSupply: 0, // Unlimited supply for public phase
             maxPerWallet: POMaxMintPerWallet,
             maxMintPerPhase: 0, // Unlimited mints for public phase
-            merkleRoot: ethers.ZeroHash, // No merkle root needed for public phase
             layerId: selectedLayerId,
             userLayerId: authState.userLayerId,
           });
@@ -414,7 +436,7 @@ const Badge = () => {
           if (currentLayer.layerType === "EVM") {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(
-              publicPhaseResponse.data.unsignedTx
+              publicPhaseResponse.data.unsignedTx,
             );
             await signedTx?.wait();
           }
@@ -500,7 +522,7 @@ const Badge = () => {
     } catch (error) {
       console.error("Error creating launch:", error);
       toast.error(
-        error instanceof Error ? error.message : "Error creating launch"
+        error instanceof Error ? error.message : "Error creating launch",
       );
     } finally {
       setIsLoading(false);
