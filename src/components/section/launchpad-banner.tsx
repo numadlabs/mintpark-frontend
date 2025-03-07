@@ -61,7 +61,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
           setIsClickable(false);
           break;
         case LAUNCH_STATE.LIVE:
-          if (data?.poEndsAt === null) {
+          if (data?.poEndsAt === 0) {
             setStatus("Live");
             setTimeDisplay("");
           } else {

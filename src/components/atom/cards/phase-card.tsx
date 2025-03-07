@@ -72,27 +72,43 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   const [status, setStatus] = useState("");
   const [isClickable, setIsClickable] = useState(false);
 
-  function determinePhaseState(phase: string, startsAt: number, endsAt: number | null) {
+  function determinePhaseState(
+    phase: string,
+    startsAt: number,
+    endsAt: number | null
+  ) {
     const now = Math.floor(Date.now() / 1000);
-    
+
     // For public phase with no end date
-    if (phase === 'public' && now >= startsAt && endsAt === null) return 'INDEFINITE';
-    
+    if (phase === "public" && now >= startsAt && !endsAt) return "INDEFINITE";
+
     // For guaranteed phase whitelist conditions
-    if (phase === 'guaranteed' && isWhitelisted && now >= startsAt && (endsAt === null || now <= endsAt)) {
-      return 'LIVE';
+    if (
+      phase === "guaranteed" &&
+      isWhitelisted &&
+      now >= startsAt &&
+      endsAt &&
+      now <= endsAt
+    ) {
+      return "LIVE";
     }
-    
+
     // For FCFS phase conditions - only accessible if user has FCFS access
-    if (phase === 'FCFS' && hasFCFS && now >= startsAt && (endsAt === null || now <= endsAt)) {
-      return 'LIVE';
+    if (
+      phase === "FCFS" &&
+      hasFCFS &&
+      now >= startsAt &&
+      endsAt &&
+      now <= endsAt
+    ) {
+      return "LIVE";
     }
-    
-    // General cases for any phase type
-    if (now >= startsAt && (endsAt === null || now <= endsAt)) return 'LIVE';
-    if (endsAt !== null && now > endsAt) return 'ENDED';
-  
-    return 'UPCOMING';
+
+    // // General cases for any phase type
+    if (now >= startsAt && endsAt && now <= endsAt) return "LIVE";
+    if (endsAt && now > endsAt) return "ENDED";
+
+    return "UPCOMING";
   }
 
   useEffect(() => {
@@ -101,12 +117,12 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
       const launchState = determinePhaseState(phaseType, startsAt, endsAt);
 
       switch (launchState) {
-        case 'UPCOMING':
+        case "UPCOMING":
           setStatus("Starts in");
           setTimeDisplay(formatTimeDisplay(startsAt));
           setIsClickable(false);
           break;
-        case 'LIVE':
+        case "LIVE":
           if (endsAt === null) {
             setStatus("Live");
             setTimeDisplay("");
@@ -116,12 +132,12 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
           }
           setIsClickable(true);
           break;
-        case 'INDEFINITE':
+        case "INDEFINITE":
           setStatus("Live");
           setTimeDisplay("Indefinite");
           setIsClickable(true);
           break;
-        case 'ENDED':
+        case "ENDED":
           setStatus("Ended");
           setTimeDisplay("");
           setIsClickable(false);
@@ -140,9 +156,12 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
       const now = Math.floor(Date.now() / 1000);
       let targetTimestamp = 0;
 
-      if (determinePhaseState(phaseType, startsAt, endsAt) === 'UPCOMING') {
+      if (determinePhaseState(phaseType, startsAt, endsAt) === "UPCOMING") {
         targetTimestamp = startsAt;
-      } else if (determinePhaseState(phaseType, startsAt, endsAt) === 'LIVE' && endsAt !== null) {
+      } else if (
+        determinePhaseState(phaseType, startsAt, endsAt) === "LIVE" &&
+        endsAt !== null
+      ) {
         targetTimestamp = endsAt;
       }
 
@@ -180,7 +199,11 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
       <div className="flex justify-between w-full">
         <div className="flex flex-row gap-2 items-center bg-white8 px-3 py-2 text-md font-medium rounded-lg">
           <p className={phaseTextClass}>
-            {phaseType === "guaranteed" ? "Guaranteed" : phaseType === "FCFS" ? "FCFS" : "Public"}
+            {phaseType === "guaranteed"
+              ? "Guaranteed"
+              : phaseType === "FCFS"
+              ? "FCFS"
+              : "Public"}
           </p>
           {!isClickable && <Lock1 size={16} color="#D7D8D8" />}
         </div>
