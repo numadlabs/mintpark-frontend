@@ -44,7 +44,7 @@ export function useLaunchState({
   )
     return LAUNCH_STATE.LIVE;
 
-  if (poEndsAt === null && !isSoldOut && now >= Number(poStartsAt))
+  if (!poEndsAt && !isSoldOut && now >= Number(poStartsAt))
     return LAUNCH_STATE.INDEFINITE;
 
   const whitelistUpcoming = isWhitelisted && now < Number(wlStartsAt);
