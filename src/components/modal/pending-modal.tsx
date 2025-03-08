@@ -22,7 +22,8 @@ export const PendingModal = ({
   ];
 
   // Calculate progress percentage
-  const progressValue = (currentStep / steps.length) * 100;
+  const progressValue = (currentStep / 3) * 100;
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -46,7 +47,7 @@ export const PendingModal = ({
             {/* Steps */}
             <div className="w-full space-y-4">
               {steps.map((step) => (
-                <div key={step.id} className="flex items-start  gap-3">
+                <div key={step.id} className="flex items-start w-full gap-3">
                   <div className={`flex-shrink-0 h-6 w-6 rounded-full mt-0.5 flex items-center justify-center ${
                     step.id < currentStep ? "bg-brand" : 
                     step.id === currentStep ? "bg-brand/20" : 

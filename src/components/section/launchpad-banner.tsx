@@ -187,7 +187,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
                     }}
                   />
 
-                  <div className="absolute inset-0 flex items-end bg-gradient-to-b from-transparent to-[#111315]">
+                  <div className="absolute inset-0 flex items-end bg-gray600op60">
                     <div className="w-full p-4 sm:p-6 lg:p-8">
                       <div className="flex flex-col gap-2 sm:gap-4">
                         <div className="space-y-1 sm:space-y-2">

@@ -92,6 +92,7 @@ module.exports = {
         brandBlack: "var(--Black-less-opacity, rgba(52, 61, 64, 0.50))",
         gray500op50: "var(--Black-less-opacity, rgba(32, 34, 36, 0.50))",
         bannerBlack: "var(--Black-less-opacity, rgba(33, 37, 41, 0.70))",
+        gray600op60: "var(--Black-less-opacity, rgba(17, 19, 21, 0.70))",
         neutral00: "#ffffff",
         neutral50: "#D7D8D8",
         neutral100: "#B0B0B1",

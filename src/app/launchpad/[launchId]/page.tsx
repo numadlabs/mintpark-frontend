@@ -475,7 +475,7 @@ const Page = () => {
                 </div>
 
                 {/* Middle Column - Image and Progress */}
-                <div className="flex flex-col gap-4 sm:gap-6 w-full order-1 lg:order-2">
+                <div className="flex flex-col pt-10 lg:p-0 gap-4 sm:gap-8 w-full order-1 lg:order-2">
                   <div className="w-full aspect-square relative rounded-2xl sm:rounded-3xl overflow-hidden max-h-[384px]">
                     <Carousel className="w-full justify-center items-center flex">
                       {collectibles?.logoKey && (
@@ -490,7 +490,7 @@ const Page = () => {
                     </Carousel>
                   </div>
 
-                  <div className="space-y-2 sm:space-y-3 hidden lg:block">
+                  <div className="space-y-2 sm:space-y-4 hidden lg:block">
                     <div className="flex h-2 sm:h-3 border rounded-lg border-1 border-neutral400">
                       <Progress
                         value={calculateProgress()}
