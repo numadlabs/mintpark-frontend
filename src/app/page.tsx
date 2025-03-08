@@ -449,7 +449,7 @@ export default function Home() {
             <div className="relative w-full max-w-[320px] aspect-square">
               <div className="absolute z-10 w-full h-full blur-[45px] md:blur-[90px] opacity-35">
                 <Image
-                  src="/homePage/citreaMeme.png"
+                  src="/homePage/HemiMP.png"
                   alt="citrea"
                   draggable="false"
                   width={320}
@@ -459,7 +459,7 @@ export default function Home() {
               </div>
               <div className="absolute inset-0 z-10">
                 <Image
-                  src="/homePage/citreaMeme.png"
+                  src="/homePage/HemiMP.png"
                   alt="citrea"
                   width={320}
                   draggable="false"
