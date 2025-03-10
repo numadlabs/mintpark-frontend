@@ -59,6 +59,74 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
     );
   };
 
+  //test
+  const getMintPrice = (data: LaunchDataType): number => {
+    const now = Math.floor(Date.now() / 1000);
+
+    // Define phases with their validation conditions, start/end times, and prices
+    const phases = [];
+
+    // Add whitelist phase if configured
+    if (data.isWhitelisted && data.wlStartsAt && data.wlEndsAt) {
+      phases.push({
+        name: "whitelist",
+        startsAt: Number(data.wlStartsAt),
+        endsAt: Number(data.wlEndsAt),
+        price: data.wlMintPrice,
+        isActive: now >= Number(data.wlStartsAt) && now < Number(data.wlEndsAt),
+      });
+    }
+
+    // Add FCFS phase if configured
+    if (data.hasFCFS && data.fcfsStartsAt && data.fcfsEndsAt) {
+      phases.push({
+        name: "fcfs",
+        startsAt: Number(data.fcfsStartsAt),
+        endsAt: Number(data.fcfsEndsAt),
+        price: data.fcfsMintPrice,
+        isActive:
+          now >= Number(data.fcfsStartsAt) && now < Number(data.fcfsEndsAt),
+      });
+    }
+
+    // Add public offering phase if price exists
+    if (data.poMintPrice !== undefined && data.poMintPrice !== null) {
+      const poStartsAt = data.poStartsAt ? Number(data.poStartsAt) : Infinity;
+      phases.push({
+        name: "po",
+        startsAt: poStartsAt,
+        endsAt: null, // Assuming PO doesn't necessarily have an end time
+        price: data.poMintPrice,
+        isActive: data.poStartsAt ? now >= poStartsAt : false,
+      });
+    }
+
+    // Sort phases by start time (earliest first)
+    phases.sort((a, b) => a.startsAt - b.startsAt);
+
+    // Check for active phases first
+    const activePhase = phases.find((phase) => phase.isActive);
+    if (activePhase) return activePhase.price;
+
+    // If no active phase, find the next upcoming phase
+    const upcomingPhase = phases.find((phase) => now < phase.startsAt);
+    if (upcomingPhase) return upcomingPhase.price;
+
+    // If all phases have ended, return the price of the last ended phase
+    const endedPhases = phases.filter(
+      (phase) => phase.endsAt && now >= phase.endsAt
+    );
+    if (endedPhases.length > 0) {
+      // Sort by end time (latest first)
+      endedPhases.sort((a, b) => (b.endsAt || 0) - (a.endsAt || 0));
+      return endedPhases[0].price;
+    }
+
+    // Fallback to PO price or 0
+    return data.poMintPrice || 0;
+  };
+
+  //test
   return (
     <Link
       href={`/launchpad/${id}`}
@@ -84,11 +152,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
             Price
           </p>
           <p className="font-bold text-sm sm:text-md text-neutral50">
-            {formatPrice(
-              status === LAUNCH_STATE.LIVE && data.isWhitelisted
-                ? data.wlMintPrice
-                : data.poMintPrice
-            )}
+            {formatPrice(getMintPrice(data))}
             <span className="ml-1">
               {getCurrencySymbol(currentLayer.layer)}
             </span>
