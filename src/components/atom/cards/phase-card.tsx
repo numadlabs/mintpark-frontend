@@ -130,8 +130,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
     const now = Math.floor(Date.now() / 1000);
     const launchState = determinePhaseState(phaseType, startsAt, endsAt);
 
-    // Debug info to help diagnose issues
-    // console.log(`Phase: ${phaseType}, State: ${launchState}, Now: ${now}, StartAt: ${startsAt}, EndAt: ${endsAt}`);
+
 
     // Calculate timer update frequency
     // Always initialize as true - we'll set to false only for specific cases
@@ -200,7 +199,6 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
       // Set appropriate interval
       const newIntervalTime = showingSeconds ? 1000 : 60000;
 
-      // console.log(`Setting interval to ${newIntervalTime}ms, time left: ${timeLeft} seconds`);
 
       intervalRef.current = setInterval(() => {
         updateTimeDisplay();

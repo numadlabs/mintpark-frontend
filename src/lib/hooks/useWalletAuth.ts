@@ -189,11 +189,11 @@ const useWalletStore = create<WalletStore>()(
 
             const targetChainIdHex = `0x${targetChainIdDecimal.toString(16)}`;
 
-            console.log(
-              "🚀 ~ connectWallet: ~ currentChainIdDecimal:",
-              currentChainIdDecimal,
-            );
-            console.log("🚀 ~ connectWallet: ~  layer.chainId:", layer.chainId);
+            // console.log(
+            //   "🚀 ~ connectWallet: ~ currentChainIdDecimal:",
+            //   currentChainIdDecimal,
+            // );
+            // console.log("🚀 ~ connectWallet: ~  layer.chainId:", layer.chainId);
 
             // if (currentChainIdDecimal.toString() !== layer.chainId) {
             //   try {
@@ -266,7 +266,6 @@ const useWalletStore = create<WalletStore>()(
                       ],
                     });
                   } catch (addError: any) {
-                    console.log("add error", addError);
                     throw new Error(
                       `Failed to add network (Chain ID: ${layer.chainId}): ${addError.message}`,
                     );
@@ -303,12 +302,11 @@ const useWalletStore = create<WalletStore>()(
               .then((accounts: string[]) => accounts[0]);
 
             const msgResponse = await generateMessageHandler({ address });
-            console.log("🚀 ~ connectWallet: ~ msgResponse:", msgResponse);
+
             signedMessage = await window.ethereum.request({
               method: "personal_sign",
               params: [msgResponse.data.message, address],
             });
-            console.log("🚀 ~ connectWallet: ~ signedMessage:", signedMessage);
             //new implemment
 
             let response;
@@ -478,7 +476,6 @@ const useWalletStore = create<WalletStore>()(
             signedMessage,
           });
 
-          console.log("🚀 ~ proceedWithLinking: ~ response:", response);
 
           if (!response.success) {
             throw new Error("Failed to link wallet to account");
