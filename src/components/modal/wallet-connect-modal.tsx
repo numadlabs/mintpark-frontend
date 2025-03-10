@@ -4,6 +4,8 @@ import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { getAllLayers } from "@/lib/service/queryHelper";
 import { useAuth } from "../provider/auth-context-provider";
+import { WALLET_CONFIGS } from "@/lib/constants";
+import { getCurrencyImage } from "@/lib/service/currencyHelper";
 
 import {
   Dialog,
@@ -66,20 +68,70 @@ export function WalletConnectionModal({
     }
   }, [layers, setLayers]);
 
-  const getLayerImage = (layer: string) => {
-    switch (layer) {
-      case "BITCOIN":
-        return "/wallets/Bitcoin.png";
-      case "SEPOLIA":
-        return "/wallets/hemi.png";
-      case "HEMI":
-        return "/wallets/hemi.png";
-      case "CITREA":
-        return "/wallets/Citrea.png";
-      case "NUBIT":
-        return "/wallets/nubit.webp";
-      default:
-        return "/wallets/Citrea.png";
+  // Function to switch or add chain in Metamask
+  const switchOrAddChain = async (layer: LayerTypes): Promise<boolean> => {
+    if (!layer.chainId || typeof window === 'undefined' || !window.ethereum) return false;
+    
+    try {
+      // Convert to hex format required by Metamask
+      const chainIdHex = `0x${parseInt(layer.chainId).toString(16)}`;
+      
+      // Try to switch chain
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: chainIdHex }],
+      });
+      
+      return true;
+    } catch (error: any) {
+      // Chain not added to Metamask yet
+      if (error.code === 4902) {
+        try {
+          // Get wallet configuration
+          const walletConfig = WALLET_CONFIGS[layer.layer];
+          if (!walletConfig) return false;
+          
+          const networkType = layer.network.toUpperCase();
+          const networkConfig = walletConfig.networks[networkType];
+          if (!networkConfig) return false;
+          
+          // Add the chain to Metamask
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: `0x${parseInt(layer.chainId).toString(16)}`,
+                chainName: layer.name,
+                rpcUrls: networkConfig.rpcUrls,
+                blockExplorerUrls: networkConfig.blockExplorerUrls,
+                nativeCurrency: networkConfig.nativeCurrency || {
+                  name: layer.name,
+                  symbol: layer.layer.substring(0, 5),
+                  decimals: 18,
+                },
+              },
+            ],
+          });
+          
+          // Try switching again after adding
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: layer.chainId }],
+          });
+          
+          return true;
+        } catch (addError: any) {
+          console.error("Failed to add chain:", addError);
+          return false;
+        }
+      } else if (error.code === 4001) {
+        // User rejected request
+        console.log("User rejected chain switch");
+        return false;
+      } else {
+        console.error("Error switching chain:", error);
+        return false;
+      }
     }
   };
 
@@ -95,6 +147,12 @@ export function WalletConnectionModal({
     }
 
     try {
+      // If this is a Metamask wallet, try to switch chain first
+      if (layer.chainId && window.ethereum && WALLET_CONFIGS[layer.layer]?.type === "metamask") {
+        await switchOrAddChain(layer);
+      }
+
+      // Proceed with wallet connection
       await connectWallet(layer.id, authState.authenticated);
       onClose();
       toast.success(
@@ -104,6 +162,8 @@ export function WalletConnectionModal({
       if (error instanceof Error && error.message === "WALLET_ALREADY_LINKED") {
         setCurrentLayer(layer);
         setShowLinkAlert(true);
+      } else {
+        toast.error(`Failed to connect: ${error.message}`);
       }
     }
   };
@@ -115,6 +175,25 @@ export function WalletConnectionModal({
       setShowLinkAlert(false);
     } catch (error) {
       toast.error(`Failed to link wallet: ${error}`);
+    }
+  };
+
+  // Handle tab change and switch chain if appropriate
+  const handleTabChange = async (value: string) => {
+    onTabChange(value);
+    
+    const selectedLayer = layers.find((layer) => layer.layer === value);
+    if (selectedLayer) {
+      onLayerSelect(selectedLayer.layer, selectedLayer.network);
+      
+      // If this is a Metamask layer and we're using Metamask, try to switch chain
+      if (
+        selectedLayer.chainId && 
+        window.ethereum &&
+        WALLET_CONFIGS[selectedLayer.layer]?.type === "metamask"
+      ) {
+        switchOrAddChain(selectedLayer);
+      }
     }
   };
 
@@ -131,16 +210,7 @@ export function WalletConnectionModal({
           <Tabs
             value={activeTab}
             defaultValue={activeTab}
-            onValueChange={(value) => {
-              onTabChange(value);
-              const selectedLayer = layers.find(
-                (layer) => layer.layer === value
-              );
-              if (selectedLayer) {
-                onLayerSelect(selectedLayer.layer, selectedLayer.network);
-                // No need to explicitly call updateAuthStateForLayer since setSelectedLayerId handles it
-              }
-            }}
+            onValueChange={handleTabChange}
             className="w-full"
           >
             <TabsList className="w-full">
@@ -154,7 +224,7 @@ export function WalletConnectionModal({
                   >
                     <Avatar className="w-8 h-8">
                       <AvatarImage
-                        src={getLayerImage(layer.layer)}
+                        src={getCurrencyImage(layer.layer)}
                         alt={layer.layer.toLowerCase()}
                         sizes="100%"
                       />
