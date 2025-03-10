@@ -26,6 +26,7 @@ export interface ConnectedWallet {
   layer: string;
   layerType: string;
   network: string;
+  userLayerId: string;
 }
 
 const initialWalletInfo: WalletInfo = {
@@ -125,15 +126,11 @@ const useWalletStore = create<WalletStore>()(
 
       setSelectedLayerId: (id: string) => {
         set({ selectedLayerId: id });
-        // Update the authState when the selected layer changes
         get().updateAuthStateForLayer(id);
       },
 
-      // New function to update authState based on the selected layer
       updateAuthStateForLayer: (layerId: string) => {
         const { connectedWallets, authState } = get();
-
-        // If the wallet for this layer is connected, update the authState to use this layer
         const wallet = connectedWallets.find((w) => w.layerId === layerId);
 
         if (wallet) {
@@ -141,18 +138,13 @@ const useWalletStore = create<WalletStore>()(
             authState: {
               ...state.authState,
               layerId: layerId,
-              // Maintain authentication state and other properties
               authenticated: state.authState.authenticated,
               userId: state.authState.userId,
               tokens: state.authState.tokens,
-              // Update userLayerId for the current connected layer if needed
-              // (This can be layer-specific in some architectures)
-              userLayerId: state.authState.userLayerId,
+              userLayerId: wallet.userLayerId, // Use userLayerId from the selected wallet
             },
           }));
         } else {
-          // If the selected layer is not connected, we don't change authentication status
-          // but we do update the layerId to reflect the selected layer
           set((state) => ({
             authState: {
               ...state.authState,
@@ -267,12 +259,12 @@ const useWalletStore = create<WalletStore>()(
                     });
                   } catch (addError: any) {
                     throw new Error(
-                      `Failed to add network (Chain ID: ${layer.chainId}): ${addError.message}`,
+                      `Failed to add network (Chain ID: ${layer.chainId}): ${addError.message}`
                     );
                   }
                 } else {
                   throw new Error(
-                    `Failed to switch network (Chain ID: ${layer.chainId}): ${switchError.message}`,
+                    `Failed to switch network (Chain ID: ${layer.chainId}): ${switchError.message}`
                   );
                 }
               }
@@ -294,7 +286,6 @@ const useWalletStore = create<WalletStore>()(
 
             // new implemment
 
-            // new implemment
             address = await window.ethereum
               .request({
                 method: "eth_requestAccounts",
@@ -351,6 +342,7 @@ const useWalletStore = create<WalletStore>()(
               layerType: layer.layerType,
               layer: layer.layer,
               network: layer.network,
+              userLayerId: response.data.userLayer.id,
             };
             set((state) => ({
               connectedWallets: [...state.connectedWallets, newWallet],
@@ -379,7 +371,7 @@ const useWalletStore = create<WalletStore>()(
 
             // Sign message with Unisat
             signedMessage = await window.unisat.signMessage(
-              msgResponse.data.message,
+              msgResponse.data.message
             );
             pubkey = await window.unisat.getPublicKey();
 
@@ -426,20 +418,15 @@ const useWalletStore = create<WalletStore>()(
               layerType: layer.layer,
               layer: layer.layer,
               network: layer.network,
+              userLayerId: response.data.userLayer.id,
             };
-
-            const updatedWallets = [...get().connectedWallets, newWallet];
-            const hasOnlyBitcoin = updatedWallets.every((w) => {
-              const layerInfo = get().layers.find((l) => l.id === w.layerId);
-              return layerInfo?.layer === "BITCOIN";
-            });
 
             set((state) => ({
               connectedWallets: [...state.connectedWallets, newWallet],
               authState: {
                 ...state.authState,
                 authenticated: true,
-                userLayerId: hasOnlyBitcoin ? null : response.data.userLayer.id,
+                userLayerId: response.data.userLayer.id,
                 userId: response.data.user.id,
                 layerId,
                 tokens: response.data.tokens,
@@ -476,7 +463,6 @@ const useWalletStore = create<WalletStore>()(
             signedMessage,
           });
 
-
           if (!response.success) {
             throw new Error("Failed to link wallet to account");
           }
@@ -492,6 +478,7 @@ const useWalletStore = create<WalletStore>()(
             layerType: layer.layerType,
             layer: layer.layer,
             network: layer.network,
+            userLayerId: response.data.userLayer.id,
           };
 
           set((state) => ({
@@ -525,7 +512,7 @@ const useWalletStore = create<WalletStore>()(
       disconnectWallet: async (layerId: string) => {
         set((state) => ({
           connectedWallets: state.connectedWallets.filter(
-            (w) => w.layerId !== layerId,
+            (w) => w.layerId !== layerId
           ),
         }));
 
@@ -573,8 +560,8 @@ const useWalletStore = create<WalletStore>()(
         authState: state.authState,
         selectedLayerId: state.selectedLayerId,
       }),
-    },
-  ),
+    }
+  )
 );
 
 export default useWalletStore;
