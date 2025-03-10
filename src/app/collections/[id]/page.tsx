@@ -94,6 +94,7 @@ const CollectionDetailPage = () => {
         orderDirection,
         limit,
         offset,
+        0,
         isListed,
         JSON.stringify(traitValuesByType) // Stringify only here if required
       );
