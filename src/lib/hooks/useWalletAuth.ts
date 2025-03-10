@@ -11,6 +11,7 @@ import { saveToken } from "../auth";
 import { STORAGE_KEYS, WALLET_CONFIGS } from "../constants";
 import { toast } from "sonner";
 import { connectUnisat } from "../wallet";
+import { useEffect } from "react";
 
 type WalletType = "EVM" | "BITCOIN" | null;
 
@@ -93,6 +94,110 @@ const loadInitialState = () => {
     console.error("Error loading auth state:", error);
     return initialAuthState;
   }
+};
+
+// Metamask utility functions (integrated directly)
+const isMetamaskAvailable = () => {
+  return typeof window !== 'undefined' && typeof window.ethereum !== 'undefined';
+};
+
+const setupWalletEventListeners = (store: any) => {
+  if (!isMetamaskAvailable()) return;
+    
+  const handleAccountsChanged = (accounts: string[]) => {
+    const { connectedWallets, layers, disconnectWallet } = store.getState();
+    
+    console.log("Metamask accounts changed:", accounts);
+    
+    if (accounts.length === 0) {
+      // User disconnected all accounts from Metamask
+      toast.info("Metamask wallet disconnected");
+      
+      // Find all wallets that use Metamask and disconnect them
+      const metamaskWallets = connectedWallets.filter((wallet: ConnectedWallet) => {
+        const layer = layers.find((l:any) => l.id === wallet.layerId);
+        return layer && WALLET_CONFIGS[layer.layer]?.type === "metamask";
+      });
+      
+      metamaskWallets.forEach((wallet: ConnectedWallet) => {
+        disconnectWallet(wallet.layerId);
+      });
+    } else {
+      // User switched to a different account in Metamask
+      const newAddress = accounts[0];
+      
+      // Find all wallets that use Metamask
+      const metamaskWallets = connectedWallets.filter((wallet: ConnectedWallet) => {
+        const layer = layers.find((l:any) => l.id === wallet.layerId);
+        return layer && WALLET_CONFIGS[layer.layer]?.type === "metamask";
+      });
+      
+      if (metamaskWallets.length > 0 && metamaskWallets[0].address !== newAddress) {
+        toast.info(`Account changed to ${newAddress.slice(0, 6)}...${newAddress.slice(-4)}`);
+        
+        // Account changed - need to disconnect and reconnect
+        toast.info("Your wallet address has changed. Please reconnect your wallet.");
+        
+        metamaskWallets.forEach((wallet: ConnectedWallet) => {
+          disconnectWallet(wallet.layerId);
+        });
+      }
+    }
+  };
+  
+  const handleChainChanged = (chainId: string) => {
+    const { connectedWallets, layers, selectedLayerId, setSelectedLayerId } = store.getState();
+    
+    // Convert chainId from hex to decimal
+    const chainIdDecimal = parseInt(chainId, 16).toString();
+    console.log("Metamask chain changed to:", chainIdDecimal);
+    
+    // Find a matching layer for this chain ID
+    const matchingLayer = layers.find((l: Layer) => l.chainId === chainIdDecimal);
+    
+    if (matchingLayer) {
+      toast.info(`Network changed to ${matchingLayer.name}`);
+      
+      // If the selected layer is using metamask, update it
+      if (selectedLayerId) {
+        const currentLayer = layers.find((l: Layer) => l.id === selectedLayerId);
+        if (currentLayer && WALLET_CONFIGS[currentLayer.layer]?.type === "metamask") {
+          setSelectedLayerId(matchingLayer.id);
+        }
+      }
+    } else {
+      toast.warning("Switched to an unsupported network");
+    }
+  };
+  
+  const handleDisconnect = (error: any) => {
+    console.log("Metamask disconnect event:", error);
+    toast.error("Metamask connection lost");
+  };
+  
+  // Add event listeners
+  window.ethereum.on('accountsChanged', handleAccountsChanged);
+  window.ethereum.on('chainChanged', handleChainChanged);
+  window.ethereum.on('disconnect', handleDisconnect);
+  
+  // Store the handlers so we can remove them later
+  if (typeof window !== "undefined") {
+    window._metamaskHandlers = {
+      accountsChanged: handleAccountsChanged,
+      chainChanged: handleChainChanged,
+      disconnect: handleDisconnect
+    };
+  }
+  
+  return () => {
+    // Cleanup function
+    if (typeof window !== "undefined" && window.ethereum && window._metamaskHandlers) {
+      window.ethereum.removeListener('accountsChanged', window._metamaskHandlers.accountsChanged);
+      window.ethereum.removeListener('chainChanged', window._metamaskHandlers.chainChanged);
+      window.ethereum.removeListener('disconnect', window._metamaskHandlers.disconnect);
+      delete window._metamaskHandlers;
+    }
+  };
 };
 
 export interface WalletStore {
@@ -181,52 +286,6 @@ const useWalletStore = create<WalletStore>()(
 
             const targetChainIdHex = `0x${targetChainIdDecimal.toString(16)}`;
 
-            // console.log(
-            //   "🚀 ~ connectWallet: ~ currentChainIdDecimal:",
-            //   currentChainIdDecimal,
-            // );
-            // console.log("🚀 ~ connectWallet: ~  layer.chainId:", layer.chainId);
-
-            // if (currentChainIdDecimal.toString() !== layer.chainId) {
-            //   try {
-            //     await window.ethereum.request({
-            //       method: "wallet_addEthereumChain",
-            //       params: [
-            //         {
-            //           chainId: targetChainIdHex,
-            //           chainName: layer.name,
-            //           rpcUrls: walletConfig.networks.TESTNET.rpcUrls,
-            //           // rpcUrls: [layer.rpcUrl],
-            //           nativeCurrency: {
-            //             name: "cBTC",
-            //             symbol: "cBTC",
-            //             decimals: 18,
-            //           },
-            //         },
-            //       ],
-            //     });
-            //   } catch (addError: any) {
-            //     console.log("add error", addError);
-            //     if (addError.code === 4902) {
-            //       try {
-            //         await window.ethereum.request({
-            //           method: "wallet_switchEthereumChain",
-            //           params: [{ chainId: targetChainIdHex }],
-            //         });
-            //       } catch (switchError) {
-            //         throw new Error(
-            //           `Failed to switch network (Chain ID: ${layer.chainId})`,
-            //         );
-            //       }
-            //     } else {
-            //       throw new Error(
-            //         `Failed to add network (Chain ID: ${layer.chainId})`,
-            //       );
-            //     }
-            //   }
-            // }
-
-            //new implement
             if (currentChainIdDecimal.toString() !== layer.chainId) {
               try {
                 // Try to switch to the network first before trying to add it
@@ -270,22 +329,6 @@ const useWalletStore = create<WalletStore>()(
               }
             }
 
-            // address = await window.ethereum
-            //   .request({
-            //     method: "eth_requestAccounts",
-            //   })
-            //   .then((accounts: string[]) => accounts[0]);
-
-            // const msgResponse = await generateMessageHandler({ address });
-            // console.log("🚀 ~ connectWallet: ~ msgResponse:", msgResponse);
-            // signedMessage = await window.ethereum.request({
-            //   method: "personal_sign",
-            //   params: [msgResponse.data.message, address],
-            // });
-            // console.log("🚀 ~ connectWallet: ~ signedMessage:", signedMessage);
-
-            // new implemment
-
             address = await window.ethereum
               .request({
                 method: "eth_requestAccounts",
@@ -298,7 +341,6 @@ const useWalletStore = create<WalletStore>()(
               method: "personal_sign",
               params: [msgResponse.data.message, address],
             });
-            //new implemment
 
             let response;
             if (isLinking && authState.authenticated) {
@@ -344,6 +386,7 @@ const useWalletStore = create<WalletStore>()(
               network: layer.network,
               userLayerId: response.data.userLayer.id,
             };
+            
             set((state) => ({
               connectedWallets: [...state.connectedWallets, newWallet],
               authState: {
@@ -356,6 +399,11 @@ const useWalletStore = create<WalletStore>()(
                 loading: false,
               },
             }));
+            
+            // Set up Metamask event listeners if not already set up
+            if (isMetamaskAvailable() && !window._metamaskHandlers) {
+              setupWalletEventListeners(useWalletStore);
+            }
           } else if (walletConfig.type === "unisat") {
             if (!window?.unisat)
               throw new Error("Unisat wallet is not installed");
@@ -503,7 +551,6 @@ const useWalletStore = create<WalletStore>()(
           set((state) => ({
             authState: { ...state.authState, loading: false },
           }));
-          // console.error("Failed to proceed with linking:", error);
           toast.error(error.message);
           throw error;
         }
@@ -517,6 +564,14 @@ const useWalletStore = create<WalletStore>()(
         }));
 
         if (get().connectedWallets.length === 0) {
+          // Clean up Metamask event listeners when all wallets are disconnected
+          if (typeof window !== "undefined" && window._metamaskHandlers) {
+            window.ethereum.removeListener('accountsChanged', window._metamaskHandlers.accountsChanged);
+            window.ethereum.removeListener('chainChanged', window._metamaskHandlers.chainChanged);
+            window.ethereum.removeListener('disconnect', window._metamaskHandlers.disconnect);
+            delete window._metamaskHandlers;
+          }
+          
           get().onLogout();
         }
       },
@@ -539,6 +594,14 @@ const useWalletStore = create<WalletStore>()(
 
       onLogout: () => {
         if (typeof window === "undefined") return;
+
+        // Clean up Metamask event listeners on logout
+        if (window._metamaskHandlers) {
+          window.ethereum.removeListener('accountsChanged', window._metamaskHandlers.accountsChanged);
+          window.ethereum.removeListener('chainChanged', window._metamaskHandlers.chainChanged);
+          window.ethereum.removeListener('disconnect', window._metamaskHandlers.disconnect);
+          delete window._metamaskHandlers;
+        }
 
         set({
           connectedWallets: [],
@@ -563,5 +626,144 @@ const useWalletStore = create<WalletStore>()(
     }
   )
 );
+
+// Add type declaration for window
+declare global {
+  interface Window {
+    ethereum: any;
+    unisat: any;
+    _metamaskHandlers?: {
+      accountsChanged: (accounts: string[]) => void;
+      chainChanged: (chainId: string) => void;
+      disconnect: (error: any) => void;
+    };
+  }
+}
+
+// Initialize Metamask event listeners if a wallet is already connected
+if (typeof window !== "undefined" && window.ethereum) {
+  // Check if there are any Metamask wallets connected in the store
+  const state = useWalletStore.getState();
+  
+  const hasMetamaskWallets = state.connectedWallets.some(wallet => {
+    const layer = state.layers.find(l => l.id === wallet.layerId);
+    return layer && WALLET_CONFIGS[layer.layer]?.type === "metamask";
+  });
+  
+  // If there are Metamask wallets connected, set up event listeners
+  if (hasMetamaskWallets && !window._metamaskHandlers) {
+    setupWalletEventListeners(useWalletStore);
+  }
+}
+
+// Custom React hook to use in components that need Metamask events
+export function useMetamaskEvents() {
+  const { 
+    connectedWallets, 
+    layers, 
+    selectedLayerId, 
+    setSelectedLayerId, 
+    disconnectWallet 
+  } = useWalletStore(state => ({
+    connectedWallets: state.connectedWallets,
+    layers: state.layers,
+    selectedLayerId: state.selectedLayerId,
+    setSelectedLayerId: state.setSelectedLayerId,
+    disconnectWallet: state.disconnectWallet
+  }));
+
+  useEffect(() => {
+    // Only set up listeners if Metamask is available
+    if (typeof window === "undefined" || !window.ethereum) return;
+    
+    // Handle account changes (disconnected or switched accounts)
+    const handleAccountsChanged = (accounts: string[]) => {
+      if (accounts.length === 0) {
+        // User disconnected from Metamask
+        toast.info("Metamask wallet disconnected");
+        
+        // Find all Metamask wallets and disconnect them
+        const metamaskWallets = connectedWallets.filter(wallet => {
+          const layer = layers.find(l => l.id === wallet.layerId);
+          return layer && WALLET_CONFIGS[layer.layer]?.type === "metamask";
+        });
+        
+        metamaskWallets.forEach(wallet => {
+          disconnectWallet(wallet.layerId);
+        });
+      } else {
+        // Account switched - check if it's a new account
+        const newAddress = accounts[0];
+        
+        // Check if any of our connected wallets match this address
+        const matchingWallet = connectedWallets.find(
+          wallet => wallet.address.toLowerCase() === newAddress.toLowerCase()
+        );
+        
+        if (!matchingWallet) {
+          // We don't have this account connected - notify user
+          toast.info("Account changed. Please reconnect your wallet.");
+          
+          // Disconnect all Metamask wallets
+          const metamaskWallets = connectedWallets.filter(wallet => {
+            const layer = layers.find(l => l.id === wallet.layerId);
+            return layer && WALLET_CONFIGS[layer.layer]?.type === "metamask";
+          });
+          
+          metamaskWallets.forEach(wallet => {
+            disconnectWallet(wallet.layerId);
+          });
+        }
+      }
+    };
+    
+    // Handle chain change - match to our layers
+    const handleChainChanged = (chainId: string) => {
+      // Convert chainId from hex to decimal
+      const chainIdDecimal = parseInt(chainId, 16).toString();
+      
+      // Find a matching layer for this chain ID
+      const matchingLayer = layers.find(l => l.chainId === chainIdDecimal);
+      
+      if (matchingLayer) {
+        // Found a matching layer - update selected layer if current is Metamask
+        if (selectedLayerId) {
+          const currentLayer = layers.find(l => l.id === selectedLayerId);
+          if (currentLayer && WALLET_CONFIGS[currentLayer.layer]?.type === "metamask") {
+            setSelectedLayerId(matchingLayer.id);
+            
+            // Also update localStorage for persistence
+            localStorage.setItem("selectedLayer", matchingLayer.layer);
+            
+            toast.info(`Network changed to ${matchingLayer.name}`);
+          }
+        }
+      } else {
+        // Unknown network
+        toast.warning("Switched to an unsupported network in Metamask");
+      }
+    };
+    
+    // Handle disconnection events
+    const handleDisconnect = (error: any) => {
+      console.error("Metamask disconnect event:", error);
+      toast.error("Connection to wallet lost");
+    };
+    
+    // Set up event listeners
+    window.ethereum.on('accountsChanged', handleAccountsChanged);
+    window.ethereum.on('chainChanged', handleChainChanged);
+    window.ethereum.on('disconnect', handleDisconnect);
+    
+    // Clean up event listeners when component unmounts
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        window.ethereum.removeListener('chainChanged', handleChainChanged);
+        window.ethereum.removeListener('disconnect', handleDisconnect);
+      }
+    };
+  }, [connectedWallets, layers, selectedLayerId, setSelectedLayerId, disconnectWallet]);
+}
 
 export default useWalletStore;

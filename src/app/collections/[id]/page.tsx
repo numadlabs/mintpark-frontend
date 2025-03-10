@@ -87,6 +87,7 @@ const CollectionDetailPage = () => {
       }
       const limit = ITEMS_PER_PAGE;
       const offset = (pageParam - 1) * ITEMS_PER_PAGE;
+      const query = (pageParam - 1) * ITEMS_PER_PAGE;
 
       const response = await getListedCollectionById(
         id,
@@ -94,7 +95,6 @@ const CollectionDetailPage = () => {
         orderDirection,
         limit,
         offset,
-        0,
         isListed,
         JSON.stringify(traitValuesByType) // Stringify only here if required
       );

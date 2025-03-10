@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion"; // Import framer-motion
 import HeaderItem from "../ui/headerItem";
 import { useAuth } from "../provider/auth-context-provider";
+import { useMetamaskEvents } from "@/lib/hooks/useWalletAuth";
 import {
   Select,
   SelectContent,
@@ -30,6 +31,8 @@ import { toast } from "sonner";
 import Badge from "../atom/badge";
 import { Check, Loader2, MenuIcon, X } from "lucide-react";
 import { WalletConnectionModal } from "../modal/wallet-connect-modal";
+import { WALLET_CONFIGS } from "@/lib/constants";
+import { getCurrencyImage } from "@/lib/service/currencyHelper";
 
 // Type definitions
 interface RouteItem {
@@ -66,6 +69,8 @@ export default function Header() {
     connectedWallets,
   } = useAuth();
 
+
+  useMetamaskEvents();
   // State to track scroll position when menu opens
   // Handle mobile menu open/close
   useEffect(() => {
@@ -108,9 +113,7 @@ export default function Header() {
   });
 
   useEffect(() => {
-    // Try to get saved layer from localStorage first
     const savedLayer = localStorage.getItem("selectedLayer");
-
     if (savedLayer && dynamicLayers.length > 0) {
       const matchingLayer = dynamicLayers.find((l) => l.layer === savedLayer);
       if (matchingLayer) {
@@ -153,31 +156,97 @@ export default function Header() {
   ];
 
   // Get layer image based on layer name
-  const getLayerImage = (layer: string): string => {
-    const imageMap: LayerImageMap = {
-      BITCOIN: "/wallets/Bitcoin.png",
-      FRACTAL: "/wallets/Fractal.png",
-      CITREA: "/wallets/Citrea.png",
-      SEPOLIA: "/wallets/hemi.png",
-      HEMI: "/wallets/hemi.png",
-      POLYGON_ZK: "",
-    };
-
-    return imageMap[layer] || "/wallets/Bitcoin.png";
-  };
 
   // Handle layer selection
-  const handleLayerSelect = (value: string): void => {
+  const switchOrAddChain = async (chainId: string, layer: string, network: string): Promise<boolean> => {
+    if (!chainId || typeof window === 'undefined' || !window.ethereum) return false;
+    
+    try {
+      // Convert to hex format required by Metamask
+      const chainIdHex = `0x${parseInt(chainId).toString(16)}`;
+      
+      // Try to switch chain
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: chainIdHex }],
+      });
+      
+      return true;
+    } catch (error: any) {
+      // Chain not added to Metamask yet
+      if (error.code === 4902) {
+        try {
+          // Get wallet configuration
+          const walletConfig = WALLET_CONFIGS[layer];
+          if (!walletConfig) return false;
+          
+          const networkType = network.toUpperCase();
+          const networkConfig = walletConfig.networks[networkType];
+          if (!networkConfig) return false;
+          
+          // Add the chain to Metamask
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: `0x${parseInt(chainId).toString(16)}`,
+                chainName: `${layer} ${network}`,
+                rpcUrls: networkConfig.rpcUrls,
+                blockExplorerUrls: networkConfig.blockExplorerUrls,
+                nativeCurrency: networkConfig.nativeCurrency || {
+                  name: layer,
+                  symbol: layer.substring(0, 5),
+                  decimals: 18,
+                },
+              },
+            ],
+          });
+          
+          // Try switching again after adding
+          await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+            params: [{ chainId: 0xB56C7 }],
+          });
+          
+          return true;
+        } catch (addError: any) {
+          console.error("Failed to add chain:", addError);
+          return false;
+        }
+      } else if (error.code === 4001) {
+        // User rejected request
+        console.log("User rejected chain switch");
+        return false;
+      } else {
+        console.error("Error switching chain:", error);
+        return false;
+      }
+    }
+  };
+  
+  // Update your handleLayerSelect function to also switch chain:
+  const handleLayerSelect = async (value: string): Promise<void> => {
     const [layer, network] = value.split("-");
     const matchingLayer = layers.find(
       (l) => l.layer === layer && l.network === network
     );
-
+  
     if (matchingLayer && selectedLayerId !== matchingLayer.id) {
+      // Update app state first
       setSelectedLayerId(matchingLayer.id);
       setDefaultLayer(value);
       setSelectedLayer(layer);
       localStorage.setItem("selectedLayer", layer);
+      
+      // If this is a Metamask layer and we have access to the ethereum object, switch chain
+      if (
+        matchingLayer.chainId && 
+        window.ethereum && 
+        WALLET_CONFIGS[layer]?.type === "metamask"
+      ) {
+        // Try to switch to the chain in Metamask
+        await switchOrAddChain(matchingLayer.chainId, layer, network);
+      }
     }
   };
 
@@ -234,7 +303,7 @@ export default function Header() {
         <div className="flex justify-between gap-2 items-center text-md text-neutral50 font-medium w-full">
           <div className="flex gap-2">
             <Image
-              src={getLayerImage(layer.layer)}
+              src={getCurrencyImage(layer.layer)}
               alt={layer.layer}
               width={24}
               height={24}
@@ -267,7 +336,7 @@ export default function Header() {
       return (
         <div className="flex flex-row gap-2 items-center w-max">
           <Image
-            src={getLayerImage(defaultLayer.split("-")[0])}
+            src={getCurrencyImage(defaultLayer.split("-")[0])}
             alt={defaultLayer.split("-")[0]}
             width={24}
             height={24}
