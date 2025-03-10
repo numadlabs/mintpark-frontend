@@ -225,12 +225,11 @@ const IPFS = () => {
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
-        console.log("🚀 ~ handleCreateCollection ~ response:", response);
         if (response && response.success) {
           const { id } = response.data.l2Collection;
           const { deployContractTxHex } = response.data;
           setCollectionId(id);
-          console.log("create collection success", response);
+
           toast.success("Create collection success.");
 
           if (currentLayer.layerType === "EVM") {
@@ -566,7 +565,6 @@ const IPFS = () => {
         }
 
         const launchCollectionId = launchResponse.data.launch.collectionId;
-        console.log("Launch Collection ID:", launchCollectionId);
         const launchId = launchResponse.data.launch.id;
 
         // Process files in batches
@@ -610,7 +608,7 @@ const IPFS = () => {
               });
             }
             if (whResponse && whResponse.success) {
-              console.log("Whitelist processing completed");
+
               toggleSuccessModal();
             }
           } catch (error) {
@@ -634,7 +632,6 @@ const IPFS = () => {
               });
             }
             if (whResponse && whResponse.success) {
-              console.log("FCFS processing completed");
               toggleSuccessModal();
             }
           } catch (error) {

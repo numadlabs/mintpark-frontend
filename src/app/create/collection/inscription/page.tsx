@@ -195,12 +195,11 @@ const Inscription = () => {
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
-        console.log("🚀 ~ handleCreateCollection ~ response:", response);
+
         if (response && response.success) {
           const { id } = response.data.ordinalCollection;
           const { deployContractTxHex } = response.data;
           setCollectionId(id);
-          console.log("create collection success", response);
           toast.success("Create collection success.");
 
           if (currentLayer.layerType === "EVM") {
@@ -329,7 +328,7 @@ const Inscription = () => {
         }
 
         const launchCollectionId = launchResponse.data.launch.collectionId;
-        console.log("Launch Collection ID:", launchCollectionId);
+
 
         // Process files in batches
         for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
@@ -441,8 +440,6 @@ const Inscription = () => {
               // // Store the last successful order ID
               // setData(colRes.data.order.id);
             }
-
-            console.log("Batch upload index: ", batchIndex);
           }
 
           const orderRes = await invokeOrderMutation({

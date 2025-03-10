@@ -248,12 +248,12 @@ const Badge = () => {
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
-        console.log("🚀 ~ handleCreateCollection ~ response:", response);
+        // console.log("🚀 ~ handleCreateCollection ~ response:", response);
         if (response && response.success) {
           const { id } = response.data.l2Collection;
           const { deployContractTxHex } = response.data;
           setCollectionId(id);
-          console.log("create collection success", response);
+          // console.log("create collection success", response);
 
           if (currentLayer.layerType === "EVM") {
             const { signer } = await getSigner();
@@ -513,7 +513,7 @@ const Badge = () => {
                 });
               }
               if (whResponse && whResponse.success) {
-                console.log("Whitelist processing completed");
+                // console.log("Whitelist processing completed");
                 toggleSuccessModal();
               }
             } catch (error) {
@@ -537,7 +537,7 @@ const Badge = () => {
                 });
               }
               if (whResponse && whResponse.success) {
-                console.log("FCFS processing completed");
+                // console.log("FCFS processing completed");
                 toggleSuccessModal();
               }
             } catch (error) {

@@ -122,7 +122,6 @@ export async function getListedCollections(
 //   offset: number,
 //   traitValuesByType: string
 // ): Promise<CollectionDetail | null> {
-//   console.log("traitValuesByType", traitValuesByType);
 //   return axiosClient
 //     .get<CollectionDetailApiResponse>(
 //       `/api/v1/collectibles/${collectionId}/collection/listable?orderBy=${orderBy}&orderDirection=${orderDirection}&limit=${limit}&offset=${offset}&traitValuesByType&${traitValuesByType}`
@@ -233,7 +232,7 @@ export async function getListableById(
   collectionIds: string[],
   availability: string,
 ): Promise<AssetSchema> {
-  console.log("query triggered date", new Date().getMilliseconds());
+
   // Create base query parameters
   const params = new URLSearchParams({
     orderDirection,
