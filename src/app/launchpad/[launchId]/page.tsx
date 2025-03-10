@@ -185,6 +185,75 @@ const Page = () => {
       setShowPendingModal(false);
     }
   };
+
+  // Helper function to check if all phases have completed
+  const areAllPhasesCompleted = () => {
+    const now = moment().unix();
+
+    // Check if all end times are in the past
+    const wlEnded =
+      !collectibles.isWhitelisted ||
+      (collectibles.wlEndsAt > 0 && collectibles.wlEndsAt < now);
+
+    const fcfsEnded =
+      !collectibles.hasFCFS ||
+      (collectibles.fcfsEndsAt > 0 && collectibles.fcfsEndsAt < now);
+
+    const poEnded = collectibles.poEndsAt > 0 && collectibles.poEndsAt < now;
+
+    return wlEnded && fcfsEnded && poEnded;
+  };
+
+  // Helper function to check if any phase has started yet
+  const hasAnyPhaseStarted = () => {
+    const now = moment().unix();
+
+    // Check if any start time is in the past
+    const wlStarted =
+      collectibles.isWhitelisted && collectibles.wlStartsAt <= now;
+    const fcfsStarted =
+      collectibles.hasFCFS && collectibles.fcfsStartsAt <= now;
+    const poStarted = collectibles.poStartsAt <= now;
+
+    return wlStarted || fcfsStarted || poStarted;
+  };
+
+  // Helper function to check if all supplies are exhausted
+  const isSupplyExhausted = () => {
+    // For badges with infinite supply, supply is never exhausted
+    if (collectibles.isBadge && collectibles.badgeSupply === null) {
+      return false;
+    }
+
+    return collectibles.supply === collectibles.mintedAmount;
+  };
+
+  // Comprehensive function to determine which button to show
+  const determineButtonState = () => {
+    // 1. If supply is exhausted, show "Go to Collection"
+    if (isSupplyExhausted()) {
+      return "goToCollection";
+    }
+
+    // 2. If mint is currently active, show "Mint"
+    if (isMintActive()) {
+      return "mint";
+    }
+
+    // 3. If all phases have completed (but supply remains), show "Go to Collection"
+    if (areAllPhasesCompleted()) {
+      return "goToCollection";
+    }
+
+    // 4. If no phase has started yet, show "Minting Soon"
+    if (!hasAnyPhaseStarted()) {
+      return "mintingSoon";
+    }
+
+    // 5. Default: if phases exist in the future, show "Minting Soon"
+    return "mintingSoon";
+  };
+
   const determineActivePhase = () => {
     const now = moment();
 
@@ -266,6 +335,7 @@ const Page = () => {
 
     // Check public period
     const isInPublicPeriod =
+      // collectibles.poStartsAt == 0 &&
       collectibles.poStartsAt <= now &&
       (collectibles.poEndsAt === 0 || collectibles.poEndsAt > now);
 
@@ -542,23 +612,27 @@ const Page = () => {
                         />
                       )}
 
-                      <PhaseCard
-                        phaseType="public"
-                        maxMintPerWallet={collectibles.poMaxMintPerWallet}
-                        mintPrice={collectibles.poMintPrice}
-                        endsAt={collectibles.poEndsAt}
-                        startsAt={collectibles.poStartsAt}
-                        isActive={selectedPhase === "public"}
-                        onClick={() => handlePhaseClick("public")}
-                        supply={collectibles.supply}
-                        mintedAmount={collectibles.mintedAmount}
-                        isBadge={collectibles.isBadge}
-                        badgeSupply={collectibles.badgeSupply}
-                      />
+                      {collectibles.poStartsAt !== 0 &&
+                        collectibles.poStartsAt > 0 && (
+                          <PhaseCard
+                            phaseType="public"
+                            maxMintPerWallet={collectibles.poMaxMintPerWallet}
+                            mintPrice={collectibles.poMintPrice}
+                            endsAt={collectibles.poEndsAt}
+                            startsAt={collectibles.poStartsAt}
+                            isActive={selectedPhase === "public"}
+                            onClick={() => handlePhaseClick("public")}
+                            supply={collectibles.supply}
+                            mintedAmount={collectibles.mintedAmount}
+                            isBadge={collectibles.isBadge}
+                            badgeSupply={collectibles.badgeSupply}
+                          />
+                        )}
                     </div>
                   </ScrollArea>
 
-                  {shouldShowGoToCollection() ? (
+                  {/* Updated Button Logic */}
+                  {determineButtonState() === "goToCollection" ? (
                     <Button
                       className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold mt-4"
                       disabled={isLoading}
@@ -574,7 +648,7 @@ const Page = () => {
                         "Go to collection"
                       )}
                     </Button>
-                  ) : isMintActive() ? (
+                  ) : determineButtonState() === "mint" ? (
                     <Button
                       variant="primary"
                       type="submit"
