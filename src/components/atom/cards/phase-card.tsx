@@ -195,7 +195,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
           : 0;
 
       // Show seconds when under 10 minutes remaining
-      const showingSeconds = timeLeft > 0 && timeLeft < 0;
+      const showingSeconds = timeLeft > 0 && timeLeft < 600;
 
       // Set appropriate interval
       const newIntervalTime = showingSeconds ? 1000 : 60000;
