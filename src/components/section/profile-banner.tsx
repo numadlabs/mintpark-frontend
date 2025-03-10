@@ -4,8 +4,8 @@ import { useAuth } from "../provider/auth-context-provider";
 import { formatPriceBtc, formatPriceUsd } from "@/lib/utils";
 import { getLayerById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
-import { BITCOIN_IMAGE } from "../../lib/constants";
 import { useAssetsContext } from "@/lib/hooks/useAssetContext";
+import { getCurrencySymbol, getCurrencyImage } from "@/lib/service/currencyHelper";
 
 declare global {
   interface Window {
@@ -25,6 +25,7 @@ const ProfileBanner: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  
   // Get assets data from context
   const { assetsData } = useAssetsContext();
 
@@ -54,6 +55,9 @@ const ProfileBanner: React.FC = () => {
           amount: ethAmount,
           usdAmount: usdAmount,
         });
+
+        console.log("balance", ethAmount, usdAmount);
+        
       } else if (connectedWallet.layerType === "BITCOIN") {
         if (!window.unisat) throw new Error("Unisat not installed");
 
@@ -82,6 +86,8 @@ const ProfileBanner: React.FC = () => {
   useEffect(() => {
     if (connectedWallet) {
       getBalance();
+      console.log(getBalance());
+      
     }
   }, [connectedWallet]);
 
@@ -102,6 +108,7 @@ const ProfileBanner: React.FC = () => {
     const suffix = address.slice(-4);
     return `${prefix}...${suffix}`;
   };
+  
 
   // Get totalCount and listCount from assetsData
   const totalCount = assetsData?.data?.totalCount || 0;
@@ -177,7 +184,7 @@ const ProfileBanner: React.FC = () => {
                   <div className="rounded-2xl bg-white4 p-3 sm:p-4 flex gap-4 items-center w-full md:w-fit justify-center md:justify-start">
                     <div className="flex flex-row items-center gap-2 md:gap-3">
                       <Image
-                        src={BITCOIN_IMAGE}
+                        src={getCurrencyImage(connectedWallet.layer)}
                         alt="crypto"
                         draggable="false"
                         width={24}
@@ -186,9 +193,9 @@ const ProfileBanner: React.FC = () => {
                       />
                       <p className="flex items-center font-bold text-lg md:text-xl text-white">
                         {formatPriceBtc(balance.amount)}{" "}
-                        {connectedWallet.layerType === "CITREA"
-                          ? "cBTC"
-                          : "BTC"}
+                        {
+                          getCurrencySymbol(connectedWallet.layer)
+                        }
                       </p>
                     </div>
                     <div className="h-6 w-[1px] bg-white16" />
