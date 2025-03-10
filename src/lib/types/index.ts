@@ -111,10 +111,10 @@ export type LaunchParams = {
   collectionId: string | null;
   isWhitelisted: boolean;
   hasFCFS: boolean;
-  poStartsAt: number;
+  poStartsAt?: number | null;
   poEndsAt?: number;
-  poMintPrice: number;
-  poMaxMintPerWallet: number;
+  poMintPrice?: number;
+  poMaxMintPerWallet?: number;
   wlStartsAt?: number;
   wlEndsAt?: number;
   wlMintPrice?: number;
@@ -147,10 +147,10 @@ export type LaunchType = {
   collectionId: string | null;
   isWhitelisted: boolean;
   hasFCFS: boolean;
-  poStartsAt: number;
-  poEndsAt: number;
-  poMintPrice: number;
-  poMaxMintPerWallet: number;
+  poStartsAt?: number;
+  poEndsAt?: number;
+  poMintPrice?: number;
+  poMaxMintPerWallet?: number;
   wlStartsAt?: number;
   wlEndsAt?: number;
   wlMintPrice?: number;

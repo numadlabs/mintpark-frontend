@@ -13,10 +13,12 @@ export function useLaunchState({
   wlStartsAt,
   wlEndsAt,
 
+
   hasFCFS,
   fcfsStartsAt,
   fcfsEndsAt,
-
+  
+  
   poStartsAt,
   poEndsAt,
 
@@ -44,8 +46,7 @@ export function useLaunchState({
   )
     return LAUNCH_STATE.LIVE;
 
-  if (!poEndsAt && !isSoldOut && now >= Number(poStartsAt))
-    return LAUNCH_STATE.INDEFINITE;
+
 
   const whitelistUpcoming = isWhitelisted && now < Number(wlStartsAt);
   const fcfsUpcoming =
@@ -54,6 +55,7 @@ export function useLaunchState({
     !whitelistUpcoming && !fcfsUpcoming && now < Number(poStartsAt);
   if (whitelistUpcoming || fcfsUpcoming || publicUpcoming)
     return LAUNCH_STATE.UPCOMING;
-
+  if (!poEndsAt && !isSoldOut && now >= Number(poStartsAt))
+    return LAUNCH_STATE.INDEFINITE;
   return LAUNCH_STATE.ENDED;
 }
