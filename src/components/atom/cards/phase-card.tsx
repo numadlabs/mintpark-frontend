@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { Lock1 } from "iconsax-react";
+import Countdown, { CountdownRenderProps } from "react-countdown";
 import { BITCOIN_IMAGE } from "@/lib/constants";
 import { useLaunchState, LAUNCH_STATE } from "@/lib/hooks/useLaunchState";
 import { useAuth } from "@/components/provider/auth-context-provider";
@@ -24,18 +25,12 @@ interface PhaseCardProps {
   hasFCFS?: boolean;
 }
 
-const formatTimeDisplay = (targetTimestamp: number): string => {
-  const now = Math.floor(Date.now() / 1000);
-  const diff = Math.max(0, targetTimestamp - now);
-
-  if (diff === 0) return "";
-
-  const days = Math.floor(diff / (24 * 60 * 60));
-  const hours = Math.floor((diff % (24 * 60 * 60)) / (60 * 60));
-  const minutes = Math.floor((diff % (60 * 60)) / 60);
-  const seconds = Math.floor(diff % 60);
-
-  // If minutes are 0, show seconds instead
+// Renderer for the countdown component with proper TypeScript types
+const countdownRenderer = ({ days, hours, minutes, seconds, completed }: CountdownRenderProps): string => {
+  if (completed) {
+    return "";
+  }
+  
   if (days === 0 && hours === 0 && minutes === 0) {
     return `${seconds}s`;
   } else if (days === 0 && hours === 0) {
@@ -68,11 +63,12 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
     queryFn: () => getLayerById(authState.layerId as string),
     enabled: !!authState.layerId,
   });
-  const [timeDisplay, setTimeDisplay] = useState("");
+  
   const [status, setStatus] = useState("");
   const [isClickable, setIsClickable] = useState(false);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
+  const [targetTime, setTargetTime] = useState<number | null>(null);
+  const [key, setKey] = useState<number>(0); // Key for forcing Countdown re-render
+  
   function determinePhaseState(
     phase: string,
     startsAt: number,
@@ -123,165 +119,87 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
     return "UPCOMING";
   }
 
-  // This function is no longer needed as the logic was moved directly into updateTimeDisplay
-  // to avoid potential mismatches between the state determination in multiple places
-
-  const updateTimeDisplay = () => {
+  const updateStatus = () => {
     const now = Math.floor(Date.now() / 1000);
     const launchState = determinePhaseState(phaseType, startsAt, endsAt);
-
-
-
-    // Calculate timer update frequency
-    // Always initialize as true - we'll set to false only for specific cases
-    let showTimer = true;
-
-    // Always clear existing interval first to prevent multiple intervals
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-
+    
     // Handle all possible states
     switch (launchState) {
       case "UPCOMING":
         setStatus("Starts in");
-        setTimeDisplay(formatTimeDisplay(startsAt));
+        setTargetTime(startsAt * 1000); // Convert to milliseconds for Countdown
         setIsClickable(false);
         break;
 
       case "LIVE":
         if (endsAt === null) {
           setStatus("Live");
-          setTimeDisplay("");
-          showTimer = false;
+          setTargetTime(null);
         } else {
           setStatus("Ends in:");
-          setTimeDisplay(formatTimeDisplay(endsAt));
+          setTargetTime(endsAt * 1000); // Convert to milliseconds for Countdown
         }
         setIsClickable(true);
         break;
 
       case "INDEFINITE":
         setStatus("Live");
-        setTimeDisplay(""); // Changed from "Indefinite" to empty string
-        showTimer = false;
+        setTargetTime(null);
         setIsClickable(true);
         break;
 
       case "ENDED":
         setStatus("Ended");
-        setTimeDisplay("");
-        showTimer = false;
+        setTargetTime(null);
         setIsClickable(false);
         break;
 
       default:
         setStatus("Unknown");
-        setTimeDisplay("");
-        showTimer = false;
+        setTargetTime(null);
         setIsClickable(false);
     }
-
-    // Set a new interval if we need to update a timer
-    if (showTimer) {
-      // Check if we're showing seconds
-      const timeLeft =
-        launchState === "UPCOMING"
-          ? Math.max(0, startsAt - now)
-          : endsAt
-          ? Math.max(0, endsAt - now)
-          : 0;
-
-      // Show seconds when under 10 minutes remaining
-      const showingSeconds = timeLeft > 0 && timeLeft < 600;
-
-      // Set appropriate interval
-      const newIntervalTime = showingSeconds ? 1000 : 60000;
-
-
-      intervalRef.current = setInterval(() => {
-        updateTimeDisplay();
-      }, newIntervalTime);
-    } else {
-      // console.log("No timer needed, not setting interval");
-    }
+    
+    // Update the key to force re-render of the Countdown component
+    setKey(prevKey => prevKey + 1);
   };
 
-  // Main effect for phase state changes and timer updates
+  // Handle countdown completion
+  const handleCountdownComplete = () => {
+    // Short delay to allow any pending state updates to complete
+    setTimeout(() => {
+      updateStatus();
+    }, 100);
+  };
+
+  // Main effect for phase state changes
   useEffect(() => {
     // Initial update
-    updateTimeDisplay();
-
-    // Set up an immediate check to ensure we're responsive to state changes
-    const immediateCheck = setTimeout(() => {
-      updateTimeDisplay();
-    }, 100);
-
-    // Clean up on unmount
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-      clearTimeout(immediateCheck);
-    };
+    updateStatus();
   }, [phaseType, startsAt, endsAt, isWhitelisted, hasFCFS]);
 
-  // Force re-render on component visible or window focus change
+  // Force update status on visibility and focus changes
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        updateTimeDisplay();
+        updateStatus();
       }
     };
 
     const handleFocus = () => {
-      updateTimeDisplay();
+      updateStatus();
     };
 
-    // Add event listeners
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("focus", handleFocus);
 
-    // Clean up event listeners on unmount
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("focus", handleFocus);
     };
   }, []);
 
-  // Check for phase transition times and force updates
-  useEffect(() => {
-    // Special effect to catch exact transition moments
-    // For example, when a phase is about to start or end
-
-    const now = Math.floor(Date.now() / 1000);
-    let timeUntilNextTransition = Number.MAX_SAFE_INTEGER;
-
-    // Time until start
-    if (now < startsAt) {
-      timeUntilNextTransition = startsAt - now;
-    }
-
-    // Time until end (if there's an end time)
-    if (endsAt && now < endsAt && endsAt - now < timeUntilNextTransition) {
-      timeUntilNextTransition = endsAt - now;
-    }
-
-    // If we have a transition coming soon (within 1 hour), set a specific timeout
-    if (timeUntilNextTransition < 3600) {
-      const transitionTimeout = setTimeout(() => {
-        updateTimeDisplay();
-      }, timeUntilNextTransition * 1000 + 100); // Add 100ms buffer
-
-      return () => {
-        clearTimeout(transitionTimeout);
-      };
-    }
-  }, [startsAt, endsAt]);
-
-  const borderClass =
-    isActive && isClickable ? "border-brand" : "border-white8";
+  const borderClass = isActive && isClickable ? "border-brand" : "border-white8";
   const phaseTextClass = isClickable ? "text-brand" : "text-neutral50";
 
   return (
@@ -308,9 +226,23 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
         </div>
         <div className="flex flex-row items-center gap-2 border bg-white8 border-transparent text-md rounded-lg px-3 py-2">
           <span className="text-neutral100 font-medium text-md">{status}</span>
-          <span className="text-neutral50 font-medium text-md">
-            {timeDisplay}
-          </span>
+          {targetTime && (
+            <span className="text-neutral50 font-medium text-md">
+              <Countdown 
+                key={key}
+                date={targetTime} 
+                renderer={(props) => <span>{countdownRenderer(props)}</span>}
+                onComplete={handleCountdownComplete}
+                // Add auto-refresh when time gets very close to completion
+                onTick={(props) => {
+                  if (props.total <= 1000 && props.total > 0) {
+                    // Pre-refresh when we're at the last second
+                    setTimeout(handleCountdownComplete, props.total + 50);
+                  }
+                }}
+              />
+            </span>
+          )}
         </div>
       </div>
 

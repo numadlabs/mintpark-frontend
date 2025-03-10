@@ -516,7 +516,7 @@ const useWalletStore = create<WalletStore>()(
           set((state) => ({
             authState: { ...state.authState, loading: false },
           }));
-          console.error("Failed to proceed with linking:", error);
+          // console.error("Failed to proceed with linking:", error);
           toast.error(error.message);
           throw error;
         }
