@@ -29,6 +29,8 @@ const getWalletImage = (layer: string) => {
       return "/wallets/Metamask.png";
     case "HEMI":
       return "/wallets/Metamask.png";
+    case "HEMITESTNET":
+      return "/wallets/Metamask.png";
     default:
       return "/wallets/Unisat.png";
   }
