@@ -37,7 +37,7 @@ import { Collectible } from "@/lib/validations/collection-validation";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import CancelListModal from "@/components/modal/cancel-list-modal";
 import Link from "next/link";
-import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import { getCurrencySymbol, getAddressExplorerUrl } from "@/lib/service/currencyHelper";
 
 export default function AssetsDetails() {
   const queryClient = useQueryClient();
@@ -62,19 +62,27 @@ export default function AssetsDetails() {
     },
   });
 
-  const { data: collectionData, isLoading: isCollectionLoading } = useQuery<
+  const { data: collectionData = [], isLoading: isCollectionLoading } = useQuery<
     Collectible[] | null
   >({
     queryKey: ["collectionData", id],
     queryFn: () => getCollectionById(id),
     enabled: !!id,
   });
+  
+
+  
+  
+
 
   const { data: activity = [], isLoading: isActivityLoading } = useQuery({
     queryKey: ["activityData", id],
     queryFn: () => getCollectibleActivity(id as string),
     enabled: !!id,
   });
+
+  console.log(activity);
+  
 
   const { data: currentLayer = [] } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
@@ -272,7 +280,8 @@ export default function AssetsDetails() {
                         {currentAsset.ownedBy}
                       </p> */}
                       <Link
-                        href={`https://explorer.testnet.citrea.xyz/address/${currentAsset.ownedBy}`}
+                        // href={`https://explorer.testnet.citrea.xyz/address/${currentAsset.ownedBy}`}
+                        href={getAddressExplorerUrl(collectionData?.layer, currentAsset.ownedBy as string)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-medium text-md text-neutral50 hover:text-brand transition-colors"
