@@ -50,8 +50,11 @@ const CancelListModal: React.FC<ModalProps> = ({
             txResponse.data.result,
           );
           await signedTx?.wait();
-
-          const response = await confirmCancelListMutation({ id: listId });
+          if (!signedTx?.hash) throw new Error("TX id not found");
+          const response = await confirmCancelListMutation({
+            id: listId,
+            txid: signedTx.hash,
+          });
           if (response && response.success) {
             onClose();
             toast.success("Successfully cancelled.");
