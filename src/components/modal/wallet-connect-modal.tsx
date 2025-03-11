@@ -6,6 +6,7 @@ import { getAllLayers } from "@/lib/service/queryHelper";
 import { useAuth } from "../provider/auth-context-provider";
 import { WALLET_CONFIGS } from "@/lib/constants";
 import { getCurrencyImage } from "@/lib/service/currencyHelper";
+import { capitalizeFirstLetter } from "@/lib/utils";
 
 import {
   Dialog,
@@ -45,6 +46,8 @@ export function WalletConnectionModal({
 }: WalletConnectionModalProps) {
   const [showLinkAlert, setShowLinkAlert] = useState(false);
   const [currentLayer, setCurrentLayer] = useState<LayerTypes | null>(null);
+  // Track the complete selectedLayerId with network
+  const [activeLayerId, setActiveLayerId] = useState<string>("");
 
   const {
     authState,
@@ -65,16 +68,60 @@ export function WalletConnectionModal({
   useEffect(() => {
     if (layers.length > 0) {
       setLayers(layers);
+      
+      // Get saved layer and network from localStorage
+      const savedLayer = localStorage.getItem("selectedLayer");
+      const savedNetwork = localStorage.getItem("selectedNetwork");
+      
+      // Find active layer based on saved values or the activeTab prop
+      if (savedLayer) {
+        // Try to find layer with matching name+network
+        const matchingLayer = layers.find(
+          layer => layer.layer === savedLayer && 
+                  (savedNetwork ? layer.network === savedNetwork : true)
+        );
+        
+        if (matchingLayer) {
+          setActiveLayerId(matchingLayer.id);
+        } else {
+          // Fallback to any layer with the matching name
+          const anyLayer = layers.find(layer => layer.layer === savedLayer);
+          if (anyLayer) {
+            setActiveLayerId(anyLayer.id);
+          }
+        }
+      } else if (activeTab) {
+        // If no saved preferences but we have an activeTab from props
+        const matchingLayer = layers.find(layer => layer.layer === activeTab);
+        if (matchingLayer) {
+          setActiveLayerId(matchingLayer.id);
+        }
+      }
+      
+      // If no layer is selected yet, pick a default
+      if (!activeLayerId && layers.length > 0) {
+        // Try to find HEMI layer
+        const hemiLayer = layers.find(layer => layer.layer === "HEMI");
+        if (hemiLayer) {
+          setActiveLayerId(hemiLayer.id);
+        } else {
+          // Fallback to first layer
+          setActiveLayerId(layers[0].id);
+        }
+      }
     }
-  }, [layers, setLayers]);
+  }, [layers, setLayers, activeTab, activeLayerId]);
 
   // Function to switch or add chain in Metamask
   const switchOrAddChain = async (layer: LayerTypes): Promise<boolean> => {
     if (!layer.chainId || typeof window === 'undefined' || !window.ethereum) return false;
     
     try {
-      // Convert to hex format required by Metamask
-      const chainIdHex = `0x${parseInt(layer.chainId).toString(16)}`;
+      // Convert to hex format if needed
+      let chainIdHex = layer.chainId;
+      if (!chainIdHex.startsWith('0x')) {
+        chainIdHex = `0x${parseInt(layer.chainId).toString(16)}`;
+      }
       
       // Try to switch chain
       await window.ethereum.request({
@@ -100,8 +147,8 @@ export function WalletConnectionModal({
             method: 'wallet_addEthereumChain',
             params: [
               {
-                chainId: `0x${parseInt(layer.chainId).toString(16)}`,
-                chainName: layer.name,
+                chainId: chainIdHex,
+                chainName: layer.name || `${layer.layer} ${capitalizeFirstLetter(layer.network)}`,
                 rpcUrls: networkConfig.rpcUrls,
                 blockExplorerUrls: networkConfig.blockExplorerUrls,
                 nativeCurrency: networkConfig.nativeCurrency || {
@@ -116,7 +163,7 @@ export function WalletConnectionModal({
           // Try switching again after adding
           await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
-            params: [{ chainId: layer.chainId }],
+            params: [{ chainId: chainIdHex }],
           });
           
           return true;
@@ -178,24 +225,53 @@ export function WalletConnectionModal({
     }
   };
 
-  // Handle tab change and switch chain if appropriate
-  const handleTabChange = async (value: string) => {
-    onTabChange(value);
+  // Handle layer selection
+  const handleLayerSelect = (layerId: string) => {
+    setActiveLayerId(layerId);
     
-    const selectedLayer = layers.find((layer) => layer.layer === value);
-    if (selectedLayer) {
-      onLayerSelect(selectedLayer.layer, selectedLayer.network);
+    // Find the selected layer
+    const layer = layers.find(l => l.id === layerId);
+    if (layer) {
+      // Update state
+      onTabChange(layer.layer);
+      onLayerSelect(layer.layer, layer.network);
+      
+      // Store in localStorage
+      localStorage.setItem("selectedLayer", layer.layer);
+      localStorage.setItem("selectedNetwork", layer.network);
       
       // If this is a Metamask layer and we're using Metamask, try to switch chain
       if (
-        selectedLayer.chainId && 
+        layer.chainId && 
         window.ethereum &&
-        WALLET_CONFIGS[selectedLayer.layer]?.type === "metamask"
+        WALLET_CONFIGS[layer.layer]?.type === "metamask"
       ) {
-        switchOrAddChain(selectedLayer);
+        switchOrAddChain(layer);
       }
     }
   };
+
+  // Generate unique layer+network tabs
+  const getLayerTabs = () => {
+    // Sort layers so mainnet appears before testnet
+    return [...layers].sort((a, b) => {
+      // First sort by layer name
+      if (a.layer !== b.layer) {
+        return a.layer.localeCompare(b.layer);
+      }
+      // Then sort by network, prioritizing "mainnet" over others
+      return a.network === "mainnet" ? -1 : 1;
+    });
+  };
+
+  const layerTabs = getLayerTabs();
+  
+  // Get the current selected layer
+  const getCurrentLayer = () => {
+    return layers.find(l => l.id === activeLayerId) || null;
+  };
+  
+  const currentLayerObject = getCurrentLayer();
 
   return (
     <>
@@ -208,38 +284,44 @@ export function WalletConnectionModal({
           </DialogTitle>
           <div className="h-[1px] w-full bg-white8" />
           <Tabs
-            value={activeTab}
-            defaultValue={activeTab}
-            onValueChange={handleTabChange}
+            value={activeLayerId}
+            defaultValue={activeLayerId}
+            onValueChange={handleLayerSelect}
             className="w-full"
           >
             <TabsList className="w-full">
               <div className="grid grid-cols-3 gap-3 items-center w-full">
-                {layers.map((layer: LayerTypes) => (
+                {layerTabs.map((layer) => (
                   <TabsTrigger
-                    key={layer.layer}
-                    value={layer.layer}
+                    key={layer.id}
+                    value={layer.id}
                     className="w-full"
-                    disabled={layer.comingSoon}
                   >
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage
-                        src={getCurrencyImage(layer.layer)}
-                        alt={layer.layer.toLowerCase()}
-                        sizes="100%"
-                      />
-                    </Avatar>
+                    <div className="relative">
+                      <Avatar className="w-8 h-8">
+                        <AvatarImage
+                          src={getCurrencyImage(layer.layer)}
+                          alt={layer.layer.toLowerCase()}
+                          sizes="100%"
+                        />
+                      </Avatar>
+                      {/* Show testnet badge for non-mainnet networks */}
+                      {layer.network !== "MAINNET" && (
+                        <div className="absolute -top-1 -right-1 bg-yellow-500 text-black text-[8px] font-bold px-1 rounded-full">
+                          TEST
+                        </div>
+                      )}
+                    </div>
                   </TabsTrigger>
                 ))}
               </div>
             </TabsList>
+            
             <div className="h-[1px] w-full bg-white8 my-6" />
-            {layers.map((layer: LayerTypes) => (
-              <TabsContent
-                key={layer.layer}
-                value={layer.layer}
-                className="flex flex-col gap-4"
-              >
+            
+            {/* Content for each tab */}
+            {layerTabs.map((layer) => (
+              <TabsContent key={layer.id} value={layer.id} className="flex flex-col gap-4">
                 <WalletCard
                   layer={layer}
                   isWalletConnected={isWalletConnected}
@@ -249,6 +331,7 @@ export function WalletConnectionModal({
               </TabsContent>
             ))}
           </Tabs>
+          
           <DialogFooter className="text-md text-neutral100">
             Choose wallet to Log In or Sign Up
           </DialogFooter>
