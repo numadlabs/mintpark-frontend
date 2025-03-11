@@ -36,11 +36,12 @@ import { toast } from "sonner";
 import Link from "next/link";
 import MoreCollection from "@/components/section/more-collection";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import { getAddressExplorerUrl } from "@/lib/service/currencyHelper";
 
 export default function AssetDetail() {
   const params = useParams();
   const { authState } = useAuth();
-
+  const layer = localStorage.getItem('selectedLayer')
   const id = params.detailId as string;
   const [isVisible, setIsVisible] = useState(false);
 
@@ -93,6 +94,8 @@ export default function AssetDetail() {
       hasMore: false,
     },
   });
+
+  
 
   const toggleModal = () => {
     if (!authState.authenticated)

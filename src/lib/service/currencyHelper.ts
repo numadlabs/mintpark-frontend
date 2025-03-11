@@ -80,3 +80,75 @@ export const getNetworkInfo = (layerType: string) => {
   const config = WALLET_CONFIGS[layerType];
   return config?.networks?.TESTNET || null;
 };
+
+// Helper function to get the block explorer URL for a transaction hash
+export const getBlockExplorerUrl = (layerType: string, txHash: string): string => {
+  const config = WALLET_CONFIGS[layerType];
+  
+  // If no config is found, return empty string
+  if (!config) return "";
+  
+  // Get the block explorer URL from the config
+  const blockExplorerUrl = config.networks?.TESTNET?.blockExplorerUrls?.[0];
+  
+  // If no block explorer URL is found, return empty string
+  if (!blockExplorerUrl) return "";
+  
+  // Format the transaction URL based on layer type
+  if (layerType === "BITCOIN") {
+    return `${blockExplorerUrl}/tx/${txHash}`;
+  } else {
+    // For Ethereum-based chains like CITREA, SEPOLIA, HEMI, etc.
+    // Remove trailing slash if it exists to ensure consistent formatting
+    const baseUrl = blockExplorerUrl.endsWith("/") 
+      ? blockExplorerUrl.slice(0, -1) 
+      : blockExplorerUrl;
+    
+    return `${baseUrl}/tx/${txHash}`;
+  }
+};
+
+// Helper function to get block explorer URL for an address
+export const getAddressExplorerUrl = (layerType: string, address: string): string => {
+  const config = WALLET_CONFIGS[layerType];
+  
+  // If no config is found, return empty string
+  if (!config) return "";
+  
+  // Get the block explorer URL from the config
+  const blockExplorerUrl = config.networks?.TESTNET?.blockExplorerUrls?.[0];
+  
+  // If no block explorer URL is found, return empty string
+  if (!blockExplorerUrl) return "";
+  
+  // Format the address URL based on layer type
+  if (layerType === "BITCOIN") {
+    return `${blockExplorerUrl}/address/${address}`;
+  } else {
+    // For Ethereum-based chains
+    const baseUrl = blockExplorerUrl.endsWith("/") 
+      ? blockExplorerUrl.slice(0, -1) 
+      : blockExplorerUrl;
+    
+    return `${baseUrl}/address/${address}`;
+  }
+};
+
+// Helper function to get the raw block explorer base URL
+export const getBlockExplorerBaseUrl = (layerType: string): string => {
+  const config = WALLET_CONFIGS[layerType];
+  
+  // If no config is found, return empty string
+  if (!config) return "";
+  
+  // Get the block explorer URL from the config
+  const blockExplorerUrl = config.networks?.TESTNET?.blockExplorerUrls?.[0];
+  
+  // If no block explorer URL is found, return empty string
+  if (!blockExplorerUrl) return "";
+  
+  // Remove trailing slash if it exists
+  return blockExplorerUrl.endsWith("/") 
+    ? blockExplorerUrl.slice(0, -1) 
+    : blockExplorerUrl;
+};
