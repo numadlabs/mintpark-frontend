@@ -298,7 +298,10 @@ const useWalletStore = create<WalletStore>()(
                 if (switchError.code === 4902) {
                   try {
                     // Get the network config from our WALLET_CONFIGS
-                    const networkConfig = walletConfig.networks.TESTNET;
+                    const networkConfig = 
+                    walletConfig.networks[layer.network] || 
+                    walletConfig.networks.TESTNET || 
+                    walletConfig.networks.MAINNET;
 
                     await window.ethereum.request({
                       method: "wallet_addEthereumChain",
