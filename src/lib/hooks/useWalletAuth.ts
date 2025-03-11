@@ -574,7 +574,6 @@ const useWalletStore = create<WalletStore>()(
             window.ethereum.removeListener('disconnect', window._metamaskHandlers.disconnect);
             delete window._metamaskHandlers;
           }
-          
           get().onLogout();
         }
       },
@@ -594,10 +593,35 @@ const useWalletStore = create<WalletStore>()(
         if (!selectedLayerId) return undefined;
         return connectedWallets.find((w) => w.layerId === selectedLayerId);
       },
-
       onLogout: () => {
         if (typeof window === "undefined") return;
-
+      
+        // Disconnect from MetaMask properly first
+        if (window.ethereum) {
+          // For MetaMask, we need to properly handle connected wallets
+          const { connectedWallets, layers } = get();
+          
+          // Find all MetaMask wallets that are connected
+          const metamaskWallets = connectedWallets.filter(wallet => {
+            const layer = layers.find(l => l.id === wallet.layerId);
+            return layer && WALLET_CONFIGS[layer.layer]?.type === "metamask";
+          });
+          
+          // Force disconnect by switching to a safe chainId first
+          if (metamaskWallets.length > 0) {
+            try {
+              // Try to switch to Ethereum mainnet (or any valid chain) to ensure clean state
+              window.ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: '0x1' }], // Ethereum mainnet
+              }).catch((e:any) => console.log('Could not switch to mainnet, continuing logout'));
+            } catch (error) {
+              console.log('Error switching chain during logout:', error);
+              // Continue with logout even if switch fails
+            }
+          }
+        }
+      
         // Clean up Metamask event listeners on logout
         if (window._metamaskHandlers) {
           window.ethereum.removeListener('accountsChanged', window._metamaskHandlers.accountsChanged);
@@ -605,13 +629,15 @@ const useWalletStore = create<WalletStore>()(
           window.ethereum.removeListener('disconnect', window._metamaskHandlers.disconnect);
           delete window._metamaskHandlers;
         }
-
+      
+        // Clear all wallet connections
         set({
           connectedWallets: [],
           authState: initialAuthState,
           selectedLayerId: null,
         });
-
+      
+        // Clear localStorage entries
         localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN);
         localStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN);
         localStorage.removeItem(STORAGE_KEYS.WALLET_STATE);
