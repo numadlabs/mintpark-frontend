@@ -184,24 +184,17 @@ export default function Header() {
     if (!chainId || typeof window === 'undefined' || !window.ethereum) return false;
     
     try {
-      // Convert to hex format if not already in hex
-      let chainIdHex = chainId;
-      if (!chainIdHex.startsWith('0x')) {
-        chainIdHex = `0x${parseInt(chainId).toString(16)}`;
-      }
-      
-      // Try to switch chain
-      await window.ethereum.request({
+      const chainIdHex = `0x${parseInt(chainId).toString(16)}`;
+
+       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: chainIdHex }],
       });
       
       return true;
     } catch (error: any) {
-      // Chain not added to Metamask yet
       if (error.code === 4902) {
         try {
-          // Get wallet configuration
           const walletConfig = WALLET_CONFIGS[layer];
           if (!walletConfig) return false;
           
@@ -214,7 +207,7 @@ export default function Header() {
             method: 'wallet_addEthereumChain',
             params: [
               {
-                chainId: chainId,
+                chainId: `0x${parseInt(chainId).toString(16)}`,
                 chainName: networkConfig.chainName || `${layer} ${network}`,
                 rpcUrls: networkConfig.rpcUrls,
                 blockExplorerUrls: networkConfig.blockExplorerUrls,
@@ -230,7 +223,7 @@ export default function Header() {
           // Try switching again after adding
           await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
-            params: [{ chainId: chainId }],
+            params: [{  chainId: `0x${parseInt(chainId).toString(16)}` }],
           });
           
           return true;
@@ -279,7 +272,7 @@ export default function Header() {
   const handleLogout = (): void => {
     if (authState.authenticated) {
       onLogout();
-      toast.info("Logged out successfully.");
+      toast.info("Logged out successfully!");
     }
   };
 

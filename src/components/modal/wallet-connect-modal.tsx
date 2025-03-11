@@ -149,10 +149,8 @@ export function WalletConnectionModal({
             method: "wallet_addEthereumChain",
             params: [
               {
-                chainId: chainIdHex,
-                chainName:
-                  layer.name ||
-                  `${layer.layer} ${capitalizeFirstLetter(layer.network)}`,
+                chainId: layer.chainId,
+                chainName: layer.name || `${layer.layer} ${capitalizeFirstLetter(layer.network)}`,
                 rpcUrls: networkConfig.rpcUrls,
                 blockExplorerUrls: networkConfig.blockExplorerUrls,
                 nativeCurrency: networkConfig.nativeCurrency || {
@@ -166,8 +164,8 @@ export function WalletConnectionModal({
 
           // Try switching again after adding
           await window.ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: chainIdHex }],
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: layer.chainId }],
           });
 
           return true;
