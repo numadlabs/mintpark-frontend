@@ -71,10 +71,6 @@ export default function AssetsDetails() {
   });
   
 
-  
-  
-
-
   const { data: activity = [], isLoading: isActivityLoading } = useQuery({
     queryKey: ["activityData", id],
     queryFn: () => getCollectibleActivity(id as string),
@@ -280,8 +276,9 @@ export default function AssetsDetails() {
                         {currentAsset.ownedBy}
                       </p> */}
                       <Link
-                        // href={`https://explorer.testnet.citrea.xyz/address/${currentAsset.ownedBy}`}
-                        href={getAddressExplorerUrl(collectionData?.layer, currentAsset.ownedBy as string)}
+                      href={collectionData && collectionData[0] && currentAsset.ownedBy
+                        ? getAddressExplorerUrl(collectionData[0].layer, currentAsset.ownedBy)
+                        : '#'}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-medium text-md text-neutral50 hover:text-brand transition-colors"
