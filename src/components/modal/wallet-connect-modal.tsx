@@ -71,7 +71,7 @@ export function WalletConnectionModal({
 
       // Get saved layer and network from localStorage
       const savedLayer = localStorage.getItem("selectedLayer");
-      const savedNetwork = localStorage.getItem("selectedNetwork");
+      const savedNetwork = localStorage.getItem("selectedNetwork") || "mainnet";
 
       // Find active layer based on saved values or the activeTab prop
       if (savedLayer) {
