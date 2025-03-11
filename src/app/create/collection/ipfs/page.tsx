@@ -116,6 +116,7 @@ const IPFS = () => {
   const [successModal, setSuccessModal] = useState(false);
   const [isChecked, setIsChecked] = useState<boolean>(false);
   const [isSecondChecked, setIsSecondChecked] = useState(false);
+  const [isPubChecked, setIsPubChecked] = useState(false);
   const [whitelistAddress, setWhitelistAddress] = useState<string[]>([]);
   const [fcfslistAddress, setfcfslistAddress] = useState<string[]>([]);
 
@@ -381,6 +382,10 @@ const IPFS = () => {
     setIsSecondChecked(!isSecondChecked);
   };
 
+  const togglePubList = () => {
+    setIsPubChecked(!isPubChecked);
+  };
+
   const files = imageFiles.map((image) => image.file);
 
   // Add helper function for merkle root generation
@@ -529,18 +534,29 @@ const IPFS = () => {
         }
 
         // Add public phase
-        const publicPhaseResponse = await addPhaseMutation({
-          collectionId,
-          phaseType: 2, // PhaseType.PUBLIC
-          price: POMintPrice.toString(),
-          startTime: poStartsAt,
-          endTime: poEndsAt,
-          maxSupply: 0, // Unlimited supply for public phase
-          maxPerWallet: POMaxMintPerWallet,
-          maxMintPerPhase: 0, // Unlimited mints for public phase
-          layerId: selectedLayerId,
-          userLayerId: authState.userLayerId,
-        });
+        if (isPubChecked) {
+          // Add public phase
+          const publicPhaseResponse = await addPhaseMutation({
+            collectionId,
+            phaseType: 2, // PhaseType.PUBLIC
+            price: POMintPrice.toString(),
+            startTime: poStartsAt,
+            endTime: poEndsAt,
+            maxSupply: 0, // Unlimited supply for public phase
+            maxPerWallet: POMaxMintPerWallet,
+            maxMintPerPhase: 0, // Unlimited mints for public phase
+            layerId: selectedLayerId,
+            userLayerId: authState.userLayerId,
+          });
+
+          if (currentLayer.layerType === "EVM") {
+            const { signer } = await getSigner();
+            const signedTx = await signer?.sendTransaction(
+              publicPhaseResponse.data.unsignedTx
+            );
+            await signedTx?.wait();
+          }
+        }
 
         // const publicPhaseResponse = await addPhaseMutation({
         //   collectionId,
@@ -555,14 +571,6 @@ const IPFS = () => {
         //   layerId: selectedLayerId,
         //   userLayerId: authState.userLayerId,
         // });
-
-        if (currentLayer.layerType === "EVM") {
-          const { signer } = await getSigner();
-          const signedTx = await signer?.sendTransaction(
-            publicPhaseResponse.data.unsignedTx
-          );
-          await signedTx?.wait();
-        }
 
         const launchCollectionId = launchResponse.data.launch.collectionId;
         const launchId = launchResponse.data.launch.id;
@@ -608,7 +616,6 @@ const IPFS = () => {
               });
             }
             if (whResponse && whResponse.success) {
-
               toggleSuccessModal();
             }
           } catch (error) {
@@ -1123,122 +1130,130 @@ const IPFS = () => {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-8 w-full">
                 <div className="flex flex-col w-full gap-4">
                   <div className="flex flex-row justify-between items-center">
                     <p className="font-bold text-profileTitle text-neutral50">
                       Public phase
                     </p>
-                  </div>
-                  <p className="text-neutral200 text-lg">
-                    Take control of your digital creations. Our platform
-                    provides the tools you need to mint, manage, and monetize
-                    your NFT collections. Join a growing ecosystem of artists
-                    redefining the boundaries of digital art.
-                  </p>
-                </div>
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-row justify-between items-center">
-                    <p className="text-neutral50 text-xl font-medium">
-                      Start date
-                    </p>
-                    <div className="flex flex-row gap-4">
-                      <div className="relative flex items-center">
-                        <Input
-                          type="birthdaytime"
-                          placeholder="YYYY - MM - DD"
-                          className="pl-10 w-[184px]"
-                          value={POStartsAtDate}
-                          onChange={(e) => setPOStartsAtDate(e.target.value)}
-                        />
-                        <div className="absolute left-4">
-                          <Calendar2 size={20} color="#D7D8D8" />
-                        </div>
-                      </div>
-                      <div className="relative flex items-center">
-                        <Input
-                          placeholder="HH : MM"
-                          className="pl-10 w-[184px]"
-                          value={POStartsAtTime}
-                          onChange={(e) => setPOStartsAtTime(e.target.value)}
-                        />
-                        <div className="absolute left-4">
-                          <Clock size={20} color="#D7D8D8" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-row justify-between items-center">
-                    <p className="text-neutral50 text-xl font-medium">
-                      End date
-                    </p>
-                    <div className="flex flex-row gap-4">
-                      <div className="relative flex items-center">
-                        <Input
-                          type="birthdaytime"
-                          placeholder="YYYY - MM - DD"
-                          className="pl-10 w-[184px]"
-                          value={POEndsAtDate}
-                          onChange={(e) => setPOEndsAtDate(e.target.value)}
-                        />
-                        <div className="absolute left-4">
-                          <Calendar2 size={20} color="#D7D8D8" />
-                        </div>
-                      </div>
-                      <div className="relative flex items-center">
-                        <Input
-                          placeholder="HH : MM"
-                          className="pl-10 w-[184px]"
-                          value={POEndsAtTime}
-                          onChange={(e) => setPOEndsAtTime(e.target.value)}
-                        />
-                        <div className="absolute left-4">
-                          <Clock size={20} color="#D7D8D8" />
-                        </div>
-                      </div>
-                    </div>
+                    <Toggle isChecked={isPubChecked} onChange={togglePubList} />
                   </div>
                 </div>
-                <div className="flex flex-col gap-3">
-                  <p className="text-neutral50 text-lg font-medium">
-                    Public mint price
-                  </p>
-                  <div className="relative flex items-center">
-                    <Input
-                      onReset={reset}
-                      placeholder="Amount"
-                      className="w-full pl-10"
-                      type="number"
-                      value={POMintPrice}
-                      onChange={(e) => setPOMintPrice(Number(e.target.value))}
-                    />
-                    <div className="absolute left-4">
-                      <Bitcoin size={20} color="#D7D8D8" />
+                {isPubChecked && (
+                  <div className="flex w-full flex-col gap-6">
+                    <p className="text-neutral200 text-lg">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Proin ac ornare nisi. Aliquam eget semper risus, sed
+                      commodo elit. Curabitur sed congue magna. Donec ultrices
+                      dui nec ullamcorper aliquet. Nunc efficitur mauris id mi
+                      venenatis imperdiet. Integer mauris lectus, pretium eu
+                      nibh molestie, rutrum lobortis tortor. Duis sit amet sem
+                      fermentum, consequat est nec, ultricies justo.
+                    </p>
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral50 text-xl font-medium">
+                        Start date
+                      </p>
+                      <div className="flex flex-row gap-4">
+                        <div className="relative flex items-center">
+                          <Input
+                            type="birthdaytime"
+                            placeholder="YYYY - MM - DD"
+                            className="pl-10 w-[184px]"
+                            value={POStartsAtDate}
+                            onChange={(e) => setPOStartsAtDate(e.target.value)}
+                          />
+                          <div className="absolute left-4">
+                            <Calendar2 size={20} color="#D7D8D8" />
+                          </div>
+                        </div>
+                        <div className="relative flex items-center">
+                          <Input
+                            placeholder="HH : MM"
+                            className="pl-10 w-[184px]"
+                            value={POStartsAtTime}
+                            onChange={(e) => setPOStartsAtTime(e.target.value)}
+                          />
+                          <div className="absolute left-4">
+                            <Clock size={20} color="#D7D8D8" />
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="absolute right-4">
-                      <p className="text-md text-neutral200 font-medium">
-                        {getCurrencySymbol(currentLayer.layer)}
+                    <div className="flex flex-row justify-between items-center">
+                      <p className="text-neutral50 text-xl font-medium">
+                        End date
+                      </p>
+                      <div className="flex flex-row gap-4">
+                        <div className="relative flex items-center">
+                          <Input
+                            type="birthdaytime"
+                            placeholder="YYYY - MM - DD"
+                            className="pl-10 w-[184px]"
+                            value={POEndsAtDate}
+                            onChange={(e) => setPOEndsAtDate(e.target.value)}
+                          />
+                          <div className="absolute left-4">
+                            <Calendar2 size={20} color="#D7D8D8" />
+                          </div>
+                        </div>
+                        <div className="relative flex items-center">
+                          <Input
+                            placeholder="HH : MM"
+                            className="pl-10 w-[184px]"
+                            value={POEndsAtTime}
+                            onChange={(e) => setPOEndsAtTime(e.target.value)}
+                          />
+                          <div className="absolute left-4">
+                            <Clock size={20} color="#D7D8D8" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-3">
+                      <p className="text-neutral50 text-lg font-medium">
+                        Public mint price
+                      </p>
+                      <div className="relative flex items-center">
+                        <Input
+                          onReset={reset}
+                          placeholder="Amount"
+                          className="w-full pl-10"
+                          type="number"
+                          value={POMintPrice}
+                          onChange={(e) =>
+                            setPOMintPrice(Number(e.target.value))
+                          }
+                        />
+                        <div className="absolute left-4">
+                          <Bitcoin size={20} color="#D7D8D8" />
+                        </div>
+                        <div className="absolute right-4">
+                          <p className="text-md text-neutral200 font-medium">
+                            {getCurrencySymbol(currentLayer.layer)}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-neutral200 text-sm pl-4">
+                        Enter 0 for free mints
                       </p>
                     </div>
+                    <div className="flex flex-col gap-3">
+                      <p className="text-lg text-neutral50 font-medium">
+                        Max mint per wallet
+                      </p>
+                      <Input
+                        onReset={reset}
+                        placeholder="0"
+                        value={POMaxMintPerWallet}
+                        type="number"
+                        onChange={(e) =>
+                          setPOMaxMintPerWallet(parseInt(e.target.value))
+                        }
+                      />
+                    </div>
                   </div>
-                  <p className="text-neutral200 text-sm pl-4">
-                    Enter 0 for free mints
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3">
-                  <p className="text-lg text-neutral50 font-medium">
-                    Max mint per wallet
-                  </p>
-                  <Input
-                    onReset={reset}
-                    placeholder="0"
-                    value={POMaxMintPerWallet}
-                    type="number"
-                    onChange={(e) =>
-                      setPOMaxMintPerWallet(Number(e.target.value))
-                    }
-                  />
-                </div>
+                )}
               </div>
               <div className="flex flex-row w-full gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
@@ -1377,41 +1392,43 @@ const IPFS = () => {
                     </div>
                   </div>
                 )}
-                <div className="flex flex-col gap-8 w-full">
-                  <p className="text-[28px] leading-9 text-neutral50 font-bold">
-                    Public phase
-                  </p>
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-row justify-between items-center">
-                      <p className="text-neutral200 text-lg">Start date</p>
-                      <p className="text-neutral50 text-lg font-bold">
-                        {POStartsAtDate},{POStartsAtTime}
-                      </p>
-                    </div>
-                    <div className="flex flex-row justify-between items-center">
-                      <p className="text-neutral200 text-lg">End date</p>
-                      <p className="text-neutral50 text-lg font-bold">
-                        {POEndsAtDate},{POEndsAtTime}
-                      </p>
-                    </div>
-                    <div className="flex flex-row justify-between items-center">
-                      <p className="text-neutral200 text-lg">
-                        Public mint price
-                      </p>
-                      <p className="text-neutral50 text-lg font-bold">
-                        {POMintPrice}
-                      </p>
-                    </div>
-                    <div className="flex flex-row justify-between items-center">
-                      <p className="text-neutral200 text-lg">
-                        Max mint per wallet
-                      </p>
-                      <p className="text-neutral50 text-lg font-bold">
-                        {POMaxMintPerWallet}
-                      </p>
+                {isPubChecked && (
+                  <div className="flex flex-col gap-8 w-full">
+                    <p className="text-[28px] leading-9 text-neutral50 font-bold">
+                      Public phase
+                    </p>
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-row justify-between items-center">
+                        <p className="text-neutral200 text-lg">Start date</p>
+                        <p className="text-neutral50 text-lg font-bold">
+                          {POStartsAtDate},{POStartsAtTime}
+                        </p>
+                      </div>
+                      <div className="flex flex-row justify-between items-center">
+                        <p className="text-neutral200 text-lg">End date</p>
+                        <p className="text-neutral50 text-lg font-bold">
+                          {POEndsAtDate},{POEndsAtTime}
+                        </p>
+                      </div>
+                      <div className="flex flex-row justify-between items-center">
+                        <p className="text-neutral200 text-lg">
+                          Public mint price
+                        </p>
+                        <p className="text-neutral50 text-lg font-bold">
+                          {POMintPrice}
+                        </p>
+                      </div>
+                      <div className="flex flex-row justify-between items-center">
+                        <p className="text-neutral200 text-lg">
+                          Max mint per wallet
+                        </p>
+                        <p className="text-neutral50 text-lg font-bold">
+                          {POMaxMintPerWallet}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
               <div className="flex flex-row gap-8">
                 <ButtonOutline title="Back" onClick={handleBack} />
