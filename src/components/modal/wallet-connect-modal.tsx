@@ -314,9 +314,13 @@ export function WalletConnectionModal({
                         />
                       </Avatar>
                       {/* Show testnet badge for non-mainnet networks */}
+
                       {layer.network !== "MAINNET" && (
-                        <div className="absolute -top-4 -right-12 bg-brand text-black text-[8px] font-bold px-2 rounded-full">
-                          Testnet
+                        <div className="absolute flex -top-5 gap-1 items-center -right-12 bg-brand px-2 rounded-full">
+                          <span className="w-2 h-2 bg-neutral500 rounded-full animate-pulse"></span>
+                          <p className=" text-black text-[9px] font-bold">
+                            Testnet
+                          </p>
                         </div>
                       )}
                     </div>
