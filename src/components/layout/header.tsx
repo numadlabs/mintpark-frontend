@@ -337,11 +337,11 @@ export default function Header() {
               className="rounded-full"
             />
             {/* Add testnet indicator */}
-            {layer.network !== "MAINNET" && (
-              <div className="absolute -top-1 -right-1 bg-yellow-500 text-black text-[8px] font-bold px-1 rounded-full">
-                TEST
+            {/* {layer.network !== "MAINNET" && (
+              <div className="absolute -top-3 -right-28 bg-yellow-500 text-black text-[8px] font-bold px-1 rounded-full">
+                Testnet
               </div>
-            )}
+            )} */}
           </div>
           <div className="flex items-center gap-2 flex-1">
             {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(
@@ -383,11 +383,11 @@ export default function Header() {
               className="rounded-full"
             />
             {/* Add testnet indicator */}
-            {currentLayerObj.network !== "mainnet" && (
+            {/* {currentLayerObj.network !== "MAINNET" && (
               <div className="absolute -top-1 -right-1 bg-yellow-500 text-black text-[8px] font-bold px-1 rounded-full">
                 TEST
               </div>
-            )}
+            )} */}
           </div>
           {`${capitalizeFirstLetter(currentLayerObj.layer)} ${capitalizeFirstLetter(currentLayerObj.network)}`}
         </div>
