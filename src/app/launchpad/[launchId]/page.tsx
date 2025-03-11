@@ -94,6 +94,8 @@ const Page = () => {
       queryFn: () => getLaunchByCollectionId(id as string),
       enabled: !!id,
     });
+    console.log("unconfirmed", collectibles)
+    console.log("unconfirmed", collectibles.status)
 
   const { data: currentLayer, isLoading: isLayerLoading } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
@@ -239,6 +241,12 @@ const Page = () => {
 
   // Comprehensive function to determine which button to show
   const determineButtonState = () => {
+
+
+      // Check if status is unconfirmed
+  if (collectibles.status === "UNCONFIRMED") {
+    return "unconfirmedCollection";
+  }
     // 1. If supply is exhausted, show "Go to Collection"
     if (isSupplyExhausted()) {
       return "goToCollection";
@@ -657,6 +665,14 @@ const Page = () => {
                         "Go to collection"
                       )}
                     </Button>
+                    ) : determineButtonState() === "unconfirmedCollection" ? (
+                      <Button
+                        className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold mt-4"
+                        disabled={true}
+                        onClick={handlCollectionClick}
+                      >
+                        Go to collection
+                      </Button>
                   ) : determineButtonState() === "mint" ? (
                     <Button
                       variant="primary"
