@@ -254,7 +254,7 @@ export default function Header() {
   const handleLogout = (): void => {
     if (authState.authenticated) {
       onLogout();
-      toast.info("Logged out successfully");
+      toast.info("Logged out successfully.");
     }
   };
 

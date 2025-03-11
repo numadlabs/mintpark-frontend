@@ -54,7 +54,7 @@ const CancelListModal: React.FC<ModalProps> = ({
           const response = await confirmCancelListMutation({ id: listId });
           if (response && response.success) {
             onClose();
-            toast.success("Successfully cancelled");
+            toast.success("Successfully cancelled.");
           }
         }
       }

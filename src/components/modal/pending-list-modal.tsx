@@ -115,7 +115,7 @@ const PendingListModal: React.FC<ModalProps> = ({
           });
           if (response && response.success) {
             setSuccess(true);
-            toast.success("Successfully.");
+            toast.success("Successfully listed.");
           }
         }
       } else {

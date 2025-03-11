@@ -502,7 +502,7 @@ const LaunchpadBanner: React.FC<BannerProps> = ({ data }) => {
                               className="sm:ml-auto text-neutral600"
                             >
                               <Button className="w-full text-neutral600 sm:w-auto text-md2">
-                                {determineButtonState() === "mint" ? "Mint now" : "View details"}
+                                {determineButtonState() === "mint" ? "Go to minter" : "View details"}
                               </Button>
                             </Link>
                           )}
