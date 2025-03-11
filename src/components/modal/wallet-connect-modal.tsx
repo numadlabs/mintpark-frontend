@@ -71,8 +71,8 @@ export function WalletConnectionModal({
 
       // Get saved layer and network from localStorage
       const savedLayer = localStorage.getItem("selectedLayer");
-      const savedNetwork = localStorage.getItem("selectedNetwork") || "mainnet";
-
+      const savedNetwork = localStorage.getItem("selectedNetwork");
+      
       // Find active layer based on saved values or the activeTab prop
       if (savedLayer) {
         // Try to find layer with matching name+network
@@ -266,7 +266,7 @@ export function WalletConnectionModal({
         return a.layer.localeCompare(b.layer);
       }
       // Then sort by network, prioritizing "mainnet" over others
-      return a.network === "mainnet" ? -1 : 1;
+      return a.network.toUpperCase() === "MAINNET" ? -1 : 1;
     });
   };
 
@@ -278,6 +278,11 @@ export function WalletConnectionModal({
   };
 
   const currentLayerObject = getCurrentLayer();
+
+  // Helper to check if a network is mainnet (case insensitive)
+  const isMainnet = (network: string) => {
+    return network.toUpperCase() === "MAINNET";
+  };
 
   return (
     <>
@@ -311,12 +316,11 @@ export function WalletConnectionModal({
                           sizes="100%"
                         />
                       </Avatar>
-                      {/* Show testnet badge for non-mainnet networks */}
-
-                      {layer.network !== "MAINNET" && (
+                      {/* Show testnet badge for non-mainnet networks using your custom style */}
+                      {!isMainnet(layer.network) && (
                         <div className="absolute flex -top-5 gap-1 items-center -right-12 bg-brand px-2 rounded-full">
                           <span className="w-2 h-2 bg-neutral500 rounded-full animate-pulse"></span>
-                          <p className=" text-black text-[9px] font-bold">
+                          <p className="text-black text-[9px] font-bold">
                             Testnet
                           </p>
                         </div>
