@@ -369,7 +369,6 @@ const Badge = () => {
         collectionId: collectionId,
         isWhitelisted: isChecked ? true : false,
         hasFCFS: isSecondChecked ? true : false,
-        // hasPublic: isPubChecked ? true : false,
         poStartsAt:poStartsAt,
         poEndsAt: poEndsAt,
         poMintPrice: POMintPrice,
