@@ -171,7 +171,7 @@ export function WalletConnectionModal({
   const handleProceedWithLinking = async () => {
     try {
       await proceedWithLinking();
-      toast.success(`Successfully linked wallet`);
+      toast.success(`Successfully linked wallet.`);
       setShowLinkAlert(false);
     } catch (error) {
       toast.error(`Failed to link wallet: ${error}`);

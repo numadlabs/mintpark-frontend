@@ -189,7 +189,7 @@ const ProfileBanner: React.FC = () => {
                         draggable="false"
                         width={24}
                         height={24}
-                        className="h-5 w-5 sm:h-6 sm:w-6"
+                        className="h-5 w-5 sm:h-6 sm:w-6 rounded-lg"
                       />
                       <p className="flex items-center font-bold text-lg md:text-xl text-white">
                         {formatPriceBtc(balance.amount)}{" "}
