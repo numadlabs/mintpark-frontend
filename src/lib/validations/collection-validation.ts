@@ -49,6 +49,7 @@ export const collectionDetailSchema = z.object({
 export const collectibleSchema = z.object({
   id: z.string(),
   name: z.string(),
+  layer:z.string(),
   uniqueIdx: z.string(),
   createdAt: z.string(),
   fileKey: z.string(),
