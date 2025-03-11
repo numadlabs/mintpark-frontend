@@ -68,40 +68,41 @@ export function WalletConnectionModal({
   useEffect(() => {
     if (layers.length > 0) {
       setLayers(layers);
-      
+
       // Get saved layer and network from localStorage
       const savedLayer = localStorage.getItem("selectedLayer");
       const savedNetwork = localStorage.getItem("selectedNetwork");
-      
+
       // Find active layer based on saved values or the activeTab prop
       if (savedLayer) {
         // Try to find layer with matching name+network
         const matchingLayer = layers.find(
-          layer => layer.layer === savedLayer && 
-                  (savedNetwork ? layer.network === savedNetwork : true)
+          (layer) =>
+            layer.layer === savedLayer &&
+            (savedNetwork ? layer.network === savedNetwork : true)
         );
-        
+
         if (matchingLayer) {
           setActiveLayerId(matchingLayer.id);
         } else {
           // Fallback to any layer with the matching name
-          const anyLayer = layers.find(layer => layer.layer === savedLayer);
+          const anyLayer = layers.find((layer) => layer.layer === savedLayer);
           if (anyLayer) {
             setActiveLayerId(anyLayer.id);
           }
         }
       } else if (activeTab) {
         // If no saved preferences but we have an activeTab from props
-        const matchingLayer = layers.find(layer => layer.layer === activeTab);
+        const matchingLayer = layers.find((layer) => layer.layer === activeTab);
         if (matchingLayer) {
           setActiveLayerId(matchingLayer.id);
         }
       }
-      
+
       // If no layer is selected yet, pick a default
       if (!activeLayerId && layers.length > 0) {
         // Try to find HEMI layer
-        const hemiLayer = layers.find(layer => layer.layer === "HEMI");
+        const hemiLayer = layers.find((layer) => layer.layer === "HEMI");
         if (hemiLayer) {
           setActiveLayerId(hemiLayer.id);
         } else {
@@ -114,21 +115,22 @@ export function WalletConnectionModal({
 
   // Function to switch or add chain in Metamask
   const switchOrAddChain = async (layer: LayerTypes): Promise<boolean> => {
-    if (!layer.chainId || typeof window === 'undefined' || !window.ethereum) return false;
-    
+    if (!layer.chainId || typeof window === "undefined" || !window.ethereum)
+      return false;
+
     try {
       // Convert to hex format if needed
       let chainIdHex = layer.chainId;
-      if (!chainIdHex.startsWith('0x')) {
+      if (!chainIdHex.startsWith("0x")) {
         chainIdHex = `0x${parseInt(layer.chainId).toString(16)}`;
       }
-      
+
       // Try to switch chain
       await window.ethereum.request({
-        method: 'wallet_switchEthereumChain',
+        method: "wallet_switchEthereumChain",
         params: [{ chainId: chainIdHex }],
       });
-      
+
       return true;
     } catch (error: any) {
       // Chain not added to Metamask yet
@@ -137,18 +139,20 @@ export function WalletConnectionModal({
           // Get wallet configuration
           const walletConfig = WALLET_CONFIGS[layer.layer];
           if (!walletConfig) return false;
-          
+
           const networkType = layer.network.toUpperCase();
           const networkConfig = walletConfig.networks[networkType];
           if (!networkConfig) return false;
-          
+
           // Add the chain to Metamask
           await window.ethereum.request({
-            method: 'wallet_addEthereumChain',
+            method: "wallet_addEthereumChain",
             params: [
               {
                 chainId: chainIdHex,
-                chainName: layer.name || `${layer.layer} ${capitalizeFirstLetter(layer.network)}`,
+                chainName:
+                  layer.name ||
+                  `${layer.layer} ${capitalizeFirstLetter(layer.network)}`,
                 rpcUrls: networkConfig.rpcUrls,
                 blockExplorerUrls: networkConfig.blockExplorerUrls,
                 nativeCurrency: networkConfig.nativeCurrency || {
@@ -159,13 +163,13 @@ export function WalletConnectionModal({
               },
             ],
           });
-          
+
           // Try switching again after adding
           await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
+            method: "wallet_switchEthereumChain",
             params: [{ chainId: chainIdHex }],
           });
-          
+
           return true;
         } catch (addError: any) {
           console.error("Failed to add chain:", addError);
@@ -195,7 +199,11 @@ export function WalletConnectionModal({
 
     try {
       // If this is a Metamask wallet, try to switch chain first
-      if (layer.chainId && window.ethereum && WALLET_CONFIGS[layer.layer]?.type === "metamask") {
+      if (
+        layer.chainId &&
+        window.ethereum &&
+        WALLET_CONFIGS[layer.layer]?.type === "metamask"
+      ) {
         await switchOrAddChain(layer);
       }
 
@@ -228,21 +236,21 @@ export function WalletConnectionModal({
   // Handle layer selection
   const handleLayerSelect = (layerId: string) => {
     setActiveLayerId(layerId);
-    
+
     // Find the selected layer
-    const layer = layers.find(l => l.id === layerId);
+    const layer = layers.find((l) => l.id === layerId);
     if (layer) {
       // Update state
       onTabChange(layer.layer);
       onLayerSelect(layer.layer, layer.network);
-      
+
       // Store in localStorage
       localStorage.setItem("selectedLayer", layer.layer);
       localStorage.setItem("selectedNetwork", layer.network);
-      
+
       // If this is a Metamask layer and we're using Metamask, try to switch chain
       if (
-        layer.chainId && 
+        layer.chainId &&
         window.ethereum &&
         WALLET_CONFIGS[layer.layer]?.type === "metamask"
       ) {
@@ -265,12 +273,12 @@ export function WalletConnectionModal({
   };
 
   const layerTabs = getLayerTabs();
-  
+
   // Get the current selected layer
   const getCurrentLayer = () => {
-    return layers.find(l => l.id === activeLayerId) || null;
+    return layers.find((l) => l.id === activeLayerId) || null;
   };
-  
+
   const currentLayerObject = getCurrentLayer();
 
   return (
@@ -307,8 +315,8 @@ export function WalletConnectionModal({
                       </Avatar>
                       {/* Show testnet badge for non-mainnet networks */}
                       {layer.network !== "MAINNET" && (
-                        <div className="absolute -top-1 -right-1 bg-yellow-500 text-black text-[8px] font-bold px-1 rounded-full">
-                          TEST
+                        <div className="absolute -top-4 -right-12 bg-brand text-black text-[8px] font-bold px-2 rounded-full">
+                          Testnet
                         </div>
                       )}
                     </div>
@@ -316,12 +324,16 @@ export function WalletConnectionModal({
                 ))}
               </div>
             </TabsList>
-            
+
             <div className="h-[1px] w-full bg-white8 my-6" />
-            
+
             {/* Content for each tab */}
             {layerTabs.map((layer) => (
-              <TabsContent key={layer.id} value={layer.id} className="flex flex-col gap-4">
+              <TabsContent
+                key={layer.id}
+                value={layer.id}
+                className="flex flex-col gap-4"
+              >
                 <WalletCard
                   layer={layer}
                   isWalletConnected={isWalletConnected}
@@ -331,7 +343,7 @@ export function WalletConnectionModal({
               </TabsContent>
             ))}
           </Tabs>
-          
+
           <DialogFooter className="text-md text-neutral100">
             Choose wallet to Log In or Sign Up
           </DialogFooter>
