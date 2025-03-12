@@ -33,6 +33,7 @@ interface WalletConnectionModalProps {
   open: boolean;
   onClose: () => void;
   activeTab: string;
+  selectedLayerId: string;
   onTabChange: (tab: string) => void;
   onLayerSelect: (layer: string, network: string) => void;
 }
@@ -41,6 +42,7 @@ export function WalletConnectionModal({
   open,
   onClose,
   activeTab,
+  selectedLayerId,
   onTabChange,
   onLayerSelect,
 }: WalletConnectionModalProps) {
@@ -68,12 +70,17 @@ export function WalletConnectionModal({
   useEffect(() => {
     if (layers.length > 0) {
       setLayers(layers);
-
-      // Get saved layer and network from localStorage
+      
+      // Priority 1: Use the selectedLayerId from props if available
+      if (selectedLayerId) {
+        setActiveLayerId(selectedLayerId);
+        return;
+      }
+      
+      // Priority 2: Get saved layer and network from localStorage
       const savedLayer = localStorage.getItem("selectedLayer");
       const savedNetwork = localStorage.getItem("selectedNetwork");
       
-      // Find active layer based on saved values or the activeTab prop
       if (savedLayer) {
         // Try to find layer with matching name+network
         const matchingLayer = layers.find(
@@ -84,34 +91,39 @@ export function WalletConnectionModal({
 
         if (matchingLayer) {
           setActiveLayerId(matchingLayer.id);
-        } else {
-          // Fallback to any layer with the matching name
-          const anyLayer = layers.find((layer) => layer.layer === savedLayer);
-          if (anyLayer) {
-            setActiveLayerId(anyLayer.id);
-          }
+          return;
         }
-      } else if (activeTab) {
-        // If no saved preferences but we have an activeTab from props
+        
+        // Fallback to any layer with the matching name
+        const anyLayer = layers.find((layer) => layer.layer === savedLayer);
+        if (anyLayer) {
+          setActiveLayerId(anyLayer.id);
+          return;
+        }
+      }
+      
+      // Priority 3: Use activeTab from props
+      if (activeTab) {
         const matchingLayer = layers.find((layer) => layer.layer === activeTab);
         if (matchingLayer) {
           setActiveLayerId(matchingLayer.id);
+          return;
         }
       }
 
-      // If no layer is selected yet, pick a default
-      if (!activeLayerId && layers.length > 0) {
+      // Priority 4: If no layer is selected yet, pick a default
+      if (!activeLayerId) {
         // Try to find HEMI layer
         const hemiLayer = layers.find((layer) => layer.layer === "HEMI");
         if (hemiLayer) {
           setActiveLayerId(hemiLayer.id);
-        } else {
+        } else if (layers.length > 0) {
           // Fallback to first layer
           setActiveLayerId(layers[0].id);
         }
       }
     }
-  }, [layers, setLayers, activeTab, activeLayerId]);
+  }, [layers, setLayers, activeTab, selectedLayerId]);
 
   // Function to switch or add chain in Metamask
   const switchOrAddChain = async (layer: LayerTypes): Promise<boolean> => {
@@ -233,6 +245,8 @@ export function WalletConnectionModal({
 
   // Handle layer selection
   const handleLayerSelect = (layerId: string) => {
+    if (!layerId) return;
+    
     setActiveLayerId(layerId);
 
     // Find the selected layer
@@ -260,14 +274,16 @@ export function WalletConnectionModal({
   // Generate unique layer+network tabs
   const getLayerTabs = () => {
     // Sort layers so mainnet appears before testnet
-    return [...layers].sort((a, b) => {
-      // First sort by layer name
-      if (a.layer !== b.layer) {
-        return a.layer.localeCompare(b.layer);
-      }
-      // Then sort by network, prioritizing "mainnet" over others
-      return a.network.toUpperCase() === "MAINNET" ? -1 : 1;
-    });
+    return [...layers]
+      .filter(layer => layer.layer !== "BITCOIN") // Ignore Bitcoin layers in the tabs
+      .sort((a, b) => {
+        // First sort by layer name
+        if (a.layer !== b.layer) {
+          return a.layer.localeCompare(b.layer);
+        }
+        // Then sort by network, prioritizing "mainnet" over others
+        return a.network.toUpperCase() === "MAINNET" ? -1 : 1;
+      });
   };
 
   const layerTabs = getLayerTabs();
@@ -333,7 +349,7 @@ export function WalletConnectionModal({
 
             <div className="h-[1px] w-full bg-white8 my-6" />
 
-            {/* Content for each tab */}
+            {/* Content for each tab - only showing tabs for non-Bitcoin layers */}
             {layerTabs.map((layer) => (
               <TabsContent
                 key={layer.id}
