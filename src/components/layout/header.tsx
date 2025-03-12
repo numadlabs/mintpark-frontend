@@ -1,9 +1,9 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion"; // Import framer-motion
+import { motion, AnimatePresence } from "framer-motion";
 import HeaderItem from "../ui/headerItem";
 import { useAuth } from "../provider/auth-context-provider";
 import { useMetamaskEvents } from "@/lib/hooks/useWalletAuth";
@@ -21,7 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Wallet2, I3Dcube, Logout, ArrowRight2 } from "iconsax-react";
+import { Wallet2, Logout, ArrowRight2 } from "iconsax-react";
 import { Button } from "../ui/button";
 import { getAllLayers, getLayerById } from "@/lib/service/queryHelper";
 import { truncateAddress, capitalizeFirstLetter } from "@/lib/utils";
@@ -48,16 +48,14 @@ interface WalletInfo {
   layerId: string;
 }
 
-interface LayerImageMap {
-  [key: string]: string;
-}
-
 export default function Header() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
-  const [selectedLayer, setSelectedLayer] = useState("HEMI");
-  const [defaultLayer, setDefaultLayer] = useState("HEMI-mainnet");
+  const [selectedLayer, setSelectedLayer] = useState("");
+  const [defaultLayer, setDefaultLayer] = useState("");
+  const prevLayerIdRef = useRef(null);
+  const initialSetupDone = useRef(false);
 
   const {
     authState,
@@ -70,30 +68,72 @@ export default function Header() {
   } = useAuth();
 
   useMetamaskEvents();
-  // State to track scroll position when menu opens
+  
+  // Define navigation routes
+  const routes = useMemo<RouteItem[]>(() => [
+    {
+      title: "Create",
+      pageUrl: "/create",
+      requiresAuth: true,
+      disabled: true,
+      badge: "Soon",
+    },
+    { title: "Launchpad", pageUrl: "/launchpad" },
+    { title: "Collections", pageUrl: "/collections" },
+  ], []);
+  
+  // Animation variants
+  const menuVariants = useMemo(() => ({
+    closed: {
+      opacity: 0,
+      y: "-100%",
+      transition: { y: { stiffness: 1000 } },
+    },
+    open: {
+      opacity: 1,
+      y: 0,
+      transition: { y: { stiffness: 1000, velocity: -100 } },
+    },
+  }), []);
+
+  const menuItemVariants = useMemo(() => ({
+    closed: { x: -20, opacity: 0 },
+    open: (i: number) => ({
+      x: 0,
+      opacity: 1,
+      transition: { delay: i * 0.1, duration: 0.4 },
+    }),
+  }), []);
+
+  const backdropVariants = useMemo(() => ({
+    closed: { opacity: 0 },
+    open: { opacity: 1 },
+  }), []);
+
   // Handle mobile menu open/close
   useEffect(() => {
-    const handleOpen = () => {
-      // First, scroll to top when opening menu
-      window.scrollTo(0, 0);
-      // Then disable scrolling
-      document.body.style.overflow = "hidden";
-    };
-
-    const handleClose = () => {
-      // Re-enable scrolling when closing menu
-      document.body.style.overflow = "";
-    };
-
     if (mobileMenuOpen) {
-      handleOpen();
+      window.scrollTo(0, 0);
+      document.body.style.overflow = "hidden";
     } else {
-      handleClose();
+      document.body.style.overflow = "";
     }
 
     return () => {
       document.body.style.overflow = "";
     };
+  }, [mobileMenuOpen]);
+
+  // Listen for window resize to close mobile menu on desktop view
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024 && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [mobileMenuOpen]);
 
   // Fetch all available layers
@@ -104,6 +144,9 @@ export default function Header() {
     gcTime: Infinity,
   });
 
+  // Memoized layers
+  const layers = useMemo(() => [...dynamicLayers], [dynamicLayers]);
+
   // Fetch current selected layer data
   const { data: currentLayer, isLoading: isLayersLoading } = useQuery({
     queryKey: ["currentLayerData", selectedLayerId],
@@ -111,82 +154,74 @@ export default function Header() {
     enabled: !!selectedLayerId,
   });
 
+  // Initialize from localStorage and handle initial layer selection
   useEffect(() => {
-    const savedLayer = localStorage.getItem("selectedLayer");
-    const savedNetwork = localStorage.getItem("selectedNetwork") || "mainnet";
+    if (dynamicLayers.length === 0 || initialSetupDone.current) return;
     
-    if (savedLayer && dynamicLayers.length > 0) {
-      // Look for the specific layer+network combination
-      const matchingLayer = dynamicLayers.find(
-        (l) => l.layer === savedLayer && l.network === savedNetwork
-      );
+    const savedLayer = localStorage.getItem("selectedLayer");
+    const savedNetwork = localStorage.getItem("selectedNetwork") || "MAINNET";
+    
+    if (!selectedLayerId) {
+      let targetLayer = null;
       
-      // If found specific network match
-      if (matchingLayer) {
-        setSelectedLayer(savedLayer);
-        setSelectedLayerId(matchingLayer.id);
-        return;
+      // Priority 1: Find exact match for saved layer+network
+      if (savedLayer) {
+        const matchingLayer = dynamicLayers.find(
+          (l) => l.layer === savedLayer && l.network === savedNetwork
+        );
+        
+        if (matchingLayer) {
+          targetLayer = matchingLayer;
+        } else {
+          // Priority 2: Find any layer with matching name
+          const anyMatchingLayer = dynamicLayers.find((l) => l.layer === savedLayer);
+          if (anyMatchingLayer) {
+            targetLayer = anyMatchingLayer;
+          }
+        }
       }
       
-      // Fallback: find any layer with matching name if network doesn't match
-      const anyMatchingLayer = dynamicLayers.find((l) => l.layer === savedLayer);
-      if (anyMatchingLayer) {
-        setSelectedLayer(savedLayer);
-        setSelectedLayerId(anyMatchingLayer.id);
-        localStorage.setItem("selectedNetwork", anyMatchingLayer.network);
-        return;
+      // Priority 3: Find HEMI layer
+      if (!targetLayer) {
+        const hemiLayer = dynamicLayers.find((l) => l.layer === "HEMI");
+        if (hemiLayer) {
+          targetLayer = hemiLayer;
+        } else if (dynamicLayers.length > 0) {
+          // Priority 4: Use first available layer
+          targetLayer = dynamicLayers[0];
+        }
+      }
+      
+      // Apply the selected layer
+      if (targetLayer) {
+        setSelectedLayerId(targetLayer.id);
+        setSelectedLayer(targetLayer.layer);
+        setDefaultLayer(targetLayer.id);
+        localStorage.setItem("selectedLayer", targetLayer.layer);
+        localStorage.setItem("selectedNetwork", targetLayer.network);
       }
     }
+    
+    initialSetupDone.current = true;
+  }, [dynamicLayers, selectedLayerId, setSelectedLayerId]);
   
-    // Fall back to default behavior if no saved layer or match found
-    if (!selectedLayerId && dynamicLayers.length > 0) {
-      // Try to find Hemi layer first (without hardcoding specific network)
-      const hemiLayer = dynamicLayers.find((l) => l.layer === "HEMI");
-      if (hemiLayer) {
-        setSelectedLayerId(hemiLayer.id);
-        setSelectedLayer(hemiLayer.layer);
-        localStorage.setItem("selectedLayer", hemiLayer.layer);
-        localStorage.setItem("selectedNetwork", hemiLayer.network);
-      } else {
-        // If no Hemi layer, use the first available layer
-        const firstLayer = dynamicLayers[0];
-        setSelectedLayerId(firstLayer.id);
-        setSelectedLayer(firstLayer.layer);
-        localStorage.setItem("selectedLayer", firstLayer.layer);
-        localStorage.setItem("selectedNetwork", firstLayer.network);
-      }
-    } else if (currentLayer) {
+  // Update localStorage when current layer changes
+  useEffect(() => {
+    if (currentLayer && prevLayerIdRef.current !== currentLayer.id) {
       localStorage.setItem("selectedLayer", currentLayer.layer);
       localStorage.setItem("selectedNetwork", currentLayer.network);
+      prevLayerIdRef.current = currentLayer.id;
     }
-  }, [currentLayer, dynamicLayers, selectedLayerId, setSelectedLayerId]);
-  // Combine dynamic and static layers
-  const layers = [...dynamicLayers];
+  }, [currentLayer]);
 
-  // Define navigation routes
-  const routes: RouteItem[] = [
-    {
-      title: "Create",
-      pageUrl: "/create",
-      requiresAuth: true,
-      disabled: true,
-      badge: "Soon",
-    },
-    { title: "Launchpad", pageUrl: "/launchpad" },
-    { title: "Collections", pageUrl: "/collections" },
-  ];
-
-  // Get layer image based on layer name
-
-  // Handle layer selection
- 
-  const switchOrAddChain = async (chainId: string, layer: string, network: string): Promise<boolean> => {
+  // Chain switching functionality
+  const switchOrAddChain = useCallback(async (chainId: string, layer: string, network: string): Promise<boolean> => {
     if (!chainId || typeof window === 'undefined' || !window.ethereum) return false;
     
     try {
       const chainIdHex = `0x${parseInt(chainId).toString(16)}`;
 
-       await window.ethereum.request({
+      await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: chainIdHex }],
       });
@@ -223,7 +258,7 @@ export default function Header() {
           // Try switching again after adding
           await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
-            params: [{  chainId: `0x${parseInt(chainId).toString(16)}` }],
+            params: [{ chainId: `0x${parseInt(chainId).toString(16)}` }],
           });
           
           return true;
@@ -232,7 +267,6 @@ export default function Header() {
           return false;
         }
       } else if (error.code === 4001) {
-        // User rejected request
         console.log("User rejected chain switch");
         return false;
       } else {
@@ -240,44 +274,48 @@ export default function Header() {
         return false;
       }
     }
-  };
-  // Update your handleLayerSelect function to also switch chain:
+  }, []);
 
-  const handleLayerSelect = async (layerId: string): Promise<void> => {
-    const selectedLayer = layers.find((l) => l.id === layerId);
-  
-    if (selectedLayer && selectedLayerId !== selectedLayer.id) {
-      // Update app state
-      setSelectedLayerId(selectedLayer.id);
-      setSelectedLayer(selectedLayer.layer);
-      
-      // Store in localStorage
-      localStorage.setItem("selectedLayer", selectedLayer.layer);
-      localStorage.setItem("selectedNetwork", selectedLayer.network);
-  
-      // If this is a Metamask layer and we have access to the ethereum object, switch chain
-      if (
-        selectedLayer.chainId && 
-        window.ethereum && 
-        WALLET_CONFIGS[selectedLayer.layer]?.type === "metamask"
-      ) {
-        // Try to switch to the chain in Metamask
-        await switchOrAddChain(selectedLayer.chainId, selectedLayer.layer, selectedLayer.network);
-      }
+  // Handle layer selection
+  const handleLayerSelect = useCallback(async (layerId: string): Promise<void> => {
+    if (!layerId || layerId === selectedLayerId) return;
+    
+    const selectedLayerObj = layers.find((l) => l.id === layerId);
+    if (!selectedLayerObj) return;
+
+    // Update app state
+    setSelectedLayerId(selectedLayerObj.id);
+    setSelectedLayer(selectedLayerObj.layer);
+    setDefaultLayer(layerId);
+    
+    // Store in localStorage
+    localStorage.setItem("selectedLayer", selectedLayerObj.layer);
+    localStorage.setItem("selectedNetwork", selectedLayerObj.network);
+
+    // If this is a Metamask layer and we have access to the ethereum object, switch chain
+    if (
+      selectedLayerObj.chainId && 
+      window.ethereum && 
+      WALLET_CONFIGS[selectedLayerObj.layer]?.type === "metamask"
+    ) {
+      await switchOrAddChain(
+        selectedLayerObj.chainId, 
+        selectedLayerObj.layer, 
+        selectedLayerObj.network
+      );
     }
-  };
-  
+  }, [layers, selectedLayerId, setSelectedLayerId, switchOrAddChain]);
   
   // Handle logout
-  const handleLogout = (): void => {
+  const handleLogout = useCallback((): void => {
     if (authState.authenticated) {
       onLogout();
       toast.info("Logged out successfully!");
     }
-  };
+  }, [authState.authenticated, onLogout]);
 
   // Handle navigation
-  const handleNavigation = (
+  const handleNavigation = useCallback((
     pageUrl: string,
     requiresAuth?: boolean,
     disabled?: boolean
@@ -294,62 +332,79 @@ export default function Header() {
 
     router.push(pageUrl);
     setMobileMenuOpen(false);
-  };
+  }, [authState.authenticated, router]);
 
-  const currentWallet = selectedLayerId
-    ? getWalletForLayer(selectedLayerId)
-    : undefined;
-  const isWalletDisconnected =
-    selectedLayerId && !isWalletConnected(selectedLayerId);
+  // Helper to check if a network is mainnet
+  const isMainnet = useCallback((network: string) => {
+    return network.toUpperCase() === "MAINNET";
+  }, []);
 
-  // Render dropdown layer item
-  const renderLayerItem = (layer: LayerType) => {
+  // Handle wallet modal toggle
+  const toggleWalletModal = useCallback((isOpen: boolean) => {
+    setWalletModalOpen(isOpen);
+  }, []);
+  
+  // Handle mobile menu toggle
+  const toggleMobileMenu = useCallback((isOpen: boolean) => {
+    setMobileMenuOpen(isOpen);
+  }, []);
+
+  // Memoized values
+  const currentWallet = useMemo(() => 
+    selectedLayerId ? getWalletForLayer(selectedLayerId) : undefined,
+    [selectedLayerId, getWalletForLayer]
+  );
+  
+  const isWalletDisconnected = useMemo(() => 
+    selectedLayerId && !isWalletConnected(selectedLayerId),
+    [selectedLayerId, isWalletConnected]
+  );
+
+  // Render dropdown layer item - memoized for performance
+  const renderLayerItem = useCallback((layer: LayerType) => {
+    if (layer.layer === "BITCOIN") {
+      return null;
+    }
+    
     const isLayerConnected = connectedWallets?.some((wallet: WalletInfo) => {
-      const foundLayer = layers.find((l) => l.id === wallet.layerId);
+      const foundLayer = layers.find((l) => l.chainId === wallet.layerId);
       return (
         foundLayer?.layer === layer.layer &&
         foundLayer?.network === layer.network
       );
     });
   
-
     return (
       <SelectItem
-      key={layer.id}
-      value={layer.id} // Use the full layer ID instead of constructed string
-      className={`flex items-center rounded-lg gap-2 w-[180px]`}
-    >
-      <div className="flex justify-between gap-2 items-center text-md text-neutral50 font-medium w-full">
-        <div className="flex gap-2">
-          <div className="relative">
-            <Image
-              src={getCurrencyImage(layer.layer)}
-              alt={layer.layer}
-              width={24}
-              height={24}
-              className="rounded-full"
-            />
-            {/* Add testnet indicator */}
-            {/* {layer.network !== "MAINNET" && (
-              <div className="absolute -top-3 -right-28 bg-yellow-500 text-black text-[8px] font-bold px-1 rounded-full">
-                Testnet
-              </div>
-            )} */}
+        key={layer.id}
+        value={layer.id}
+        className="flex items-center rounded-lg gap-2 w-[180px]"
+      >
+        <div className="flex justify-between gap-2 items-center text-md text-neutral50 font-medium w-full">
+          <div className="flex gap-2">
+            <div className="relative">
+              <Image
+                src={getCurrencyImage(layer.layer)}
+                alt={layer.layer}
+                width={24}
+                height={24}
+                className="rounded-full"
+              />
+            </div>
+            <div className="flex items-center gap-2 flex-1">
+              {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(
+                layer.network
+              )}`}
+            </div>
           </div>
-          <div className="flex items-center gap-2 flex-1">
-            {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(
-              layer.network
-            )}`}
-          </div>
+          {isLayerConnected && <Check className="w-5 h-5 text-neutral50" />}
         </div>
-        {isLayerConnected && <Check className="w-5 h-5 text-neutral50" />}
-      </div>
-    </SelectItem>
+      </SelectItem>
     );
-  };
+  }, [connectedWallets, layers]);
 
-  // Render current layer value
-  const renderCurrentLayerValue = () => {
+  // Render current layer value - memoized for performance
+  const renderCurrentLayerValue = useCallback(() => {
     if (isLayersLoading) {
       return (
         <div className="flex items-center gap-2">
@@ -359,7 +414,6 @@ export default function Header() {
       );
     }
   
-    // Find the current layer from selectedLayerId
     const currentLayerObj = selectedLayerId 
       ? layers.find(l => l.id === selectedLayerId) 
       : null;
@@ -375,12 +429,6 @@ export default function Header() {
               height={24}
               className="rounded-full"
             />
-            {/* Add testnet indicator */}
-            {/* {currentLayerObj.network !== "MAINNET" && (
-              <div className="absolute -top-1 -right-1 bg-yellow-500 text-black text-[8px] font-bold px-1 rounded-full">
-                TEST
-              </div>
-            )} */}
           </div>
           {`${capitalizeFirstLetter(currentLayerObj.layer)} ${capitalizeFirstLetter(currentLayerObj.network)}`}
         </div>
@@ -388,57 +436,44 @@ export default function Header() {
     }
   
     return <span>Select layer</span>;
-  };
+  }, [isLayersLoading, selectedLayerId, layers]);
 
-  // Animation variants
-  const menuVariants = {
-    closed: {
-      opacity: 0,
-      y: "-100%",
-      transition: {
-        y: { stiffness: 1000 },
-      },
-    },
-    open: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        y: { stiffness: 1000, velocity: -100 },
-      },
-    },
-  };
+  // Handle layer selection for the wallet modal
+  const handleModalLayerSelect = useCallback((layer: string, network: string) => {
+    const matchingLayer = layers.find(
+      (l) => l.layer === layer && l.network === network
+    );
+    
+    if (matchingLayer) {
+      setSelectedLayerId(matchingLayer.id);
+      setSelectedLayer(matchingLayer.layer);
+      setDefaultLayer(matchingLayer.id);
+      
+      localStorage.setItem("selectedLayer", matchingLayer.layer);
+      localStorage.setItem("selectedNetwork", matchingLayer.network);
+    }
+  }, [layers, setSelectedLayerId]);
 
-  // Listen for window resize to close mobile menu on desktop view
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024 && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [mobileMenuOpen]);
-
-  const menuItemVariants = {
-    closed: { x: -20, opacity: 0 },
-    open: (i: any) => ({
-      x: 0,
-      opacity: 1,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.4,
-      },
-    }),
-  };
-
-  const backdropVariants = {
-    closed: { opacity: 0 },
-    open: { opacity: 1 },
-  };
+  // Memoized wallet modal component
+  const walletModal = useMemo(() => (
+    <WalletConnectionModal
+      open={walletModalOpen}
+      onClose={() => toggleWalletModal(false)}
+      activeTab={selectedLayer}
+      selectedLayerId={selectedLayerId as string}
+      onTabChange={(tab) => {
+        setSelectedLayer(tab);
+        localStorage.setItem("selectedLayer", tab);
+      }}
+      onLayerSelect={handleModalLayerSelect}
+    />
+  ), [
+    walletModalOpen, 
+    toggleWalletModal, 
+    selectedLayer, 
+    selectedLayerId, 
+    handleModalLayerSelect
+  ]);
 
   return (
     <>
@@ -480,12 +515,9 @@ export default function Header() {
               {/* Desktop Controls - Layer selector and wallet */}
               <div className="hidden lg:flex items-center gap-4">
                 {/* Layer Selector */}
-                <Select onValueChange={handleLayerSelect} value={defaultLayer}>
+                <Select onValueChange={handleLayerSelect} value={selectedLayerId as string}>
                   <SelectTrigger className="flex items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
-                    <SelectValue
-                      placeholder="Select layer"
-                      defaultValue={defaultLayer}
-                    >
+                    <SelectValue placeholder="Select layer">
                       {renderCurrentLayerValue()}
                     </SelectValue>
                   </SelectTrigger>
@@ -501,7 +533,7 @@ export default function Header() {
                   <Button
                     variant="secondary"
                     size="lg"
-                    onClick={() => setWalletModalOpen(true)}
+                    onClick={() => toggleWalletModal(true)}
                     className="min-w-[170px]"
                   >
                     Connect Wallet
@@ -530,15 +562,6 @@ export default function Header() {
                           <ArrowRight2 size={16} color="#D7D8D8" />
                         </DropdownMenuItem>
                       </Link>
-                      {/* <Link href="/orders">
-                        <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                          <div className="flex items-center gap-2">
-                            <I3Dcube size={24} color="#D7D8D8" />
-                            <p>Inscribe Orders</p>
-                          </div>
-                          <ArrowRight2 size={16} color="#D7D8D8" />
-                        </DropdownMenuItem>
-                      </Link> */}
                       <DropdownMenuItem
                         className="text-neutral50 text-md font-medium flex gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
                         onClick={handleLogout}
@@ -554,7 +577,7 @@ export default function Header() {
               {/* Mobile Menu Button */}
               <motion.button
                 className="lg:hidden p-2 text-neutral50"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onClick={() => toggleMobileMenu(!mobileMenuOpen)}
                 whileTap={{ scale: 0.9 }}
               >
                 <MenuIcon size={24} />
@@ -562,7 +585,6 @@ export default function Header() {
             </div>
           </div>
         </div>
-        {/* No spacer needed for sticky header */}
       </div>
 
       {/* Mobile Menu - Using AnimatePresence for animations */}
@@ -576,7 +598,7 @@ export default function Header() {
               animate="open"
               exit="closed"
               variants={backdropVariants}
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => toggleMobileMenu(false)}
             />
 
             {/* Menu Panel - Always at the top of page */}
@@ -600,7 +622,7 @@ export default function Header() {
                   </Link>
                   <motion.button
                     className="p-2 text-neutral50"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={() => toggleMobileMenu(false)}
                     whileTap={{ scale: 0.9 }}
                   >
                     <X size={24} />
@@ -641,13 +663,10 @@ export default function Header() {
                     {/* Same layer selector as desktop but with mobile styling */}
                     <Select
                       onValueChange={handleLayerSelect}
-                      value={defaultLayer}
+                      value={selectedLayerId as string}
                     >
                       <SelectTrigger className="flex items-center h-12 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-full">
-                        <SelectValue
-                          placeholder="Select layer"
-                          defaultValue={defaultLayer}
-                        >
+                        <SelectValue placeholder="Select layer">
                           {renderCurrentLayerValue()}
                         </SelectValue>
                       </SelectTrigger>
@@ -663,7 +682,7 @@ export default function Header() {
                       <Button
                         variant="secondary"
                         size="lg"
-                        onClick={() => setWalletModalOpen(true)}
+                        onClick={() => toggleWalletModal(true)}
                         className="w-full"
                       >
                         Connect Wallet
@@ -695,15 +714,6 @@ export default function Header() {
                               <ArrowRight2 size={16} color="#D7D8D8" />
                             </DropdownMenuItem>
                           </Link>
-                          {/* <Link href="/orders">
-                            <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                              <div className="flex items-center gap-2">
-                                <I3Dcube size={24} color="#D7D8D8" />
-                                <p>Inscribe Orders</p>
-                              </div>
-                              <ArrowRight2 size={16} color="#D7D8D8" />
-                            </DropdownMenuItem>
-                          </Link> */}
                           <DropdownMenuItem
                             className="text-neutral50 text-md font-medium flex gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
                             onClick={handleLogout}
@@ -723,25 +733,7 @@ export default function Header() {
       </AnimatePresence>
 
       {/* Wallet connection modal */}
-      <WalletConnectionModal
-  open={walletModalOpen}
-  onClose={() => setWalletModalOpen(false)}
-  activeTab={selectedLayer}
-  onTabChange={(tab) => {
-    setSelectedLayer(tab);
-    localStorage.setItem("selectedLayer", tab);
-  }}
-  onLayerSelect={(layer, network) => {
-    // Find the layer object with matching layer and network
-    const matchingLayer = layers.find(
-      (l) => l.layer === layer && l.network === network
-    );
-    
-    if (matchingLayer) {
-      handleLayerSelect(matchingLayer.id);
-    }
-  }}
-/>
+      {walletModal}
     </>
   );
 }
