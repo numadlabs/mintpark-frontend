@@ -242,7 +242,6 @@ const Page = () => {
   // Comprehensive function to determine which button to show
   const determineButtonState = () => {
 
-
       // Check if status is unconfirmed
   if (collectibles.status === "UNCONFIRMED") {
     return "unconfirmedCollection";
@@ -466,18 +465,18 @@ const Page = () => {
     window.open(validUrl, "_blank", "noopener,noreferrer");
   };
 
-  if (
-    !isCollectiblesLoading &&
-    !isLayerLoading &&
-    collectibles?.layerId !== selectedLayerId
-  ) {
-    router.replace("/launchpad");
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Redirecting...
-      </div>
-    );
-  }
+  // if (
+  //   !isCollectiblesLoading &&
+  //   !isLayerLoading &&
+  //   collectibles?.layerId !== selectedLayerId
+  // ) {
+  //   router.replace("/launchpad");
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       Redirecting...
+  //     </div>
+  //   );
+  // }
 
   return (
     <>
