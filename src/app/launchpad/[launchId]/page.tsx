@@ -94,8 +94,8 @@ const Page = () => {
       queryFn: () => getLaunchByCollectionId(id as string),
       enabled: !!id,
     });
-    console.log("unconfirmed", collectibles)
-    console.log("unconfirmed", collectibles.status)
+  // console.log("unconfirmed", collectibles)
+  // console.log("unconfirmed", collectibles.status)
 
   const { data: currentLayer, isLoading: isLayerLoading } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
@@ -198,9 +198,13 @@ const Page = () => {
     const poExists = collectibles.poStartsAt > 0;
 
     // Check if all configured end times are in the past
-    const wlEnded = !wlExists || (collectibles.wlEndsAt > 0 && collectibles.wlEndsAt < now);
-    const fcfsEnded = !fcfsExists || (collectibles.fcfsEndsAt > 0 && collectibles.fcfsEndsAt < now);
-    const poEnded = !poExists || (collectibles.poEndsAt > 0 && collectibles.poEndsAt < now);
+    const wlEnded =
+      !wlExists || (collectibles.wlEndsAt > 0 && collectibles.wlEndsAt < now);
+    const fcfsEnded =
+      !fcfsExists ||
+      (collectibles.fcfsEndsAt > 0 && collectibles.fcfsEndsAt < now);
+    const poEnded =
+      !poExists || (collectibles.poEndsAt > 0 && collectibles.poEndsAt < now);
 
     // Only return true if at least one phase was configured and all configured phases have ended
     const hasAnyPhase = wlExists || fcfsExists || poExists;
@@ -213,17 +217,17 @@ const Page = () => {
 
     // Check if any start time is in the past
     const wlStarted =
-      collectibles.isWhitelisted && 
-      collectibles.wlStartsAt > 0 &&  // Ensure valid start time
+      collectibles.isWhitelisted &&
+      collectibles.wlStartsAt > 0 && // Ensure valid start time
       collectibles.wlStartsAt <= now;
-    
+
     const fcfsStarted =
-      collectibles.hasFCFS && 
-      collectibles.fcfsStartsAt > 0 &&  // Ensure valid start time
+      collectibles.hasFCFS &&
+      collectibles.fcfsStartsAt > 0 && // Ensure valid start time
       collectibles.fcfsStartsAt <= now;
-    
-    const poStarted = 
-      collectibles.poStartsAt > 0 &&  // Ensure valid start time
+
+    const poStarted =
+      collectibles.poStartsAt > 0 && // Ensure valid start time
       collectibles.poStartsAt <= now;
 
     return wlStarted || fcfsStarted || poStarted;
@@ -241,11 +245,6 @@ const Page = () => {
 
   // Comprehensive function to determine which button to show
   const determineButtonState = () => {
-
-      // Check if status is unconfirmed
-  if (collectibles.status === "UNCONFIRMED") {
-    return "unconfirmedCollection";
-  }
     // 1. If supply is exhausted, show "Go to Collection"
     if (isSupplyExhausted()) {
       return "goToCollection";
@@ -266,6 +265,11 @@ const Page = () => {
       return "mintingSoon";
     }
 
+    // // Check if status is unconfirmed
+    // if (collectibles.status === "UNCONFIRMED") {
+    //   return "unconfirmedCollection";
+    // }
+
     // 5. Default: if phases exist in the future, show "Minting Soon"
     return "mintingSoon";
   };
@@ -278,7 +282,10 @@ const Page = () => {
       const wlStart = moment.unix(collectibles.wlStartsAt);
       const wlEnd = moment.unix(collectibles.wlEndsAt);
 
-      if (now.isBetween(wlStart, wlEnd) || (collectibles.wlStartsAt <= now.unix() && collectibles.wlEndsAt === 0)) {
+      if (
+        now.isBetween(wlStart, wlEnd) ||
+        (collectibles.wlStartsAt <= now.unix() && collectibles.wlEndsAt === 0)
+      ) {
         return "guaranteed";
       }
     }
@@ -288,7 +295,11 @@ const Page = () => {
       const fcfsStart = moment.unix(collectibles.fcfsStartsAt);
       const fcfsEnd = moment.unix(collectibles.fcfsEndsAt);
 
-      if (now.isBetween(fcfsStart, fcfsEnd) || (collectibles.fcfsStartsAt <= now.unix() && collectibles.fcfsEndsAt === 0)) {
+      if (
+        now.isBetween(fcfsStart, fcfsEnd) ||
+        (collectibles.fcfsStartsAt <= now.unix() &&
+          collectibles.fcfsEndsAt === 0)
+      ) {
         return "FCFS";
       }
     }
@@ -298,7 +309,10 @@ const Page = () => {
       const poStart = moment.unix(collectibles.poStartsAt);
       const poEnd = moment.unix(collectibles.poEndsAt);
 
-      if (now.isBetween(poStart, poEnd) || (collectibles.poStartsAt <= now.unix() && collectibles.poEndsAt === 0)) {
+      if (
+        now.isBetween(poStart, poEnd) ||
+        (collectibles.poStartsAt <= now.unix() && collectibles.poEndsAt === 0)
+      ) {
         return "public";
       }
     }
@@ -395,7 +409,7 @@ const Page = () => {
   const handlePhaseClick = (phaseType: "guaranteed" | "public" | "FCFS") => {
     setSelectedPhase(phaseType);
   };
-  
+
   // add to go to collection condition
   const handlCollectionClick = () => {
     router.push(`/collections/${collectibles.id}`);
@@ -664,15 +678,17 @@ const Page = () => {
                         "Go to collection"
                       )}
                     </Button>
-                    ) : determineButtonState() === "unconfirmedCollection" ? (
-                      <Button
-                        className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold mt-4"
-                        disabled={true}
-                        onClick={handlCollectionClick}
-                      >
-                        Go to collection
-                      </Button>
-                  ) : determineButtonState() === "mint" ? (
+                  ) 
+                  // : determineButtonState() === "unconfirmedCollection" ? (
+                  //   <Button
+                  //     className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold mt-4"
+                  //     disabled={true}
+                  //     onClick={handlCollectionClick}
+                  //   >
+                  //     Go to collection
+                  //   </Button>
+                  // ) 
+                  : determineButtonState() === "mint" ? (
                     <Button
                       variant="primary"
                       type="submit"
