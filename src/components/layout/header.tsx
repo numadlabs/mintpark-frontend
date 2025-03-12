@@ -56,8 +56,8 @@ export default function Header() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
-  const [selectedLayer, setSelectedLayer] = useState("HEMI");
-  const [defaultLayer, setDefaultLayer] = useState("HEMI-mainnet");
+  const [selectedLayer, setSelectedLayer] = useState("");
+  const [defaultLayer, setDefaultLayer] = useState("");
 
   const {
     authState,
@@ -125,6 +125,7 @@ export default function Header() {
       if (matchingLayer) {
         setSelectedLayer(savedLayer);
         setSelectedLayerId(matchingLayer.id);
+        setDefaultLayer(matchingLayer.id); // Also update defaultLayer
         return;
       }
       
@@ -133,6 +134,7 @@ export default function Header() {
       if (anyMatchingLayer) {
         setSelectedLayer(savedLayer);
         setSelectedLayerId(anyMatchingLayer.id);
+        setDefaultLayer(anyMatchingLayer.id); // Also update defaultLayer
         localStorage.setItem("selectedNetwork", anyMatchingLayer.network);
         return;
       }
@@ -140,11 +142,11 @@ export default function Header() {
   
     // Fall back to default behavior if no saved layer or match found
     if (!selectedLayerId && dynamicLayers.length > 0) {
-      // Try to find Hemi layer first (without hardcoding specific network)
       const hemiLayer = dynamicLayers.find((l) => l.layer === "HEMI");
       if (hemiLayer) {
         setSelectedLayerId(hemiLayer.id);
         setSelectedLayer(hemiLayer.layer);
+        setDefaultLayer(hemiLayer.id); // Also update defaultLayer
         localStorage.setItem("selectedLayer", hemiLayer.layer);
         localStorage.setItem("selectedNetwork", hemiLayer.network);
       } else {
@@ -152,12 +154,14 @@ export default function Header() {
         const firstLayer = dynamicLayers[0];
         setSelectedLayerId(firstLayer.id);
         setSelectedLayer(firstLayer.layer);
+        setDefaultLayer(firstLayer.id); // Also update defaultLayer
         localStorage.setItem("selectedLayer", firstLayer.layer);
         localStorage.setItem("selectedNetwork", firstLayer.network);
       }
     } else if (currentLayer) {
       localStorage.setItem("selectedLayer", currentLayer.layer);
       localStorage.setItem("selectedNetwork", currentLayer.network);
+      setDefaultLayer(currentLayer.id); // Also update defaultLayer
     }
   }, [currentLayer, dynamicLayers, selectedLayerId, setSelectedLayerId]);
   // Combine dynamic and static layers
@@ -244,25 +248,26 @@ export default function Header() {
   // Update your handleLayerSelect function to also switch chain:
 
   const handleLayerSelect = async (layerId: string): Promise<void> => {
-    const selectedLayer = layers.find((l) => l.id === layerId);
-  
-    if (selectedLayer && selectedLayerId !== selectedLayer.id) {
+    const selectedLayerObj = layers.find((l) => l.id === layerId);
+
+    if (selectedLayerObj && selectedLayerId !== selectedLayerObj.id) {
       // Update app state
-      setSelectedLayerId(selectedLayer.id);
-      setSelectedLayer(selectedLayer.layer);
+      setSelectedLayerId(selectedLayerObj.id);
+      setSelectedLayer(selectedLayerObj.layer);
+      setDefaultLayer(layerId); // Ensure defaultLayer is updated too
       
       // Store in localStorage
-      localStorage.setItem("selectedLayer", selectedLayer.layer);
-      localStorage.setItem("selectedNetwork", selectedLayer.network);
-  
+      localStorage.setItem("selectedLayer", selectedLayerObj.layer);
+      localStorage.setItem("selectedNetwork", selectedLayerObj.network);
+
       // If this is a Metamask layer and we have access to the ethereum object, switch chain
       if (
-        selectedLayer.chainId && 
+        selectedLayerObj.chainId && 
         window.ethereum && 
-        WALLET_CONFIGS[selectedLayer.layer]?.type === "metamask"
+        WALLET_CONFIGS[selectedLayerObj.layer]?.type === "metamask"
       ) {
         // Try to switch to the chain in Metamask
-        await switchOrAddChain(selectedLayer.chainId, selectedLayer.layer, selectedLayer.network);
+        await switchOrAddChain(selectedLayerObj.chainId, selectedLayerObj.layer, selectedLayerObj.network);
       }
     }
   };
@@ -304,8 +309,11 @@ export default function Header() {
 
   // Render dropdown layer item
   const renderLayerItem = (layer: LayerType) => {
+    if (layer.layer === "BITCOIN") {
+      return null;
+    }
     const isLayerConnected = connectedWallets?.some((wallet: WalletInfo) => {
-      const foundLayer = layers.find((l) => l.id === wallet.layerId);
+      const foundLayer = layers.find((l) => l.chainId === wallet.layerId);
       return (
         foundLayer?.layer === layer.layer &&
         foundLayer?.network === layer.network
@@ -359,7 +367,6 @@ export default function Header() {
       );
     }
   
-    // Find the current layer from selectedLayerId
     const currentLayerObj = selectedLayerId 
       ? layers.find(l => l.id === selectedLayerId) 
       : null;
@@ -375,12 +382,6 @@ export default function Header() {
               height={24}
               className="rounded-full"
             />
-            {/* Add testnet indicator */}
-            {/* {currentLayerObj.network !== "MAINNET" && (
-              <div className="absolute -top-1 -right-1 bg-yellow-500 text-black text-[8px] font-bold px-1 rounded-full">
-                TEST
-              </div>
-            )} */}
           </div>
           {`${capitalizeFirstLetter(currentLayerObj.layer)} ${capitalizeFirstLetter(currentLayerObj.network)}`}
         </div>
@@ -480,11 +481,10 @@ export default function Header() {
               {/* Desktop Controls - Layer selector and wallet */}
               <div className="hidden lg:flex items-center gap-4">
                 {/* Layer Selector */}
-                <Select onValueChange={handleLayerSelect} value={defaultLayer}>
+                <Select onValueChange={handleLayerSelect} value={selectedLayerId as string}>
                   <SelectTrigger className="flex items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
                     <SelectValue
                       placeholder="Select layer"
-                      defaultValue={defaultLayer}
                     >
                       {renderCurrentLayerValue()}
                     </SelectValue>
@@ -530,15 +530,6 @@ export default function Header() {
                           <ArrowRight2 size={16} color="#D7D8D8" />
                         </DropdownMenuItem>
                       </Link>
-                      {/* <Link href="/orders">
-                        <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                          <div className="flex items-center gap-2">
-                            <I3Dcube size={24} color="#D7D8D8" />
-                            <p>Inscribe Orders</p>
-                          </div>
-                          <ArrowRight2 size={16} color="#D7D8D8" />
-                        </DropdownMenuItem>
-                      </Link> */}
                       <DropdownMenuItem
                         className="text-neutral50 text-md font-medium flex gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
                         onClick={handleLogout}
@@ -641,12 +632,11 @@ export default function Header() {
                     {/* Same layer selector as desktop but with mobile styling */}
                     <Select
                       onValueChange={handleLayerSelect}
-                      value={defaultLayer}
+                      value={selectedLayerId as string}
                     >
                       <SelectTrigger className="flex items-center h-12 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-full">
                         <SelectValue
                           placeholder="Select layer"
-                          defaultValue={defaultLayer}
                         >
                           {renderCurrentLayerValue()}
                         </SelectValue>
@@ -724,24 +714,32 @@ export default function Header() {
 
       {/* Wallet connection modal */}
       <WalletConnectionModal
-  open={walletModalOpen}
-  onClose={() => setWalletModalOpen(false)}
-  activeTab={selectedLayer}
-  onTabChange={(tab) => {
-    setSelectedLayer(tab);
-    localStorage.setItem("selectedLayer", tab);
-  }}
-  onLayerSelect={(layer, network) => {
-    // Find the layer object with matching layer and network
-    const matchingLayer = layers.find(
-      (l) => l.layer === layer && l.network === network
-    );
-    
-    if (matchingLayer) {
-      handleLayerSelect(matchingLayer.id);
-    }
-  }}
-/>
+        open={walletModalOpen}
+        onClose={() => setWalletModalOpen(false)}
+        activeTab={selectedLayer}
+        selectedLayerId={selectedLayerId as string}
+        onTabChange={(tab) => {
+          setSelectedLayer(tab);
+          localStorage.setItem("selectedLayer", tab);
+        }}
+        onLayerSelect={(layer, network) => {
+          // Find the layer object with matching layer and network
+          const matchingLayer = layers.find(
+            (l) => l.layer === layer && l.network === network
+          );
+          
+          if (matchingLayer) {
+            // Update all relevant state variables
+            setSelectedLayerId(matchingLayer.id);
+            setSelectedLayer(matchingLayer.layer);
+            setDefaultLayer(matchingLayer.id);
+            
+            // Store in localStorage
+            localStorage.setItem("selectedLayer", matchingLayer.layer);
+            localStorage.setItem("selectedNetwork", matchingLayer.network);
+          }
+        }}
+      />
     </>
   );
 }
