@@ -340,11 +340,6 @@ export default function Header() {
     setMobileMenuOpen(false);
   }, [authState.authenticated, router]);
 
-  // Helper to check if a network is mainnet
-  const isMainnet = useCallback((network: string) => {
-    return network.toUpperCase() === "MAINNET";
-  }, []);
-
   // Handle wallet modal toggle
   const toggleWalletModal = useCallback((isOpen: boolean) => {
     setWalletModalOpen(isOpen);
@@ -432,7 +427,7 @@ export default function Header() {
   
     const currentLayerObj = selectedLayerId 
       ? layers.find(l => l.id === selectedLayerId) 
-      : null;
+      : layers.find(l => l.id === defaultLayer);
   
     if (currentLayerObj) {
       return (
