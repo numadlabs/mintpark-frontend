@@ -87,8 +87,13 @@ export default function Home() {
     router.push("/create");
   };
 
-  const handleCitreaBlog = () => {
-    router.push("https://www.blog.citrea.xyz/");
+  const handleHemiBlog = () => {
+    // router.push("https://x.com/mintpark_io/status/1897292657174692318");
+    window.open(
+      "https://x.com/mintpark_io/status/1897292657174692318",
+      "_blank",
+      "noopener,noreferrer"
+    );
   };
 
   const validateForm = (formData: FormData): boolean => {
@@ -444,7 +449,7 @@ export default function Home() {
             <div className="relative w-full max-w-[320px] aspect-square">
               <div className="absolute z-10 w-full h-full blur-[45px] md:blur-[90px] opacity-35">
                 <Image
-                  src="/homePage/citreaMeme.png"
+                  src="/homePage/HemiMP.png"
                   alt="citrea"
                   draggable="false"
                   width={320}
@@ -454,7 +459,7 @@ export default function Home() {
               </div>
               <div className="absolute inset-0 z-10">
                 <Image
-                  src="/homePage/citreaMeme.png"
+                  src="/homePage/HemiMP.png"
                   alt="citrea"
                   width={320}
                   draggable="false"
@@ -467,7 +472,7 @@ export default function Home() {
             <div className="flex flex-col items-center gap-8 md:gap-12 px-4">
               <div className="text-center grid gap-4 md:gap-6">
                 <h3 className="font-bold text-2xl md:text-3xl text-neutral00">
-                  Learn More About Citrea and Our Vision
+                  Learn More About Hemi and Our Vision
                 </h3>
                 <p className="font-medium text-sm md:text-lg text-neutral100">
                   Explore who we are, what we stand for, and how we&apos;re
@@ -476,10 +481,10 @@ export default function Home() {
               </div>
               <Button
                 variant="secondary"
-                onClick={handleCitreaBlog}
+                onClick={handleHemiBlog}
                 className="w-full md:w-auto"
               >
-                Read about Citrea
+                Read about Hemi
               </Button>
             </div>
           </div>

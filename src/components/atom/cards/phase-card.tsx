@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { Lock1 } from "iconsax-react";
+import Countdown, { CountdownRenderProps } from "react-countdown";
 import { BITCOIN_IMAGE } from "@/lib/constants";
 import { useLaunchState, LAUNCH_STATE } from "@/lib/hooks/useLaunchState";
 import { useAuth } from "@/components/provider/auth-context-provider";
@@ -19,27 +20,26 @@ interface PhaseCardProps {
   isBadge: boolean;
   badgeSupply: number;
   onClick: () => void;
-  phaseType: "guaranteed" | "public";
+  phaseType: "guaranteed" | "FCFS" | "public";
   isWhitelisted?: boolean;
+  hasFCFS?: boolean;
 }
 
-const formatTimeDisplay = (targetTimestamp: number): string => {
-  const now = Math.floor(Date.now() / 1000);
-  const diff = Math.max(0, targetTimestamp - now);
-
-  if (diff === 0) return "";
-
-  const days = Math.floor(diff / (24 * 60 * 60));
-  const hours = Math.floor((diff % (24 * 60 * 60)) / (60 * 60));
-  const minutes = Math.floor((diff % (60 * 60)) / 60);
-  const seconds = Math.floor(diff % 60);
-
-  // If minutes are 0, show seconds instead
-  if (minutes === 0) {
-    return `${seconds}s`;
+// Renderer for the countdown component with proper TypeScript types
+const countdownRenderer = ({ days, hours, minutes, seconds, completed }: CountdownRenderProps): string => {
+  if (completed) {
+    return "";
   }
-
-  return `${days}d ${hours}h ${minutes}m`;
+  
+  if (days === 0 && hours === 0 && minutes === 0) {
+    return `${seconds}s`;
+  } else if (days === 0 && hours === 0) {
+    return `${minutes}m ${seconds}s`;
+  } else if (days === 0) {
+    return `${hours}h ${minutes}m`;
+  } else {
+    return `${days}d ${hours}h ${minutes}m`;
+  }
 };
 
 const PhaseCard: React.FC<PhaseCardProps> = ({
@@ -55,6 +55,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   isBadge,
   badgeSupply,
   isWhitelisted = false,
+  hasFCFS = false,
 }) => {
   const { authState } = useAuth();
   const { data: currentLayer = [] } = useQuery({
@@ -62,103 +63,143 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
     queryFn: () => getLayerById(authState.layerId as string),
     enabled: !!authState.layerId,
   });
-  const [timeDisplay, setTimeDisplay] = useState("");
+  
   const [status, setStatus] = useState("");
   const [isClickable, setIsClickable] = useState(false);
+  const [targetTime, setTargetTime] = useState<number | null>(null);
+  const [key, setKey] = useState<number>(0); // Key for forcing Countdown re-render
+  
+  function determinePhaseState(
+    phase: string,
+    startsAt: number,
+    endsAt: number | null
+  ) {
+    const now = Math.floor(Date.now() / 1000);
+    const isInfiniteSupplyBadge = isBadge && badgeSupply === null;
+    const isSoldOut = !isInfiniteSupplyBadge && mintedAmount >= supply;
 
-  const launchState = useLaunchState({
-    isWhitelisted,
-    wlStartsAt: phaseType === "guaranteed" ? startsAt : 0,
-    wlEndsAt: phaseType === "guaranteed" ? endsAt : 0,
-    poStartsAt: phaseType === "public" ? startsAt : 0,
-    poEndsAt: phaseType === "public" ? endsAt : 0,
-    mintedAmount,
-    supply,
-    isBadge,
-    badgeSupply,
-    id: "",
-    name: "",
-    creator: "",
-    description: "",
-    type: "",
-    logoKey: "",
-    layerId: "",
-    launchId: "",
-    wlMintPrice: 0,
-    wlMaxMintPerWallet: 0,
-    poMintPrice: 0,
-    poMaxMintPerWallet: 0,
-    createdAt: "",
-  });
+    if (isSoldOut) return "ENDED";
 
-  useEffect(() => {
-    const updateTimeDisplay = () => {
-      const now = Math.floor(Date.now() / 1000);
+    // First check if the phase hasn't started yet
+    if (now < startsAt) return "UPCOMING";
 
-      switch (launchState) {
-        case LAUNCH_STATE.UPCOMING:
-          setStatus("Starts in");
-          setTimeDisplay(formatTimeDisplay(startsAt));
-          setIsClickable(false);
-          break;
-        case LAUNCH_STATE.LIVE:
-          if (endsAt === null) {
-            setStatus("Live");
-            setTimeDisplay("");
-          } else {
-            setStatus("Ends in:");
-            setTimeDisplay(formatTimeDisplay(endsAt));
-          }
-          setIsClickable(true);
-          break;
-        case LAUNCH_STATE.INDEFINITE:
+    // Check if the phase has ended (if it has an end time)
+    if (endsAt && now > endsAt) return "ENDED";
+
+    // Handle public phase specifically
+    if (startsAt && phase === "public") {
+      if (now >= startsAt) {
+        // If no end date for public phase, it's indefinite
+        if (!endsAt) return "INDEFINITE";
+        // If there's an end date and we're still within it
+        if (now <= endsAt) return "LIVE";
+      }
+    }
+
+    // Handle guaranteed phase
+    if (phase === "guaranteed") {
+      if (isWhitelisted && now >= startsAt && (!endsAt || now <= endsAt)) {
+        return "LIVE";
+      }
+    }
+
+    // Handle FCFS phase
+    if (phase === "FCFS") {
+      if (hasFCFS && now >= startsAt && (!endsAt || now <= endsAt)) {
+        return "LIVE";
+      }
+    }
+
+    // General case - if we're between start and end time
+    if (now >= startsAt && (!endsAt || now <= endsAt)) {
+      return "LIVE";
+    }
+
+    // Default fallback
+    return "UPCOMING";
+  }
+
+  const updateStatus = () => {
+    const now = Math.floor(Date.now() / 1000);
+    const launchState = determinePhaseState(phaseType, startsAt, endsAt);
+    
+    // Handle all possible states
+    switch (launchState) {
+      case "UPCOMING":
+        setStatus("Starts in");
+        setTargetTime(startsAt * 1000); // Convert to milliseconds for Countdown
+        setIsClickable(false);
+        break;
+
+      case "LIVE":
+        if (endsAt === null) {
+          setStatus("Live");
+          setTargetTime(null);
+        } else {
           setStatus("Ends in:");
-          setTimeDisplay("Indefinite");
-          setIsClickable(true);
-          break;
-        case LAUNCH_STATE.ENDED:
-          setStatus("Ended:");
-          setTimeDisplay("");
-          setIsClickable(false);
-          break;
-        default:
-          setStatus("Unknown");
-          setTimeDisplay("");
-          setIsClickable(false);
+          setTargetTime(endsAt * 1000); // Convert to milliseconds for Countdown
+        }
+        setIsClickable(true);
+        break;
+
+      case "INDEFINITE":
+        setStatus("Live");
+        setTargetTime(null);
+        setIsClickable(true);
+        break;
+
+      case "ENDED":
+        setStatus("Ended");
+        setTargetTime(null);
+        setIsClickable(false);
+        break;
+
+      default:
+        setStatus("Unknown");
+        setTargetTime(null);
+        setIsClickable(false);
+    }
+    
+    // Update the key to force re-render of the Countdown component
+    setKey(prevKey => prevKey + 1);
+  };
+
+  // Handle countdown completion
+  const handleCountdownComplete = () => {
+    // Short delay to allow any pending state updates to complete
+    setTimeout(() => {
+      updateStatus();
+    }, 100);
+  };
+
+  // Main effect for phase state changes
+  useEffect(() => {
+    // Initial update
+    updateStatus();
+  }, [phaseType, startsAt, endsAt, isWhitelisted, hasFCFS]);
+
+  // Force update status on visibility and focus changes
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        updateStatus();
       }
     };
 
-    updateTimeDisplay();
-
-    // Determine the appropriate interval based on if we're showing seconds
-    const isShowingSeconds = () => {
-      const now = Math.floor(Date.now() / 1000);
-      let targetTimestamp = 0;
-
-      if (launchState === LAUNCH_STATE.UPCOMING) {
-        targetTimestamp = startsAt;
-      } else if (launchState === LAUNCH_STATE.LIVE && endsAt !== null) {
-        targetTimestamp = endsAt;
-      }
-
-      if (targetTimestamp > 0) {
-        const diff = Math.max(0, targetTimestamp - now);
-        const minutes = Math.floor((diff % (60 * 60)) / 60);
-        return minutes === 0 && diff > 0;
-      }
-
-      return false;
+    const handleFocus = () => {
+      updateStatus();
     };
 
-    // Update every second if showing seconds, otherwise every minute
-    const intervalTime = isShowingSeconds() ? 1000 : 60000;
-    const interval = setInterval(updateTimeDisplay, intervalTime);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
 
-    return () => clearInterval(interval);
-  }, [launchState, startsAt, endsAt]);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, []);
 
-  const borderClass =
-    isActive && isClickable ? "border-brand" : "border-white8";
+  const borderClass = isActive && isClickable ? "border-brand" : "border-white8";
   const phaseTextClass = isClickable ? "text-brand" : "text-neutral50";
 
   return (
@@ -175,15 +216,33 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
       <div className="flex justify-between w-full">
         <div className="flex flex-row gap-2 items-center bg-white8 px-3 py-2 text-md font-medium rounded-lg">
           <p className={phaseTextClass}>
-            {phaseType === "guaranteed" ? "Guaranteed" : "Public"}
+            {phaseType === "guaranteed"
+              ? "Guaranteed"
+              : phaseType === "FCFS"
+              ? "FCFS"
+              : "Public"}
           </p>
           {!isClickable && <Lock1 size={16} color="#D7D8D8" />}
         </div>
         <div className="flex flex-row items-center gap-2 border bg-white8 border-transparent text-md rounded-lg px-3 py-2">
           <span className="text-neutral100 font-medium text-md">{status}</span>
-          <span className="text-neutral50 font-medium text-md">
-            {timeDisplay}
-          </span>
+          {targetTime && (
+            <span className="text-neutral50 font-medium text-md">
+              <Countdown 
+                key={key}
+                date={targetTime} 
+                renderer={(props) => <span>{countdownRenderer(props)}</span>}
+                onComplete={handleCountdownComplete}
+                // Add auto-refresh when time gets very close to completion
+                onTick={(props) => {
+                  if (props.total <= 1000 && props.total > 0) {
+                    // Pre-refresh when we're at the last second
+                    setTimeout(handleCountdownComplete, props.total + 50);
+                  }
+                }}
+              />
+            </span>
+          )}
         </div>
       </div>
 

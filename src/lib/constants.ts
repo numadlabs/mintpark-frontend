@@ -84,15 +84,26 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
   // new implement
   HEMI: {
     type: "metamask",
-    chainId: "0xB56C7",
-    name: "Hemi",
+    chainId: "0xA877",
+    name: "Hemi Network",
     icon: "/wallets/hemi.png",
     networks: {
+      MAINNET: {
+        chainId: "0xA877", // Hexadecimal representation of 43111
+        chainName: "Hemi Network",
+        rpcUrls: ["https://rpc.hemi.network/rpc"],
+        blockExplorerUrls: ["https://explorer.hemi.xyz/"],
+        nativeCurrency: {
+          name: "ETH",
+          symbol: "ETH",
+          decimals: 18,
+        },
+      },
       TESTNET: {
         chainId: "0xB56C7", // Hexadecimal representation of 743111
         chainName: "Hemi Testnet",
         rpcUrls: ["https://testnet.rpc.hemi.network/rpc"],
-        blockExplorerUrls: ["https://testnet-explorer.hemi.network"],
+        blockExplorerUrls: ["https://testnet.explorer.hemi.xyz/"],
         nativeCurrency: {
           name: "ETH",
           symbol: "ETH",
@@ -101,6 +112,8 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
       },
     },
   },
+
+  
 
   POLYGON_ZK: {
     type: "metamask",

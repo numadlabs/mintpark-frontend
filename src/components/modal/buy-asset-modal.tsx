@@ -120,7 +120,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
           });
           if (response && response.success) {
             setIsSuccess(true);
-            toast.success("Purchase successful");
+            toast.success("Purchase successfully.");
             queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
             queryClient.invalidateQueries({ queryKey: ["activityData", id] });
           } else {

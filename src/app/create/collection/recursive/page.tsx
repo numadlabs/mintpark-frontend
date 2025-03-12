@@ -197,12 +197,10 @@ const Recursive = () => {
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
-        console.log("🚀 ~ handleCreateCollection ~ response:", response);
         if (response && response.success) {
           const { id } = response.data.ordinalCollection;
           const { deployContractTxHex } = response.data;
           setCollectionId(id);
-          console.log("create collection success", response);
           toast.success("Create collection success.");
 
           // if (currentLayer.layer === "CITREA") {
@@ -308,6 +306,7 @@ const Recursive = () => {
       const params: LaunchParams = {
         collectionId: collectionId,
         isWhitelisted: false,
+        hasFCFS:false,
         poStartsAt: poStartsAt,
         poEndsAt: poEndsAt,
         poMintPrice: POMintPrice,
@@ -329,7 +328,7 @@ const Recursive = () => {
         }
 
         const launchCollectionId = launchResponse.data.launch.collectionId;
-        console.log("Launch Collection ID:", launchCollectionId);
+
 
         // Process files in batches
         for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
@@ -437,8 +436,6 @@ const Recursive = () => {
               // Store the last successful order ID
               setData(colRes.data.order.id);
             }
-
-            console.log("Batch upload index: ", batchIndex);
           }
 
           const orderRes = await invokeOrderMutation({ id: orderID });
@@ -458,7 +455,7 @@ const Recursive = () => {
   return (
     <Layout>
       <div className="flex flex-col w-full h-max bg-background pb-[148px]">
-        <Header />
+
         <div className="flex flex-col items-center gap-16 z-50">
           <Banner
             title={"Create Collection"}

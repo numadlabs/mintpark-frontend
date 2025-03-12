@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion"; // Import framer-motion
 import HeaderItem from "../ui/headerItem";
 import { useAuth } from "../provider/auth-context-provider";
+import { useMetamaskEvents } from "@/lib/hooks/useWalletAuth";
 import {
   Select,
   SelectContent,
@@ -30,6 +31,8 @@ import { toast } from "sonner";
 import Badge from "../atom/badge";
 import { Check, Loader2, MenuIcon, X } from "lucide-react";
 import { WalletConnectionModal } from "../modal/wallet-connect-modal";
+import { WALLET_CONFIGS } from "@/lib/constants";
+import { getCurrencyImage } from "@/lib/service/currencyHelper";
 
 // Type definitions
 interface RouteItem {
@@ -66,6 +69,7 @@ export default function Header() {
     connectedWallets,
   } = useAuth();
 
+  useMetamaskEvents();
   // State to track scroll position when menu opens
   // Handle mobile menu open/close
   useEffect(() => {
@@ -108,34 +112,54 @@ export default function Header() {
   });
 
   useEffect(() => {
-    // Try to get saved layer from localStorage first
     const savedLayer = localStorage.getItem("selectedLayer");
-
+    const savedNetwork = localStorage.getItem("selectedNetwork") || "mainnet";
+    
     if (savedLayer && dynamicLayers.length > 0) {
-      const matchingLayer = dynamicLayers.find((l) => l.layer === savedLayer);
+      // Look for the specific layer+network combination
+      const matchingLayer = dynamicLayers.find(
+        (l) => l.layer === savedLayer && l.network === savedNetwork
+      );
+      
+      // If found specific network match
       if (matchingLayer) {
         setSelectedLayer(savedLayer);
-        setDefaultLayer(`${matchingLayer.layer}-${matchingLayer.network}`);
         setSelectedLayerId(matchingLayer.id);
         return;
       }
+      
+      // Fallback: find any layer with matching name if network doesn't match
+      const anyMatchingLayer = dynamicLayers.find((l) => l.layer === savedLayer);
+      if (anyMatchingLayer) {
+        setSelectedLayer(savedLayer);
+        setSelectedLayerId(anyMatchingLayer.id);
+        localStorage.setItem("selectedNetwork", anyMatchingLayer.network);
+        return;
+      }
     }
-
+  
     // Fall back to default behavior if no saved layer or match found
     if (!selectedLayerId && dynamicLayers.length > 0) {
-      const citreaLayer = dynamicLayers.find((l) => l.layer === "HEMI");
-      if (citreaLayer) {
-        setDefaultLayer(`${citreaLayer.layer}-${citreaLayer.network}`);
-        setSelectedLayerId(citreaLayer.id);
-        setSelectedLayer(citreaLayer.layer);
-        localStorage.setItem("selectedLayer", citreaLayer.layer);
+      // Try to find Hemi layer first (without hardcoding specific network)
+      const hemiLayer = dynamicLayers.find((l) => l.layer === "HEMI");
+      if (hemiLayer) {
+        setSelectedLayerId(hemiLayer.id);
+        setSelectedLayer(hemiLayer.layer);
+        localStorage.setItem("selectedLayer", hemiLayer.layer);
+        localStorage.setItem("selectedNetwork", hemiLayer.network);
+      } else {
+        // If no Hemi layer, use the first available layer
+        const firstLayer = dynamicLayers[0];
+        setSelectedLayerId(firstLayer.id);
+        setSelectedLayer(firstLayer.layer);
+        localStorage.setItem("selectedLayer", firstLayer.layer);
+        localStorage.setItem("selectedNetwork", firstLayer.network);
       }
     } else if (currentLayer) {
-      setDefaultLayer(`${currentLayer.layer}-${currentLayer.network}`);
       localStorage.setItem("selectedLayer", currentLayer.layer);
+      localStorage.setItem("selectedNetwork", currentLayer.network);
     }
   }, [currentLayer, dynamicLayers, selectedLayerId, setSelectedLayerId]);
-
   // Combine dynamic and static layers
   const layers = [...dynamicLayers];
 
@@ -153,39 +177,102 @@ export default function Header() {
   ];
 
   // Get layer image based on layer name
-  const getLayerImage = (layer: string): string => {
-    const imageMap: LayerImageMap = {
-      BITCOIN: "/wallets/Bitcoin.png",
-      FRACTAL: "/wallets/Fractal.png",
-      CITREA: "/wallets/Citrea.png",
-      SEPOLIA: "/wallets/hemi.png",
-      HEMI: "/wallets/hemi.png",
-      POLYGON_ZK: "",
-    };
-
-    return imageMap[layer] || "/wallets/Bitcoin.png";
-  };
 
   // Handle layer selection
-  const handleLayerSelect = (value: string): void => {
-    const [layer, network] = value.split("-");
-    const matchingLayer = layers.find(
-      (l) => l.layer === layer && l.network === network
-    );
+ 
+  const switchOrAddChain = async (chainId: string, layer: string, network: string): Promise<boolean> => {
+    if (!chainId || typeof window === 'undefined' || !window.ethereum) return false;
+    
+    try {
+      const chainIdHex = `0x${parseInt(chainId).toString(16)}`;
 
-    if (matchingLayer && selectedLayerId !== matchingLayer.id) {
-      setSelectedLayerId(matchingLayer.id);
-      setDefaultLayer(value);
-      setSelectedLayer(layer);
-      localStorage.setItem("selectedLayer", layer);
+       await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: chainIdHex }],
+      });
+      
+      return true;
+    } catch (error: any) {
+      if (error.code === 4902) {
+        try {
+          const walletConfig = WALLET_CONFIGS[layer];
+          if (!walletConfig) return false;
+          
+          const networkType = network.toUpperCase();
+          const networkConfig = walletConfig.networks[networkType];
+          if (!networkConfig) return false;
+          
+          // Add the chain to Metamask
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [
+              {
+                chainId: `0x${parseInt(chainId).toString(16)}`,
+                chainName: networkConfig.chainName || `${layer} ${network}`,
+                rpcUrls: networkConfig.rpcUrls,
+                blockExplorerUrls: networkConfig.blockExplorerUrls,
+                nativeCurrency: networkConfig.nativeCurrency || {
+                  name: layer,
+                  symbol: layer.substring(0, 5),
+                  decimals: 18,
+                },
+              },
+            ],
+          });
+          
+          // Try switching again after adding
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{  chainId: `0x${parseInt(chainId).toString(16)}` }],
+          });
+          
+          return true;
+        } catch (addError: any) {
+          console.error("Failed to add chain:", addError);
+          return false;
+        }
+      } else if (error.code === 4001) {
+        // User rejected request
+        console.log("User rejected chain switch");
+        return false;
+      } else {
+        console.error("Error switching chain:", error);
+        return false;
+      }
     }
   };
+  // Update your handleLayerSelect function to also switch chain:
 
+  const handleLayerSelect = async (layerId: string): Promise<void> => {
+    const selectedLayer = layers.find((l) => l.id === layerId);
+  
+    if (selectedLayer && selectedLayerId !== selectedLayer.id) {
+      // Update app state
+      setSelectedLayerId(selectedLayer.id);
+      setSelectedLayer(selectedLayer.layer);
+      
+      // Store in localStorage
+      localStorage.setItem("selectedLayer", selectedLayer.layer);
+      localStorage.setItem("selectedNetwork", selectedLayer.network);
+  
+      // If this is a Metamask layer and we have access to the ethereum object, switch chain
+      if (
+        selectedLayer.chainId && 
+        window.ethereum && 
+        WALLET_CONFIGS[selectedLayer.layer]?.type === "metamask"
+      ) {
+        // Try to switch to the chain in Metamask
+        await switchOrAddChain(selectedLayer.chainId, selectedLayer.layer, selectedLayer.network);
+      }
+    }
+  };
+  
+  
   // Handle logout
   const handleLogout = (): void => {
     if (authState.authenticated) {
       onLogout();
-      toast.info("Logged out successfully");
+      toast.info("Logged out successfully!");
     }
   };
 
@@ -224,31 +311,40 @@ export default function Header() {
         foundLayer?.network === layer.network
       );
     });
+  
 
     return (
       <SelectItem
-        key={layer.id}
-        value={`${layer.layer}-${layer.network}`}
-        className={`flex items-center gap-2 w-[170px]`}
-      >
-        <div className="flex justify-between gap-2 items-center text-md text-neutral50 font-medium w-full">
-          <div className="flex gap-2">
+      key={layer.id}
+      value={layer.id} // Use the full layer ID instead of constructed string
+      className={`flex items-center rounded-lg gap-2 w-[180px]`}
+    >
+      <div className="flex justify-between gap-2 items-center text-md text-neutral50 font-medium w-full">
+        <div className="flex gap-2">
+          <div className="relative">
             <Image
-              src={getLayerImage(layer.layer)}
+              src={getCurrencyImage(layer.layer)}
               alt={layer.layer}
               width={24}
               height={24}
               className="rounded-full"
             />
-            <div className="flex items-center gap-2 flex-1">
-              {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(
-                layer.network
-              )}`}
-            </div>
+            {/* Add testnet indicator */}
+            {/* {layer.network !== "MAINNET" && (
+              <div className="absolute -top-3 -right-28 bg-yellow-500 text-black text-[8px] font-bold px-1 rounded-full">
+                Testnet
+              </div>
+            )} */}
           </div>
-          {isLayerConnected && <Check className="w-5 h-5 text-neutral50" />}
+          <div className="flex items-center gap-2 flex-1">
+            {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(
+              layer.network
+            )}`}
+          </div>
         </div>
-      </SelectItem>
+        {isLayerConnected && <Check className="w-5 h-5 text-neutral50" />}
+      </div>
+    </SelectItem>
     );
   };
 
@@ -262,22 +358,35 @@ export default function Header() {
         </div>
       );
     }
-
-    if (defaultLayer) {
+  
+    // Find the current layer from selectedLayerId
+    const currentLayerObj = selectedLayerId 
+      ? layers.find(l => l.id === selectedLayerId) 
+      : null;
+  
+    if (currentLayerObj) {
       return (
         <div className="flex flex-row gap-2 items-center w-max">
-          <Image
-            src={getLayerImage(defaultLayer.split("-")[0])}
-            alt={defaultLayer.split("-")[0]}
-            width={24}
-            height={24}
-            className="rounded-full"
-          />
-          {defaultLayer.split("-").map(capitalizeFirstLetter).join(" ")}
+          <div className="relative">
+            <Image
+              src={getCurrencyImage(currentLayerObj.layer)}
+              alt={currentLayerObj.layer}
+              width={24}
+              height={24}
+              className="rounded-full"
+            />
+            {/* Add testnet indicator */}
+            {/* {currentLayerObj.network !== "MAINNET" && (
+              <div className="absolute -top-1 -right-1 bg-yellow-500 text-black text-[8px] font-bold px-1 rounded-full">
+                TEST
+              </div>
+            )} */}
+          </div>
+          {`${capitalizeFirstLetter(currentLayerObj.layer)} ${capitalizeFirstLetter(currentLayerObj.network)}`}
         </div>
       );
     }
-
+  
     return <span>Select layer</span>;
   };
 
@@ -615,22 +724,24 @@ export default function Header() {
 
       {/* Wallet connection modal */}
       <WalletConnectionModal
-        open={walletModalOpen}
-        onClose={() => setWalletModalOpen(false)}
-        activeTab={selectedLayer}
-        onTabChange={(tab) => {
-          setSelectedLayer(tab);
-          localStorage.setItem("selectedLayer", tab);
-          const matchingLayer = layers.find((l) => l.layer === tab);
-          if (matchingLayer) {
-            setDefaultLayer(`${tab}-${matchingLayer.network}`);
-            setSelectedLayerId(matchingLayer.id);
-          }
-        }}
-        onLayerSelect={(layer, network) => {
-          handleLayerSelect(`${layer}-${network}`);
-        }}
-      />
+  open={walletModalOpen}
+  onClose={() => setWalletModalOpen(false)}
+  activeTab={selectedLayer}
+  onTabChange={(tab) => {
+    setSelectedLayer(tab);
+    localStorage.setItem("selectedLayer", tab);
+  }}
+  onLayerSelect={(layer, network) => {
+    // Find the layer object with matching layer and network
+    const matchingLayer = layers.find(
+      (l) => l.layer === layer && l.network === network
+    );
+    
+    if (matchingLayer) {
+      handleLayerSelect(matchingLayer.id);
+    }
+  }}
+/>
     </>
   );
 }

@@ -165,14 +165,13 @@ const SingleCollectible = () => {
         if (collectionResponse && collectionResponse.success) {
           id = collectionResponse.data.collection.id;
           const { deployContractTxHex } = collectionResponse.data;
-          console.log("create collection success", collectionResponse);
+
 
           if (currentLayer.layerType === "EVM") {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
             await signedTx?.wait();
             if (signedTx?.hash) collectionTxid = signedTx?.hash;
-            console.log(signedTx);
           }
         }
         const params: MintCollectibleDataType = {
@@ -183,7 +182,6 @@ const SingleCollectible = () => {
         };
 
         const response = await createCollectiblesMutation({ data: params });
-        console.log("🚀 ~ handlePay ~ response:", response);
         if (response && response.success) {
           if (currentLayer.layerType === "EVM") {
             const { batchMintTxHex } = response.data;
@@ -192,10 +190,6 @@ const SingleCollectible = () => {
             await signedTx?.wait();
             if (signedTx?.hash) setHash(signedTx?.hash);
           } else if (currentLayer.layer === "FRACTAL") {
-            console.log(
-              response.data.order.fundingAddress,
-              response.data.order.fundingAmount,
-            );
             await window.unisat.sendBitcoin(
               response.data.order.fundingAddress,
               Math.ceil(response.data.order.fundingAmount),
@@ -217,7 +211,6 @@ const SingleCollectible = () => {
   return (
     <Layout>
       <div className="w-full bg-background items-center pb-[148px]">
-        <Header />
         <div className="flex flex-col items-center gap-16 z-50">
           <Banner
             title={"Create Collectible"}

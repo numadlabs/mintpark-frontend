@@ -18,7 +18,6 @@ const PrivacyPolicy = () => {
   return (
     <>
       <Layout>
-        <Header />
         <section className="mt-[43.5px] grid gap-16">
           <div className="relative h-[156px] sm:h-[216px] w-full rounded-3xl overflow-hidden">
             <div

@@ -15,6 +15,7 @@ import {
 import { OrderSchema } from "../validations/asset-validation";
 import { AssetSchema, ActivitySchema } from "../validations/asset-validation";
 import { UserSchema } from "../validations/user-schema";
+import { boolean, number } from "zod";
 
 export async function getAllOrders(id: string): Promise<OrderSchema> {
   return axiosClient.get(`/api/v1/orders/user/${id}`).then((response) => {
@@ -121,7 +122,6 @@ export async function getListedCollections(
 //   offset: number,
 //   traitValuesByType: string
 // ): Promise<CollectionDetail | null> {
-//   console.log("traitValuesByType", traitValuesByType);
 //   return axiosClient
 //     .get<CollectionDetailApiResponse>(
 //       `/api/v1/collectibles/${collectionId}/collection/listable?orderBy=${orderBy}&orderDirection=${orderDirection}&limit=${limit}&offset=${offset}&traitValuesByType&${traitValuesByType}`
@@ -176,6 +176,8 @@ export async function getListedCollectionById(
   orderDirection: string,
   limit: number,
   offset: number,
+  // query:number,
+  isListed:boolean,
   traitValuesByType: Record<string, string[]> | string, // Update type to handle both
 ): Promise<CollectionDetail | null> {
   const params = new URLSearchParams({
@@ -183,6 +185,7 @@ export async function getListedCollectionById(
     orderDirection,
     limit: limit.toString(),
     offset: offset.toString(),
+    // query: query.toString()
   });
 
   if (traitValuesByType) {
@@ -198,7 +201,7 @@ export async function getListedCollectionById(
 
   return axiosClient
     .get<CollectionDetailApiResponse>(
-      `/api/v1/collectibles/${collectionId}/collection/listable?${params.toString()}`,
+      `/api/v1/collectibles/${collectionId}/collection/listable?${params.toString()}&isListed=${isListed}`,
     )
     .then((response) => {
       if (response.data.success) {
@@ -231,7 +234,7 @@ export async function getListableById(
   collectionIds: string[],
   availability: string,
 ): Promise<AssetSchema> {
-  console.log("query triggered date", new Date().getMilliseconds());
+
   // Create base query parameters
   const params = new URLSearchParams({
     orderDirection,

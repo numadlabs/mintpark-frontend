@@ -87,7 +87,6 @@ const Create = () => {
   return (
     <Layout>
       <div className="flex h-full w-full flex-col pb-[148px]">
-        <Header />
         <div className="flex flex-col justify-center items-center">
           <div className="flex flex-col items-center justify-center w-full gap-12 mt-[42.5px] z-50">
             <div className="relative w-full h-40 flex justify-center">

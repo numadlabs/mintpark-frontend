@@ -195,12 +195,11 @@ const Inscription = () => {
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
-        console.log("🚀 ~ handleCreateCollection ~ response:", response);
+
         if (response && response.success) {
           const { id } = response.data.ordinalCollection;
           const { deployContractTxHex } = response.data;
           setCollectionId(id);
-          console.log("create collection success", response);
           toast.success("Create collection success.");
 
           if (currentLayer.layerType === "EVM") {
@@ -307,6 +306,7 @@ const Inscription = () => {
       const params: LaunchParams = {
         collectionId: collectionId,
         isWhitelisted: false,
+        hasFCFS:false,
         poStartsAt: poStartsAt,
         poEndsAt: poEndsAt,
         poMintPrice: POMintPrice,
@@ -328,7 +328,7 @@ const Inscription = () => {
         }
 
         const launchCollectionId = launchResponse.data.launch.collectionId;
-        console.log("Launch Collection ID:", launchCollectionId);
+
 
         // Process files in batches
         for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
@@ -440,8 +440,6 @@ const Inscription = () => {
               // // Store the last successful order ID
               // setData(colRes.data.order.id);
             }
-
-            console.log("Batch upload index: ", batchIndex);
           }
 
           const orderRes = await invokeOrderMutation({
@@ -463,7 +461,6 @@ const Inscription = () => {
   return (
     <Layout>
       <div className="flex flex-col w-full h-max bg-background pb-[148px]">
-        <Header />
         <div className="flex flex-col items-center gap-16 z-50 mt-12">
           <Banner
             title={"Create Collection"}

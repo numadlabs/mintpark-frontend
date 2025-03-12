@@ -61,7 +61,9 @@ const CollectionDetailPage = () => {
   const [selectedTraits, setSelectedTraits] = useState<
     Record<string, string[]>
   >({});
-  const [showOnlyListed, setShowOnlyListed] = useState(false);
+  // const [showOnlyListed, setShowOnlyListed] = useState(false);
+
+  const [isListed, setIsListed] = useState(false);
 
   const {
     data,
@@ -76,6 +78,7 @@ const CollectionDetailPage = () => {
       id,
       orderBy,
       orderDirection,
+      isListed,
       traitValuesByType,
     ],
     queryFn: async ({ pageParam = 1 }) => {
@@ -84,6 +87,7 @@ const CollectionDetailPage = () => {
       }
       const limit = ITEMS_PER_PAGE;
       const offset = (pageParam - 1) * ITEMS_PER_PAGE;
+      const query = (pageParam - 1) * ITEMS_PER_PAGE;
 
       const response = await getListedCollectionById(
         id,
@@ -91,6 +95,7 @@ const CollectionDetailPage = () => {
         orderDirection,
         limit,
         offset,
+        isListed,
         JSON.stringify(traitValuesByType) // Stringify only here if required
       );
       return {
@@ -128,7 +133,7 @@ const CollectionDetailPage = () => {
     let filtered = collectibles;
 
     // Filter by availability - check listId instead of isListed
-    if (showOnlyListed) {
+    if (isListed) {
       filtered = filtered.filter((item) => item.listId !== null);
     }
 
@@ -143,7 +148,7 @@ const CollectionDetailPage = () => {
     }
 
     return filtered;
-  }, [collectibles, showOnlyListed, searchFilter]);
+  }, [collectibles, setIsListed, searchFilter]);
 
   const loadMoreRef = React.useCallback(
     (node: HTMLDivElement | null) => {
@@ -228,7 +233,7 @@ const CollectionDetailPage = () => {
   };
 
   const handleAvailabilityChange = (onlyListed: boolean) => {
-    setShowOnlyListed(onlyListed);
+    setIsListed(onlyListed);
   };
 
   // if (!id || isQueryLoading) {

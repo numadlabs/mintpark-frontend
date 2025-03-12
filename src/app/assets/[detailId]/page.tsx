@@ -36,14 +36,16 @@ import { toast } from "sonner";
 import Link from "next/link";
 import MoreCollection from "@/components/section/more-collection";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import { getAddressExplorerUrl } from "@/lib/service/currencyHelper";
 
 export default function AssetDetail() {
   const params = useParams();
   const { authState } = useAuth();
-
+  // const layer = localStorage.getItem('selectedLayer')
   const id = params.detailId as string;
   const [isVisible, setIsVisible] = useState(false);
 
+  
   const { data: collectible, isLoading: isCollectionLoading } = useQuery<
     Collectible[] | null
   >({
@@ -51,6 +53,7 @@ export default function AssetDetail() {
     queryFn: () => getCollectionById(id),
     enabled: !!id,
   });
+
 
   const { data: currentLayer = [] } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
@@ -82,7 +85,8 @@ export default function AssetDetail() {
         "desc",
         10,
         0,
-        ""
+        false, 
+        {}
       ),
     enabled: !!collectionId,
     retry: 1,
@@ -92,6 +96,8 @@ export default function AssetDetail() {
       hasMore: false,
     },
   });
+
+  
 
   const toggleModal = () => {
     if (!authState.authenticated)
@@ -251,7 +257,9 @@ export default function AssetDetail() {
                         {currentAsset.ownedBy}
                       </p> */}
                       <Link
-                        href={`https://explorer.testnet.citrea.xyz/address/${currentAsset.ownedBy}`}
+                         href={collectible && collectible[0] && currentAsset.ownedBy
+                          ? getAddressExplorerUrl(collectible[0].layer, currentAsset.ownedBy)
+                          : '#'}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-medium text-md text-neutral50 hover:text-brand transition-colors"

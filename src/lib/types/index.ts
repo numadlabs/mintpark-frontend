@@ -72,6 +72,11 @@ export type LaunchDataType = {
   logoKey: string;
   layerId: string;
   launchId: string;
+  hasFCFS: boolean;
+  fcfsStartsAt: number;
+  fcfsEndsAt: number;
+  fcfsMintPrice: number;
+  fcfsMaxMintPerWallet: number;
   wlStartsAt: number;
   wlEndsAt: number;
   wlMintPrice: number;
@@ -105,14 +110,19 @@ export type InscriptionCollectible = {
 export type LaunchParams = {
   collectionId: string | null;
   isWhitelisted: boolean;
-  poStartsAt: number;
+  hasFCFS: boolean;
+  poStartsAt?: number | null;
   poEndsAt?: number;
-  poMintPrice: number;
-  poMaxMintPerWallet: number;
+  poMintPrice?: number;
+  poMaxMintPerWallet?: number;
   wlStartsAt?: number;
   wlEndsAt?: number;
   wlMintPrice?: number;
   wlMaxMintPerWallet?: number;
+  fcfsStartsAt?: number;
+  fcfsEndsAt?: number;
+  fcfsMintPrice?: number;
+  fcfsMaxMintPerWallet?: number;
   userLayerId: string | null;
 };
 
@@ -136,14 +146,19 @@ export type LayerTypes = {
 export type LaunchType = {
   collectionId: string | null;
   isWhitelisted: boolean;
-  poStartsAt: number;
-  poEndsAt: number;
-  poMintPrice: number;
-  poMaxMintPerWallet: number;
+  hasFCFS: boolean;
+  poStartsAt?: number;
+  poEndsAt?: number;
+  poMintPrice?: number;
+  poMaxMintPerWallet?: number;
   wlStartsAt?: number;
   wlEndsAt?: number;
   wlMintPrice?: number;
   wlMaxMintPerWallet?: number;
+  fcfsStartsAt?: number;
+  fcfsEndsAt?: number;
+  fcfsMintPrice?: number;
+  fcfsMaxMintPerWallet?: number;
   userLayerId: string | null;
 };
 
