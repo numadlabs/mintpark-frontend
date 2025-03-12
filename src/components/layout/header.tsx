@@ -53,7 +53,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [selectedLayer, setSelectedLayer] = useState("");
-  const [defaultLayer, setDefaultLayer] = useState("");
+  const [defaultLayer, setDefaultLayer] = useState("HEMI-MAINNET");
   const prevLayerIdRef = useRef(null);
   const initialSetupDone = useRef(false);
 
@@ -214,6 +214,12 @@ export default function Header() {
     }
   }, [currentLayer]);
 
+  // Force re-render when auth state or connected wallets change
+  useEffect(() => {
+    // This effect forces a re-evaluation of isWalletDisconnected and currentWallet
+    // when the authentication state or connected wallets change
+  }, [authState, connectedWallets]);
+
   // Chain switching functionality
   const switchOrAddChain = useCallback(async (chainId: string, layer: string, network: string): Promise<boolean> => {
     if (!chainId || typeof window === 'undefined' || !window.ethereum) return false;
@@ -342,23 +348,33 @@ export default function Header() {
   // Handle wallet modal toggle
   const toggleWalletModal = useCallback((isOpen: boolean) => {
     setWalletModalOpen(isOpen);
-  }, []);
+    // If we're closing the modal, force a refresh of wallet connection state
+    if (!isOpen && selectedLayerId) {
+      // This causes a re-render and re-evaluation of isWalletConnected
+      const dummyState = {};
+      setState({...dummyState});
+    }
+  }, [selectedLayerId]);
+  
+  // Small state object to force re-renders when needed
+  const [state, setState] = useState({});
   
   // Handle mobile menu toggle
   const toggleMobileMenu = useCallback((isOpen: boolean) => {
     setMobileMenuOpen(isOpen);
   }, []);
 
-  // Memoized values
+  // Calculate current wallet - recalculate whenever connected wallets change
   const currentWallet = useMemo(() => 
     selectedLayerId ? getWalletForLayer(selectedLayerId) : undefined,
-    [selectedLayerId, getWalletForLayer]
+    [selectedLayerId, getWalletForLayer, connectedWallets, authState]
   );
   
-  const isWalletDisconnected = useMemo(() => 
-    selectedLayerId && !isWalletConnected(selectedLayerId),
-    [selectedLayerId, isWalletConnected]
-  );
+  // Calculate wallet connection status - recalculate whenever connected wallets change
+  const isWalletDisconnected = useMemo(() => {
+    const connected = selectedLayerId && isWalletConnected(selectedLayerId);
+    return !connected;
+  }, [selectedLayerId, isWalletConnected, connectedWallets, authState, state]);
 
   // Render dropdown layer item - memoized for performance
   const renderLayerItem = useCallback((layer: LayerType) => {
@@ -367,7 +383,7 @@ export default function Header() {
     }
     
     const isLayerConnected = connectedWallets?.some((wallet: WalletInfo) => {
-      const foundLayer = layers.find((l) => l.chainId === wallet.layerId);
+      const foundLayer = layers.find((l) => l.id === wallet.layerId);
       return (
         foundLayer?.layer === layer.layer &&
         foundLayer?.network === layer.network
@@ -454,26 +470,12 @@ export default function Header() {
     }
   }, [layers, setSelectedLayerId]);
 
-  // Memoized wallet modal component
-  const walletModal = useMemo(() => (
-    <WalletConnectionModal
-      open={walletModalOpen}
-      onClose={() => toggleWalletModal(false)}
-      activeTab={selectedLayer}
-      selectedLayerId={selectedLayerId as string}
-      onTabChange={(tab) => {
-        setSelectedLayer(tab);
-        localStorage.setItem("selectedLayer", tab);
-      }}
-      onLayerSelect={handleModalLayerSelect}
-    />
-  ), [
-    walletModalOpen, 
-    toggleWalletModal, 
-    selectedLayer, 
-    selectedLayerId, 
-    handleModalLayerSelect
-  ]);
+  // Handle wallet connection/disconnection events
+  const onWalletModalClose = useCallback(() => {
+    // Force a re-render to update the wallet connection state
+    setState({}); 
+    setWalletModalOpen(false);
+  }, []);
 
   return (
     <>
@@ -533,7 +535,7 @@ export default function Header() {
                   <Button
                     variant="secondary"
                     size="lg"
-                    onClick={() => toggleWalletModal(true)}
+                    onClick={() => setWalletModalOpen(true)}
                     className="min-w-[170px]"
                   >
                     Connect Wallet
@@ -682,7 +684,7 @@ export default function Header() {
                       <Button
                         variant="secondary"
                         size="lg"
-                        onClick={() => toggleWalletModal(true)}
+                        onClick={() => setWalletModalOpen(true)}
                         className="w-full"
                       >
                         Connect Wallet
@@ -733,7 +735,17 @@ export default function Header() {
       </AnimatePresence>
 
       {/* Wallet connection modal */}
-      {walletModal}
+      <WalletConnectionModal
+        open={walletModalOpen}
+        onClose={onWalletModalClose}
+        activeTab={selectedLayer}
+        selectedLayerId={selectedLayerId as string}
+        onTabChange={(tab) => {
+          setSelectedLayer(tab);
+          localStorage.setItem("selectedLayer", tab);
+        }}
+        onLayerSelect={handleModalLayerSelect}
+      />
     </>
   );
 }
