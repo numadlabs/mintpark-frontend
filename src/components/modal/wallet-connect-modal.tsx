@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useCallback,
+  useMemo,
+} from "react";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
@@ -50,7 +56,7 @@ export function WalletConnectionModal({
   const [currentLayer, setCurrentLayer] = useState<LayerTypes | null>(null);
   const [activeLayerId, setActiveLayerId] = useState<string>("");
   const initialSetupDone = useRef(false);
-  
+
   // Get auth context
   const {
     authState,
@@ -71,11 +77,11 @@ export function WalletConnectionModal({
 
   // Memoize filtered layers to avoid re-filtering on every render
   const layers = useMemo(() => allLayers, [allLayers]);
-  
+
   // Memoize filtered and sorted layer tabs
   const layerTabs = useMemo(() => {
     return [...layers]
-      .filter(layer => layer.layer !== "BITCOIN")
+      .filter((layer) => layer.layer !== "BITCOIN" && layer.layer !== "CITREA")
       .sort((a, b) => {
         if (a.layer !== b.layer) {
           return a.layer.localeCompare(b.layer);
@@ -85,8 +91,8 @@ export function WalletConnectionModal({
   }, [layers]);
 
   // Memoize current layer object
-  const currentLayerObject = useMemo(() => 
-    layers.find(l => l.id === activeLayerId) || null, 
+  const currentLayerObject = useMemo(
+    () => layers.find((l) => l.id === activeLayerId) || null,
     [layers, activeLayerId]
   );
 
@@ -105,34 +111,35 @@ export function WalletConnectionModal({
   // Initialize active layer ID
   useEffect(() => {
     if (layers.length === 0 || initialSetupDone.current) return;
-    
+
     let newActiveLayerId = "";
-    
+
     // Prioritized layer selection logic
     if (selectedLayerId) {
       newActiveLayerId = selectedLayerId;
     } else {
       const savedLayer = localStorage.getItem("selectedLayer");
       const savedNetwork = localStorage.getItem("selectedNetwork");
-      
+
       if (savedLayer) {
         // First try exact layer + network match
         const matchingLayer = layers.find(
-          layer => layer.layer === savedLayer && 
-                  (savedNetwork ? layer.network === savedNetwork : true)
+          (layer) =>
+            layer.layer === savedLayer &&
+            (savedNetwork ? layer.network === savedNetwork : true)
         );
 
         if (matchingLayer) {
           newActiveLayerId = matchingLayer.id;
         } else {
           // Fallback to any layer with matching name
-          const anyLayer = layers.find(layer => layer.layer === savedLayer);
+          const anyLayer = layers.find((layer) => layer.layer === savedLayer);
           if (anyLayer) {
             newActiveLayerId = anyLayer.id;
           }
         }
       } else if (activeTab) {
-        const matchingLayer = layers.find(layer => layer.layer === activeTab);
+        const matchingLayer = layers.find((layer) => layer.layer === activeTab);
         if (matchingLayer) {
           newActiveLayerId = matchingLayer.id;
         }
@@ -140,7 +147,7 @@ export function WalletConnectionModal({
 
       // Default fallbacks
       if (!newActiveLayerId) {
-        const hemiLayer = layers.find(layer => layer.layer === "HEMI");
+        const hemiLayer = layers.find((layer) => layer.layer === "HEMI");
         if (hemiLayer) {
           newActiveLayerId = hemiLayer.id;
         } else if (layers.length > 0) {
@@ -148,26 +155,30 @@ export function WalletConnectionModal({
         }
       }
     }
-    
+
     if (newActiveLayerId) {
       setActiveLayerId(newActiveLayerId);
-      
+
       // Update parent component if needed
-      const layer = layers.find(l => l.id === newActiveLayerId);
+      const layer = layers.find((l) => l.id === newActiveLayerId);
       if (layer) {
         onTabChange(layer.layer);
       }
-      
+
       initialSetupDone.current = true;
     }
   }, [layers, activeTab, selectedLayerId, onTabChange]);
 
   // Update when selectedLayerId changes from parent
   useEffect(() => {
-    if (selectedLayerId && selectedLayerId !== activeLayerId && initialSetupDone.current) {
+    if (
+      selectedLayerId &&
+      selectedLayerId !== activeLayerId &&
+      initialSetupDone.current
+    ) {
       setActiveLayerId(selectedLayerId);
-      
-      const layer = layers.find(l => l.id === selectedLayerId);
+
+      const layer = layers.find((l) => l.id === selectedLayerId);
       if (layer) {
         onTabChange(layer.layer);
       }
@@ -175,118 +186,129 @@ export function WalletConnectionModal({
   }, [selectedLayerId, activeLayerId, layers, onTabChange]);
 
   // Switch or add chain in Metamask - memoized to prevent recreation
-  const switchOrAddChain = useCallback(async (layer: LayerTypes): Promise<boolean> => {
-    if (!layer.chainId || typeof window === "undefined" || !window.ethereum)
-      return false;
+  const switchOrAddChain = useCallback(
+    async (layer: LayerTypes): Promise<boolean> => {
+      if (!layer.chainId || typeof window === "undefined" || !window.ethereum)
+        return false;
 
-    try {
-      // Convert to hex format if needed
-      let chainIdHex = layer.chainId;
-      if (!chainIdHex.startsWith("0x")) {
-        chainIdHex = `0x${parseInt(layer.chainId).toString(16)}`;
-      }
+      try {
+        // Convert to hex format if needed
+        let chainIdHex = layer.chainId;
+        if (!chainIdHex.startsWith("0x")) {
+          chainIdHex = `0x${parseInt(layer.chainId).toString(16)}`;
+        }
 
-      // Try to switch chain
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: chainIdHex }],
-      });
+        // Try to switch chain
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: chainIdHex }],
+        });
 
-      return true;
-    } catch (error: any) {
-      // Handle different error cases
-      if (error.code === 4902) {
-        try {
-          const walletConfig = WALLET_CONFIGS[layer.layer];
-          if (!walletConfig) return false;
+        return true;
+      } catch (error: any) {
+        // Handle different error cases
+        if (error.code === 4902) {
+          try {
+            const walletConfig = WALLET_CONFIGS[layer.layer];
+            if (!walletConfig) return false;
 
-          const networkType = layer.network.toUpperCase();
-          const networkConfig = walletConfig.networks[networkType];
-          if (!networkConfig) return false;
+            const networkType = layer.network.toUpperCase();
+            const networkConfig = walletConfig.networks[networkType];
+            if (!networkConfig) return false;
 
-          // Add the chain to Metamask
-          await window.ethereum.request({
-            method: "wallet_addEthereumChain",
-            params: [{
-              chainId: layer.chainId,
-              chainName: layer.name || `${layer.layer} ${layer.network}`,
-              rpcUrls: networkConfig.rpcUrls,
-              blockExplorerUrls: networkConfig.blockExplorerUrls,
-              nativeCurrency: networkConfig.nativeCurrency || {
-                name: layer.name,
-                symbol: layer.layer.substring(0, 5),
-                decimals: 18,
-              },
-            }],
-          });
+            // Add the chain to Metamask
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId: layer.chainId,
+                  chainName: layer.name || `${layer.layer} ${layer.network}`,
+                  rpcUrls: networkConfig.rpcUrls,
+                  blockExplorerUrls: networkConfig.blockExplorerUrls,
+                  nativeCurrency: networkConfig.nativeCurrency || {
+                    name: layer.name,
+                    symbol: layer.layer.substring(0, 5),
+                    decimals: 18,
+                  },
+                },
+              ],
+            });
 
-          // Try switching again after adding
-          await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: layer.chainId }],
-          });
+            // Try switching again after adding
+            await window.ethereum.request({
+              method: "wallet_switchEthereumChain",
+              params: [{ chainId: layer.chainId }],
+            });
 
-          return true;
-        } catch (addError: any) {
-          console.error("Failed to add chain:", addError);
+            return true;
+          } catch (addError: any) {
+            console.error("Failed to add chain:", addError);
+            return false;
+          }
+        } else if (error.code === 4001) {
+          console.log("User rejected chain switch");
+          return false;
+        } else {
+          console.error("Error switching chain:", error);
           return false;
         }
-      } else if (error.code === 4001) {
-        console.log("User rejected chain switch");
-        return false;
-      } else {
-        console.error("Error switching chain:", error);
-        return false;
       }
-    }
-  }, []);
+    },
+    []
+  );
 
   // Handle wallet connection
-  const handleConnection = useCallback(async (layer: LayerTypes) => {
-    // Handle disconnect
-    if (isWalletConnected(layer.id)) {
+  const handleConnection = useCallback(
+    async (layer: LayerTypes) => {
+      // Handle disconnect
+      if (isWalletConnected(layer.id)) {
+        try {
+          await disconnectWallet(layer.id);
+          toast.success(`Disconnected from ${layer.name}`);
+        } catch (error) {
+          toast.error(`Failed to disconnect wallet. ${error}`);
+        }
+        return;
+      }
+
+      // Handle connect
       try {
-        await disconnectWallet(layer.id);
-        toast.success(`Disconnected from ${layer.name}`);
-      } catch (error) {
-        toast.error(`Failed to disconnect wallet. ${error}`);
-      }
-      return;
-    }
+        // Switch chain for Metamask wallets
+        if (
+          layer.chainId &&
+          window.ethereum &&
+          WALLET_CONFIGS[layer.layer]?.type === "metamask"
+        ) {
+          await switchOrAddChain(layer);
+        }
 
-    // Handle connect
-    try {
-      // Switch chain for Metamask wallets
-      if (
-        layer.chainId &&
-        window.ethereum &&
-        WALLET_CONFIGS[layer.layer]?.type === "metamask"
-      ) {
-        await switchOrAddChain(layer);
+        // Connect wallet
+        await connectWallet(layer.id, authState.authenticated);
+        onClose();
+        toast.success(
+          `${authState.authenticated ? "Linked" : "Connected to"} ${layer.name}`
+        );
+      } catch (error: any) {
+        if (
+          error instanceof Error &&
+          error.message === "WALLET_ALREADY_LINKED"
+        ) {
+          setCurrentLayer(layer);
+          setShowLinkAlert(true);
+        } else {
+          toast.error(`Failed to connect: ${error.message}`);
+        }
       }
-
-      // Connect wallet
-      await connectWallet(layer.id, authState.authenticated);
-      onClose();
-      toast.success(
-        `${authState.authenticated ? "Linked" : "Connected to"} ${layer.name}`
-      );
-    } catch (error: any) {
-      if (error instanceof Error && error.message === "WALLET_ALREADY_LINKED") {
-        setCurrentLayer(layer);
-        setShowLinkAlert(true);
-      } else {
-        toast.error(`Failed to connect: ${error.message}`);
-      }
-    }
-  }, [
-    isWalletConnected, 
-    disconnectWallet, 
-    switchOrAddChain, 
-    connectWallet, 
-    authState.authenticated, 
-    onClose
-  ]);
+    },
+    [
+      isWalletConnected,
+      disconnectWallet,
+      switchOrAddChain,
+      connectWallet,
+      authState.authenticated,
+      onClose,
+    ]
+  );
 
   // Handle wallet linking confirmation
   const handleProceedWithLinking = useCallback(async () => {
@@ -300,63 +322,63 @@ export function WalletConnectionModal({
   }, [proceedWithLinking]);
 
   // Handle layer selection
-  const handleLayerSelect = useCallback((layerId: string) => {
-    if (!layerId || layerId === activeLayerId) return;
-    
-    setActiveLayerId(layerId);
+  const handleLayerSelect = useCallback(
+    (layerId: string) => {
+      if (!layerId || layerId === activeLayerId) return;
 
-    // Find the selected layer
-    const layer = layers.find(l => l.id === layerId);
-    if (layer) {
-      // Update parent state
-      onTabChange(layer.layer);
-      onLayerSelect(layer.layer, layer.network);
+      setActiveLayerId(layerId);
 
-      // Store in localStorage
-      localStorage.setItem("selectedLayer", layer.layer);
-      localStorage.setItem("selectedNetwork", layer.network);
+      // Find the selected layer
+      const layer = layers.find((l) => l.id === layerId);
+      if (layer) {
+        // Update parent state
+        onTabChange(layer.layer);
+        onLayerSelect(layer.layer, layer.network);
 
-      // Switch chain if needed
-      if (
-        layer.chainId &&
-        window.ethereum &&
-        WALLET_CONFIGS[layer.layer]?.type === "metamask"
-      ) {
-        switchOrAddChain(layer);
+        // Store in localStorage
+        localStorage.setItem("selectedLayer", layer.layer);
+        localStorage.setItem("selectedNetwork", layer.network);
+
+        // Switch chain if needed
+        if (
+          layer.chainId &&
+          window.ethereum &&
+          WALLET_CONFIGS[layer.layer]?.type === "metamask"
+        ) {
+          switchOrAddChain(layer);
+        }
       }
-    }
-  }, [
-    activeLayerId, 
-    layers, 
-    onTabChange, 
-    onLayerSelect, 
-    switchOrAddChain
-  ]);
+    },
+    [activeLayerId, layers, onTabChange, onLayerSelect, switchOrAddChain]
+  );
 
   // Memoize alert dialog to prevent unnecessary re-renders
-  const alertDialog = useMemo(() => (
-    <AlertDialog open={showLinkAlert} onOpenChange={setShowLinkAlert}>
-      <AlertDialogContent className="border rounded-2xl border-white8">
-        <AlertDialogHeader className="grid gap-4">
-          <AlertDialogTitle className="text-xl text-white font-bold">
-            Wallet Already Linked
-          </AlertDialogTitle>
-          <AlertDialogDescription className="font-semibold text-white text-md2">
-            This wallet is already linked to another account. Would you like
-            to move it to your current account instead?
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => setShowLinkAlert(false)}>
-            Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction onClick={handleProceedWithLinking}>
-            Continue
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  ), [showLinkAlert, setShowLinkAlert, handleProceedWithLinking]);
+  const alertDialog = useMemo(
+    () => (
+      <AlertDialog open={showLinkAlert} onOpenChange={setShowLinkAlert}>
+        <AlertDialogContent className="border rounded-2xl border-white8">
+          <AlertDialogHeader className="grid gap-4">
+            <AlertDialogTitle className="text-xl text-white font-bold">
+              Wallet Already Linked
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-semibold text-white text-md2">
+              This wallet is already linked to another account. Would you like
+              to move it to your current account instead?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setShowLinkAlert(false)}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleProceedWithLinking}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    ),
+    [showLinkAlert, setShowLinkAlert, handleProceedWithLinking]
+  );
 
   return (
     <>
