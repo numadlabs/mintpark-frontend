@@ -9,7 +9,6 @@ import React, {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import HeaderItem from "../ui/headerItem";
 import { useAuth } from "../provider/auth-context-provider";
 import { useMetamaskEvents } from "@/lib/hooks/useWalletAuth";
@@ -27,7 +26,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Wallet2, Logout, ArrowRight2 } from "iconsax-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Wallet2, Logout, ArrowRight2, ArrowDown2 } from "iconsax-react";
 import { Button } from "../ui/button";
 import { getAllLayers, getLayerById } from "@/lib/service/queryHelper";
 import { truncateAddress, capitalizeFirstLetter } from "@/lib/utils";
@@ -35,7 +40,7 @@ import { useQuery } from "@tanstack/react-query";
 import { LayerType } from "@/lib/types";
 import { toast } from "sonner";
 import Badge from "../atom/badge";
-import { Check, Loader2, MenuIcon, X } from "lucide-react";
+import { ArrowDown, Check, Loader2, MenuIcon, X } from "lucide-react";
 import { WalletConnectionModal } from "../modal/wallet-connect-modal";
 import { WALLET_CONFIGS } from "@/lib/constants";
 import { getCurrencyImage } from "@/lib/service/currencyHelper";
@@ -88,43 +93,6 @@ export default function Header() {
       { title: "Launchpad", pageUrl: "/launchpad" },
       { title: "Collections", pageUrl: "/collections" },
     ],
-    []
-  );
-
-  // Animation variants
-  const menuVariants = useMemo(
-    () => ({
-      closed: {
-        opacity: 0,
-        y: "-100%",
-        transition: { y: { stiffness: 1000 } },
-      },
-      open: {
-        opacity: 1,
-        y: 0,
-        transition: { y: { stiffness: 1000, velocity: -100 } },
-      },
-    }),
-    []
-  );
-
-  const menuItemVariants = useMemo(
-    () => ({
-      closed: { x: -20, opacity: 0 },
-      open: (i: number) => ({
-        x: 0,
-        opacity: 1,
-        transition: { delay: i * 0.1, duration: 0.4 },
-      }),
-    }),
-    []
-  );
-
-  const backdropVariants = useMemo(
-    () => ({
-      closed: { opacity: 0 },
-      open: { opacity: 1 },
-    }),
     []
   );
 
@@ -618,163 +586,137 @@ export default function Header() {
                 ) : null}
               </div>
 
-              {/* Mobile Menu Button */}
-              <motion.button
-                className="lg:hidden p-2 text-neutral50"
-                onClick={() => toggleMobileMenu(!mobileMenuOpen)}
-                whileTap={{ scale: 0.9 }}
-              >
-                <MenuIcon size={24} />
-              </motion.button>
+              {/* Mobile Menu Button - Now uses Sheet from shadcn/ui */}
+              <Sheet open={mobileMenuOpen}>
+                <SheetTrigger asChild className="lg:hidden">
+                  <Button
+                    variant="outline"
+                    className="p-2 text-neutral50 border-hidden"
+                    onClick={() => toggleMobileMenu(true)}
+                  >
+                    <MenuIcon size={24} />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="top"
+                  className="lg:hidden pt-4 pb-6 h-auto min-h-screen w-full bg-neutral500 bg-opacity-95 backdrop-blur-lg overflow-y-auto"
+                >
+                  <div className="flex justify-between items-center w-full px-4 py-6">
+                    <div>
+                      {/* <Link href="/#" className="flex ml-4"> */}
+                      <Image
+                        src="/Logo.svg"
+                        alt="Mintpark"
+                        width={40}
+                        height={40}
+                      />
+                      {/* </Link> */}
+                    </div>
+                    <div>
+                      <X
+                        size={24}
+                        className="text-neutral50 cursor-pointer"
+                        onClick={() => toggleMobileMenu(false)}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Mobile navigation */}
+                  <div className="flex flex-col pt-8 gap-5 px-6">
+                    {routes.map((item, index) => (
+                      <div key={index} className="relative">
+                        <button
+                          className="text-neutral00 text-lg font-medium w-full text-left py-2 flex items-center"
+                          onClick={() =>
+                            handleNavigation(
+                              item.pageUrl,
+                              item.requiresAuth,
+                              item.disabled
+                            )
+                          }
+                        >
+                          {item.title}
+                          {item.badge && <Badge label={item.badge} />}
+                        </button>
+                      </div>
+                    ))}
+
+                    {/* Mobile layer and wallet controls */}
+                    <div className="grid items-center pt-6 border-t border-neutral400 gap-4">
+                      {/* Same layer selector as desktop but with mobile styling */}
+                      <Select
+                        onValueChange={handleLayerSelect}
+                        value={selectedLayerId as string}
+                      >
+                        <SelectTrigger className="flex items-center h-12 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-full">
+                          <SelectValue placeholder="Select layer">
+                            {renderCurrentLayerValue()}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent className="flex max-w-[210px] flex-col p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
+                          <SelectGroup className="flex flex-col gap-2">
+                            {layers.map(renderLayerItem)}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+
+                      {/* Mobile wallet buttons */}
+                      {isWalletDisconnected ? (
+                        <Button
+                          variant="secondary"
+                          size="lg"
+                          onClick={() => setWalletModalOpen(true)}
+                          className="w-full"
+                        >
+                          Connect Wallet
+                        </Button>
+                      ) : authState.authenticated && currentWallet ? (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger className="flex items-center justify-between gap-2 w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-3 rounded-xl backdrop-blur-xl">
+                            <div className="flex items-center gap-2">
+                              <Image
+                                src="/Avatar.png"
+                                alt="avatar"
+                                width={24}
+                                height={24}
+                                className="rounded-full"
+                              />
+                              <span className="text-neutral50">
+                                {truncateAddress(currentWallet.address)}
+                              </span>
+                            </div>
+                            <div className="text-neutral50">
+                              <ArrowDown2 size={16} color="#D7D8D8" />
+                            </div>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="flex flex-col gap-2 w-full p-2 border border-white4 bg-gray50 rounded-2xl backdrop-blur-xl">
+                            <Link href="/my-assets">
+                              <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
+                                <div className="flex items-center gap-2">
+                                  <Wallet2 size={24} color="#D7D8D8" />
+                                  My Assets
+                                </div>
+                                <ArrowRight2 size={16} color="#D7D8D8" />
+                              </DropdownMenuItem>
+                            </Link>
+                            <DropdownMenuItem
+                              className="text-neutral50 text-md font-medium flex gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
+                              onClick={handleLogout}
+                            >
+                              <Logout size={24} color="#D7D8D8" />
+                              Log Out
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      ) : null}
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Mobile Menu - Using AnimatePresence for animations */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              className="lg:hidden fixed inset-0 z-40 bg-neutral500 bg-opacity-40"
-              initial="closed"
-              animate="open"
-              exit="closed"
-              variants={backdropVariants}
-              onClick={() => toggleMobileMenu(false)}
-            />
-
-            {/* Menu Panel - Always at the top of page */}
-            <motion.div
-              className="lg:hidden fixed inset-x-0 top-0 z-50 bg-neutral500 bg-opacity-95 backdrop-blur-lg pt-4 pb-6 h-auto min-h-screen overflow-y-auto"
-              initial="closed"
-              animate="open"
-              exit="closed"
-              variants={menuVariants}
-            >
-              <div className="flex flex-col px-6 space-y-4">
-                {/* Mobile header */}
-                <div className="flex justify-between items-center">
-                  <Link href="/">
-                    <Image
-                      src="/Logo.svg"
-                      alt="coordinals"
-                      width={40}
-                      height={40}
-                    />
-                  </Link>
-                  <motion.button
-                    className="p-2 text-neutral50"
-                    onClick={() => toggleMobileMenu(false)}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <X size={24} />
-                  </motion.button>
-                </div>
-
-                {/* Mobile navigation */}
-                <div className="flex flex-col pt-8 gap-5">
-                  {routes.map((item, index) => (
-                    <motion.div
-                      key={index}
-                      className="relative"
-                      custom={index}
-                      variants={menuItemVariants}
-                    >
-                      <button
-                        className="text-neutral00 text-lg font-medium w-full text-left py-2 flex items-center"
-                        onClick={() =>
-                          handleNavigation(
-                            item.pageUrl,
-                            item.requiresAuth,
-                            item.disabled
-                          )
-                        }
-                      >
-                        {item.title}
-                        {item.badge && <Badge label={item.badge} />}
-                      </button>
-                    </motion.div>
-                  ))}
-
-                  {/* Mobile layer and wallet controls */}
-                  <motion.div
-                    className="grid items-center pt-6 border-t border-neutral400 gap-4"
-                    custom={routes.length}
-                    variants={menuItemVariants}
-                  >
-                    {/* Same layer selector as desktop but with mobile styling */}
-                    <Select
-                      onValueChange={handleLayerSelect}
-                      value={selectedLayerId as string}
-                    >
-                      <SelectTrigger className="flex items-center h-12 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-full">
-                        <SelectValue placeholder="Select layer">
-                          {renderCurrentLayerValue()}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent className="flex max-w-[210px] flex-col p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
-                        <SelectGroup className="flex flex-col gap-2">
-                          {layers.map(renderLayerItem)}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-
-                    {/* Mobile wallet buttons */}
-                    {isWalletDisconnected ? (
-                      <Button
-                        variant="secondary"
-                        size="lg"
-                        onClick={() => setWalletModalOpen(true)}
-                        className="w-full"
-                      >
-                        Connect Wallet
-                      </Button>
-                    ) : authState.authenticated && currentWallet ? (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger className="flex items-center justify-between gap-2 w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-3 rounded-xl backdrop-blur-xl">
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src="/Avatar.png"
-                              alt="avatar"
-                              width={24}
-                              height={24}
-                              className="rounded-full"
-                            />
-                            <span className="text-neutral50">
-                              {truncateAddress(currentWallet.address)}
-                            </span>
-                          </div>
-                          <div className="text-neutral50">▼</div>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="flex flex-col gap-2 w-full p-2 border border-white4 bg-gray50 rounded-2xl backdrop-blur-xl">
-                          <Link href="/my-assets">
-                            <DropdownMenuItem className="flex justify-between items-center text-neutral50 text-md font-medium hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all">
-                              <div className="flex items-center gap-2">
-                                <Wallet2 size={24} color="#D7D8D8" />
-                                My Assets
-                              </div>
-                              <ArrowRight2 size={16} color="#D7D8D8" />
-                            </DropdownMenuItem>
-                          </Link>
-                          <DropdownMenuItem
-                            className="text-neutral50 text-md font-medium flex gap-2 hover:bg-white8 rounded-lg duration-300 cursor-pointer transition-all"
-                            onClick={handleLogout}
-                          >
-                            <Logout size={24} color="#D7D8D8" />
-                            Log Out
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    ) : null}
-                  </motion.div>
-                </div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
 
       {/* Wallet connection modal */}
       <WalletConnectionModal
