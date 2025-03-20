@@ -176,7 +176,7 @@ export async function getListedCollectionById(
   orderDirection: string,
   limit: number,
   offset: number,
-  // query:number,
+  query:string,
   isListed:boolean,
   traitValuesByType: Record<string, string[]> | string, // Update type to handle both
 ): Promise<CollectionDetail | null> {
@@ -185,7 +185,7 @@ export async function getListedCollectionById(
     orderDirection,
     limit: limit.toString(),
     offset: offset.toString(),
-    // query: query.toString()
+    query: query.toString()
   });
 
   if (traitValuesByType) {

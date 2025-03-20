@@ -30,9 +30,13 @@ import {
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
 import CollectionDetailSkeleton from "@/components/atom/skeleton/collection-detail-skeleton";
 import { motion, AnimatePresence } from "framer-motion";
-import { BITCOIN_IMAGE } from "@/lib/constants";
+import { BITCOIN_IMAGE, ETH_IMAGE } from "@/lib/constants";
 import CollectionSideBar from "@/components/section/collections/sideBar";
-import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import {
+  getCurrencyBannerImage,
+  getCurrencyImage,
+  getCurrencySymbol,
+} from "@/lib/service/currencyHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
 
 const ITEMS_PER_PAGE = 10;
@@ -95,6 +99,7 @@ const CollectionDetailPage = () => {
         orderDirection,
         limit,
         offset,
+        searchFilter,
         isListed,
         JSON.stringify(traitValuesByType) // Stringify only here if required
       );
@@ -323,14 +328,15 @@ const CollectionDetailPage = () => {
                   <div className="grid grid-cols-2 md:flex md:justify-around xl:grid-cols-4 lg:grid w-full gap-8 md:gap-8 lg:gap-8 mt-4">
                     <div className="text-center md:text-left">
                       <h2 className="font-medium text-lg text-neutral100">
-                        Floor price
+                        Floor price afasdsa
                       </h2>
                       <div className="flex items-center justify-center md:justify-start mt-2">
                         <Image
                           width={24}
                           height={20}
                           draggable="false"
-                          src={BITCOIN_IMAGE}
+                          // src={BITCOIN_IMAGE}
+                          src={getCurrencyBannerImage(currentLayer.layer)}
                           alt="bitcoin"
                           className="aspect-square"
                         />
@@ -354,7 +360,8 @@ const CollectionDetailPage = () => {
                           width={24}
                           draggable="false"
                           height={20}
-                          src={BITCOIN_IMAGE}
+                          src={getCurrencyBannerImage(currentLayer.layer)}
+                          // src={BITCOIN_IMAGE}
                           alt="bitcoin"
                           className="aspect-square"
                         />

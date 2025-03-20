@@ -67,6 +67,8 @@ export interface WalletConfig {
   chainId?: string;
   name: string;
   icon: string;
+  currencyIcon:string;
+  currencyPrice:number;
   networks: {
     [key: string]: NetworkConfig;
   };

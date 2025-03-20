@@ -1,11 +1,11 @@
 import React from "react";
 import Image from "next/image";
 import { CollectionDataType } from "@/lib/types";
-import { getPriceData, s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
+import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { useQuery } from "@tanstack/react-query";
 import { getLayerById } from "@/lib/service/queryHelper";
-import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import { getCurrencyPrice, getCurrencySymbol } from "@/lib/service/currencyHelper";
 
 interface CardProps {
   data: CollectionDataType;
@@ -19,7 +19,7 @@ const CollectionCardList: React.FC<CardProps> = ({ data, handleNav }) => {
     queryFn: () => getLayerById(authState.layerId as string),
     enabled: !!authState.layerId,
   });
-  const citreaPrice = getPriceData();
+  // const citreaPrice = getPriceData();
 
   return (
     <button
@@ -52,7 +52,7 @@ const CollectionCardList: React.FC<CardProps> = ({ data, handleNav }) => {
             </span>
           </p>
           <span className="font-medium text-md text-neutral200">
-            ${formatPrice(data.floor * citreaPrice)}k
+            ${formatPrice(data.floor *  getCurrencyPrice(currentLayer.layer))}
           </span>
         </div>
 
@@ -64,7 +64,7 @@ const CollectionCardList: React.FC<CardProps> = ({ data, handleNav }) => {
             </span>
           </p>
           <span className="font-medium text-md  text-neutral200">
-            ${formatPrice(data.volume * citreaPrice)}k
+            ${formatPrice(data.volume *  getCurrencyPrice(currentLayer.layer))}
           </span>
         </div>
 
@@ -76,7 +76,7 @@ const CollectionCardList: React.FC<CardProps> = ({ data, handleNav }) => {
             </span>
           </p>
           <span className="font-medium text-md text-neutral200">
-            ${formatPrice(data.marketCap * citreaPrice)}k
+            ${formatPrice(data.marketCap *  getCurrencyPrice(currentLayer.layer))}
           </span>
         </div>
 

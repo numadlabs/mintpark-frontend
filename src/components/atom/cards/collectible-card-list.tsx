@@ -1,9 +1,9 @@
 import React from "react";
 import Image from "next/image";
-import { formatPrice, getPriceData, s3ImageUrlBuilder } from "@/lib/utils";
+import { formatPrice, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
 import { CollectionSchema } from "@/lib/validations/collection-validation";
-import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import { getCurrencyPrice, getCurrencySymbol } from "@/lib/service/currencyHelper";
 import { useQuery } from "@tanstack/react-query";
 import { getLayerById } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
@@ -43,7 +43,7 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({
     queryFn: () => getLayerById(authState.layerId as string),
     enabled: !!authState.layerId,
   });
-  const citreaPrice = getPriceData();
+  // const citreaPrice = getPriceData();
   const daysAgo = getDaysAgo(data.createdAt);
 
   return (
@@ -82,8 +82,8 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({
               {" "}
               <p className="font-medium text-md text-neutral200 w-full">
                 <span className="mr-1">$</span>
-                {formatPrice(data.price * citreaPrice)}
-                <span className="">k</span>
+                {/* {formatPrice(data.price * {getCurrencyPrice(currentLayer.layer)})} */}
+                {formatPrice(data.price * getCurrencyPrice(currentLayer.layer))}
               </p>
             </p>
           </div>
