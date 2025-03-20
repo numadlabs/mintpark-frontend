@@ -130,13 +130,13 @@ export const capitalizeFirstLetter = (string: string) => {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 };
 
-export const storePriceData = (price: number) => {
-  localStorage.setItem(STORAGE_KEYS.CITREA_PRICE_KEY, price.toString());
-};
+// export const storePriceData = (price: number) => {
+//   localStorage.setItem(STORAGE_KEYS.CITREA_PRICE_KEY, price.toString());
+// };
 
-export const getPriceData = () => {
-  const citreaPrice = localStorage.getItem(STORAGE_KEYS.CITREA_PRICE_KEY);
-  if (citreaPrice) {
-    return parseInt(citreaPrice);
-  } else return 0;
-};
+// export const getPriceData = () => {
+//   const citreaPrice = localStorage.getItem(STORAGE_KEYS.CITREA_PRICE_KEY);
+//   if (citreaPrice) {
+//     return parseInt(citreaPrice);
+//   } else return 0;
+// };

@@ -58,7 +58,7 @@ const CollectionSideBar: React.FC<SidebarProps> = ({
   const { data: collection } = useQuery({
     queryKey: ["collectionData", id, "recent", "desc"],
     queryFn: () =>
-      getListedCollectionById(id, "recent", "desc", 10, 0, false, {}),
+      getListedCollectionById(id, "recent", "desc", 10, 0, "", false, {}, ),
     enabled: !!id,
     retry: 1,
     staleTime: 60000, // 1 minute stale time

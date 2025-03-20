@@ -85,6 +85,7 @@ export default function AssetDetail() {
         "desc",
         10,
         0,
+        "",
         false, 
         {}
       ),

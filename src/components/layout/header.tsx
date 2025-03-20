@@ -29,7 +29,6 @@ import {
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Wallet2, Logout, ArrowRight2, ArrowDown2 } from "iconsax-react";
@@ -378,9 +377,9 @@ export default function Header() {
       if (layer.layer === "BITCOIN") {
         return null;
       }
-      if (layer.layer === "CITREA") {
-        return null;
-      }
+      // if (layer.layer === "CITREA") {
+      //   return null;
+      // }
 
       const isLayerConnected = connectedWallets?.some((wallet: WalletInfo) => {
         const foundLayer = layers.find((l) => l.id === wallet.layerId);
