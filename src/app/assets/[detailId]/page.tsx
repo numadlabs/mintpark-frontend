@@ -45,7 +45,6 @@ export default function AssetDetail() {
   const id = params.detailId as string;
   const [isVisible, setIsVisible] = useState(false);
 
-  
   const { data: collectible, isLoading: isCollectionLoading } = useQuery<
     Collectible[] | null
   >({
@@ -53,7 +52,6 @@ export default function AssetDetail() {
     queryFn: () => getCollectionById(id),
     enabled: !!id,
   });
-
 
   const { data: currentLayer = [] } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
@@ -86,7 +84,7 @@ export default function AssetDetail() {
         10,
         0,
         "",
-        false, 
+        false,
         {}
       ),
     enabled: !!collectionId,
@@ -97,8 +95,6 @@ export default function AssetDetail() {
       hasMore: false,
     },
   });
-
-  
 
   const toggleModal = () => {
     if (!authState.authenticated)
@@ -258,9 +254,14 @@ export default function AssetDetail() {
                         {currentAsset.ownedBy}
                       </p> */}
                       <Link
-                         href={collectible && collectible[0] && currentAsset.ownedBy
-                          ? getAddressExplorerUrl(collectible[0].layer, currentAsset.ownedBy)
-                          : '#'}
+                        href={
+                          collectible && collectible[0] && currentAsset.ownedBy
+                            ? getAddressExplorerUrl(
+                                collectible[0].layer,
+                                currentAsset.ownedBy
+                              )
+                            : "#"
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-medium text-md text-neutral50 hover:text-brand transition-colors"
@@ -334,28 +335,45 @@ export default function AssetDetail() {
                       </div>
                     </div>
                     <div className="flex flex-col gap-3 pt-3">
-                      {activity?.map((item: any) => (
-                        <ActivityCard
-                          // key={item.id}
-                          key={`${item.id}-${item.event}-${item.date}`}
-                          data={item}
-                          imageUrl={
-                            currentAsset.highResolutionImageUrl
-                              ? currentAsset.highResolutionImageUrl
-                              : s3ImageUrlBuilder(currentAsset.fileKey)
-                          }
-                          collectionName={currentAsset.collectionName}
-                        />
-                      ))}
+                      {activity && activity.length > 0 ? (
+                        activity.map((item: any) => (
+                          <ActivityCard
+                            key={`${item.id}-${item.event}-${item.date}`}
+                            data={item}
+                            imageUrl={
+                              currentAsset.highResolutionImageUrl
+                                ? currentAsset.highResolutionImageUrl
+                                : s3ImageUrlBuilder(currentAsset.fileKey)
+                            }
+                            collectionName={currentAsset.collectionName}
+                          />
+                        ))
+                      ) : (
+                        <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
+                          <p className="text-neutral200 font-medium text-lg">
+                            No activity recorded
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               </TabsContent>
               <TabsContent value="more">
-                <MoreCollection
-                  collection={collection}
-                  currentAssetId={currentAsset.id}
-                />
+                {collection &&
+                collection.collectibles &&
+                collection.collectibles.length > 0 ? (
+                  <MoreCollection
+                    collection={collection}
+                    currentAssetId={currentAsset.id}
+                  />
+                ) : (
+                  <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
+                    <p className="text-neutral200 font-medium text-lg">
+                      No items in this collection
+                    </p>
+                  </div>
+                )}
               </TabsContent>
             </div>
           </Tabs>
