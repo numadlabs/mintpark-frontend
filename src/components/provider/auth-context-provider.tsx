@@ -1,3 +1,56 @@
+import React, { createContext, useContext, useEffect } from "react";
+import useWalletStore, {
+  ConnectedWallet,
+  Wallet,
+  WalletStore,
+} from "@/lib/hooks/useWalletAuth";
+import { AuthState, AuthTokens, Layer } from "@/types";
+import { initializeAxios } from "@/lib/axios";
+
+const WalletAuthContext = createContext<WalletStore | null>(null);
+
+export const WalletAuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const store = useWalletStore();
+
+  useEffect(() => {
+    initializeAxios(store.onLogout);
+  }, []);
+
+  const value: WalletStore = {
+    authState: store.authState,
+    selectedLayerId: store.selectedLayerId,
+
+    setSelectedLayerId: store.setSelectedLayerId,
+    updateAuthStateForLayer: store.updateAuthStateForLayer,
+    layers: store.layers,
+    onLogout: store.onLogout,
+    setLayers: store.setLayers,
+    connectedWallets: store.connectedWallets,
+    connectWallet: store.connectWallet,
+    disconnectWallet: store.disconnectWallet,
+    isWalletConnected: store.isWalletConnected,
+    getWalletForLayer: store.getWalletForLayer,
+    getAddressforCurrentLayer: store.getAddressforCurrentLayer,
+    proceedWithLinking: store.proceedWithLinking,
+  };
+
+  return (
+    <WalletAuthContext.Provider value={value}>
+      {children}
+    </WalletAuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(WalletAuthContext);
+  if (!context) {
+    throw new Error("useWalletAuth must be used within a WalletAuthProvider");
+  }
+  return context;
+};
+
 // import React, { createContext, useContext, useState, useEffect } from "react";
 // import { useMutation, useQuery } from "@tanstack/react-query";
 // import {
@@ -541,54 +594,4 @@
 //   return context;
 // };
 
-import React, { createContext, useContext, useEffect } from "react";
-import useWalletStore, {
-  ConnectedWallet,
-  Wallet,
-  WalletStore,
-} from "@/lib/hooks/useWalletAuth";
-import { AuthState, AuthTokens, Layer } from "@/types";
-import { initializeAxios } from "@/lib/axios";
 
-const WalletAuthContext = createContext<WalletStore | null>(null);
-
-export const WalletAuthProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const store = useWalletStore();
-
-  useEffect(() => {
-    initializeAxios(store.onLogout);
-  }, []);
-
-  const value: WalletStore = {
-    authState: store.authState,
-    selectedLayerId: store.selectedLayerId,
-    setSelectedLayerId: store.setSelectedLayerId,
-    updateAuthStateForLayer: store.updateAuthStateForLayer,
-    layers: store.layers,
-    onLogout: store.onLogout,
-    setLayers: store.setLayers,
-    connectedWallets: store.connectedWallets,
-    connectWallet: store.connectWallet,
-    disconnectWallet: store.disconnectWallet,
-    isWalletConnected: store.isWalletConnected,
-    getWalletForLayer: store.getWalletForLayer,
-    getAddressforCurrentLayer: store.getAddressforCurrentLayer,
-    proceedWithLinking: store.proceedWithLinking,
-  };
-
-  return (
-    <WalletAuthContext.Provider value={value}>
-      {children}
-    </WalletAuthContext.Provider>
-  );
-};
-
-export const useAuth = () => {
-  const context = useContext(WalletAuthContext);
-  if (!context) {
-    throw new Error("useWalletAuth must be used within a WalletAuthProvider");
-  }
-  return context;
-};

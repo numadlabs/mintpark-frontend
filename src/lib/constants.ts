@@ -1,6 +1,7 @@
 import { WalletConfig } from "@/types";
 
 export const BITCOIN_IMAGE = "/wallets/Bitcoin.png";
+export const ETH_IMAGE = "/wallets/eth.png";
 
 export const STORAGE_KEYS = {
   AUTH_TOKENS: "auth_tokens",
@@ -8,16 +9,22 @@ export const STORAGE_KEYS = {
   WALLET_STATE: "wallet-storage",
   ACCESS_TOKEN: "accessToken",
   REFRESH_TOKEN: "refreshToken",
-  CITREA_PRICE_KEY: "CITREA_PRICE",
+  // CITREA_PRICE_KEY: "CITREA_PRICE",
+  // ETH_PRICE_KEY: "ETH_PRICE",
 } as const;
 
 export const FEERATE = 1;
+
+export const ETH_PRICE = 1937.96;
+export const CITREA_PRICE = 102500;
 
 export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
   BITCOIN: {
     type: "unisat",
     name: "Bitcoin",
     icon: "/wallets/Bitcoin.png",
+    currencyIcon: "/wallets/Bitcoin.png",
+    currencyPrice: CITREA_PRICE,
     networks: {
       TESTNET: {
         chainId: "btc-testnet",
@@ -33,6 +40,8 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
     chainId: "0x13FB", // 5115 in hex
     name: "Citrea",
     icon: "/wallets/Citrea.png",
+    currencyIcon: "/wallets/Bitcoin.png",
+    currencyPrice: CITREA_PRICE,
     networks: {
       TESTNET: {
         chainId: "0x13FB",
@@ -52,6 +61,8 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
     chainId: "11155111", // 5115 in hex
     name: "Sepolia",
     icon: "/wallets/Citrea.png",
+    currencyIcon: "/wallets/Bitcoin.png",
+    currencyPrice: CITREA_PRICE,
     networks: {
       TESTNET: {
         chainId: "11155111",
@@ -87,6 +98,8 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
     chainId: "0xA877",
     name: "Hemi Network",
     icon: "/wallets/hemi.png",
+    currencyIcon: "/wallets/eth.png",
+    currencyPrice: ETH_PRICE,
     networks: {
       MAINNET: {
         chainId: "0xA877", // Hexadecimal representation of 43111
@@ -112,14 +125,13 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
       },
     },
   },
-
-  
-
   POLYGON_ZK: {
     type: "metamask",
     chainId: "1101",
     name: "Polygon zkEVM",
     icon: "/wallets/hemi.png",
+    currencyIcon: "/wallets/eth.png",
+    currencyPrice: ETH_PRICE,
     networks: {
       TESTNET: {
         chainId: "0x44d",
@@ -135,6 +147,8 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
     chainId: "656476", // 5115 in hex
     name: "Edu",
     icon: "/wallets/EduChain.png",
+    currencyIcon: "/wallets/Bitcoin.png",
+    currencyPrice: CITREA_PRICE,
     networks: {
       TESTNET: {
         chainName: "Etherscan",
