@@ -418,7 +418,7 @@ const CollectionDetailPage = () => {
                       width={24}
                       draggable="false"
                       height={20}
-                      src={BITCOIN_IMAGE}
+                      src={getCurrencyBannerImage(currentLayer.layer)}
                       alt="bitcoin"
                       className="aspect-square"
                     />
@@ -442,7 +442,7 @@ const CollectionDetailPage = () => {
                       width={24}
                       height={20}
                       draggable="false"
-                      src={BITCOIN_IMAGE}
+                      src={getCurrencyBannerImage(currentLayer.layer)}
                       alt="bitcoin"
                       className="aspect-square"
                     />
