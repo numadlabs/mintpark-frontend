@@ -95,7 +95,7 @@ export default function AssetDetail() {
       hasMore: false,
     },
   });
-
+//test
   const toggleModal = () => {
     if (!authState.authenticated)
       return toast.error("Please connect wallet first");
