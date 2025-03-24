@@ -25,7 +25,7 @@ import {
   truncateAddress,
 } from "@/lib/utils";
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import BuyAssetModal from "@/components/modal/buy-asset-modal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ActivityCard from "@/components/atom/cards/activity-card";
@@ -38,8 +38,10 @@ import MoreCollection from "@/components/section/more-collection";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 import { getAddressExplorerUrl } from "@/lib/service/currencyHelper";
 
+
 export default function AssetDetail() {
   const params = useParams();
+  const router = useRouter();
   const { authState } = useAuth();
   // const layer = localStorage.getItem('selectedLayer')
   const id = params.detailId as string;
@@ -95,7 +97,11 @@ export default function AssetDetail() {
       hasMore: false,
     },
   });
-//test
+
+  const handlBackCollection = () => {
+    router.push(`/collections/${collectionId}`);
+  };
+
   const toggleModal = () => {
     if (!authState.authenticated)
       return toast.error("Please connect wallet first");
@@ -155,7 +161,7 @@ export default function AssetDetail() {
             </div>
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-2">
-                <p className="font-medium text-xl text-brand">
+                <p className="font-medium text-xl text-brand cursor-pointer" onClick={handlBackCollection}>
                   {currentAsset.collectionName}
                 </p>
                 <span className="flex text-3xl font-bold text-neutral50">
