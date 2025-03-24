@@ -328,7 +328,7 @@ const CollectionDetailPage = () => {
                   <div className="grid grid-cols-2 md:flex md:justify-around xl:grid-cols-4 lg:grid w-full gap-8 md:gap-8 lg:gap-8 mt-4">
                     <div className="text-center md:text-left">
                       <h2 className="font-medium text-lg text-neutral100">
-                        Floor price afasdsa
+                        Floor price
                       </h2>
                       <div className="flex items-center justify-center md:justify-start mt-2">
                         <Image
