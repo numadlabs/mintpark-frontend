@@ -185,16 +185,16 @@ const CollectionDetailPage = () => {
     },
     {
       url: collection?.discordUrl,
-      isIcon: false,
+      isIcon:false,
       icon: (
-        <DiscordIcon size={34} className="hover:text-brand text-neutral00" />
+        <DiscordIcon size={34} className="hover:text-brand  text-neutral00" />
       ),
     },
     {
       url: collection?.twitterUrl,
       isIcon: false,
       icon: (
-        <ThreadIcon size={34} className="hover:text-brand text-neutral00" />
+        <ThreadIcon size={34} className="hover:text-brand  text-neutral00" />
       ),
     },
   ].filter((link) => link.url);
@@ -297,8 +297,8 @@ const CollectionDetailPage = () => {
                 />
               </div>
               <div className="flex-1 lg:relative top-0 lg:top-7 space-y-4 lg:space-y-7">
-                <div className="flex flex-col lg:flex-row justify-between gap-4">
-                  <div>
+                <div className="flex flex-col items-center lg:flex-row justify-between gap-4">
+                  <div className="">
                     <h3 className="text-2xl lg:text-3xl font-bold text-neutral50 text-center md:text-left">
                       {collection?.name}
                     </h3>
@@ -308,12 +308,12 @@ const CollectionDetailPage = () => {
                   </div>
                   <div>
                     {links.length > 0 && (
-                      <div className="flex justify-center lg:justify-end gap-6">
+                      <div className="flex justify-center items-center gap-6">
                         {links.map((link, i) => (
                           <button
                             key={i}
                             onClick={() => handleSocialClick(link.url)}
-                            className="h-10 w-10 border border-transparent bg-transparent"
+                            className="border border-transparent bg-transparent"
                           >
                             {link.icon}
                           </button>
@@ -324,8 +324,8 @@ const CollectionDetailPage = () => {
                 </div>
 
                 {/* Stats Section - Desktop */}
-                <div className="lg:pt-0 hidden lg:block">
-                  <div className="grid grid-cols-2 md:flex md:justify-around xl:grid-cols-4 lg:grid w-full gap-8 md:gap-8 lg:gap-8 mt-4">
+                <div className="lg:pt-0 hidden  lg:block">
+                  <div className="grid grid-cols-2  md:flex md:justify-around xl:grid-cols-4 lg:grid w-full gap-8 md:gap-8 lg:gap-8 mt-4">
                     <div className="text-center md:text-left">
                       <h2 className="font-medium text-lg text-neutral100">
                         Floor price
@@ -408,7 +408,7 @@ const CollectionDetailPage = () => {
           {/* Stats Section - Mobile */}
           <div className="px-0 lg:px-12 text-lg font-normal text-neutral100 mt-10 lg:mt-14 xl:mt-6">
             <div className="lg:pt-0 block lg:hidden">
-              <div className="grid grid-cols-2 md:flex md:justify-around xl:grid-cols-4 lg:grid w-full gap-8 md:gap-8 lg:gap-8">
+              <div className="grid grid-cols-2 pt-[56px] md:flex md:justify-around xl:grid-cols-4 lg:grid w-full gap-8 md:gap-8 lg:gap-8">
                 <div className="text-center md:text-left">
                   <h2 className="font-medium text-lg text-neutral100">
                     Floor price
