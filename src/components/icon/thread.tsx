@@ -7,9 +7,9 @@ interface IconProps {
 
 const ThreadIcon: React.FC<IconProps> = ({ size, className }) => (
   <svg
-    width="32"
-    height="32"
-    viewBox="0 0 32 32"
+    width={size}
+    height={size}
+    viewBox="0 0 26 20"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={className} 
@@ -17,7 +17,7 @@ const ThreadIcon: React.FC<IconProps> = ({ size, className }) => (
     <path
       d="M0.385509 0.0273438L8.62207 11.0404L0.333496 19.9945H2.19892L9.45555 12.1551L15.3187 19.9945H21.6668L12.9668 8.36196L20.6818 0.0273438H18.8164L12.1334 7.24731L6.73362 0.0273438H0.385509ZM3.12876 1.40142H6.04509L18.9232 18.6202H16.0068L3.12876 1.40142Z"
       fill="#F8F9FA"
-      className="fill-white hover:fill-brand transition-colors duration-200"
+      className="fill-white hover:fill-brand h-[34px] w-[34px] relative object-cover transition-colors duration-200"
     />
   </svg>
   // <svg
