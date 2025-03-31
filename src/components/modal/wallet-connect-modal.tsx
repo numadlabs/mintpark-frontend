@@ -82,7 +82,7 @@ export function WalletConnectionModal({
   const layerTabs = useMemo(() => {
     return [...layers]
       .filter((layer) => layer.layer !== "BITCOIN" 
-      // && layer.layer !== "CITREA"
+      && layer.name !== "Hemi Sepolia"
     )
       .sort((a, b) => {
         if (a.layer !== b.layer) {
