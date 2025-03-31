@@ -81,9 +81,9 @@ export function WalletConnectionModal({
   // Memoize filtered and sorted layer tabs
   const layerTabs = useMemo(() => {
     return [...layers]
-      .filter((layer) => layer.layer !== "BITCOIN" 
-      && layer.name !== "Hemi Sepolia"
-    )
+      .filter(
+        (layer) => layer.layer !== "BITCOIN" && layer.name !== "Hemi Testnet"
+      )
       .sort((a, b) => {
         if (a.layer !== b.layer) {
           return a.layer.localeCompare(b.layer);
