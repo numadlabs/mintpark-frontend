@@ -26,11 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Wallet2, Logout, ArrowRight2, ArrowDown2 } from "iconsax-react";
 import { Button } from "../ui/button";
 import { getAllLayers, getLayerById } from "@/lib/service/queryHelper";
@@ -377,7 +373,7 @@ export default function Header() {
       if (layer.layer === "BITCOIN") {
         return null;
       }
-      if (layer.name === "Hemi Sepolia") {
+      if (layer.name === "Hemi Testnet") {
         return null;
       }
 
