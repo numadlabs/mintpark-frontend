@@ -1,5 +1,6 @@
 import { ETH_IMAGE, WALLET_CONFIGS } from "../../lib/constants";
 
+//todo: change network to dynamic
 // Helper function to get currency symbol based on layer type
 export const getCurrencySymbol = (layerType: string): string => {
   const config = WALLET_CONFIGS[layerType];
@@ -19,36 +20,39 @@ export const getCurrencyImage = (layerType: string): string => {
   return config?.icon || WALLET_CONFIGS.BITCOIN.icon;
 };
 
+//todo: what is purpose of this function?
 export const getCurrencyBannerImage = (layerType: string): string => {
   const config = WALLET_CONFIGS[layerType];
   const BITCOIN_IMAGE = "/wallets/Bitcoin.png";
   const ETH_IMAGE = "/wallets/eth.png";
 
-    // If there's a config with a bannerImage path, use that
-    if (config && config.currencyIcon) {
-      return config.currencyIcon;
-    }
+  // If there's a config with a bannerImage path, use that
+  if (config && config.currencyIcon) {
+    return config.currencyIcon;
+  }
   // Check if we should use Bitcoin image based on layerType
   return layerType === "BITCOIN" ? BITCOIN_IMAGE : ETH_IMAGE;
 };
 
+//todo: get price from constant
 export const getCurrencyPrice = (layerType: string): number => {
   const config = WALLET_CONFIGS[layerType];
   const ETH_PRICE = 1937.96;
   const CITREA_PRICE = 102500;
 
-    // If there's a config with a bannerImage path, use that
-    if (config && config.currencyPrice) {
-      return config.currencyPrice;
-    }
+  // If there's a config with a bannerImage path, use that
+  if (config && config.currencyPrice) {
+    return config.currencyPrice;
+  }
   // Check if we should use Bitcoin image based on layerType
   return layerType === "BITCOIN" ? CITREA_PRICE : ETH_PRICE;
 };
 
+// todo: evm checking logic is faulty
 // Function to format balance based on layer type
 export const formatBalanceForLayer = (
   amount: number,
-  layerType: string
+  layerType: string,
 ): string => {
   // Check if the currency is Bitcoin-based or Ethereum-based
   const isBitcoinBased = ["BITCOIN", "CITREA"].includes(layerType);
@@ -64,11 +68,12 @@ export const getDecimalsForLayer = (layerType: string): number => {
   );
 };
 
+//todo: remove if it's unused
 // Function to convert layer-specific balance to USD
 export const getUsdValueForLayer = (
   amount: number,
   layerType: string,
-  currentLayer: any
+  currentLayer: any,
 ): number => {
   if (!amount || !currentLayer) return 0;
 
@@ -112,16 +117,17 @@ export const isBitcoinBasedCurrency = (layerType: string): boolean => {
   return ["BITCOIN", "CITREA"].includes(layerType);
 };
 
+//todo: layer is HEMI, CITREA. layerType is supposed to be EVM or BTC
 // Get network information for a given layer
 export const getNetworkInfo = (layerType: string) => {
   const config = WALLET_CONFIGS[layerType];
   return config?.networks?.TESTNET || null;
 };
-
+//todo: remove all the unused functions
 // Helper function to get the block explorer URL for a transaction hash
 export const getBlockExplorerUrl = (
   layerType: string,
-  txHash: string
+  txHash: string,
 ): string => {
   const config = WALLET_CONFIGS[layerType];
 
@@ -148,10 +154,11 @@ export const getBlockExplorerUrl = (
   }
 };
 
+// todo: what is layerType conditional return?
 // Helper function to get block explorer URL for an address
 export const getAddressExplorerUrl = (
   layerType: string,
-  address: string
+  address: string,
 ): string => {
   const config = WALLET_CONFIGS[layerType];
 
@@ -177,16 +184,16 @@ export const getAddressExplorerUrl = (
   }
 };
 
-
+//todo: fix the logic of getting testnet and mainnet block explorer URLs
 // Helper function to get block explorer URL for a token contract
 export const getCollectibleExplorerUrl = (
   layerType: string,
-  contractAddress: string
+  contractAddress: string,
 ): string => {
   const baseUrl = getBlockExplorerBaseUrl(layerType);
-  
+
   if (!baseUrl) return "";
-  
+
   // Different explorers might have different URL patterns for tokens
   if (layerType === "BITCOIN") {
     return `${baseUrl}/token/${contractAddress}`;
