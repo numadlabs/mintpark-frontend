@@ -1,6 +1,7 @@
 import * as z from "zod";
 import { apiResponseSchema } from "../utils";
 
+//todo: declare schema for all of endpoint and use the inferred type
 export const orderSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -81,4 +82,4 @@ export type AssetSchema = z.infer<typeof assetResponseSchema>;
 export type ActivitySchema = z.infer<typeof activitySchema>;
 
 //Assets sideBar schema
-export type AssetColSchema = z.infer<typeof collectionSchema>
+export type AssetColSchema = z.infer<typeof collectionSchema>;

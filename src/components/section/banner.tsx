@@ -10,6 +10,7 @@ interface bannerProps {
   stepperData: string[];
 }
 
+//todo: Standardize and rename all the component names and declarations
 const Banner: React.FC<bannerProps> = ({
   title,
   image,

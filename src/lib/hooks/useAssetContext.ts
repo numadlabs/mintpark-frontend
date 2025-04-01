@@ -1,5 +1,6 @@
 // assetsContext.ts
 import { createContext, useContext } from "react";
+//todo: get query params from the current link. Don't use context here for asset data and query because react query does this
 
 // Define types for the assets data
 export interface CollectibleSchema {

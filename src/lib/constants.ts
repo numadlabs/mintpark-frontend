@@ -3,6 +3,8 @@ import { WalletConfig } from "@/types";
 export const BITCOIN_IMAGE = "/wallets/Bitcoin.png";
 export const ETH_IMAGE = "/wallets/eth.png";
 
+//todo: remove unsued chains and serviceData. Find other hard coded local storage keys and save it to the STORAGE_KEYS selectedNetwork etc
+
 export const STORAGE_KEYS = {
   AUTH_TOKENS: "auth_tokens",
   SELECTED_LAYER: "layerId",
@@ -105,7 +107,7 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
         chainId: "0xA877", // Hexadecimal representation of 43111
         chainName: "Hemi Network",
         rpcUrls: ["https://rpc.hemi.network/rpc"],
-        blockExplorerUrls: ["https://explorer.hemi.xyz/"],
+        blockExplorerUrls: ["https://explorer.hemi.xyz"],
         nativeCurrency: {
           name: "ETH",
           symbol: "ETH",
@@ -116,7 +118,7 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
         chainId: "0xB56C7", // Hexadecimal representation of 743111
         chainName: "Hemi Testnet",
         rpcUrls: ["https://testnet.rpc.hemi.network/rpc"],
-        blockExplorerUrls: ["https://testnet.explorer.hemi.xyz/"],
+        blockExplorerUrls: ["https://testnet.explorer.hemi.xyz"],
         nativeCurrency: {
           name: "ETH",
           symbol: "ETH",

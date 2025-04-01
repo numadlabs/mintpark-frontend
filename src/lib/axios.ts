@@ -7,6 +7,7 @@ import { LRUCache } from "lru-cache";
 import { clearToken, getAccessToken, getRefreshToken, saveToken } from "./auth";
 import { toast } from "sonner";
 
+// todo: axios dotor bish next config dotroos avah
 export const BACKEND_URL =
   process.env.NODE_ENV === "development"
     ? // "http://127.0.0.1:4000" // development api
@@ -37,7 +38,7 @@ export const initializeAxios = (logoutHandler: () => void) => {
     },
     (error) => {
       return Promise.reject(error);
-    }
+    },
   );
 
   instance.interceptors.response.use(
@@ -55,7 +56,7 @@ export const initializeAxios = (logoutHandler: () => void) => {
             `${BACKEND_URL}/api/v1/users/refresh-token`,
             {
               refreshToken: getRefreshToken(),
-            }
+            },
           );
 
           if (res.status === 200) {
@@ -72,7 +73,7 @@ export const initializeAxios = (logoutHandler: () => void) => {
       }
 
       return error.response;
-    }
+    },
   );
 };
 const cache = new LRUCache({ max: 10 });

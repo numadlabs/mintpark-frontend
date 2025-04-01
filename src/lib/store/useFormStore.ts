@@ -2,6 +2,8 @@
 import { MergedObject } from "@/types";
 import { create } from "zustand";
 
+// todo: remove unused hook
+
 interface FormState {
   ticker: string;
   setTicker: (ticker: string) => void;
