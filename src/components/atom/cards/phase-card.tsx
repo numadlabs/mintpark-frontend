@@ -7,7 +7,10 @@ import { useLaunchState, LAUNCH_STATE } from "@/lib/hooks/useLaunchState";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { useQuery } from "@tanstack/react-query";
 import { getLayerById } from "@/lib/service/queryHelper";
-import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import {
+  getCurrencyImage,
+  getCurrencySymbol,
+} from "@/lib/service/currencyHelper";
 
 interface PhaseCardProps {
   maxMintPerWallet: number | string;
@@ -26,11 +29,17 @@ interface PhaseCardProps {
 }
 
 // Renderer for the countdown component with proper TypeScript types
-const countdownRenderer = ({ days, hours, minutes, seconds, completed }: CountdownRenderProps): string => {
+const countdownRenderer = ({
+  days,
+  hours,
+  minutes,
+  seconds,
+  completed,
+}: CountdownRenderProps): string => {
   if (completed) {
     return "";
   }
-  
+
   if (days === 0 && hours === 0 && minutes === 0) {
     return `${seconds}s`;
   } else if (days === 0 && hours === 0) {
@@ -63,16 +72,16 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
     queryFn: () => getLayerById(authState.layerId as string),
     enabled: !!authState.layerId,
   });
-  
+
   const [status, setStatus] = useState("");
   const [isClickable, setIsClickable] = useState(false);
   const [targetTime, setTargetTime] = useState<number | null>(null);
   const [key, setKey] = useState<number>(0); // Key for forcing Countdown re-render
-  
+
   function determinePhaseState(
     phase: string,
     startsAt: number,
-    endsAt: number | null
+    endsAt: number | null,
   ) {
     const now = Math.floor(Date.now() / 1000);
     const isInfiniteSupplyBadge = isBadge && badgeSupply === null;
@@ -122,7 +131,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   const updateStatus = () => {
     const now = Math.floor(Date.now() / 1000);
     const launchState = determinePhaseState(phaseType, startsAt, endsAt);
-    
+
     // Handle all possible states
     switch (launchState) {
       case "UPCOMING":
@@ -159,9 +168,9 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
         setTargetTime(null);
         setIsClickable(false);
     }
-    
+
     // Update the key to force re-render of the Countdown component
-    setKey(prevKey => prevKey + 1);
+    setKey((prevKey) => prevKey + 1);
   };
 
   // Handle countdown completion
@@ -199,12 +208,13 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
     };
   }, []);
 
-  const borderClass = isActive && isClickable ? "border-brand" : "border-white8";
+  const borderClass =
+    isActive && isClickable ? "border-brand" : "border-white8";
   const phaseTextClass = isClickable ? "text-brand" : "text-neutral50";
 
   return (
     <button
-      className={`flex flex-col justify-between border ${borderClass} rounded-3xl p-5 gap-4 
+      className={`flex flex-col justify-between border ${borderClass} rounded-3xl p-5 gap-4
         ${
           !isClickable
             ? "cursor-not-allowed opacity-70"
@@ -219,8 +229,8 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
             {phaseType === "guaranteed"
               ? "Guaranteed"
               : phaseType === "FCFS"
-              ? "FCFS"
-              : "Public"}
+                ? "FCFS"
+                : "Public"}
           </p>
           {!isClickable && <Lock1 size={16} color="#D7D8D8" />}
         </div>
@@ -228,9 +238,9 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
           <span className="text-neutral100 font-medium text-md">{status}</span>
           {targetTime && (
             <span className="text-neutral50 font-medium text-md">
-              <Countdown 
+              <Countdown
                 key={key}
-                date={targetTime} 
+                date={targetTime}
                 renderer={(props) => <span>{countdownRenderer(props)}</span>}
                 onComplete={handleCountdownComplete}
                 // Add auto-refresh when time gets very close to completion
@@ -249,14 +259,15 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
       {status !== "Ended" && (
         <>
           <div className="flex gap-2">
-            <Image
+            {/* TODO Currency symbol iig icon bish currency icon bolgoh */}
+            {/* <Image
               width={20}
               height={20}
               draggable="false"
-              src={BITCOIN_IMAGE}
+              src={getCurrencyImage(currentLayer.layer)}
               alt="Bitcoin icon"
               className="aspect-square h-5 w-5"
-            />
+            /> */}
             {mintPrice !== undefined && (
               <p className="text-neutral50">
                 <span className="mr-1">{mintPrice}</span>
