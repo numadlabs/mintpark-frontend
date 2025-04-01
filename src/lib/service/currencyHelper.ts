@@ -228,7 +228,7 @@ export const getCollectibleExplorerUrl = (
 
 export const getBlockExplorerBaseUrl = (
   layerType: string,
-  networkType: "TESTNET" | "MAINNET" = "TESTNET"
+  networkType: "TESTNET" | "MAINNET" = "TESTNET",
 ): string => {
   const config = WALLET_CONFIGS[layerType];
 
@@ -239,7 +239,7 @@ export const getBlockExplorerBaseUrl = (
   if (!config.networks?.[networkType]) {
     // If requested network type doesn't exist, try to fallback to the other type
     const fallbackType = networkType === "TESTNET" ? "MAINNET" : "TESTNET";
-    
+
     // If fallback exists, use it
     if (config.networks?.[fallbackType]) {
       networkType = fallbackType;
