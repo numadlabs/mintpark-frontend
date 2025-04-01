@@ -2,6 +2,8 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import * as z from "zod";
 
+//todo: remove unused functions and remove type
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
