@@ -224,6 +224,8 @@ export const getCollectibleExplorerUrl = (
 //     : blockExplorerUrl;
 // };
 
+// test
+
 export const getBlockExplorerBaseUrl = (
   layerType: string,
   networkType: "TESTNET" | "MAINNET" = "TESTNET"
