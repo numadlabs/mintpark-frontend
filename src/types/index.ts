@@ -1,3 +1,6 @@
+// todo: endes hereggui type uud avj hayah.
+// Zovhon end type uud zarlah src/lib/types/index.ts
+
 export type tokenData = {
   address: string;
   opReturnValues: any[];
@@ -36,7 +39,6 @@ export type rpcResponse = {
 
 type Attribute = {
   trait_type: string;
-  value: string;
 };
 
 type Meta = {
@@ -67,8 +69,8 @@ export interface WalletConfig {
   chainId?: string;
   name: string;
   icon: string;
-  currencyIcon:string;
-  currencyPrice:number;
+  currencyIcon: string;
+  currencyPrice: number;
   networks: {
     [key: string]: NetworkConfig;
   };
