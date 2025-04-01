@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Global, Notepad, Profile2User } from "iconsax-react";
+import { Alarm, Global, Notepad, Profile2User } from "iconsax-react";
 import DiscordIcon from "@/components/icon/hoverIcon";
 import ThreadIcon from "@/components/icon/thread";
 import CollectibleCard from "@/components/atom/cards/collectible-card";
@@ -33,11 +33,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BITCOIN_IMAGE, ETH_IMAGE } from "@/lib/constants";
 import CollectionSideBar from "@/components/section/collections/sideBar";
 import {
+  getCollectibleExplorerUrl,
   getCurrencyBannerImage,
   getCurrencyImage,
   getCurrencySymbol,
 } from "@/lib/service/currencyHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
+import Link from "next/link";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -185,7 +187,7 @@ const CollectionDetailPage = () => {
     },
     {
       url: collection?.discordUrl,
-      isIcon:false,
+      isIcon: false,
       icon: (
         <DiscordIcon size={34} className="hover:text-brand  text-neutral00" />
       ),
@@ -198,6 +200,12 @@ const CollectionDetailPage = () => {
       ),
     },
   ].filter((link) => link.url);
+
+  const handleSocialClick = (url: string | undefined) => {
+    if (!url) return;
+    const validUrl = url.startsWith("http") ? url : `https://${url}`;
+    window.open(validUrl, "_blank", "noopener,noreferrer");
+  };
 
   const handleOrderChange = (value: string) => {
     switch (value) {
@@ -223,12 +231,6 @@ const CollectionDetailPage = () => {
     setSearchFilter(event.target.value);
   };
 
-  const handleSocialClick = (url: string | undefined) => {
-    if (!url) return;
-    const validUrl = url.startsWith("http") ? url : `https://${url}`;
-    window.open(validUrl, "_blank", "noopener,noreferrer");
-  };
-
   const handleTraitsChange = (traits: Record<string, string[]>) => {
     setTraitValuesByType(traits);
   };
@@ -236,6 +238,11 @@ const CollectionDetailPage = () => {
   const toggleSideBar = () => {
     setActive(!active);
   };
+
+  // const getCollectiblesExplorerUrl = getCollectibleExplorerUrl(
+  //   layerType,
+  //   contractAddress
+  // );
 
   const handleAvailabilityChange = (onlyListed: boolean) => {
     setIsListed(onlyListed);
@@ -318,6 +325,22 @@ const CollectionDetailPage = () => {
                             {link.icon}
                           </button>
                         ))}
+
+                        <Link
+                          href={getCollectibleExplorerUrl(
+                            currentLayer.layer,
+                            collection.contractAddress
+                          )}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <Image
+                            src="/collections/etherScan.png"
+                            alt="etherScan"
+                            width={34}
+                            height={34}
+                          />
+                        </Link>
                       </div>
                     )}
                   </div>

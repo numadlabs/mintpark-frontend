@@ -177,6 +177,27 @@ export const getAddressExplorerUrl = (
   }
 };
 
+
+// Helper function to get block explorer URL for a token contract
+export const getCollectibleExplorerUrl = (
+  layerType: string,
+  contractAddress: string
+): string => {
+  const baseUrl = getBlockExplorerBaseUrl(layerType);
+  
+  if (!baseUrl) return "";
+  
+  // Different explorers might have different URL patterns for tokens
+  if (layerType === "BITCOIN") {
+    return `${baseUrl}/token/${contractAddress}`;
+  } else if (layerType === "HEMI" || layerType === "HEMI_TESTNET") {
+    return `${baseUrl}/tokens/${contractAddress}`;
+  } else {
+    // Default format for most Ethereum-based explorers
+    return `${baseUrl}/token/${contractAddress}`;
+  }
+};
+
 // Helper function to get the raw block explorer base URL
 export const getBlockExplorerBaseUrl = (layerType: string): string => {
   const config = WALLET_CONFIGS[layerType];
