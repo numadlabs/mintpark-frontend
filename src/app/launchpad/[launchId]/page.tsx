@@ -577,13 +577,13 @@ const Page = () => {
                 {/* Middle Column - Image and Progress */}
                 <div className="flex flex-col pt-10 lg:p-0 gap-4 sm:gap-8 w-full order-1 lg:order-2">
                   <div className="w-full aspect-square relative rounded-2xl sm:rounded-3xl overflow-hidden max-h-[384px]">
-                    <Carousel className="w-full justify-center items-center flex">
+                    <Carousel className="w-full justify-center items-center rounded-3xl flex">
                       {collectibles?.logoKey && (
                         <ImageLoaderComponent
                           width={384}
                           height={384}
                           src={s3ImageUrlBuilder(collectibles?.logoKey)}
-                          className="object-contain aspect-square rounded-2xl justify-center items-center"
+                          className="object-cover aspect-square rounded-3xl justify-center items-center"
                           alt={collectibles?.name || "Collection image"}
                         />
                       )}
