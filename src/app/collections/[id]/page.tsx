@@ -313,36 +313,39 @@ const CollectionDetailPage = () => {
                       by {collection?.creatorName}
                     </h2>
                   </div>
-                  <div>
-                    {links.length > 0 && (
-                      <div className="flex justify-center items-center gap-6">
-                        {links.map((link, i) => (
-                          <button
-                            key={i}
-                            onClick={() => handleSocialClick(link.url)}
-                            className="border border-transparent bg-transparent"
-                          >
-                            {link.icon}
-                          </button>
-                        ))}
-
-                        <Link
-                          href={getCollectibleExplorerUrl(
-                            currentLayer.layer,
-                            collection.contractAddress
-                          )}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <Image
-                            src="/collections/etherScan.png"
-                            alt="etherScan"
-                            width={34}
-                            height={34}
-                          />
-                        </Link>
-                      </div>
-                    )}
+                  <div className="flex gap-6">
+                    <div className="">
+                      {links.length > 0 && (
+                        <div className="flex justify-center items-center gap-6">
+                          {links.map((link, i) => (
+                            <button
+                              key={i}
+                              onClick={() => handleSocialClick(link.url)}
+                              className="border border-transparent bg-transparent"
+                            >
+                              {link.icon}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="">
+                      <Link
+                        href={getCollectibleExplorerUrl(
+                          currentLayer?.layer,
+                          collection?.contractAddress
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Image
+                          src="/collections/etherScan.png"
+                          alt="etherScan"
+                          width={34}
+                          height={34}
+                        />
+                      </Link>
+                    </div>
                   </div>
                 </div>
 

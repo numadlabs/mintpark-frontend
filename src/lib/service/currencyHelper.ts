@@ -205,15 +205,52 @@ export const getCollectibleExplorerUrl = (
   }
 };
 
-// Helper function to get the raw block explorer base URL
-export const getBlockExplorerBaseUrl = (layerType: string): string => {
+// // Helper function to get the raw block explorer base URL
+// export const getBlockExplorerBaseUrl = (layerType: string): string => {
+//   const config = WALLET_CONFIGS[layerType];
+
+//   // If no config is found, return empty string
+//   if (!config) return "";
+
+//   // Get the block explorer URL from the config
+//   const blockExplorerUrl = config.networks?.TESTNET?.blockExplorerUrls?.[0];
+
+//   // If no block explorer URL is found, return empty string
+//   if (!blockExplorerUrl) return "";
+
+//   // Remove trailing slash if it exists
+//   return blockExplorerUrl.endsWith("/")
+//     ? blockExplorerUrl.slice(0, -1)
+//     : blockExplorerUrl;
+// };
+
+// test
+
+export const getBlockExplorerBaseUrl = (
+  layerType: string,
+  networkType: "TESTNET" | "MAINNET" = "TESTNET"
+): string => {
   const config = WALLET_CONFIGS[layerType];
 
   // If no config is found, return empty string
   if (!config) return "";
 
+  // Check if the requested network type exists
+  if (!config.networks?.[networkType]) {
+    // If requested network type doesn't exist, try to fallback to the other type
+    const fallbackType = networkType === "TESTNET" ? "MAINNET" : "TESTNET";
+    
+    // If fallback exists, use it
+    if (config.networks?.[fallbackType]) {
+      networkType = fallbackType;
+    } else {
+      // If no networks are defined, return empty string
+      return "";
+    }
+  }
+
   // Get the block explorer URL from the config
-  const blockExplorerUrl = config.networks?.TESTNET?.blockExplorerUrls?.[0];
+  const blockExplorerUrl = config.networks[networkType]?.blockExplorerUrls?.[0];
 
   // If no block explorer URL is found, return empty string
   if (!blockExplorerUrl) return "";
