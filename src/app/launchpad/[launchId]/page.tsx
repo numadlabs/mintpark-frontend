@@ -17,7 +17,7 @@ import {
 import PhaseCard from "@/components/atom/cards/phase-card";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/components/provider/auth-context-provider";
-import { Loader2 } from "lucide-react";
+import { Globe, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LaunchDetailSkeleton from "@/components/atom/skeleton/launch-detail-skeleton";
 import ThreadIcon from "@/components/icon/thread";
@@ -28,6 +28,7 @@ import { Unlimited } from "iconsax-react";
 import SuccessModal from "@/components/modal/success-modal";
 import ErrorModal from "@/components/modal/error-modal";
 import PendingModal from "@/components/modal/pending-modal";
+import DiscordIcon from "@/components/icon/hoverIcon";
 
 const Page = () => {
   const queryClient = useQueryClient();
@@ -140,7 +141,7 @@ const Page = () => {
         setSteps(2);
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(
-          response.data.singleMintTxHex
+          response.data.singleMintTxHex,
         );
         const tx = await signedTx?.wait();
         if (tx) {
@@ -149,7 +150,7 @@ const Page = () => {
       } else {
         await window.unisat.sendBitcoin(
           response.data.order.fundingAddress,
-          Math.ceil(response.data.order.fundingAmount)
+          Math.ceil(response.data.order.fundingAmount),
         );
         await new Promise((resolve) => setTimeout(resolve, 10000));
       }
@@ -460,22 +461,47 @@ const Page = () => {
 
   const links = [
     {
-      url: "https://x.com/mintpark_io",
-      isIcon: false,
+      url: collectibles.discordUrl,
+      isIcon: true,
       icon: (
-        <ThreadIcon
-          size={32}
-          className="sm:size-8 lg:size-8 hover:text-brand text-neutral00"
-        />
+        <DiscordIcon size={32} className="sm:size-8 lg:size-8 text-neutral00" />
       ),
     },
+    {
+      url: collectibles.twitterUrl,
+      isIcon: true,
+      icon: (
+        <ThreadIcon size={32} className="sm:size-8 lg:size-8 text-neutral00" />
+      ),
+    },
+    {
+      url: collectibles.websiteUrl,
+      isIcon: true,
+      icon: <Globe size={32} className="sm:size-8 lg:size-8 text-neutral00" />,
+    },
   ].filter(
-    (link) => link.url !== null && link.url !== undefined && link.url !== ""
+    (link) => link.url !== null && link.url !== undefined && link.url !== "",
   );
 
-  const handleSocialClick = (url: string | undefined) => {
+  // const links = [
+  //   {
+  //     url: "https://x.com/mintpark_io",
+  //     isIcon: false,
+  //     icon: (
+  //       <ThreadIcon
+  //         size={32}
+  //         className="sm:size-8 lg:size-8 hover:text-brand text-neutral00"
+  //       />
+  //     ),
+  //   },
+  // ].filter(
+  //   (link) => link.url !== null && link.url !== undefined && link.url !== ""
+  // );
+
+  const handleSocialClick = (url: string) => {
+    console.log(url);
     if (!url) return;
-    const validUrl = url.startsWith("http") ? url : `https://${url}`;
+    const validUrl = url.startsWith("https") ? url : `https://${url}`;
     window.open(validUrl, "_blank", "noopener,noreferrer");
   };
 
@@ -498,7 +524,7 @@ const Page = () => {
         className="min-h-screen bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${s3ImageUrlBuilder(
-            collectibles?.logoKey || ""
+            collectibles?.logoKey || "",
           )})`,
         }}
       >
@@ -678,8 +704,7 @@ const Page = () => {
                         "Go to collection"
                       )}
                     </Button>
-                  ) 
-                  // : determineButtonState() === "unconfirmedCollection" ? (
+                  ) : // : determineButtonState() === "unconfirmedCollection" ? (
                   //   <Button
                   //     className="w-full py-2 sm:py-3 sm:px-6 text-base sm:text-lg2 font-semibold mt-4"
                   //     disabled={true}
@@ -687,8 +712,8 @@ const Page = () => {
                   //   >
                   //     Go to collection
                   //   </Button>
-                  // ) 
-                  : determineButtonState() === "mint" ? (
+                  // )
+                  determineButtonState() === "mint" ? (
                     <Button
                       variant="primary"
                       type="submit"
