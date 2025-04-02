@@ -20,19 +20,24 @@ export const getCurrencyImage = (layerType: string): string => {
   return config?.icon || WALLET_CONFIGS.BITCOIN.icon;
 };
 
-//todo: what is purpose of this function?
-export const getCurrencyBannerImage = (layerType: string): string => {
+export const getCurrencyIcon = (layerType: string): string => {
   const config = WALLET_CONFIGS[layerType];
-  const BITCOIN_IMAGE = "/wallets/Bitcoin.png";
-  const ETH_IMAGE = "/wallets/eth.png";
-
-  // If there's a config with a bannerImage path, use that
-  if (config && config.currencyIcon) {
-    return config.currencyIcon;
-  }
-  // Check if we should use Bitcoin image based on layerType
-  return layerType === "BITCOIN" ? BITCOIN_IMAGE : ETH_IMAGE;
+  return config?.currencyIcon || WALLET_CONFIGS.BITCOIN.icon;
 };
+
+
+// export const getCurrencyBannerImage = (layerType: string): string => {
+//   const config = WALLET_CONFIGS[layerType];
+//   const BITCOIN_IMAGE = "/wallets/Bitcoin.png";
+//   const ETH_IMAGE = "/wallets/eth.png";
+
+//   // If there's a config with a bannerImage path, use that
+//   if (config && config.currencyIcon) {
+//     return config.currencyIcon;
+//   }
+//   // Check if we should use Bitcoin image based on layerType
+//   return layerType === "BITCOIN" ? BITCOIN_IMAGE : ETH_IMAGE;
+// };
 
 //todo: get price from constant
 export const getCurrencyPrice = (layerType: string): number => {

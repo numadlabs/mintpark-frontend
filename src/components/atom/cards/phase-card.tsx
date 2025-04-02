@@ -8,7 +8,7 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import { useQuery } from "@tanstack/react-query";
 import { getLayerById } from "@/lib/service/queryHelper";
 import {
-  getCurrencyImage,
+  getCurrencyIcon,
   getCurrencySymbol,
 } from "@/lib/service/currencyHelper";
 
@@ -260,14 +260,14 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
         <>
           <div className="flex gap-2">
             {/* TODO Currency symbol iig icon bish currency icon bolgoh */}
-            {/* <Image
+            <Image
               width={20}
               height={20}
               draggable="false"
-              src={getCurrencyImage(currentLayer.layer)}
-              alt="Bitcoin icon"
+              src={getCurrencyIcon(currentLayer.layer)}
+              alt="Icon"
               className="aspect-square h-5 w-5"
-            /> */}
+            />
             {mintPrice !== undefined && (
               <p className="text-neutral50">
                 <span className="mr-1">{mintPrice}</span>
