@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Alarm, Global, Notepad, Profile2User } from "iconsax-react";
+import { Global, Notepad, Profile2User } from "iconsax-react";
 import DiscordIcon from "@/components/icon/hoverIcon";
 import ThreadIcon from "@/components/icon/thread";
 import CollectibleCard from "@/components/atom/cards/collectible-card";
@@ -28,14 +28,11 @@ import {
   getListedCollectionById,
 } from "@/lib/service/queryHelper";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
-import CollectionDetailSkeleton from "@/components/atom/skeleton/collection-detail-skeleton";
 import { motion, AnimatePresence } from "framer-motion";
-import { BITCOIN_IMAGE, ETH_IMAGE } from "@/lib/constants";
 import CollectionSideBar from "@/components/section/collections/sideBar";
 import {
   getCollectibleExplorerUrl,
-  getCurrencyBannerImage,
-  getCurrencyImage,
+  getCurrencyIcon,
   getCurrencySymbol,
 } from "@/lib/service/currencyHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
@@ -362,7 +359,7 @@ const CollectionDetailPage = () => {
                           height={20}
                           draggable="false"
                           // src={BITCOIN_IMAGE}
-                          src={getCurrencyBannerImage(currentLayer.layer)}
+                          src={getCurrencyIcon(currentLayer.layer)}
                           alt="bitcoin"
                           className="aspect-square"
                         />
@@ -386,7 +383,7 @@ const CollectionDetailPage = () => {
                           width={24}
                           draggable="false"
                           height={20}
-                          src={getCurrencyBannerImage(currentLayer.layer)}
+                          src={getCurrencyIcon(currentLayer.layer)}
                           // src={BITCOIN_IMAGE}
                           alt="bitcoin"
                           className="aspect-square"
@@ -444,7 +441,7 @@ const CollectionDetailPage = () => {
                       width={24}
                       draggable="false"
                       height={20}
-                      src={getCurrencyBannerImage(currentLayer.layer)}
+                      src={getCurrencyIcon(currentLayer.layer)}
                       alt="bitcoin"
                       className="aspect-square"
                     />
@@ -468,7 +465,7 @@ const CollectionDetailPage = () => {
                       width={24}
                       height={20}
                       draggable="false"
-                      src={getCurrencyBannerImage(currentLayer.layer)}
+                      src={getCurrencyIcon(currentLayer.layer)}
                       alt="bitcoin"
                       className="aspect-square"
                     />
