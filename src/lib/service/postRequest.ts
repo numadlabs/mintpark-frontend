@@ -443,15 +443,21 @@ export async function createApprovalTransaction({
 export async function checkAndCreateRegister({
   collectionId,
   userLayerId,
+  tokenId,
+  contractAddress,
 }: {
   collectionId: string | undefined;
   userLayerId: string;
+  tokenId: string;
+  contractAddress: string;
 }) {
   try {
     return axiosClient
       .post(`/api/v1/lists/checkRegistration`, {
-        collectionId,
         userLayerId,
+        collectionId,
+        tokenId,
+        contractAddress,
       })
       .then((response) => {
         return response.data;

@@ -37,7 +37,10 @@ import { Collectible } from "@/lib/validations/collection-validation";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import CancelListModal from "@/components/modal/cancel-list-modal";
 import Link from "next/link";
-import { getCurrencySymbol, getAddressExplorerUrl } from "@/lib/service/currencyHelper";
+import {
+  getCurrencySymbol,
+  getAddressExplorerUrl,
+} from "@/lib/service/currencyHelper";
 
 export default function AssetsDetails() {
   const queryClient = useQueryClient();
@@ -62,14 +65,12 @@ export default function AssetsDetails() {
     },
   });
 
-  const { data: collectionData = [], isLoading: isCollectionLoading } = useQuery<
-    Collectible[] | null
-  >({
-    queryKey: ["collectionData", id],
-    queryFn: () => getCollectionById(id),
-    enabled: !!id,
-  });
-  
+  const { data: collectionData = [], isLoading: isCollectionLoading } =
+    useQuery<Collectible[] | null>({
+      queryKey: ["collectionData", id],
+      queryFn: () => getCollectionById(id),
+      enabled: !!id,
+    });
 
   const { data: activity = [], isLoading: isActivityLoading } = useQuery({
     queryKey: ["activityData", id],
@@ -78,7 +79,6 @@ export default function AssetsDetails() {
   });
 
   console.log(activity);
-  
 
   const { data: currentLayer = [] } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
@@ -106,6 +106,7 @@ export default function AssetsDetails() {
     try {
       const response = await createApprovalMutation({
         collectionId: currentAsset.collectionId,
+        // tokenId: currentAsset.,
         userLayerId: authState.userLayerId as string,
       });
 
@@ -122,6 +123,9 @@ export default function AssetsDetails() {
         const registerRes = await checkAndCreateRegisterMutation({
           collectionId: currentAsset.collectionId,
           userLayerId: authState.userLayerId as string,
+
+          tokenId: currentAsset.uniqueIdx.split("i")[1],
+          contractAddress: currentAsset.uniqueIdx.split("i")[0],
         });
         if (registerRes.success) {
           if (!registerRes.data.isRegistered) {
@@ -276,9 +280,16 @@ export default function AssetsDetails() {
                         {currentAsset.ownedBy}
                       </p> */}
                       <Link
-                      href={collectionData && collectionData[0] && currentAsset.ownedBy
-                        ? getAddressExplorerUrl(collectionData[0].layer, currentAsset.ownedBy)
-                        : '#'}
+                        href={
+                          collectionData &&
+                          collectionData[0] &&
+                          currentAsset.ownedBy
+                            ? getAddressExplorerUrl(
+                                collectionData[0].layer,
+                                currentAsset.ownedBy,
+                              )
+                            : "#"
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-medium text-md text-neutral50 hover:text-brand transition-colors"
