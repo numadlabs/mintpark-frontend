@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
-import { Lock1 } from "iconsax-react";
+import { Lock1, Unlimited } from "iconsax-react";
 import Countdown, { CountdownRenderProps } from "react-countdown";
 import { BITCOIN_IMAGE } from "@/lib/constants";
 import { useLaunchState, LAUNCH_STATE } from "@/lib/hooks/useLaunchState";
@@ -277,9 +277,13 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
           </div>
           <div className="flex justify-between w-full text-md font-medium">
             <h1 className="text-neutral200">Max:</h1>
-            <h2 className="text-neutral50">
-              <span>{maxMintPerWallet}</span> per wallet
-            </h2>
+            {maxMintPerWallet == 0 ? (
+              <Unlimited size="18" color="#88898A" />
+            ) : (
+              <h2 className="text-neutral50">
+                <span>{maxMintPerWallet}</span> per wallet
+              </h2>
+            )}
           </div>
         </>
       )}

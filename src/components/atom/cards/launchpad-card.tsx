@@ -50,6 +50,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
         </span>
       );
     }
+
     return (
       <span className="flex justify-end items-center gap-1">
         <span className="text-neutral50">{mintedAmount}</span>{" "}
@@ -114,7 +115,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
 
     // If all phases have ended, return the price of the last ended phase
     const endedPhases = phases.filter(
-      (phase) => phase.endsAt && now >= phase.endsAt
+      (phase) => phase.endsAt && now >= phase.endsAt,
     );
     if (endedPhases.length > 0) {
       // Sort by end time (latest first)

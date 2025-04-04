@@ -81,9 +81,7 @@ export function WalletConnectionModal({
   // Memoize filtered and sorted layer tabs
   const layerTabs = useMemo(() => {
     return [...layers]
-      .filter(
-        (layer) => layer.layer !== "BITCOIN" && layer.name !== "Hemi Testnet"
-      )
+      .filter((layer) => layer.layer !== "BITCOIN")
       .sort((a, b) => {
         if (a.layer !== b.layer) {
           return a.layer.localeCompare(b.layer);
@@ -95,7 +93,7 @@ export function WalletConnectionModal({
   // Memoize current layer object
   const currentLayerObject = useMemo(
     () => layers.find((l) => l.id === activeLayerId) || null,
-    [layers, activeLayerId]
+    [layers, activeLayerId],
   );
 
   // Helper functions memoized to prevent recreating on every render
@@ -128,7 +126,7 @@ export function WalletConnectionModal({
         const matchingLayer = layers.find(
           (layer) =>
             layer.layer === savedLayer &&
-            (savedNetwork ? layer.network === savedNetwork : true)
+            (savedNetwork ? layer.network === savedNetwork : true),
         );
 
         if (matchingLayer) {
@@ -256,7 +254,7 @@ export function WalletConnectionModal({
         }
       }
     },
-    []
+    [],
   );
 
   // Handle wallet connection
@@ -288,7 +286,7 @@ export function WalletConnectionModal({
         await connectWallet(layer.id, authState.authenticated);
         onClose();
         toast.success(
-          `${authState.authenticated ? "Linked" : "Connected to"} ${layer.name}`
+          `${authState.authenticated ? "Linked" : "Connected to"} ${layer.name}`,
         );
       } catch (error: any) {
         if (
@@ -309,7 +307,7 @@ export function WalletConnectionModal({
       connectWallet,
       authState.authenticated,
       onClose,
-    ]
+    ],
   );
 
   // Handle wallet linking confirmation
@@ -351,7 +349,7 @@ export function WalletConnectionModal({
         }
       }
     },
-    [activeLayerId, layers, onTabChange, onLayerSelect, switchOrAddChain]
+    [activeLayerId, layers, onTabChange, onLayerSelect, switchOrAddChain],
   );
 
   // Memoize alert dialog to prevent unnecessary re-renders
@@ -379,7 +377,7 @@ export function WalletConnectionModal({
         </AlertDialogContent>
       </AlertDialog>
     ),
-    [showLinkAlert, setShowLinkAlert, handleProceedWithLinking]
+    [showLinkAlert, setShowLinkAlert, handleProceedWithLinking],
   );
 
   return (
