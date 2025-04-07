@@ -1,4 +1,4 @@
-import { WalletConfig } from "@/types";
+import { WalletConfig } from "@/lib/types";
 
 export const BITCOIN_IMAGE = "/wallets/Bitcoin.png";
 export const ETH_IMAGE = "/wallets/eth.png";

@@ -4,7 +4,6 @@ import useWalletStore, {
   Wallet,
   WalletStore,
 } from "@/lib/hooks/useWalletAuth";
-import { AuthState, AuthTokens, Layer } from "@/types";
 import { initializeAxios } from "@/lib/axios";
 
 const WalletAuthContext = createContext<WalletStore | null>(null);

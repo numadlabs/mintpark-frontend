@@ -1,4 +1,4 @@
-import { NetworkConfig } from "@/types";
+import { NetworkConfig } from "@/lib/types";
 
 // utils/wallet.ts
 export const setupEthereumChain = async (
