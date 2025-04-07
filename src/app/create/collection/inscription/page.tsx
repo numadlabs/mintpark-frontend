@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Banner from "@/components/section/banner";
+import Banner from "@/components/section/create-banner";
 import Header from "@/components/layout/header";
 import { Input } from "@/components/ui/input";
 import UploadFile from "@/components/section/upload-file";
@@ -43,6 +43,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import CreateBanner from "@/components/section/create-banner";
 
 const Inscription = () => {
   const router = useRouter();
@@ -306,7 +307,7 @@ const Inscription = () => {
       const params: LaunchParams = {
         collectionId: collectionId,
         isWhitelisted: false,
-        hasFCFS:false,
+        hasFCFS: false,
         poStartsAt: poStartsAt,
         poEndsAt: poEndsAt,
         poMintPrice: POMintPrice,
@@ -328,7 +329,6 @@ const Inscription = () => {
         }
 
         const launchCollectionId = launchResponse.data.launch.collectionId;
-
 
         // Process files in batches
         for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
@@ -462,7 +462,7 @@ const Inscription = () => {
     <Layout>
       <div className="flex flex-col w-full h-max bg-background pb-[148px]">
         <div className="flex flex-col items-center gap-16 z-50 mt-12">
-          <Banner
+          <CreateBanner
             title={"Create Collection"}
             image={"/background-2.png"}
             setStep={step}

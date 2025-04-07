@@ -46,7 +46,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
   const { authState, selectedLayerId } = useAuth();
   const id = selectedLayerId;
   const intervals = ["1h", "24h", "7d", "30d", "All"];
-  const [active, setActive] = useState(false);
+  const [active, setActive] = useState(true);
   const [selectedInterval, setSelectedInterval] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState<string>("highest-volume");
   const [viewType, setViewType] = useState<"grid" | "list">("grid");

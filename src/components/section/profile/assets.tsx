@@ -22,7 +22,7 @@ import { useParams } from "next/navigation";
 export default function Assets({ detail = false }: { detail: boolean }) {
   const params = useParams();
   const userId = params?.id as string;
-  const [active, setActive] = useState(false);
+  const [active, setActive] = useState(true);
 
   // Get shared state and data from context
   const {
@@ -83,7 +83,8 @@ export default function Assets({ detail = false }: { detail: boolean }) {
         setOrderDirection("asc");
         break;
       default:
-        setOrderBy("recent");
+        setOrderBy("price_low_to_high");
+        // setOrderBy("price");
         setOrderDirection("desc");
     }
     // Refetch after sorting changes
@@ -112,18 +113,20 @@ export default function Assets({ detail = false }: { detail: boolean }) {
   }
 
   // // Show empty state
-  if (
-    !assetsData?.data?.collectibles ||
-    assetsData.data.collectibles.length === 0
-  ) {
-    return (
-      <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
-        <p className="text-neutral200 font-medium text-lg">
-          No activity recorded
-        </p>
-      </div>
-    );
-  }
+  // if (
+  //   !assetsData?.data?.collectibles ||
+  //   assetsData.data.collectibles.length === 0
+  // ) {
+  //   return (
+  //     <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
+  //       <p className="text-neutral200 font-medium text-lg">
+  //         No activity recorded
+  //       </p>
+  //     </div>
+  //   );
+  // }
+
+  
 
   // Get filtered collectibles using the simplified function
   const collectibles = getCollectibles();
@@ -176,14 +179,14 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                   backdropFilter: "blur(30px)",
                 }}
               >
-                <SelectItem value="recent" className="pl-10">
-                  Recently listed
-                </SelectItem>
                 <SelectItem value="price_low_to_high" className="pl-10">
                   Price: Low to High
                 </SelectItem>
                 <SelectItem value="price_high_to_low" className="pl-10">
                   Price: High to Low
+                </SelectItem>
+                <SelectItem value="recent" className="pl-10">
+                  Recently listed
                 </SelectItem>
               </SelectContent>
             </Select>

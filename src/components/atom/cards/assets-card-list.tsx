@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
+import { formatPrice, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { CollectibleSchema } from "@/lib/validations/asset-validation";
@@ -20,9 +20,7 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
     queryFn: () => getLayerById(selectedLayerId as string),
     enabled: !!selectedLayerId,
   });
-  // const citreaPrice = getPriceData();
 
-  //todo end function uud uldsen bn
   const TruncatedAddress = ({ address }: { address: string | null }) => {
     if (!address) return <span>-</span>;
     return (
@@ -41,13 +39,7 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
   };
 
   const daysAgo = getDaysAgo(data.createdAt);
-  const formatPrice = (price: number | null) => {
-    const btcAmount = price;
-    return btcAmount?.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 6,
-    });
-  };
+  
   return (
     <>
       <Link
