@@ -3,7 +3,6 @@ import { WalletConfig } from "@/types";
 export const BITCOIN_IMAGE = "/wallets/Bitcoin.png";
 export const ETH_IMAGE = "/wallets/eth.png";
 
-//todo: remove unsued chains and serviceData. Find other hard coded local storage keys and save it to the STORAGE_KEYS selectedNetwork etc
 
 export const STORAGE_KEYS = {
   AUTH_TOKENS: "auth_tokens",

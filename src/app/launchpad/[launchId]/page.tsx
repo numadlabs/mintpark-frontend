@@ -23,7 +23,7 @@ import LaunchDetailSkeleton from "@/components/atom/skeleton/launch-detail-skele
 import ThreadIcon from "@/components/icon/thread";
 import moment from "moment";
 import ImageLoaderComponent from "@/components/atom/image-loader";
-import { Unlimited } from "iconsax-react";
+import { Global, Unlimited } from "iconsax-react";
 
 import SuccessModal from "@/components/modal/success-modal";
 import ErrorModal from "@/components/modal/error-modal";
@@ -141,7 +141,7 @@ const Page = () => {
         setSteps(2);
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(
-          response.data.singleMintTxHex,
+          response.data.singleMintTxHex
         );
         const tx = await signedTx?.wait();
         if (tx) {
@@ -150,7 +150,7 @@ const Page = () => {
       } else {
         await window.unisat.sendBitcoin(
           response.data.order.fundingAddress,
-          Math.ceil(response.data.order.fundingAmount),
+          Math.ceil(response.data.order.fundingAmount)
         );
         await new Promise((resolve) => setTimeout(resolve, 10000));
       }
@@ -461,42 +461,25 @@ const Page = () => {
 
   const links = [
     {
-      url: collectibles.discordUrl,
+      url: collectibles.websiteUrl,
       isIcon: true,
-      icon: (
-        <DiscordIcon size={32} className="sm:size-8 lg:size-8 text-neutral00" />
-      ),
+      icon: <Global size={32} className="hover:text-brand text-neutral00" />,
     },
     {
       url: collectibles.twitterUrl,
-      isIcon: true,
+      isIcon: false,
       icon: (
-        <ThreadIcon size={32} className="sm:size-8 lg:size-8 text-neutral00" />
+        <ThreadIcon size={32} className="hover:text-brand  text-neutral00" />
       ),
     },
     {
-      url: collectibles.websiteUrl,
-      isIcon: true,
-      icon: <Globe size={32} className="sm:size-8 lg:size-8 text-neutral00" />,
+      url: collectibles.discordUrl,
+      isIcon: false,
+      icon: (
+        <DiscordIcon size={32} className="hover:text-brand  text-neutral00" />
+      ),
     },
-  ].filter(
-    (link) => link.url !== null && link.url !== undefined && link.url !== "",
-  );
-
-  // const links = [
-  //   {
-  //     url: "https://x.com/mintpark_io",
-  //     isIcon: false,
-  //     icon: (
-  //       <ThreadIcon
-  //         size={32}
-  //         className="sm:size-8 lg:size-8 hover:text-brand text-neutral00"
-  //       />
-  //     ),
-  //   },
-  // ].filter(
-  //   (link) => link.url !== null && link.url !== undefined && link.url !== ""
-  // );
+  ].filter((link) => link.url);
 
   const handleSocialClick = (url: string) => {
     console.log(url);
@@ -505,26 +488,13 @@ const Page = () => {
     window.open(validUrl, "_blank", "noopener,noreferrer");
   };
 
-  // if (
-  //   !isCollectiblesLoading &&
-  //   !isLayerLoading &&
-  //   collectibles?.layerId !== selectedLayerId
-  // ) {
-  //   router.replace("/launchpad");
-  //   return (
-  //     <div className="min-h-screen flex items-center justify-center">
-  //       Redirecting...
-  //     </div>
-  //   );
-  // }
-
   return (
     <>
       <div
         className="min-h-screen bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${s3ImageUrlBuilder(
-            collectibles?.logoKey || "",
+            collectibles?.logoKey || ""
           )})`,
         }}
       >
@@ -540,14 +510,14 @@ const Page = () => {
                 {/* Left Column - Collection Info */}
                 <div className="flex w-full flex-col gap-8 sm:gap-6 order-2">
                   <div className="block lg:hidden">
-                    <div className="flex gap-4 sm:gap-8">
+                    <div className="flex gap-4 sm:gap-4">
                       {links.length > 0 && (
-                        <div className="flex gap-4 sm:gap-6">
+                        <div className="flex gap-4 sm:gap-4">
                           {links.map((link, i) => (
                             <button
                               key={i}
                               onClick={() => handleSocialClick(link.url)}
-                              className="p-2 hover:bg-neutral800/10 rounded-lg transition-colors"
+                              className="hover:bg-neutral800/10 rounded-lg transition-colors"
                             >
                               {link.icon}
                             </button>
@@ -589,7 +559,7 @@ const Page = () => {
                             <button
                               key={i}
                               onClick={() => handleSocialClick(link.url)}
-                              className="p-2 hover:bg-neutral800/10 rounded-lg transition-colors"
+                              className="hover:bg-neutral800/10 rounded-lg transition-colors"
                             >
                               {link.icon}
                             </button>

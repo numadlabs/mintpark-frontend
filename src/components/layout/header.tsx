@@ -37,7 +37,7 @@ import { toast } from "sonner";
 import Badge from "../atom/badge";
 import { ArrowDown, Check, Loader2, MenuIcon, X } from "lucide-react";
 import { WalletConnectionModal } from "../modal/wallet-connect-modal";
-import { WALLET_CONFIGS } from "@/lib/constants";
+import { STORAGE_KEYS, WALLET_CONFIGS } from "@/lib/constants";
 import { getCurrencyImage } from "@/lib/service/currencyHelper";
 
 // Type definitions
@@ -139,7 +139,7 @@ export default function Header() {
   useEffect(() => {
     if (dynamicLayers.length === 0 || initialSetupDone.current) return;
 
-    const savedLayer = localStorage.getItem("selectedLayer");
+    const savedLayer = localStorage.getItem(STORAGE_KEYS.SELECTED_LAYER);
     const savedNetwork = localStorage.getItem("selectedNetwork") || "MAINNET";
 
     if (!selectedLayerId) {
@@ -180,7 +180,7 @@ export default function Header() {
         setSelectedLayerId(targetLayer.id);
         setSelectedLayer(targetLayer.layer);
         setDefaultLayer(targetLayer.id);
-        localStorage.setItem("selectedLayer", targetLayer.layer);
+        localStorage.setItem(STORAGE_KEYS.SELECTED_LAYER, targetLayer.layer);
         localStorage.setItem("selectedNetwork", targetLayer.network);
       }
     }
@@ -191,7 +191,7 @@ export default function Header() {
   // Update localStorage when current layer changes
   useEffect(() => {
     if (currentLayer && prevLayerIdRef.current !== currentLayer.id) {
-      localStorage.setItem("selectedLayer", currentLayer.layer);
+      localStorage.setItem(STORAGE_KEYS.SELECTED_LAYER, currentLayer.layer);
       localStorage.setItem("selectedNetwork", currentLayer.network);
       prevLayerIdRef.current = currentLayer.id;
     }
@@ -287,7 +287,7 @@ export default function Header() {
       setDefaultLayer(layerId);
 
       // Store in localStorage
-      localStorage.setItem("selectedLayer", selectedLayerObj.layer);
+      localStorage.setItem(STORAGE_KEYS.SELECTED_LAYER, selectedLayerObj.layer);
       localStorage.setItem("selectedNetwork", selectedLayerObj.network);
 
       // If this is a Metamask layer and we have access to the ethereum object, switch chain
@@ -465,7 +465,7 @@ export default function Header() {
         setSelectedLayer(matchingLayer.layer);
         setDefaultLayer(matchingLayer.id);
 
-        localStorage.setItem("selectedLayer", matchingLayer.layer);
+        localStorage.setItem(STORAGE_KEYS.SELECTED_LAYER, matchingLayer.layer);
         localStorage.setItem("selectedNetwork", matchingLayer.network);
       }
     },

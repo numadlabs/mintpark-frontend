@@ -1,4 +1,4 @@
-import { ETH_IMAGE, WALLET_CONFIGS } from "../../lib/constants";
+import { CITREA_PRICE, ETH_IMAGE, ETH_PRICE, WALLET_CONFIGS } from "../../lib/constants";
 
 //todo: change network to dynamic
 // Helper function to get currency symbol based on layer type
@@ -25,25 +25,8 @@ export const getCurrencyIcon = (layerType: string): string => {
   return config?.currencyIcon || WALLET_CONFIGS.BITCOIN.icon;
 };
 
-
-// export const getCurrencyBannerImage = (layerType: string): string => {
-//   const config = WALLET_CONFIGS[layerType];
-//   const BITCOIN_IMAGE = "/wallets/Bitcoin.png";
-//   const ETH_IMAGE = "/wallets/eth.png";
-
-//   // If there's a config with a bannerImage path, use that
-//   if (config && config.currencyIcon) {
-//     return config.currencyIcon;
-//   }
-//   // Check if we should use Bitcoin image based on layerType
-//   return layerType === "BITCOIN" ? BITCOIN_IMAGE : ETH_IMAGE;
-// };
-
-//todo: get price from constant
 export const getCurrencyPrice = (layerType: string): number => {
   const config = WALLET_CONFIGS[layerType];
-  const ETH_PRICE = 1937.96;
-  const CITREA_PRICE = 102500;
 
   // If there's a config with a bannerImage path, use that
   if (config && config.currencyPrice) {
@@ -189,7 +172,6 @@ export const getAddressExplorerUrl = (
   }
 };
 
-//todo: fix the logic of getting testnet and mainnet block explorer URLs
 // Helper function to get block explorer URL for a token contract
 export const getCollectibleExplorerUrl = (
   layerType: string,
@@ -209,27 +191,6 @@ export const getCollectibleExplorerUrl = (
     return `${baseUrl}/token/${contractAddress}`;
   }
 };
-
-// // Helper function to get the raw block explorer base URL
-// export const getBlockExplorerBaseUrl = (layerType: string): string => {
-//   const config = WALLET_CONFIGS[layerType];
-
-//   // If no config is found, return empty string
-//   if (!config) return "";
-
-//   // Get the block explorer URL from the config
-//   const blockExplorerUrl = config.networks?.TESTNET?.blockExplorerUrls?.[0];
-
-//   // If no block explorer URL is found, return empty string
-//   if (!blockExplorerUrl) return "";
-
-//   // Remove trailing slash if it exists
-//   return blockExplorerUrl.endsWith("/")
-//     ? blockExplorerUrl.slice(0, -1)
-//     : blockExplorerUrl;
-// };
-
-// test
 
 export const getBlockExplorerBaseUrl = (
   layerType: string,

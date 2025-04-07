@@ -10,8 +10,7 @@ interface bannerProps {
   stepperData: string[];
 }
 
-//todo: Standardize and rename all the component names and declarations
-const Banner: React.FC<bannerProps> = ({
+const CreateBanner: React.FC<bannerProps> = ({
   title,
   image,
   setStep,
@@ -56,4 +55,4 @@ const Banner: React.FC<bannerProps> = ({
   );
 };
 
-export default Banner;
+export default CreateBanner;

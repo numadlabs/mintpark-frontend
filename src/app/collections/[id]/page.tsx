@@ -54,7 +54,7 @@ const CollectionDetailPage = () => {
   const { authState } = useAuth();
   const params = useParams();
   const id = params?.id as string;
-  const [active, setActive] = useState(false);
+  const [active, setActive] = useState(true);
   const [orderBy, setOrderBy] = useState("recent");
   const [orderDirection, setOrderDirection] = useState("desc");
   const [searchFilter, setSearchFilter] = useState<string>("");
@@ -219,7 +219,8 @@ const CollectionDetailPage = () => {
         setOrderDirection("asc");
         break;
       default:
-        setOrderBy("recent");
+        setOrderBy("price_low_to_high");
+        // setOrderBy("price");
         setOrderDirection("desc");
     }
   };
@@ -543,19 +544,19 @@ const CollectionDetailPage = () => {
             </div>
 
             <div className="flex gap-4">
-              <Select defaultValue="recent" onValueChange={handleOrderChange}>
+              <Select defaultValue="price_low_to_high" onValueChange={handleOrderChange}>
                 <SelectTrigger className="w-full md:w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50">
                   <SelectValue placeholder="Volume" />
                 </SelectTrigger>
                 <SelectContent className="w-full -top-[53px] lg:left-0 md:w-60 rounded-xl bg-neutral600 bg-opacity-70 border-neutral400 backdrop-blur-lg pb-2 px-2">
-                  <SelectItem value="recent" className="pl-10">
-                    Recently listed
-                  </SelectItem>
                   <SelectItem value="price_low_to_high" className="pl-10">
                     Price: Low to High
                   </SelectItem>
                   <SelectItem value="price_high_to_low" className="pl-10">
                     Price: High to Low
+                  </SelectItem>
+                  <SelectItem value="recent" className="pl-10">
+                    Recently listed
                   </SelectItem>
                 </SelectContent>
               </Select>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Banner from "@/components/section/banner";
+import Banner from "@/components/section/create-banner";
 import Header from "@/components/layout/header";
 import { Input } from "@/components/ui/input";
 import UploadFile from "@/components/section/upload-file";
@@ -43,6 +43,7 @@ import UploadJsonCard from "@/components/atom/cards/upload-json-card";
 import UploadJsonFile from "@/components/section/upload-json-file";
 import { ethers } from "ethers";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import CreateBanner from "@/components/section/create-banner";
 // import { MerkleTree } from 'merkletreejs';
 
 const IPFS = () => {
@@ -673,7 +674,7 @@ const IPFS = () => {
     <Layout>
       <div className="flex flex-col w-full h-max bg-background pb-[148px]">
         <div className="flex flex-col items-center gap-16 z-50 mt-12">
-          <Banner
+          <CreateBanner
             title={"Create Collection"}
             image={"/background-2.png"}
             setStep={step}

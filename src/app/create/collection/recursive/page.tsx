@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Banner from "@/components/section/banner";
+import Banner from "@/components/section/create-banner";
 import Header from "@/components/layout/header";
 import { Input } from "@/components/ui/input";
 import UploadFile from "@/components/section/upload-file";
@@ -46,6 +46,7 @@ import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import AddTraitsModal from "@/components/modal/add-traits-modal";
+import CreateBanner from "@/components/section/create-banner";
 
 const Recursive = () => {
   const router = useRouter();
@@ -306,7 +307,7 @@ const Recursive = () => {
       const params: LaunchParams = {
         collectionId: collectionId,
         isWhitelisted: false,
-        hasFCFS:false,
+        hasFCFS: false,
         poStartsAt: poStartsAt,
         poEndsAt: poEndsAt,
         poMintPrice: POMintPrice,
@@ -328,7 +329,6 @@ const Recursive = () => {
         }
 
         const launchCollectionId = launchResponse.data.launch.collectionId;
-
 
         // Process files in batches
         for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
@@ -455,9 +455,8 @@ const Recursive = () => {
   return (
     <Layout>
       <div className="flex flex-col w-full h-max bg-background pb-[148px]">
-
         <div className="flex flex-col items-center gap-16 z-50">
-          <Banner
+          <CreateBanner
             title={"Create Collection"}
             image={"/background-2.png"}
             setStep={step}
