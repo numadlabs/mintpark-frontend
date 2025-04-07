@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { AuthState, Layer, WalletInfo } from "@/types";
+import { AuthState, Layer, WalletInfo } from "@/lib/types";
 import {
   generateMessageHandler,
   linkAccountToAnotherUser,

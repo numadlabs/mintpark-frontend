@@ -1,5 +1,5 @@
 "use client";
-import { TokenType } from "@/types";
+import { TokenType } from "@/lib/types";
 import { STORAGE_KEYS } from "./constants";
 
 export function saveToken(tokenData: TokenType) {
