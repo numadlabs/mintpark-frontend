@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { formatPrice, ordinalsImageCDN, s3ImageUrlBuilder } from "@/lib/utils";
+import { formatPrice, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { CollectibleSchema } from "@/lib/validations/asset-validation";

@@ -8,30 +8,30 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const BADGE_BATCH_SIZE = 25;
+// export const BADGE_BATCH_SIZE = 25;
 
-export const stringtoHex = (value: any) => {
-  const buffer = Buffer.from(value, "utf8");
-  const hexString = buffer.toString("hex");
-  return hexString;
-};
+// export const stringtoHex = (value: any) => {
+//   const buffer = Buffer.from(value, "utf8");
+//   const hexString = buffer.toString("hex");
+//   return hexString;
+// };
 
 export function s3ImageUrlBuilder(fileKey: string) {
   return process.env.NODE_ENV === "development"
     ? `https://d237xcwu5voimf.cloudfront.net/${fileKey}`
     : `https://d1orw8h9a3ark2.cloudfront.net/${fileKey}`;
 }
-export function imageCDN(uniqueIdx: string) {
-  return `https://static-testnet.unisat.io/content/${uniqueIdx}`;
-}
 
-export function ordinalsImageCDN(uniqueIdx: string) {
-  return `https://ordinals-testnet.fractalbitcoin.io/content/${uniqueIdx}`;
-}
+// export function imageCDN(uniqueIdx: string) {
+//   return `https://static-testnet.unisat.io/content/${uniqueIdx}`;
+// }
+
+// export function ordinalsImageCDN(uniqueIdx: string) {
+//   return `https://ordinals-testnet.fractalbitcoin.io/content/${uniqueIdx}`;
+// }
 
 import { ethers } from "ethers";
 import moment from "moment";
-import { STORAGE_KEYS } from "./constants";
 
 interface WalletConnection {
   // provider: ethers.BrowserProvider | null;
