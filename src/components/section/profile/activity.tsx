@@ -1,5 +1,6 @@
 import React from 'react'
 import ActivityCard from '@/components/atom/cards/activity-card'
+import { s3ImageUrlBuilder } from '@/lib/utils'
 
 const Activity = () => {
   return (
@@ -12,7 +13,28 @@ const Activity = () => {
             <p className='max-w-[152px] w-full text-md text-neutral200 font-medium'>Date</p>
         </div>
         <div className='mt-3 flex flex-col gap-3'>
-            {/* <ActivityCard/> */}
+        {/* <div className="flex flex-col gap-3 pt-3">
+                      {activity && activity.length > 0 ? (
+                        activity.map((item: any) => (
+                          <ActivityCard
+                            key={`${item.id}-${item.event}-${item.date}`}
+                            data={item}
+                            imageUrl={
+                              currentAsset.highResolutionImageUrl
+                                ? currentAsset.highResolutionImageUrl
+                                : s3ImageUrlBuilder(currentAsset.fileKey)
+                            }
+                            collectionName={currentAsset.collectionName}
+                          />
+                        ))
+                      ) : (
+                        <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
+                          <p className="text-neutral200 font-medium text-lg">
+                            No activity recorded
+                          </p>
+                        </div>
+                      )}
+                    </div> */}
         </div>
     </div>
   )

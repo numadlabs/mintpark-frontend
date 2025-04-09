@@ -30,7 +30,6 @@ import { cn, formatFileSize, getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { BADGE_BATCH_SIZE } from "@/lib/utils";
 import Toggle from "@/components/ui/toggle";
 import UploadJsonFile from "@/components/section/upload-json-file";
 import UploadJsonCard from "@/components/atom/cards/upload-json-card";

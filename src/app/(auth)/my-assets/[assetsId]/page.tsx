@@ -77,9 +77,6 @@ export default function AssetsDetails() {
     queryFn: () => getCollectibleActivity(id as string),
     enabled: !!id,
   });
-
-  console.log(activity);
-
   const { data: currentLayer = [] } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
     queryFn: () => getLayerById(authState.layerId as string),
