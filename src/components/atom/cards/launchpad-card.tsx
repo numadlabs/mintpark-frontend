@@ -30,9 +30,17 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
     status === LAUNCH_STATE.LIVE || status === LAUNCH_STATE.INDEFINITE;
 
   const calculateProgress = () => {
+    // If the phase is ended or indefinite, return 100% progress
+    if (status === LAUNCH_STATE.INDEFINITE || status === LAUNCH_STATE.ENDED) {
+      return 100;
+    }
+    
+    // Handle badge with null supply
     if (data.isBadge && data.badgeSupply === null) {
       return 0;
     }
+    
+    // Calculate normal progress based on minted amount and supply
     return data?.supply > 0 ? (data?.mintedAmount / data?.supply) * 100 : 0;
   };
 

@@ -37,7 +37,6 @@ import MoreCollection from "@/components/section/more-collection";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 import { getAddressExplorerUrl } from "@/lib/service/currencyHelper";
 
-
 export default function AssetDetail() {
   const params = useParams();
   const router = useRouter();
@@ -160,7 +159,10 @@ export default function AssetDetail() {
             </div>
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-2">
-                <p className="font-medium text-xl text-brand cursor-pointer" onClick={handlBackCollection}>
+                <p
+                  className="font-medium text-xl text-brand cursor-pointer"
+                  onClick={handlBackCollection}
+                >
                   {currentAsset.collectionName}
                 </p>
                 <span className="flex text-3xl font-bold text-neutral50">
@@ -279,7 +281,11 @@ export default function AssetDetail() {
                         Floor difference
                       </h1>
                       <p className="font-medium text-md text-success">
-                        {currentAsset.floorDifference}%
+                        {/* {currentAsset.floorDifference}% */}
+                        {currentAsset.floorDifference === 0 ||
+                        currentAsset.floorDifference === 1
+                          ? "-"
+                          : `${currentAsset.floorDifference}%`}
                       </p>
                     </div>
                     <div className="flex justify-between">

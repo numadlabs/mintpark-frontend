@@ -283,7 +283,7 @@ export default function AssetsDetails() {
                           currentAsset.ownedBy
                             ? getAddressExplorerUrl(
                                 collectionData[0].layer,
-                                currentAsset.ownedBy,
+                                currentAsset.ownedBy
                               )
                             : "#"
                         }
@@ -299,7 +299,11 @@ export default function AssetsDetails() {
                         Floor difference
                       </h1>
                       <p className="font-medium text-md text-success">
-                        {currentAsset.floorDifference ?? "-"}%
+                        {/* {currentAsset.floorDifference ?? "-"}% */}
+                        {currentAsset.floorDifference === 0 ||
+                        currentAsset.floorDifference === 1
+                          ? "-"
+                          : `${currentAsset.floorDifference}%`}
                       </p>
                     </div>
                     <div className="flex justify-between">

@@ -4,7 +4,10 @@ import { formatPrice, s3ImageUrlBuilder } from "@/lib/utils";
 import Link from "next/link";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { CollectibleSchema } from "@/lib/validations/asset-validation";
-import { getCurrencyPrice, getCurrencySymbol } from "@/lib/service/currencyHelper";
+import {
+  getCurrencyPrice,
+  getCurrencySymbol,
+} from "@/lib/service/currencyHelper";
 import { useQuery } from "@tanstack/react-query";
 import { getLayerById } from "@/lib/service/queryHelper";
 
@@ -39,7 +42,7 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
   };
 
   const daysAgo = getDaysAgo(data.createdAt);
-  
+
   return (
     <>
       <Link
@@ -73,8 +76,7 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
             </p>
             <p className="font-medium text-sm text-neutral200 w-full">
               <span className="mr-1">$</span>
-              {formatPrice(data.floor *  getCurrencyPrice(currentLayer.layer))}
-           
+              {formatPrice(data.floor * getCurrencyPrice(currentLayer.layer))}
             </p>
           </div>
           <div className="min-w-[200px] w-full max-w-[392px]">
@@ -83,8 +85,10 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
                 (data.floor ?? 0) >= 0 ? "text-success" : "text-errorMsg"
               }`}
             >
-              {(data.floor ?? 0) >= 0 ? "+" : ""}
-              {formatPrice(data.floor) ?? 0}%
+              {/* {(data.floor ?? 0) >= 0 ? "+" : "-"} */}
+              {data.floor === 0 || data.floor === 1
+                ? "-"
+                : `${formatPrice(data.floor) ?? 0}%`}
             </p>
           </div>
           <div className="min-w-[200px] w-full max-w-[392px]">

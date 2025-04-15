@@ -118,6 +118,16 @@ const PendingListModal: React.FC<ModalProps> = ({
     setPrice(newValue);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // Only proceed if not already loading and not own listing
+      if (!isLoading && !isOwnListing) {
+        handlePendingList();
+      }
+    }
+  };
+
   const handlePriceBlur = () => {
     if (price === "" || parseFloat(price) < 0) {
       setPrice("0");
@@ -211,7 +221,7 @@ const PendingListModal: React.FC<ModalProps> = ({
 
   // Initial listing form
   const renderInitialForm = () => (
-    <div className="flex flex-col gap-6 w-full items-center">
+    <div className="flex flex-col gap-6 w-full outline-none items-center">
       <DialogHeader className="flex w-full">
         <div className="text-xl text-neutral00 font-bold text-center">
           List Asset
@@ -239,11 +249,12 @@ const PendingListModal: React.FC<ModalProps> = ({
         <p>Listing Price</p>
         <Input
           placeholder="Enter listing price"
-          className="bg-gray50"
+          className="bg-gray50 border-transparent"
           type="text"
           value={price}
           onChange={handlePriceChange}
           onBlur={handlePriceBlur}
+          onKeyDown={handleKeyDown}
         />
       </div>
       <DialogFooter className="grid grid-cols-2 gap-2 w-full">
@@ -277,12 +288,12 @@ const PendingListModal: React.FC<ModalProps> = ({
 
   // Pending state with progress indicator
   const renderPendingState = () => (
-    <div className="w-full flex flex-col gap-6 pt-8 pb-8 bg-white4 justify-center items-center rounded-2xl">
+    <div className="w-full outline-none flex flex-col gap-6 pt-8 pb-8 bg-white4 justify-center items-center rounded-2xl">
       <div className="p-4 flex justify-center items-center bg-white8 rounded-full">
         <Loader2 className="animate-spin" color="#FFEE32" size={36} />
       </div>
       
-      <div className="flex flex-col gap-3 justify-center items-center w-full px-8">
+      <div className="flex flex-col gap-3 outline-none justify-center items-center w-full px-8">
         <p className="text-brand text-2xl font-bold">Listing in Progress</p>
         <p className="text-neutral100 text-start mb-2">
           Please wait while we process your listing. This may take a few moments.
