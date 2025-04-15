@@ -644,7 +644,7 @@ export default function Header() {
                         value={selectedLayerId as string}
                       >
                         <SelectTrigger className="flex items-center h-12 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-full">
-                          <SelectValue placeholder="Select layer">
+                          <SelectValue  placeholder="Select layer">
                             {renderCurrentLayerValue()}
                           </SelectValue>
                         </SelectTrigger>
