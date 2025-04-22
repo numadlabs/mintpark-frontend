@@ -10,8 +10,8 @@ import { toast } from "sonner";
 // todo: axios dotor bish next config dotroos avah
 export const BACKEND_URL =
   process.env.NODE_ENV === "development"
-    ? // ? "http://127.0.0.1:4000" // development api
-      "https://mintpark-staging-e569c5c4d83c.herokuapp.com" // development api
+    ?  "http://127.0.0.1:4000" // development api
+      // "https://mintpark-staging-e569c5c4d83c.herokuapp.com" // development api
     : "https://mintpark-production-0006d54da9fb.herokuapp.com";
 
 const instance = axios.create({

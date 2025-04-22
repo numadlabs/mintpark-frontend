@@ -24,7 +24,7 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
   collection,
   currentAssetId,
 }) => {
-  const [active, setActive] = useState(true);
+  const [active, setActive] = useState(false);
   const [searchFilter, setSearchFilter] = useState(""); // Add this state
   const [filteredCollection, setFilteredCollection] = useState(
     collection?.collectibles || []

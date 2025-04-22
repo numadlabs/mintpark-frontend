@@ -92,13 +92,26 @@ export type LaunchDataType = {
   badgeSupply: number;
 };
 
+// export type ActivityType = {
+//   activityType: string;
+//   price: number;
+//   collectionId: string;
+//   fromAddress: string;
+//   toAddress: string;
+//   timestamp: number;
+// };
+
 export type ActivityType = {
-  activityType: string;
-  price: number;
-  collectionId: string;
-  fromAddress: string;
-  toAddress: string;
-  timestamp: number;
+    activityType: string;
+    tokenId?: string | null;
+    collectionId: string;
+    fromAddress: string;
+    toAddress?: string; // Optional since it only appears for certain activity types
+    price: string; // Keep as string to handle large numbers properly
+    transactionHash: string;
+    timestamp: number;
+    blockNumber: number;
+    seller?: string;
 };
 
 export type InscriptionCollectible = {

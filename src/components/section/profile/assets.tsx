@@ -22,7 +22,7 @@ import { useParams } from "next/navigation";
 export default function Assets({ detail = false }: { detail: boolean }) {
   const params = useParams();
   const userId = params?.id as string;
-  const [active, setActive] = useState(true);
+  const [active, setActive] = useState(false);
 
   // Get shared state and data from context
   const {
