@@ -259,7 +259,6 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
       {status !== "Ended" && (
         <>
           <div className="flex gap-2">
-            {/* TODO Currency symbol iig icon bish currency icon bolgoh */}
             <Image
               width={20}
               height={20}

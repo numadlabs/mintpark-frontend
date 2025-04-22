@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Banner from "@/components/section/banner";
+import Banner from "@/components/section/create-banner";
 import Header from "@/components/layout/header";
 import { Input } from "@/components/ui/input";
 import UploadFile from "@/components/section/upload-file";
@@ -30,12 +30,12 @@ import { cn, formatFileSize, getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { BADGE_BATCH_SIZE } from "@/lib/utils";
 import Toggle from "@/components/ui/toggle";
 import UploadJsonFile from "@/components/section/upload-json-file";
 import UploadJsonCard from "@/components/atom/cards/upload-json-card";
 import { ethers } from "ethers";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import CreateBanner from "@/components/section/create-banner";
 
 const Badge = () => {
   const router = useRouter();
@@ -108,7 +108,6 @@ const Badge = () => {
   const [whitelistAddress, setWhitelistAddress] = useState<string[]>([]);
   const [fcfslistAddress, setfcfslistAddress] = useState<string[]>([]);
   // const [publistAddress, setPublistAddress] = useState<string[]>([]);
-
 
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createBadgeCollection,
@@ -369,7 +368,7 @@ const Badge = () => {
         collectionId: collectionId,
         isWhitelisted: isChecked ? true : false,
         hasFCFS: isSecondChecked ? true : false,
-        poStartsAt:poStartsAt,
+        poStartsAt: poStartsAt,
         poEndsAt: poEndsAt,
         poMintPrice: POMintPrice,
         poMaxMintPerWallet: POMaxMintPerWallet,
@@ -547,31 +546,30 @@ const Badge = () => {
             toggleSuccessModal();
           }
 
-
-              // // Process Public list if enabled
-              // if (isSecondChecked) {
-              //   try {
-              //     let whResponse;
-              //     // Process whitelist addresses in batches of 50
-              //     for (let i = 0; i < Math.ceil(publistAddress.length / 50); i++) {
-              //       const batch = publistAddress.slice(i * 50, (i + 1) * 50);
-              //       whResponse = await whitelistAddressesMutation({
-              //         phase: "FCFS_WHITELIST",
-              //         launchId: launchId,
-              //         addresses: batch,
-              //       });
-              //     }
-              //     if (whResponse && whResponse.success) {
-              //       console.log("FCFS processing completed");
-              //       toggleSuccessModal();
-              //     }
-              //   } catch (error) {
-              //     console.error("Error processing FCFS list:", error);
-              //     toast.error("Error processing FCFS addresses");
-              //   }
-              // } else {
-              //   toggleSuccessModal();
-              // }
+          // // Process Public list if enabled
+          // if (isSecondChecked) {
+          //   try {
+          //     let whResponse;
+          //     // Process whitelist addresses in batches of 50
+          //     for (let i = 0; i < Math.ceil(publistAddress.length / 50); i++) {
+          //       const batch = publistAddress.slice(i * 50, (i + 1) * 50);
+          //       whResponse = await whitelistAddressesMutation({
+          //         phase: "FCFS_WHITELIST",
+          //         launchId: launchId,
+          //         addresses: batch,
+          //       });
+          //     }
+          //     if (whResponse && whResponse.success) {
+          //       console.log("FCFS processing completed");
+          //       toggleSuccessModal();
+          //     }
+          //   } catch (error) {
+          //     console.error("Error processing FCFS list:", error);
+          //     toast.error("Error processing FCFS addresses");
+          //   }
+          // } else {
+          //   toggleSuccessModal();
+          // }
         }
       }
       // }
@@ -601,7 +599,7 @@ const Badge = () => {
     <Layout>
       <div className="flex flex-col w-full h-max bg-background pb-[148px]">
         <div className="flex flex-col items-center gap-16 z-50 mt-16">
-          <Banner
+          <CreateBanner
             title={"Create Badge"}
             image={"/background-2.png"}
             setStep={step}

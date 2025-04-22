@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Header from "@/components/layout/header";
-import Banner from "@/components/section/banner";
+import Banner from "@/components/section/create-banner";
 import UploadFile from "@/components/section/upload-file";
 import { Input } from "@/components/ui/input";
 import ButtonOutline from "@/components/ui/buttonOutline";
@@ -31,6 +31,7 @@ import { toast } from "sonner";
 import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { Button } from "@/components/ui/button";
 import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
+import CreateBanner from "@/components/section/create-banner";
 
 const stepperData = ["Upload", "Confirm"];
 
@@ -94,7 +95,7 @@ const SingleCollectible = () => {
       // Calculate file sizes and types
       const newFileSizes = Array.from(files).map((file) => file.size);
       const newFileTypeSizes = Array.from(files).map(
-        (file) => file.type.length,
+        (file) => file.type.length
       );
       const newFileTypes = new Set(Array.from(files).map((file) => file.type));
 
@@ -117,10 +118,10 @@ const SingleCollectible = () => {
   const handleDelete = (indexToDelete: number) => {
     // Create new arrays without the deleted items
     const newImageFile = Array.from(imageFile).filter(
-      (_, index) => index !== indexToDelete,
+      (_, index) => index !== indexToDelete
     );
     const newImageFiles = imageFiles.filter(
-      (_, index) => index !== indexToDelete,
+      (_, index) => index !== indexToDelete
     );
 
     // Update state with the new arrays directly
@@ -166,7 +167,6 @@ const SingleCollectible = () => {
           id = collectionResponse.data.collection.id;
           const { deployContractTxHex } = collectionResponse.data;
 
-
           if (currentLayer.layerType === "EVM") {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
@@ -192,7 +192,7 @@ const SingleCollectible = () => {
           } else if (currentLayer.layer === "FRACTAL") {
             await window.unisat.sendBitcoin(
               response.data.order.fundingAddress,
-              Math.ceil(response.data.order.fundingAmount),
+              Math.ceil(response.data.order.fundingAmount)
             );
           }
           await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -212,7 +212,7 @@ const SingleCollectible = () => {
     <Layout>
       <div className="w-full bg-background items-center pb-[148px]">
         <div className="flex flex-col items-center gap-16 z-50">
-          <Banner
+          <CreateBanner
             title={"Create Collectible"}
             image={"/background-2.png"}
             setStep={step}

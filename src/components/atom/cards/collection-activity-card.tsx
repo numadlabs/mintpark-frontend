@@ -15,13 +15,13 @@ interface cardProps {
   collectionName: string;
 }
 
-const ActivityCard: React.FC<cardProps> = ({
+const CollectionActivityCard: React.FC<cardProps> = ({
   imageUrl,
   data,
   collectionName,
 }) => {
   const { authState } = useAuth();
-  
+
   const getFormattedTime = (timestamp?: number) => {
     if (!timestamp) return "-";
 
@@ -39,7 +39,7 @@ const ActivityCard: React.FC<cardProps> = ({
       return `${diffDays}d`;
     }
   };
-  
+
   const { data: currentLayer = [] } = useQuery({
     queryKey: ["currentLayerData", authState.layerId],
     queryFn: () => getLayerById(authState.layerId as string),
@@ -47,16 +47,15 @@ const ActivityCard: React.FC<cardProps> = ({
   });
 
   // Handle different activity types
-  const isMintedOrTransfer = data?.activityType === "TRANSFER" || data?.activityType === "MINTED";
+  const isTransferType =
+    data?.activityType === "TRANSFER" || data?.activityType === "MINTED";
   const showToAddress = data?.activityType === "SOLD" && data?.toAddress;
-  
-  // Safely convert price from string to number
   const priceInEth = data?.price ? Number(data.price) / 10 ** 18 : 0;
   const priceInUsd = priceInEth * 65000; // Assuming ETH price is $65000
 
   return (
     <div className="flex items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap hover:bg-neutral400 hover:bg-opacity-30 cursor-pointer">
-      <div className="flex items-center gap-3 shrink-0 w-[360px]">
+      <div className="flex min-w-[355px] w-full max-w-[510px] gap-3">
         <Image
           src={imageUrl}
           sizes="100%"
@@ -68,7 +67,7 @@ const ActivityCard: React.FC<cardProps> = ({
         />
         <p className="text-md text-neutral50 font-medium">{collectionName}</p>
       </div>
-      <div className="w-[220px] text-start shrink-0">
+      <div className="min-w-[190px] w-full max-w-[375px] text-end">
         <div className="flex flex-row items-center gap-2 bg-white4 w-fit h-[34px] px-3 rounded-lg">
           <TickCircle size={16} color="#D7D8D8" />
           <p className="text-md text-neutral50 font-medium">
@@ -76,17 +75,17 @@ const ActivityCard: React.FC<cardProps> = ({
           </p>
         </div>
       </div>
-      <div className="w-[195px] text-start shrink-0 flex flex-col gap-1">
+      <div className="min-w-[90px] w-full max-w-[350px] text-start flex flex-col gap-1">
         <p className="text-md text-neutral50 font-medium">
-          {isMintedOrTransfer ? "-" : priceInEth}{" "}
-          {isMintedOrTransfer ? "" : getCurrencySymbol(currentLayer.layer)}
+          {isTransferType ? "-" : priceInEth}{" "}
+          {isTransferType ? "" : getCurrencySymbol(currentLayer.layer)}
         </p>
         <p className="text-sm text-neutral200 font-medium">
-          {isMintedOrTransfer ? "" : "$"}{" "}
-          {isMintedOrTransfer ? "" : formatPrice(priceInUsd)}
+          {isTransferType ? "" : "$"}{" "}
+          {isTransferType ? "" : formatPrice(priceInUsd)}
         </p>
       </div>
-      <div className="w-[260px] shrink-0 gap-2 flex items-center">
+      <div className="min-w-[90px] w-full max-w-[260px]  gap-2 flex items-center">
         <p className="text-md text-neutral50 font-medium">
           {truncateAddress(data?.fromAddress)}
         </p>
@@ -99,13 +98,13 @@ const ActivityCard: React.FC<cardProps> = ({
           </div>
         )}
       </div>
-      <div className="w-[152px] shrink-0 3xl:w-[130px] text-start">
+      <div className="w-[152px] shrink-0 3xl:w-[200px] text-end">
         <p className="text-md text-neutral50 font-medium">
-          {getFormattedTime(data?.timestamp)} ago
+          {getFormattedTime(data?.timestamp)}ago
         </p>
       </div>
     </div>
   );
 };
 
-export default ActivityCard;
+export default CollectionActivityCard;
