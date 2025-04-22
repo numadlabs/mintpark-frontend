@@ -58,15 +58,28 @@ export const assetResponseSchema = z.object({
   }),
 });
 
+// export const activityCollectibleSchema = z.object({
+//   activityType: z.string(),
+//   tokenId: z.string().nullable(),
+//   collectionId: z.string(),
+//   fromAddress: z.string(),
+//   price: z.string(),
+//   transactionHash: z.string(),
+//   timestamp: z.number(),
+//   blockNumber: z.number(),
+// });
+
 export const activitySchema = z.object({
   activityType: z.string(),
   tokenId: z.string().nullable(),
   collectionId: z.string(),
   fromAddress: z.string(),
+  toAddress: z.string().optional(),
   price: z.string(),
   transactionHash: z.string(),
   timestamp: z.number(),
   blockNumber: z.number(),
+  seller: z.string().optional()
 });
 
 //Order schemas
