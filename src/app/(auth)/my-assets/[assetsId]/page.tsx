@@ -431,8 +431,13 @@ export default function AssetsDetails() {
                           <ActivityCard
                             key={`${item.transactionHash}-${item.activityType}-${item.timestamp}`}
                             data={item}
+                            imageUrl={
+                              currentAsset.highResolutionImageUrl
+                                ? currentAsset.highResolutionImageUrl
+                                : s3ImageUrlBuilder(currentAsset.fileKey)
+                            }
                             currentLayer={currentLayer?.layer}
-                             currenAsset={currentAsset?.name}
+                            currenAsset={currentAsset?.name}
                           />
                         ))
                       ) : (

@@ -47,7 +47,7 @@ const CollectionActivityCard: React.FC<cardProps> = ({
     <div className="flex items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap hover:bg-neutral400 hover:bg-opacity-30 cursor-pointer">
       <div className="flex min-w-[355px] w-full max-w-[510px] gap-3">
         <Image
-          src={data.fileKey ? data.fileKey : s3ImageUrlBuilder(data.fileKey)}
+          src={s3ImageUrlBuilder(data.fileKey)}
           sizes="100%"
           alt={data?.name}
           width={48}
