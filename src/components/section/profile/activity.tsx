@@ -1,13 +1,15 @@
 import React from 'react'
 import ActivityCard from '@/components/atom/cards/activity-card'
 import { s3ImageUrlBuilder } from '@/lib/utils'
-import { getCollectibleActivity, getCollectionById } from '@/lib/service/queryHelper';
+import { getCollectibleActivity, getCollectionById, getLayerById } from '@/lib/service/queryHelper';
 import { useQuery } from '@tanstack/react-query';
 import { Collectible } from '@/lib/validations/collection-validation';
 import { useParams } from 'next/navigation';
+import { useAuth } from '@/components/provider/auth-context-provider';
 
 const Activity = () => {
   const params = useParams();
+    const { authState } = useAuth();
   const id = params.detailId as string;
 
   const { data: activity = [] } = useQuery({
@@ -16,6 +18,7 @@ const Activity = () => {
     enabled: !!id,
   });
 
+
   const { data: collectible, isLoading: isCollectionLoading } = useQuery<
     Collectible[] | null
   >({
@@ -23,6 +26,12 @@ const Activity = () => {
     queryFn: () => getCollectionById(id),
     enabled: !!id,
   });
+
+    const { data: currentLayer = [] } = useQuery({
+      queryKey: ["currentLayerData", authState.layerId],
+      queryFn: () => getLayerById(authState.layerId as string),
+      enabled: !!authState.layerId,
+    });
 
   const currentAsset = collectible?.[0];
 
@@ -42,12 +51,8 @@ const Activity = () => {
               <ActivityCard
                 key={`${item.id}-${item.event}-${item.date}`}
                 data={item}
-                imageUrl={
-                  currentAsset.highResolutionImageUrl
-                    ? currentAsset.highResolutionImageUrl
-                    : s3ImageUrlBuilder(currentAsset.fileKey)
-                }
-                collectionName={currentAsset.collectionName}
+                currenAsset={currentAsset.name}
+                currentLayer={currentLayer.name}
               />
             ))
           ) : (

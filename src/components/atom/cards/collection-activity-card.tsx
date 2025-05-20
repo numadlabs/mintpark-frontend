@@ -2,7 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { TickCircle, ArrowRight } from "iconsax-react";
 import { ActivityType } from "@/lib/types";
-import { truncateAddress, formatPrice } from "@/lib/utils";
+import { truncateAddress, formatPrice, s3ImageUrlBuilder } from "@/lib/utils";
 import moment from "moment";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 import { useQuery } from "@tanstack/react-query";
@@ -10,18 +10,15 @@ import { getLayerById } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
 
 interface cardProps {
-  imageUrl: string;
   data: ActivityType;
-  collectionName: string;
+  currentLayer: string;
 }
 
 const CollectionActivityCard: React.FC<cardProps> = ({
-  imageUrl,
   data,
-  collectionName,
+  currentLayer,
 }) => {
-  const { authState } = useAuth();
-
+  // const { authState } = useAuth();
   const getFormattedTime = (timestamp?: number) => {
     if (!timestamp) return "-";
 
@@ -36,36 +33,29 @@ const CollectionActivityCard: React.FC<cardProps> = ({
     } else if (diffHours < 24) {
       return `${diffHours}h`;
     } else {
-      return `${diffDays}d`;
+      return `${diffDays}days`;
     }
   };
 
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
-
-  // Handle different activity types
   const isTransferType =
     data?.activityType === "TRANSFER" || data?.activityType === "MINTED";
   const showToAddress = data?.activityType === "SOLD" && data?.toAddress;
   const priceInEth = data?.price ? Number(data.price) / 10 ** 18 : 0;
-  const priceInUsd = priceInEth * 65000; // Assuming ETH price is $65000
+  const priceInUsd = priceInEth * 2489.56; // Assuming ETH price is $2489.56
 
   return (
     <div className="flex items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap hover:bg-neutral400 hover:bg-opacity-30 cursor-pointer">
       <div className="flex min-w-[355px] w-full max-w-[510px] gap-3">
         <Image
-          src={imageUrl}
+          src={data.fileKey ? data.fileKey : s3ImageUrlBuilder(data.fileKey)}
           sizes="100%"
-          alt="image"
+          alt={data?.name}
           width={48}
           height={48}
           draggable="false"
           className="rounded-lg"
         />
-        <p className="text-md text-neutral50 font-medium">{collectionName}</p>
+        <p className="text-md text-neutral50 font-medium">{data?.name}</p>
       </div>
       <div className="min-w-[190px] w-full max-w-[375px] text-end">
         <div className="flex flex-row items-center gap-2 bg-white4 w-fit h-[34px] px-3 rounded-lg">
@@ -78,7 +68,7 @@ const CollectionActivityCard: React.FC<cardProps> = ({
       <div className="min-w-[90px] w-full max-w-[350px] text-start flex flex-col gap-1">
         <p className="text-md text-neutral50 font-medium">
           {isTransferType ? "-" : priceInEth}{" "}
-          {isTransferType ? "" : getCurrencySymbol(currentLayer.layer)}
+          {isTransferType ? "" : getCurrencySymbol(currentLayer)}
         </p>
         <p className="text-sm text-neutral200 font-medium">
           {isTransferType ? "" : "$"}{" "}
@@ -100,7 +90,7 @@ const CollectionActivityCard: React.FC<cardProps> = ({
       </div>
       <div className="w-[152px] shrink-0 3xl:w-[200px] text-end">
         <p className="text-md text-neutral50 font-medium">
-          {getFormattedTime(data?.timestamp)}ago
+          {getFormattedTime(data?.timestamp)} ago
         </p>
       </div>
     </div>
