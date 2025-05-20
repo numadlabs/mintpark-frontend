@@ -41,7 +41,7 @@ const CollectionActivityCard: React.FC<cardProps> = ({
     data?.activityType === "TRANSFER" || data?.activityType === "MINTED";
   const showToAddress = data?.activityType === "SOLD" && data?.toAddress;
   const priceInEth = data?.price ? Number(data.price) / 10 ** 18 : 0;
-  const priceInUsd = priceInEth * 2489.56; // Assuming ETH price is $2489.56
+  const priceInUsd = priceInEth * 2489.56; 
 
   return (
     <div className="flex items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap hover:bg-neutral400 hover:bg-opacity-30 cursor-pointer">
