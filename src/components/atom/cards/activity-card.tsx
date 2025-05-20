@@ -7,12 +7,14 @@ import moment from "moment";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 
 interface cardProps {
+  imageUrl:string
   data: ActivityType;
   currentLayer: string;
   currenAsset: string;
 }
 
 const ActivityCard: React.FC<cardProps> = ({
+  imageUrl,
   data,
   currentLayer,
   currenAsset,
@@ -48,7 +50,7 @@ const ActivityCard: React.FC<cardProps> = ({
     <div className="flex items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap hover:bg-neutral400 hover:bg-opacity-30 cursor-pointer">
       <div className="flex items-center gap-3 shrink-0 w-[360px]">
         <Image
-          src={data.fileKey ? data.fileKey : s3ImageUrlBuilder(data.fileKey)}
+          src={imageUrl}
           sizes="100%"
           alt={currenAsset}
           width={48}
@@ -91,7 +93,7 @@ const ActivityCard: React.FC<cardProps> = ({
       </div>
       <div className="w-[152px] shrink-0 3xl:w-[130px] text-start">
         <p className="text-md text-neutral50 font-medium">
-          {getFormattedTime(data?.timestamp)} ago
+          {getFormattedTime(data?.timestamp)} ago 
         </p>
       </div>
     </div>
