@@ -2,26 +2,21 @@ import React from "react";
 import Image from "next/image";
 import { TickCircle, ArrowRight } from "iconsax-react";
 import { ActivityType } from "@/lib/types";
-import { truncateAddress, formatPrice } from "@/lib/utils";
+import { truncateAddress, formatPrice, s3ImageUrlBuilder } from "@/lib/utils";
 import moment from "moment";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
-import { useQuery } from "@tanstack/react-query";
-import { getLayerById } from "@/lib/service/queryHelper";
-import { useAuth } from "@/components/provider/auth-context-provider";
 
 interface cardProps {
-  imageUrl: string;
   data: ActivityType;
-  collectionName: string;
+  currentLayer: string;
+  currenAsset: string;
 }
 
 const ActivityCard: React.FC<cardProps> = ({
-  imageUrl,
   data,
-  collectionName,
+  currentLayer,
+  currenAsset,
 }) => {
-  const { authState } = useAuth();
-  
   const getFormattedTime = (timestamp?: number) => {
     if (!timestamp) return "-";
 
@@ -34,39 +29,34 @@ const ActivityCard: React.FC<cardProps> = ({
     if (diffMinutes < 60) {
       return `${diffMinutes}m`;
     } else if (diffHours < 24) {
-      return `${diffHours}h`;
+      return `${diffHours}hours`;
     } else {
-      return `${diffDays}d`;
+      return `${diffDays}days`;
     }
   };
-  
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
 
   // Handle different activity types
-  const isMintedOrTransfer = data?.activityType === "TRANSFER" || data?.activityType === "MINTED";
+  const isMintedOrTransfer =
+    data?.activityType === "TRANSFER" || data?.activityType === "MINTED";
   const showToAddress = data?.activityType === "SOLD" && data?.toAddress;
-  
+
   // Safely convert price from string to number
   const priceInEth = data?.price ? Number(data.price) / 10 ** 18 : 0;
-  const priceInUsd = priceInEth * 65000; // Assuming ETH price is $65000
+  const priceInUsd = priceInEth * 2489.56; // Assuming ETH price is 2489.56
 
   return (
     <div className="flex items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap hover:bg-neutral400 hover:bg-opacity-30 cursor-pointer">
       <div className="flex items-center gap-3 shrink-0 w-[360px]">
         <Image
-          src={imageUrl}
+          src={data.fileKey ? data.fileKey : s3ImageUrlBuilder(data.fileKey)}
           sizes="100%"
-          alt="image"
+          alt={currenAsset}
           width={48}
           height={48}
           draggable="false"
           className="rounded-lg"
         />
-        <p className="text-md text-neutral50 font-medium">{collectionName}</p>
+        <p className="text-md text-neutral50 font-medium">{currenAsset}</p>
       </div>
       <div className="w-[220px] text-start shrink-0">
         <div className="flex flex-row items-center gap-2 bg-white4 w-fit h-[34px] px-3 rounded-lg">
@@ -79,7 +69,7 @@ const ActivityCard: React.FC<cardProps> = ({
       <div className="w-[195px] text-start shrink-0 flex flex-col gap-1">
         <p className="text-md text-neutral50 font-medium">
           {isMintedOrTransfer ? "-" : priceInEth}{" "}
-          {isMintedOrTransfer ? "" : getCurrencySymbol(currentLayer.layer)}
+          {isMintedOrTransfer ? "" : getCurrencySymbol(currentLayer)}
         </p>
         <p className="text-sm text-neutral200 font-medium">
           {isMintedOrTransfer ? "" : "$"}{" "}

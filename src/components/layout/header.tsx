@@ -489,9 +489,9 @@ export default function Header() {
               <div className="flex gap-12">
                 <Link href="/">
                   <Image
-                    src="/Logo.svg"
-                    alt="coordinals"
-                    width={40}
+                    src="/newLogo.svg"
+                    alt="Mintpark Logo"
+                    width={64}
                     height={40}
                   />
                 </Link>

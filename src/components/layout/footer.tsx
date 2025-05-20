@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import TextLogo from "../icon/textLogo";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function Footer() {
   const router = useRouter();
@@ -29,7 +29,13 @@ export default function Footer() {
           {/* Logo and Copyright Section */}
           <div className="flex flex-col justify-between">
             <div className="cursor-pointer" onClick={handleLogoClick}>
-              <TextLogo />
+              <Image
+                src="/textLogo.svg"
+                alt="Mint Park Logo"
+                width={293}
+                draggable="false"
+                height={48}
+              />
             </div>
             <p className="font-medium text-md text-neutral200 mt-4 lg:mt-0">
               ©2025 Mint Park. All rights reserved.

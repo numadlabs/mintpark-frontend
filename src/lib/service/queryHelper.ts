@@ -334,12 +334,12 @@ export async function checkOrderStatus(id: string, txid?: string) {
 // Updated getCollectionActivity function with pagination
 export async function getCollectionActivity(
   id: string,
-  limit: number = 20, 
-  offset: number = 0   
+  limit: number = 20,
+  offset: number = 0
 ): Promise<ActivitySchema[]> {
   const params = new URLSearchParams({
     limit: limit.toString(),
-    offset: offset.toString()
+    offset: offset.toString(),
   });
 
   return axiosClient
@@ -350,13 +350,14 @@ export async function getCollectionActivity(
           activityType: activity.event,
           tokenId: activity.item.tokenId,
           collectionId: activity.item.contractAddress,
+          fileKey: activity.item.fileKey,
+          name: activity.item.name,
           fromAddress: activity.from || "Unknown",
           toAddress: activity.to || undefined,
           price: activity.price,
           transactionHash: activity.transactionHash,
           timestamp: activity.time,
           blockNumber: 0,
-          name: activity.item.name,
         }));
       } else {
         throw new Error(response.data.error);
@@ -367,12 +368,12 @@ export async function getCollectionActivity(
 // getCollectibleActivity function with pagination
 export async function getCollectibleActivity(
   id: string,
-  limit: number = 20,  
-  offset: number = 0   
+  limit: number = 20,
+  offset: number = 0
 ): Promise<ActivityType[]> {
   const params = new URLSearchParams({
     limit: limit.toString(),
-    offset: offset.toString()
+    offset: offset.toString(),
   });
 
   return axiosClient
@@ -389,7 +390,7 @@ export async function getCollectibleActivity(
           transactionHash: activity.transactionHash || "",
           timestamp: Number(activity.timestamp) || 0,
           blockNumber: Number(activity.blockNumber) || 0,
-          seller: activity.seller || "Unknown"
+          seller: activity.seller || "Unknown",
         }));
       } else {
         throw new Error(response.data.error);

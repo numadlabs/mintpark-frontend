@@ -1,5 +1,6 @@
 import * as z from "zod";
 import { apiResponseSchema } from "../utils";
+import { FileKey } from "lucide-react";
 
 //todo: declare schema for all of endpoint and use the inferred type
 export const orderSchema = z.object({
@@ -76,6 +77,7 @@ export const activitySchema = z.object({
   fromAddress: z.string(),
   toAddress: z.string().optional(),
   price: z.string(),
+  fileKey: z.string(),
   transactionHash: z.string(),
   timestamp: z.number(),
   blockNumber: z.number(),
