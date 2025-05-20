@@ -1,6 +1,11 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useInfiniteQuery,
+} from "@tanstack/react-query";
 import Header from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -94,11 +99,11 @@ export default function AssetsDetails() {
         activityPageSize,
         pageParam * activityPageSize
       );
-      
+
       // Determine if we have more activities to load
       const hasMore = response.length === activityPageSize;
       setHasMoreActivity(hasMore);
-      
+
       return response;
     },
     initialPageParam: 0,
@@ -124,7 +129,11 @@ export default function AssetsDetails() {
 
       const observer = new IntersectionObserver(
         (entries) => {
-          if (entries[0].isIntersecting && hasMoreActivity && !isFetchingNextActivity) {
+          if (
+            entries[0].isIntersecting &&
+            hasMoreActivity &&
+            !isFetchingNextActivity
+          ) {
             fetchNextActivity();
           }
         },
@@ -422,12 +431,8 @@ export default function AssetsDetails() {
                           <ActivityCard
                             key={`${item.transactionHash}-${item.activityType}-${item.timestamp}`}
                             data={item}
-                            imageUrl={
-                              currentAsset.highResolutionImageUrl
-                                ? currentAsset.highResolutionImageUrl
-                                : s3ImageUrlBuilder(currentAsset.fileKey)
-                            }
-                            collectionName={currentAsset.collectionName}
+                            currentLayer={currentLayer?.layer}
+                             currenAsset={currentAsset?.name}
                           />
                         ))
                       ) : (
@@ -437,20 +442,17 @@ export default function AssetsDetails() {
                           </p>
                         </div>
                       )}
-                      
+
                       {/* Activity loading indicator */}
                       {isFetchingNextActivity && (
                         <div className="w-full flex justify-center py-4">
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral50"></div>
                         </div>
                       )}
-                      
+
                       {/* Activity infinite scroll trigger */}
                       {hasMoreActivity && (
-                        <div 
-                          className="h-8 w-full" 
-                          ref={loadMoreActivityRef}
-                        />
+                        <div className="h-8 w-full" ref={loadMoreActivityRef} />
                       )}
                     </div>
                   </div>

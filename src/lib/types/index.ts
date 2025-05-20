@@ -106,10 +106,12 @@ export type ActivityType = {
     tokenId?: string | null;
     collectionId: string;
     fromAddress: string;
+    fileKey: string; // Optional since it only appears for certain activity type
     toAddress?: string; // Optional since it only appears for certain activity types
     price: string; // Keep as string to handle large numbers properly
     transactionHash: string;
     timestamp: number;
+    name: string;
     blockNumber: number;
     seller?: string;
 };
