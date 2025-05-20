@@ -71,14 +71,14 @@ export const metadata: Metadata = {
     locale: "en_US",
     images: [
       {
-        url: `/logo.png`,
+        url: `/newlogo.sv`,
         width: 1200,
         height: 630,
         alt: "Mint Park - Digital Art Creation Platform",
         type: "image/png",
       },
       {
-        url: `/logo.png`,
+        url: `/newlogo.sv`,
         width: 600,
         height: 315,
         alt: "Mint Park - Digital Art Creation Platform",
@@ -93,16 +93,16 @@ export const metadata: Metadata = {
     title: "Mint Park - Digital Art Creation Platform",
     description:
       "Create and launch unique digital art on Mint Park. Explore Bitcoin NFTs and cross-chain opportunities.",
-    images: [`/logo.png`],
+    images: [`/newlogo.svg`],
     site: "@mintpark",
     creator: "@mintpark",
   },
 
   // Icons
   icons: {
-    icon: "/logo.png",
-    apple: [{ url: "/logo.png", sizes: "180x180", type: "image/png" }],
-    shortcut: "/logo.png",
+    icon: "/newlogo.sv",
+    apple: [{ url: "/newlogo.sv", sizes: "180x180", type: "image/png" }],
+    shortcut: "/newlogo.sv",
     other: [
       {
         rel: "mask-icon",
