@@ -486,13 +486,13 @@ export default function Header() {
           <div className="flex justify-between items-center w-full">
             <div className="flex justify-between items-center w-full pl-6 pr-4 h-full">
               {/* Logo and Navigation */}
-              <div className="flex gap-12">
+              <div className="flex gap-6">
                 <Link href="/">
                   <Image
-                    src="/newLogo.svg"
+                    src="/newLogo.png"
                     alt="Mintpark Logo"
-                    width={64}
-                    height={40}
+                    width={54}
+                    height={36}
                   />
                 </Link>
 
