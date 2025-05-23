@@ -17,6 +17,9 @@ export default function Footer() {
   const handleDocs = () => {
     window.open("https://docs.mintpark.io", "_blank", "noopener,noreferrer");
   };
+    const handleBrand = () => {
+    window.open("https://docs.mintpark.io/about-the-marketplace/brand-kit", "_blank", "noopener,noreferrer");
+  };
   const handleLogoClick = () => router.push("/");
   const handleCreate = () => router.push("/create");
   const handleLaunchapd = () => router.push("/launchpad");
@@ -87,6 +90,12 @@ export default function Footer() {
                   className="font-medium text-md text-neutral200 hover:text-neutral00 text-left transition-all duration-300 ease-out"
                 >
                   Docs
+                </button>
+                <button
+                  onClick={handleBrand}
+                  className="font-medium text-md text-neutral200 hover:text-neutral00 text-left transition-all duration-300 ease-out"
+                >
+                  Brand Asset
                 </button>
               </div>
             </div>
