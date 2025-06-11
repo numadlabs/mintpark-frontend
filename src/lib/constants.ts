@@ -3,7 +3,6 @@ import { WalletConfig } from "@/lib/types";
 export const BITCOIN_IMAGE = "/wallets/Bitcoin.png";
 export const ETH_IMAGE = "/wallets/eth.png";
 
-
 export const STORAGE_KEYS = {
   AUTH_TOKENS: "auth_tokens",
   SELECTED_LAYER: "layerId",
@@ -143,18 +142,25 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
     },
   },
 
-  EDU: {
-    type: "educhain",
-    chainId: "656476", // 5115 in hex
+  EDUCHAIN: {
+    type: "metamask", // Changed from "educhain" to "metamask"
+    chainId: "0xa3c3", // 41923 in hex
     name: "Edu",
-    icon: "/wallets/EduChain.png",
-    currencyIcon: "/wallets/Bitcoin.png",
-    currencyPrice: CITREA_PRICE,
+    icon: "/wallets/edu.png",
+    currencyIcon: "/wallets/edu.png", // Added missing currencyIcon
+    currencyPrice: ETH_PRICE, // Added missing currencyPrice (or use CITREA_PRICE if preferred)
     networks: {
       TESTNET: {
-        chainName: "Etherscan",
-        rpcUrls: ["https://rpc.open-campus-codex.gelato.digital"],
-        blockExplorerUrls: ["https://edu-chain-testnet.blockscout.com/"],
+        chainId: "0xa3c3", // Added chainId here as well for consistency
+        chainName: "EDU Chain Testnet",
+        rpcUrls: ["https://open-campus-codex-sepolia.drpc.org"],
+        blockExplorerUrls: ["https://edu-chain-testnet.blockscout.com"],
+        nativeCurrency: {
+          // Optional: Add native currency info for consistency
+          name: "EDU",
+          symbol: "EDU",
+          decimals: 18,
+        },
       },
     },
   },
