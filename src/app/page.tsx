@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Header from "@/components/layout/header";
 import Layout from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
@@ -21,6 +20,9 @@ import {
 import { serviceData } from "@/lib/constants";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import Footer from "@/components/layout/footer";
+import Partners from "@/components/section/home/partners";
+import LiveNetworks from "@/components/section/home/liveNetworks";
+import { UpcomingNetworks } from "@/components/section/home/upcomingNetworks";
 
 interface FormData {
   name: string;
@@ -155,9 +157,8 @@ export default function Home() {
       {/* <div className="flex flex-col justify-center items-center"> */}
 
       <Layout>
-        <section className="w-full  flex flex-col gap-[56px] md:gap-[120px] mt-12 md:mt-[100px]">
+        <section className="w-full  flex flex-col gap-[56px] md:gap-[200px] mt-12 md:mt-[100px]">
           {/* Hero Section */}
-
           <div className="w-full flex flex-col items-center gap-8 md:gap-12">
             <div className="flex flex-col gap-6 md:gap-8 items-center">
               <div className="font-normal text-blueTitle md:text-headText artpast text-white text-center">
@@ -195,7 +196,6 @@ export default function Home() {
               </Link>
             </div>
           </div>
-
           <div className="relative w-full mx-auto ">
             <div className="relative z-10 w-full">
               <div className="relative w-full h-full max-w-[1920px] px-0">
@@ -231,9 +231,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-
           {/* Services Section */}
-
           <div className="flex flex-col gap-16 justify-center items-center">
             <h1 className="font-bold text-center text-neutral00 text-3xl md:text-5xl">
               Our service
@@ -272,7 +270,18 @@ export default function Home() {
               <ScrollBar orientation="horizontal" className="mt-4" />
             </ScrollArea>
           </div>
-
+          {/* Partners Section */}
+          <div className="flex flex-col justify-center items-center">
+            <Partners />
+          </div>{" "}
+          {/* Live connected networks */}
+          <div className="flex flex-col justify-center items-center">
+            <LiveNetworks />
+          </div>
+          {/* upcoming networks */}
+          <div className="flex flex-col justify-center items-center">
+            <UpcomingNetworks />
+          </div>
           {/* Contact Forms Section */}
           <div className="w-full items-center justify-center flex ">
             <div className="bg-[url('/homePage/contactBg.png')] bg-black/80 items-center max-w-[1216px] w-full bg-cover min-h-[480px] p-6 pt-12 pb-8 md:px-12 md:pb-12 flex flex-col md:flex-row justify-between rounded-[32px] border border-white4 border-b-0 gap-8">
@@ -288,7 +297,6 @@ export default function Home() {
                   explore the possibilities.
                 </p>
               </div>
-
               <Tabs
                 defaultValue="account"
                 className="w-full md:w-[480px] flex flex-col gap-6 md:gap-10 border-hidden"
@@ -392,7 +400,6 @@ export default function Home() {
               </Tabs>
             </div>
           </div>
-
           {/* FAQ Section */}
           <div className="flex flex-col items-center gap-8 md:gap-12 w-full">
             <h4 className="font-bold text-center text-neutral00 text-xl sm:text-3xl md:text-5xl px-4">
@@ -443,7 +450,6 @@ export default function Home() {
               </Accordion>
             </div>
           </div>
-
           {/* About Section */}
           <div className="flex flex-col items-center w-full gap-8 md:gap-16 mb-12">
             <div className="relative w-full max-w-[320px] aspect-square">

@@ -1,4 +1,5 @@
-8/** @type {import('tailwindcss').Config} */
+8;
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
   content: [
@@ -16,13 +17,12 @@ module.exports = {
       },
     },
     fontSize: {
-
-      'display-1': [
-        '64px',
+      "display-1": [
+        "64px",
         {
-         lineHeight: '78px',
-         fontWeight: 'bold' 
-        }
+          lineHeight: "78px",
+          fontWeight: "bold",
+        },
       ],
       xs: ["10px", "12px"],
       sm: ["12px", "16px"],
@@ -63,6 +63,14 @@ module.exports = {
         serviceBG2: "url('/homePage/serviceBG2.png')",
         serviceBG3: "url('/homePage/serviceBG3.png')",
         contactBg: "url('/homePage/contactBg.png')",
+        botanixBG: "url('/homePage/botanixBG.png')",
+        citreaBG: "url('/homePage/citreaBG.png')",
+        midnightBG: "url('/homePage/midnightBG.png')",
+        nubitBG: "url('/homePage/nubitBG.png')",
+        hemiBG: "url('/homePage/hemiBG.png')",
+        newtworksBG1: "url('/liveNetworks/citreaTestnet.png')",
+        newtworksBG2: "url('/liveNetworks/hemiTestnet.png')",
+        newtworksBG3: "url('/liveNetworks/hemiMainnet.png')",
 
         "secondary-less": "var(--Black-less-opacity, rgba(33, 37, 41, 0.70))",
       },
@@ -109,6 +117,8 @@ module.exports = {
         success20: "rgba(44, 181, 158, 0.2)",
         errorMsg: "#ff5c69",
         infoMsg: "#6db5e5",
+        citreaEffect: "#EC642D",
+        nubitEffect: "#F25749",
       },
       border: {
         border1: "border-width: 1px",
