@@ -2,8 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { Lock1, Unlimited } from "iconsax-react";
 import Countdown, { CountdownRenderProps } from "react-countdown";
-import { BITCOIN_IMAGE } from "@/lib/constants";
-import { useLaunchState, LAUNCH_STATE } from "@/lib/hooks/useLaunchState";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { useQuery } from "@tanstack/react-query";
 import { getLayerById } from "@/lib/service/queryHelper";

@@ -5,9 +5,6 @@ import { ActivityType } from "@/lib/types";
 import { truncateAddress, formatPrice, s3ImageUrlBuilder } from "@/lib/utils";
 import moment from "moment";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
-import { useQuery } from "@tanstack/react-query";
-import { getLayerById } from "@/lib/service/queryHelper";
-import { useAuth } from "@/components/provider/auth-context-provider";
 
 interface cardProps {
   data: ActivityType;
@@ -45,7 +42,7 @@ const CollectionActivityCard: React.FC<cardProps> = ({
 
   return (
     <div className="flex items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap hover:bg-neutral400 hover:bg-opacity-30 cursor-pointer">
-      <div className="flex min-w-[355px] w-full max-w-[510px] gap-3">
+      <div className="flex items-center min-w-[355px] w-full max-w-[510px] gap-3">
         <Image
           src={s3ImageUrlBuilder(data.fileKey)}
           sizes="100%"
