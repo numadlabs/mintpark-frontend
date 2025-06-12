@@ -75,14 +75,14 @@ export const metadata: Metadata = {
         width: 1200,
         height: 630,
         alt: "Mint Park - Digital Art Creation Platform",
-        type: "image/png",
+        type: "image/svg",
       },
       {
         url: `/newLogo.svg`,
         width: 600,
         height: 315,
         alt: "Mint Park - Digital Art Creation Platform",
-        type: "image/png",
+        type: "image/svg",
       },
     ],
   },
@@ -101,7 +101,7 @@ export const metadata: Metadata = {
   // Icons
   icons: {
     icon: "/newlogo.svg",
-    apple: [{ url: "/newLogo.png", sizes: "180x180", type: "image/png" }],
+    apple: [{ url: "/newLogo.png", sizes: "180x180", type: "image/svg" }],
     shortcut: "/newLogo.svg",
     other: [
       {

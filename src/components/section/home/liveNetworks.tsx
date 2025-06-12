@@ -6,11 +6,11 @@ export default function LiveNetworks() {
     <>
       <div className="max-w-[1216px] w-full grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-[136px]">
         <div className="flex flex-col items-start justify-center gap-8">
-          <h1 className="font-bold text-center text-neutral00 text-3xl md:text-5xl">
+          <h1 className="font-bold text-center text-white text-2xl sm:text-3xl md:text-5xl">
             Live connected network
           </h1>
           <div className="w-20 h-1 bg-brand rounded-lg" />
-          <p className="text-normal text-xl text-neutral50">
+          <p className="text-normal text-lg sm:text-xl text-neutral50">
             Mint Park brings the NFT world to life with a real-time view of our
             active community. See live minting, trending collections, and user
             interactions as they happen. It’s a dynamic, connected space where
