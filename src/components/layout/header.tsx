@@ -88,7 +88,7 @@ export default function Header() {
       { title: "Launchpad", pageUrl: "/launchpad" },
       { title: "Collections", pageUrl: "/collections" },
     ],
-    [],
+    []
   );
 
   // Handle mobile menu open/close
@@ -148,7 +148,7 @@ export default function Header() {
       // Priority 1: Find exact match for saved layer+network
       if (savedLayer) {
         const matchingLayer = dynamicLayers.find(
-          (l) => l.layer === savedLayer && l.network === savedNetwork,
+          (l) => l.layer === savedLayer && l.network === savedNetwork
         );
 
         if (matchingLayer) {
@@ -156,7 +156,7 @@ export default function Header() {
         } else {
           // Priority 2: Find any layer with matching name
           const anyMatchingLayer = dynamicLayers.find(
-            (l) => l.layer === savedLayer,
+            (l) => l.layer === savedLayer
           );
           if (anyMatchingLayer) {
             targetLayer = anyMatchingLayer;
@@ -208,7 +208,7 @@ export default function Header() {
     async (
       chainId: string,
       layer: string,
-      network: string,
+      network: string
     ): Promise<boolean> => {
       if (!chainId || typeof window === "undefined" || !window.ethereum)
         return false;
@@ -270,7 +270,7 @@ export default function Header() {
         }
       }
     },
-    [],
+    []
   );
 
   // Handle layer selection
@@ -299,11 +299,11 @@ export default function Header() {
         await switchOrAddChain(
           selectedLayerObj.chainId,
           selectedLayerObj.layer,
-          selectedLayerObj.network,
+          selectedLayerObj.network
         );
       }
     },
-    [layers, selectedLayerId, setSelectedLayerId, switchOrAddChain],
+    [layers, selectedLayerId, setSelectedLayerId, switchOrAddChain]
   );
 
   // Handle logout
@@ -330,7 +330,7 @@ export default function Header() {
       router.push(pageUrl);
       setMobileMenuOpen(false);
     },
-    [authState.authenticated, router],
+    [authState.authenticated, router]
   );
 
   // Handle wallet modal toggle
@@ -344,7 +344,7 @@ export default function Header() {
         setState({ ...dummyState });
       }
     },
-    [selectedLayerId],
+    [selectedLayerId]
   );
 
   // Small state object to force re-renders when needed
@@ -358,7 +358,7 @@ export default function Header() {
   // Calculate current wallet - recalculate whenever connected wallets change
   const currentWallet = useMemo(
     () => (selectedLayerId ? getWalletForLayer(selectedLayerId) : undefined),
-    [selectedLayerId, getWalletForLayer, connectedWallets, authState],
+    [selectedLayerId, getWalletForLayer, connectedWallets, authState]
   );
 
   // Calculate wallet connection status - recalculate whenever connected wallets change
@@ -404,7 +404,7 @@ export default function Header() {
               </div>
               <div className="flex items-center gap-2 flex-1">
                 {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(
-                  layer.network,
+                  layer.network
                 )}`}
               </div>
             </div>
@@ -413,7 +413,7 @@ export default function Header() {
         </SelectItem>
       );
     },
-    [connectedWallets, layers],
+    [connectedWallets, layers]
   );
 
   // Render current layer value - memoized for performance
@@ -444,7 +444,7 @@ export default function Header() {
             />
           </div>
           {`${capitalizeFirstLetter(
-            currentLayerObj.layer,
+            currentLayerObj.layer
           )} ${capitalizeFirstLetter(currentLayerObj.network)}`}
         </div>
       );
@@ -457,7 +457,7 @@ export default function Header() {
   const handleModalLayerSelect = useCallback(
     (layer: string, network: string) => {
       const matchingLayer = layers.find(
-        (l) => l.layer === layer && l.network === network,
+        (l) => l.layer === layer && l.network === network
       );
 
       if (matchingLayer) {
@@ -469,7 +469,7 @@ export default function Header() {
         localStorage.setItem("selectedNetwork", matchingLayer.network);
       }
     },
-    [layers, setSelectedLayerId],
+    [layers, setSelectedLayerId]
   );
 
   // Handle wallet connection/disconnection events
@@ -506,7 +506,7 @@ export default function Header() {
                           handleNavigation(
                             item.pageUrl,
                             item.requiresAuth,
-                            item.disabled,
+                            item.disabled
                           )
                         }
                       />
@@ -600,8 +600,8 @@ export default function Header() {
                     <div>
                       {/* <Link href="/#" className="flex ml-4"> */}
                       <Image
-                        src="/Logo.svg"
-                        alt="Mintpark"
+                        src="/newLogo.png"
+                        alt="Mintpark logo"
                         width={40}
                         height={40}
                       />
@@ -626,7 +626,7 @@ export default function Header() {
                             handleNavigation(
                               item.pageUrl,
                               item.requiresAuth,
-                              item.disabled,
+                              item.disabled
                             )
                           }
                         >
@@ -644,7 +644,7 @@ export default function Header() {
                         value={selectedLayerId as string}
                       >
                         <SelectTrigger className="flex items-center h-12 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-full">
-                          <SelectValue  placeholder="Select layer">
+                          <SelectValue placeholder="Select layer">
                             {renderCurrentLayerValue()}
                           </SelectValue>
                         </SelectTrigger>

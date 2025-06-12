@@ -3,7 +3,6 @@ import { WalletConfig } from "@/lib/types";
 export const BITCOIN_IMAGE = "/wallets/Bitcoin.png";
 export const ETH_IMAGE = "/wallets/eth.png";
 
-
 export const STORAGE_KEYS = {
   AUTH_TOKENS: "auth_tokens",
   SELECTED_LAYER: "layerId",
@@ -113,17 +112,17 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
           decimals: 18,
         },
       },
-      // TESTNET: {
-      //   chainId: "0xB56C7", // Hexadecimal representation of 743111
-      //   chainName: "Hemi Testnet",
-      //   rpcUrls: ["https://testnet.rpc.hemi.network/rpc"],
-      //   blockExplorerUrls: ["https://testnet.explorer.hemi.xyz"],
-      //   nativeCurrency: {
-      //     name: "ETH",
-      //     symbol: "ETH",
-      //     decimals: 18,
-      //   },
-      // },
+      TESTNET: {
+        chainId: "0xB56C7", // Hexadecimal representation of 743111
+        chainName: "Hemi Testnet",
+        rpcUrls: ["https://testnet.rpc.hemi.network/rpc"],
+        blockExplorerUrls: ["https://testnet.explorer.hemi.xyz"],
+        nativeCurrency: {
+          name: "ETH",
+          symbol: "ETH",
+          decimals: 18,
+        },
+      },
     },
   },
   POLYGON_ZK: {
@@ -143,18 +142,35 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
     },
   },
 
-  EDU: {
-    type: "educhain",
-    chainId: "656476", // 5115 in hex
-    name: "Edu",
-    icon: "/wallets/EduChain.png",
-    currencyIcon: "/wallets/Bitcoin.png",
-    currencyPrice: CITREA_PRICE,
+  EDUCHAIN: {
+    type: "metamask",
+    chainId: "0xa3c3",
+    name: "EDU Chain Network",
+    icon: "/wallets/edu.png",
+    currencyIcon: "/wallets/edu.png",
+    currencyPrice: ETH_PRICE,
     networks: {
+      MAINNET: {
+        chainId: "0xa3c3", // 41923 in decimal
+        chainName: "EDU Chain Network",
+        rpcUrls: ["https://rpc.edu-chain.raas.gelato.cloud"],
+        blockExplorerUrls: ["https://educhain.blockscout.com"],
+        nativeCurrency: {
+          name: "EDU",
+          symbol: "EDU",
+          decimals: 18,
+        },
+      },
       TESTNET: {
-        chainName: "Etherscan",
-        rpcUrls: ["https://rpc.open-campus-codex.gelato.digital"],
-        blockExplorerUrls: ["https://edu-chain-testnet.blockscout.com/"],
+        chainId: "0xa045c", // 656476 in decimal
+        chainName: "EDU Chain Testnet",
+        rpcUrls: ["https://open-campus-codex-sepolia.drpc.org"],
+        blockExplorerUrls: ["https://opencampus-codex.blockscout.com"],
+        nativeCurrency: {
+          name: "EDU",
+          symbol: "EDU",
+          decimals: 18,
+        },
       },
     },
   },
