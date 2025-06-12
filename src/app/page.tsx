@@ -232,12 +232,12 @@ export default function Home() {
             </div>
           </div>
           {/* Services Section */}
-          <div className="flex flex-col gap-16 justify-center items-center">
+          {/* <div className="flex flex-col gap-16 justify-center items-center">
             <h1 className="font-bold text-center text-neutral00 text-3xl md:text-5xl">
               Our service
             </h1>
             <ScrollArea className="w-full max-w-[1216px]">
-              <div className=" grid-cols-1 grid lg:grid-cols-3 items-center gap-4 sm:gap-8">
+              <div className="grid-cols-1 grid lg:grid-cols-3 items-center gap-4 sm:gap-8">
                 {serviceData.map((item) => (
                   <div
                     key={item.id}
@@ -269,21 +269,97 @@ export default function Home() {
               </div>
               <ScrollBar orientation="horizontal" className="mt-4" />
             </ScrollArea>
+          </div> */}
+          <div className="flex flex-col gap-8 md:gap-16 justify-center items-center px-4 sm:px-6 lg:px-8">
+            <h1 className="font-bold text-center text-neutral00 text-2xl sm:text-3xl md:text-4xl lg:text-5xl max-w-4xl">
+              Our service
+            </h1>
+
+            {/* Mobile: Horizontal scroll, Tablet+: Grid */}
+            <div className="w-full max-w-[1216px]">
+              {/* Mobile horizontal scroll */}
+              <div className="w-full sm:hidden">
+                <div className="overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                  <div className="flex gap-4 pb-4 min-w-max">
+                    {serviceData.map((item) => (
+                      <div
+                        key={item.id}
+                        className="rounded-2xl sm:rounded-[32px] border-hidden flex flex-col flex-shrink-0 w-[280px]"
+                        style={{
+                          backgroundImage: `url('/homePage/${item.bg}.png')`,
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }}
+                      >
+                        <Image
+                          src={`/homePage/${item.image}.png`}
+                          alt={item.title}
+                          width={384}
+                          draggable="false"
+                          height={228}
+                          className="object-cover w-full rounded-t-2xl"
+                        />
+                        <div className="p-4 sm:p-6 lg:p-8 flex flex-col gap-3 sm:gap-4">
+                          <p className="text-center text-base sm:text-lg lg:text-xl xl:text-2xl text-neutral00 font-bold leading-tight">
+                            {item.title}
+                          </p>
+                          <p className="text-center text-sm sm:text-base font-medium text-neutral100 leading-relaxed">
+                            {item.description}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Tablet and desktop grid */}
+              <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                {serviceData.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-2xl sm:rounded-[32px] flex flex-col"
+                    style={{
+                      backgroundImage: `url('/homePage/${item.bg}.png')`,
+                      backgroundSize: "cover object-cover",
+                      backgroundPosition: "center",
+                    }}
+                  >
+                    <Image
+                      src={`/homePage/${item.image}.png`}
+                      alt={item.title}
+                      width={384}
+                      draggable="false"
+                      height={228}
+                      className="object-cover w-full rounded-t-2xl sm:rounded-t-[32px]"
+                    />
+                    <div className="p-4 sm:p-6 lg:p-8 flex flex-col gap-3 sm:gap-4">
+                      <p className="text-center text-base sm:text-lg lg:text-xl xl:text-2xl text-neutral00 font-bold leading-tight">
+                        {item.title}
+                      </p>
+                      <p className="text-center text-sm sm:text-base font-medium text-neutral100 leading-relaxed">
+                        {item.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
           {/* Partners Section */}
-          <div className="flex flex-col justify-center items-center">
-            <Partners />
-          </div>{" "}
-          {/* Live connected networks */}
-          <div className="flex flex-col justify-center items-center">
-            <LiveNetworks />
-          </div>
-          {/* upcoming networks */}
-          <div className="flex flex-col justify-center items-center">
-            <UpcomingNetworks />
-          </div>
-          {/* Contact Forms Section */}
-          <div className="w-full items-center justify-center flex ">
+          <div className="grid gap-[240px]">
+            <div className="flex flex-col justify-center items-center">
+              <Partners />
+            </div>{" "}
+            {/* Live connected networks */}
+            <div className="flex flex-col justify-center items-center pt-10">
+              <LiveNetworks />
+            </div>
+            {/* upcoming networks */}
+            <div className="flex flex-col justify-center items-center">
+              <UpcomingNetworks />
+            </div>
+                <div className="w-full items-center justify-center flex ">
             <div className="bg-[url('/homePage/contactBg.png')] bg-black/80 items-center max-w-[1216px] w-full bg-cover min-h-[480px] p-6 pt-12 pb-8 md:px-12 md:pb-12 flex flex-col md:flex-row justify-between rounded-[32px] border border-white4 border-b-0 gap-8">
               <div className="flex flex-col gap-2 sm:gap-6 w-full md:w-auto">
                 <span className="font-bold text-xl sm:text-3xl md:text-5xl flex flex-row sm:flex-col gap-1.5">
@@ -400,6 +476,9 @@ export default function Home() {
               </Tabs>
             </div>
           </div>
+          </div>
+          {/* Contact Forms Section */}
+      
           {/* FAQ Section */}
           <div className="flex flex-col items-center gap-8 md:gap-12 w-full">
             <h4 className="font-bold text-center text-neutral00 text-xl sm:text-3xl md:text-5xl px-4">
