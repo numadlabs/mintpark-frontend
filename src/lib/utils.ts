@@ -30,6 +30,7 @@ export function s3ImageUrlBuilder(fileKey: string) {
 
 import { ethers } from "ethers";
 import moment from "moment";
+import { toast } from "sonner";
 
 interface WalletConnection {
   // provider: ethers.BrowserProvider | null;
@@ -47,7 +48,7 @@ export async function getSigner(): Promise<WalletConnection> {
       console.error("Failed to connect wallet:", error);
     }
   } else {
-    console.log("Please install MetaMask!");
+    toast.message("Please install MetaMask!");
   }
   return { signer: null };
 }

@@ -109,7 +109,7 @@ const setupWalletEventListeners = (store: any) => {
   const handleAccountsChanged = (accounts: string[]) => {
     const { connectedWallets, layers, disconnectWallet } = store.getState();
 
-    console.log("Metamask accounts changed:", accounts);
+    // console.log("Metamask accounts changed:", accounts);
 
     if (accounts.length === 0) {
       // User disconnected all accounts from Metamask
@@ -164,7 +164,7 @@ const setupWalletEventListeners = (store: any) => {
 
     // Convert chainId from hex to decimal
     const chainIdDecimal = parseInt(chainId, 16).toString();
-    console.log("Metamask chain changed to:", chainIdDecimal);
+    // console.log("Metamask chain changed to:", chainIdDecimal);
 
     // Find a matching layer for this chain ID
     const matchingLayer = layers.find(
@@ -192,7 +192,7 @@ const setupWalletEventListeners = (store: any) => {
   };
 
   const handleDisconnect = (error: any) => {
-    console.log("Metamask disconnect event:", error);
+    toast.error("Metamask disconnect event:", error);
     toast.error("Metamask connection lost");
   };
 
@@ -320,10 +320,10 @@ const useWalletStore = create<WalletStore>()(
 
             const targetChainIdHex = `0x${targetChainIdDecimal.toString(16)}`;
 
-            console.log(
-              "🚀 ~ connectWallet: ~ targetChainIdHex:",
-              targetChainIdHex,
-            );
+            // console.log(
+            //   "🚀 ~ connectWallet: ~ targetChainIdHex:",
+            //   targetChainIdHex,
+            // );
             if (currentChainIdDecimal.toString() !== layer.chainId) {
               try {
                 // Try to switch to the network first before trying to add it
@@ -664,7 +664,7 @@ const useWalletStore = create<WalletStore>()(
                   params: [{ chainId: "0x1" }], // Ethereum mainnet
                 })
                 .catch((e: any) =>
-                  console.log("Could not switch to mainnet, continuing logout"),
+                  toast.message("Could not switch to mainnet, continuing logout"),
                 );
             } catch (error) {
               console.log("Error switching chain during logout:", error);

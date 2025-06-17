@@ -262,10 +262,11 @@ export default function Header() {
             return false;
           }
         } else if (error.code === 4001) {
-          console.log("User rejected chain switch");
+          toast.error("User rejected the request", error);
+          // console.log("User rejected chain switch");
           return false;
         } else {
-          console.error("Error switching chain:", error);
+          toast.error("Error switching chain:", error);
           return false;
         }
       }

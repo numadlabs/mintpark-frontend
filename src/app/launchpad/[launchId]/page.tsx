@@ -482,7 +482,7 @@ const Page = () => {
   ].filter((link) => link.url);
 
   const handleSocialClick = (url: string) => {
-    console.log(url);
+    // console.log(url);
     if (!url) return;
     const validUrl = url.startsWith("https") ? url : `https://${url}`;
     window.open(validUrl, "_blank", "noopener,noreferrer");

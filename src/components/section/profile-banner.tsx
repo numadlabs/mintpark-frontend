@@ -56,7 +56,7 @@ const ProfileBanner: React.FC = () => {
           usdAmount: usdAmount,
         });
 
-        console.log("balance", ethAmount, usdAmount);
+        // console.log("balance", ethAmount, usdAmount);
         
       } else if (connectedWallet.layerType === "BITCOIN") {
         if (!window.unisat) throw new Error("Unisat not installed");
@@ -86,7 +86,7 @@ const ProfileBanner: React.FC = () => {
   useEffect(() => {
     if (connectedWallet) {
       getBalance();
-      console.log(getBalance());
+      // console.log(getBalance());
       
     }
   }, [connectedWallet]);

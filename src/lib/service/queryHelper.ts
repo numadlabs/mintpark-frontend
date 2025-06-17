@@ -115,61 +115,6 @@ export async function getListedCollections(
     });
 }
 
-// export async function getListedCollectionById(
-//   collectionId: string,
-//   orderBy: string,
-//   orderDirection: string,
-//   limit: number,
-//   offset: number,
-//   traitValuesByType: string
-// ): Promise<CollectionDetail | null> {
-//   return axiosClient
-//     .get<CollectionDetailApiResponse>(
-//       `/api/v1/collectibles/${collectionId}/collection/listable?orderBy=${orderBy}&orderDirection=${orderDirection}&limit=${limit}&offset=${offset}&traitValuesByType&${traitValuesByType}`
-//     )
-//     .then((response) => {
-//       if (response.data.success) {
-//         return response.data.data;
-//       } else {
-//         throw new Error(response.data.message);
-//       }
-//     });
-// }
-
-// export async function getListedCollectionById(
-//   collectionId: string,
-//   orderBy: string,
-//   orderDirection: string,
-//   limit: number,
-//   offset: number,
-//   traitValuesByType: string
-// ): Promise<CollectionDetail | null> {
-//   const params = new URLSearchParams({
-//     orderBy,
-//     orderDirection,
-//     limit: limit.toString(),
-//     offset: offset.toString(),
-//   });
-
-//   if (traitValuesByType.length > 0) {
-//     params.append(
-//       "traitValuesByType",
-//       `{${JSON.stringify(traitValuesByType)}}`
-//     );
-//   }
-
-//   return axiosClient
-//     .get<CollectionDetailApiResponse>(
-//       `/api/v1/collectibles/${collectionId}/collection/listable?${params.toString()}`
-//     )
-//     .then((response) => {
-//       if (response.data.success) {
-//         return response.data.data;
-//       } else {
-//         throw new Error(response.data.message);
-//       }
-//     });
-// }
 
 export async function getListedCollectionById(
   collectionId: string,
@@ -278,58 +223,6 @@ export async function checkOrderStatus(id: string, txid?: string) {
       }
     });
 }
-//collection activity
-
-// export async function getCollectionActivity(
-//   id: string,
-// ): Promise<ActivitySchema[]> {
-//   return axiosClient
-//     .get(`/api/v1/collectibles/${id}/activity`)
-//     .then((response) => {
-//       if (response.data.success) {
-//         return response.data.data.activities.map((activity: any) => ({
-//           activityType: activity.event,
-//           tokenId: activity.item.tokenId,
-//           collectionId: activity.item.contractAddress,
-//           fromAddress: activity.from || "Unknown",
-//           toAddress: activity.to || undefined,
-//           price: activity.price,
-//           transactionHash: activity.transactionHash,
-//           timestamp: activity.time,
-//           blockNumber: 0,
-//           name: activity.item.name,
-//         }));
-//       } else {
-//         throw new Error(response.data.error);
-//       }
-//     });
-// }
-
-// //collectible activity
-// export async function getCollectibleActivity(
-//   id: string
-// ): Promise<ActivityType[]> {
-//   return axiosClient
-//     .get(`/api/v1/collectibles/collectible/${id}/activity`)
-//     .then((response) => {
-//       if (response.data.success) {
-//         return response.data.data.activities.map((activity: any) => ({
-//           activityType: activity.type || "",
-//           tokenId: activity.tokenId || null,
-//           collectionId: id, // Using passed collection ID since it's not in response
-//           fromAddress: activity.from || "",
-//           toAddress: activity.to || "", // Only populated for certain activity types
-//           price: activity.price || "0",
-//           transactionHash: activity.transactionHash || "",
-//           timestamp: Number(activity.timestamp) || 0,
-//           blockNumber: Number(activity.blockNumber) || 0,
-//           seller: activity.seller || "Unknown"
-//         }));
-//       } else {
-//         throw new Error(response.data.error);
-//       }
-//     });
-// }
 
 // Updated getCollectionActivity function with pagination
 export async function getCollectionActivity(
