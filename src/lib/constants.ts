@@ -145,14 +145,14 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
   EDUCHAIN: {
     type: "metamask",
     chainId: "0xa3c3",
-    name: "EDU Chain Network",
+    name: "EDU Chain",
     icon: "/wallets/edu.png",
     currencyIcon: "/wallets/edu.png",
     currencyPrice: ETH_PRICE,
     networks: {
       MAINNET: {
         chainId: "0xa3c3", // 41923 in decimal
-        chainName: "EDU Chain Network",
+        chainName: "EDU Chain",
         rpcUrls: ["https://rpc.edu-chain.raas.gelato.cloud"],
         blockExplorerUrls: ["https://educhain.blockscout.com"],
         nativeCurrency: {

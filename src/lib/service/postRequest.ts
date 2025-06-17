@@ -14,6 +14,7 @@ import {
   AddPhaseRequest,
 } from "../types";
 import { collectibleFormData } from "./formHelper";
+import { toast } from "sonner";
 
 // Connect and Login sections
 export async function generateMessageHandler({ address }: { address: string }) {
@@ -158,7 +159,7 @@ export async function createMintCollectible({
   data.file.forEach((file, index) => {
     if (file instanceof File) {
       formData.append(`file`, file);
-      console.log(
+      toast.message(
         `Appending file ${index}: ${file.name}, size: ${file.size}, type: ${file.type}`,
       );
     } else {
@@ -173,14 +174,14 @@ export async function createMintCollectible({
     console.log("Appending txid:", data.txid);
     formData.append("txid", data.txid);
   } else {
-    console.log("No txid provided");
+    toast.message("No txid provided");
     formData.append("txid", ""); // Ensure empty string is sent if no txid
   }
   // Handle feeRate with type conversion
   const feeRate = data.feeRate?.toString() || "1";
   formData.append("feeRate", feeRate);
 
-  console.log("FormData contents:");
+  toast.message("FormData contents:");
   // Use Array.from() to convert the iterator to an array
   Array.from(formData.keys()).forEach((key) => {
     console.log(key, formData.get(key));
