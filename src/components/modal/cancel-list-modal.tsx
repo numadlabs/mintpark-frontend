@@ -9,6 +9,7 @@ import { getSigner } from "@/lib/utils";
 import { toast } from "sonner";
 import { Progress } from "../ui/progress";
 import Image from "next/image";
+import { error } from "console";
 
 interface ModalProps {
   open: boolean;
@@ -94,7 +95,9 @@ const CancelListModal: React.FC<ModalProps> = ({
           );
           await signedTx?.wait();
 
-          if (!signedTx?.hash) throw new Error("TX id not found");
+          // if (!signedTx?.hash) throw new Error("TX id not found.");
+          if (!signedTx?.hash) throw new Error(txResponse.data.error);
+
 
           // Here you might want to fetch asset data
           // This is placeholder code - you would typically fetch this data from an API
@@ -106,7 +109,7 @@ const CancelListModal: React.FC<ModalProps> = ({
             // setName(assetData.name);
             // setPrice(assetData.price);
           } catch (error) {
-            console.error("Error fetching asset data:", error);
+            toast.error("Error fetching asset data:", txResponse.data.error);
           }
 
           // Step 3: Finalize cancellation
@@ -134,7 +137,7 @@ const CancelListModal: React.FC<ModalProps> = ({
           // Handle unsuccessful transaction response
           setIsLoading(false);
           setShowPendingModal(false);
-          toast.error("Failed to prepare cancellation transaction.");
+          toast.error("Failed to prepare cancellation transaction.", txResponse.error);
         }
       }
     } catch (error: any) {
