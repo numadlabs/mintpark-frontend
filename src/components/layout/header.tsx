@@ -374,10 +374,12 @@ export default function Header() {
       if (layer.layer === "BITCOIN") {
         return null;
       }
-      // if (layer.name === "Hemi Testnet") {
-      //   return null;
-      // }
-
+      if (layer.name === "Hemi Testnet") {
+        return null;
+      }
+      if (layer.name === "EDU Chain Testnet") {
+        return null;
+      }
       const isLayerConnected = connectedWallets?.some((wallet: WalletInfo) => {
         const foundLayer = layers.find((l) => l.id === wallet.layerId);
         return (

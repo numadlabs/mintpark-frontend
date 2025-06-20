@@ -177,7 +177,7 @@ const PendingListModal: React.FC<ModalProps> = ({
             setTimeout(() => {
               setSuccess(true);
               setShowPendingState(false);
-              // toast.success("Successfully listed.");
+              toast.success("Successfully listed.");
             }, 1000);
           }
         }
@@ -187,8 +187,8 @@ const PendingListModal: React.FC<ModalProps> = ({
       }
     } catch (error: any) {
       setShowPendingState(false);
-      toast.error(error.message || "Error listing asset");
-      console.error("Error pending list:", error);
+      // toast.error(error.message || "Error listing asset");
+      toast.error("Error pending list:", error);
     } finally {
       if (!success) {
         setIsLoading(false);
