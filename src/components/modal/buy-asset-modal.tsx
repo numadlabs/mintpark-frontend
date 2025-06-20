@@ -151,12 +151,12 @@ const BuyAssetModal: React.FC<ModalProps> = ({
         }
       } else {
         setShowPendingModal(false);
-        toast.error("Failed to create purchase transaction");
+        toast.error("Failed to create purchase transaction.");
       }
     } catch (error: any) {
       setShowPendingModal(false);
       toast.error("Error processing purchase: " + (error.message || "Unknown error"));
-      console.error("Error pending list:", error);
+      toast.error("Error pending list:", error);
     } finally {
       if (!isSuccess) {
         setIsLoading(false);
