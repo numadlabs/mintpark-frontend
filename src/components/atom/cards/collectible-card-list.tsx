@@ -5,10 +5,12 @@ import {
   formatPrice,
   getDaysAgo,
   s3ImageUrlBuilder,
+  truncateAddress,
 } from "@/lib/utils";
 import Link from "next/link";
 import { CollectionSchema } from "@/lib/validations/collection-validation";
 import {
+  getAddressExplorerUrl,
   getCurrencyPrice,
   getCurrencySymbol,
 } from "@/lib/service/currencyHelper";
@@ -72,11 +74,11 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({
 
   return (
     <>
-      <Link
-        className="flex w-full items-center justify-between bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-3"
-        href={`/assets/${data.id}`}
-      >
-        <div className="flex min-w-[392px] w-full max-w-[520px] gap-3">
+      <div className="flex w-full items-center justify-between bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-3">
+        <Link
+          className="flex min-w-[392px] w-full max-w-[520px] gap-3"
+          href={`/assets/${data.id}`}
+        >
           <Image
             width={48}
             height={48}
@@ -92,7 +94,7 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({
           <p className="text-neutral50 font-medium text-md flex items-center">
             {data.name}
           </p>
-        </div>
+        </Link>
         <div className="flex items-center text-start w-full">
           <div className="min-w-[200px] w-full max-w-[324px]  text-start">
             <p className="font-medium text-md text-neutral50 w-full">
@@ -128,9 +130,15 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({
             </p>
           </div>
           <div className="min-w-[200px] w-full max-w-[324px]  text-start">
-            <p className="font-medium text-md text-neutral50 w-full">
+            <p className="font-medium text-md text-neutral50 w-full"></p>
+            {/* <Link
+              href={getAddressExplorerUrl(currentLayer, data?.ownedBy || "")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-md text-neutral50 font-medium hover:text-brand transition-colors cursor-pointer"
+            > */}
               <TruncatedAddress address={data.ownedBy} />
-            </p>
+            {/* </Link> */}
           </div>
           <div
             className={`min-w-[200px] w-full max-w-[324px] h-[18px] ${
@@ -158,7 +166,7 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({
             </span>
           </div>
         </div>
-      </Link>
+      </div>
 
       {isListed && !isOwnListing && (
         <BuyAssetModal
