@@ -326,7 +326,7 @@ export default function AssetDetail() {
                         rel="noopener noreferrer"
                         className="font-medium text-md text-neutral50 hover:text-brand transition-colors"
                       >
-                        {currentAsset.ownedBy}
+                        {truncateAddress(currentAsset.ownedBy || "-")}
                       </Link>
                     </div>
                     <div className="flex justify-between">

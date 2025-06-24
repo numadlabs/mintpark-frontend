@@ -32,19 +32,20 @@ const CollectionActivityCard: React.FC<cardProps> = ({
   return (
     <>
       <div className="flex items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap hover:bg-neutral400 hover:bg-opacity-30">
-        <Link href={`/assets/${data.collectibleId}`}>
-          <div className="flex items-center min-w-[355px] w-full max-w-[510px] gap-3">
-            <Image
-              src={s3ImageUrlBuilder(data.fileKey)}
-              sizes="100%"
-              alt={data?.name}
-              width={48}
-              height={48}
-              draggable="false"
-              className="rounded-lg"
-            />
-            <p className="text-md text-neutral50 font-medium">{data?.name}</p>
-          </div>
+        <Link
+          className="flex items-center min-w-[355px] w-full max-w-[510px] gap-3"
+          href={`/assets/${data.collectibleId}`}
+        >
+          <Image
+            src={s3ImageUrlBuilder(data.fileKey)}
+            sizes="100%"
+            alt={data?.name}
+            width={48}
+            height={48}
+            draggable="false"
+            className="rounded-lg"
+          />
+          <p className="text-md text-neutral50 font-medium">{data?.name}</p>
         </Link>
         <div className="min-w-[190px] w-full max-w-[375px] text-end">
           <div className="flex flex-row items-center gap-2 bg-white4 w-fit h-[34px] px-3 rounded-lg">

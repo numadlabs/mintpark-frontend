@@ -69,18 +69,18 @@ const ActivityCard: React.FC<cardProps> = ({
           </p>
         </div>
         <div className="w-[260px] shrink-0 gap-2 flex items-center">
-          <a
+          <Link
             href={getAddressExplorerUrl(currentLayer, data?.fromAddress || "")}
             target="_blank"
             rel="noopener noreferrer"
             className="text-md text-neutral50 font-medium hover:text-brand transition-colors cursor-pointer"
           >
             {truncateAddress(data?.fromAddress)}
-          </a>
+          </Link>
           {showToAddress && (
             <div className="gap-2 flex flex-row items-center">
               <ArrowRight size={16} color="#88898A" />
-              <a
+              <Link
                 href={getAddressExplorerUrl(
                   currentLayer,
                   data?.toAddress || ""
@@ -90,13 +90,13 @@ const ActivityCard: React.FC<cardProps> = ({
                 className="text-md text-neutral50 font-medium hover:text-brand transition-colors cursor-pointer"
               >
                 {truncateAddress(data?.toAddress || "")}
-              </a>
+              </Link>
             </div>
           )}
         </div>
-        <div className="w-[152px] shrink-0 3xl:w-[130px] text-start 3xl:text-end">
+        <div className="w-[152px] shrink-0 3xl:w-[130px] text-start">
           <p className="text-md text-neutral50 font-medium">
-            {getFormattedTime(data?.timestamp)} ago
+            {getFormattedTime(data?.timestamp)} ago 
           </p>
         </div>
       </div>
