@@ -177,7 +177,7 @@ const PendingListModal: React.FC<ModalProps> = ({
             setTimeout(() => {
               setSuccess(true);
               setShowPendingState(false);
-              toast.success("Successfully listed.");
+              toast.success("Successfully listed.", response.success);
             }, 1000);
           }
         }

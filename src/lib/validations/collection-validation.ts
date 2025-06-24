@@ -53,6 +53,7 @@ export const collectibleSchema = z.object({
   uniqueIdx: z.string(),
   createdAt: z.string(),
   fileKey: z.string(),
+  isOwned: z.boolean(),
   collectionId: z.string(),
   description: z.string(),
   collectionName: z.string(),
