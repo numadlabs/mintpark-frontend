@@ -335,9 +335,15 @@ export default function AssetDetail() {
                       </h1>
                       <p className="font-medium text-md text-success">
                         {currentAsset.floorDifference === 0 ||
+
                         currentAsset.floorDifference === 1
                           ? "-"
-                          : `${currentAsset.floorDifference}%`}
+                          : `${Number(
+                              currentAsset.floorDifference
+                            ).toLocaleString("en-US", {
+                              minimumFractionDigits: 0,
+                              maximumFractionDigits: 1,
+                            })}%`}
                       </p>
                     </div>
                     <div className="flex justify-between">
