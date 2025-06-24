@@ -73,7 +73,7 @@ export const assetResponseSchema = z.object({
 export const activitySchema = z.object({
   activityType: z.string(),
   tokenId: z.string().nullable(),
-  collectionId: z.string(),
+  contractAddress: z.string(),
   fromAddress: z.string(),
   toAddress: z.string().optional(),
   price: z.string(),
