@@ -21,6 +21,7 @@ import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 import { getLayerById } from "@/lib/service/queryHelper";
 import { Progress } from "../ui/progress";
 
+
 interface ModalProps {
   open: boolean;
   onClose: () => void;
@@ -137,26 +138,26 @@ const BuyAssetModal: React.FC<ModalProps> = ({
             setTimeout(() => {
               setIsSuccess(true);
               setShowPendingModal(false);
-              toast.success("Purchase successfully.");
+              toast.success("Purchase successfully.",);
               queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
               queryClient.invalidateQueries({ queryKey: ["activityData", id] });
             }, 1000);
           } else {
             setShowPendingModal(false);
-            toast.error("Error finalizing purchase");
+            toast.error("This listing has been cancelled.",);
           }
-        } else {
+        } 
+        else {
           setShowPendingModal(false);
-          toast.error("Transaction ID missing");
+          toast.error("This listing has been cancelled.");
         }
       } else {
         setShowPendingModal(false);
-        toast.error("Failed to create purchase transaction.");
+        toast.error("This listing has been cancelled.");
       }
     } catch (error: any) {
       setShowPendingModal(false);
-      toast.error("Error processing purchase: " + (error.message || "Unknown error"));
-      toast.error("Error pending list:", error);
+      toast.error("This item has already been sold.", );
     } finally {
       if (!isSuccess) {
         setIsLoading(false);

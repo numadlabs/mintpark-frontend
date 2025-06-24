@@ -112,17 +112,17 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
           decimals: 18,
         },
       },
-      TESTNET: {
-        chainId: "0xB56C7", // Hexadecimal representation of 743111
-        chainName: "Hemi Testnet",
-        rpcUrls: ["https://testnet.rpc.hemi.network/rpc"],
-        blockExplorerUrls: ["https://testnet.explorer.hemi.xyz"],
-        nativeCurrency: {
-          name: "ETH",
-          symbol: "ETH",
-          decimals: 18,
-        },
-      },
+      // TESTNET: {
+      //   chainId: "0xB56C7", // Hexadecimal representation of 743111
+      //   chainName: "Hemi Testnet",
+      //   rpcUrls: ["https://testnet.rpc.hemi.network/rpc"],
+      //   blockExplorerUrls: ["https://testnet.explorer.hemi.xyz"],
+      //   nativeCurrency: {
+      //     name: "ETH",
+      //     symbol: "ETH",
+      //     decimals: 18,
+      //   },
+      // },
     },
   },
   POLYGON_ZK: {
