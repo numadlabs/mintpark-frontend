@@ -242,7 +242,8 @@ export async function getCollectionActivity(
         return response.data.data.activities.map((activity: any) => ({
           activityType: activity.event,
           tokenId: activity.item.tokenId,
-          collectionId: activity.item.contractAddress,
+          contractAddress: activity.item.contractAddress,
+          collectibleId: activity.item.collectibleId,
           fileKey: activity.item.fileKey,
           name: activity.item.name,
           fromAddress: activity.from || "Unknown",

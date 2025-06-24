@@ -68,6 +68,14 @@ export const formatPrice = (price: number) => {
     maximumFractionDigits: 6,
   });
 };
+
+export const formatFloorPrice = (price: number) => {
+  const btcAmount = price;
+  return btcAmount?.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1,
+  });
+};
 export const formatPriceBtc = (price: number) => {
   const btcAmount = price;
   return btcAmount?.toLocaleString("en-US", {
@@ -82,6 +90,14 @@ export const formatPriceUsd = (price: number) => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
+};
+
+export const getDaysAgo = (createdAt: string) => {
+  const createdDate = new Date(createdAt);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - createdDate.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
 };
 
 export const formatDaysAgo = (dateString: string) => {
@@ -129,6 +145,24 @@ export const truncateAddress = (address: string) => {
 
 export const capitalizeFirstLetter = (string: string) => {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+};
+
+export const getFormattedTime = (timestamp?: number) => {
+  if (!timestamp) return "-";
+
+  const now = moment();
+  const date = moment.unix(timestamp);
+  const diffMinutes = now.diff(date, "minutes");
+  const diffHours = now.diff(date, "hours");
+  const diffDays = now.diff(date, "days");
+
+  if (diffMinutes < 60) {
+    return `${diffMinutes} m`;
+  } else if (diffHours < 24) {
+    return `${diffHours} hours`;
+  } else {
+    return `${diffDays} days`;
+  }
 };
 
 // export const storePriceData = (price: number) => {

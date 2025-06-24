@@ -94,7 +94,6 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
           <div className="min-w-[200px] w-full max-w-[392px]">
             <p className="font-medium text-lg text-neutral50 w-full">
               <TruncatedAddress address={data.id} />
-              {/* this is OwnedBy */}
             </p>
           </div>
           <div
