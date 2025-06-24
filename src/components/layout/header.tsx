@@ -87,6 +87,7 @@ export default function Header() {
       },
       { title: "Launchpad", pageUrl: "/launchpad" },
       { title: "Collections", pageUrl: "/collections" },
+      // { title: "Verify", pageUrl: "/discord/verify" },
     ],
     []
   );

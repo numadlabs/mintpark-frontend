@@ -8,8 +8,6 @@ import { cancelList, confirmCancelList } from "@/lib/service/postRequest";
 import { getSigner } from "@/lib/utils";
 import { toast } from "sonner";
 import { Progress } from "../ui/progress";
-import Image from "next/image";
-import { error } from "console";
 
 interface ModalProps {
   open: boolean;
@@ -125,13 +123,13 @@ const CancelListModal: React.FC<ModalProps> = ({
             setTimeout(() => {
               setSuccess(true);
               setShowPendingModal(false);
-              // toast.success("Successfully cancelled.");
+              toast.success("Successfully cancelled.", response.success);
             }, 1000);
           } else {
             // Handle unsuccessful confirmation
             setIsLoading(false);
             setShowPendingModal(false);
-            toast.error("Failed to confirm cancellation.");
+            toast.error("Failed to confirm cancellation.", response.error);
           }
         } else {
           // Handle unsuccessful transaction response
