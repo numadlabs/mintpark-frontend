@@ -14,11 +14,7 @@ export default function VerifyPage() {
   const searchParams = useSearchParams();
   const code: string | null = searchParams.get("code");
 
-  const {
-    authState,
-    selectedLayerId,
-    getWalletForLayer,
-  } = useAuth();
+  const { authState, selectedLayerId, getWalletForLayer } = useAuth();
 
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -46,19 +42,26 @@ export default function VerifyPage() {
       setIsVerifying(true);
       const res = await axiosClient.post(
         "https://mintpark-verification-endpoints.itnumadlabs.workers.dev/role",
-        {
-          address,
-          code,
-        }
+        { address, code }
       );
 
       console.log("Verification response:", res.data);
 
-      // ✅ Амжилттай верификац хийсний дараа message эсвэл reason-г харуулах
-      const successMessage =
-        res.data?.message || res.data?.reason || "You are now verified.";
+      const reason = res.data?.reason;
+      const message = res.data?.message;
+      if (reason === "ALREADY_VERIFIED") {
+        toast.info("ℹ️ This wallet has already been verified.");
+      } else {
 
-      toast.success(`✅ Verification successful! ${successMessage}`);
+        toast.success("✅ Verification successful!");
+
+ 
+        if (message) {
+          toast(message); 
+        } else if (reason) {
+          toast.info(`ℹ️ ${reason}`);
+        }
+      }
     } catch (error: any) {
       const data = error?.response?.data;
       const hasError = data?.hasError;
@@ -69,7 +72,9 @@ export default function VerifyPage() {
       if (hasError) {
         switch (reason) {
           case "DONT_OWN_NFT":
-            toast.error("❌ NFT not found on this wallet. Please check your wallet.");
+            toast.error(
+              "❌ NFT not found on this wallet. Please check your wallet."
+            );
             break;
           case "ALREADY_VERIFIED":
             toast.info("ℹ️ This wallet has already been verified.");
@@ -84,9 +89,7 @@ export default function VerifyPage() {
             break;
         }
       } else {
-        toast.error(
-          data?.message || "❗ Verification failed. Try again."
-        );
+        toast.error(data?.message || "❗ Verification failed. Try again.");
       }
     } finally {
       setIsVerifying(false);
@@ -98,12 +101,9 @@ export default function VerifyPage() {
       <Layout>
         <div className="h-auto w-full flex items-center justify-center pt-[264px] pb-[356px]">
           <div className="w-[600px] h-auto bg-neutral500 border border-neutral400 rounded-[32px] p-10 flex flex-col items-center gap-8">
-            <h1 className="text-neutral00 font-bold text-2xl">
-              Verify your NFT
-            </h1>
+            <h1 className="text-neutral00 font-bold text-2xl">Verify your NFT</h1>
             <p className="text-neutral100 text-lg font-normal text-center">
-              Connect your wallet and verify your NFT to join our Discord
-              community.
+              Connect your wallet and verify your NFT to join our Discord community.
             </p>
 
             {canVerify ? (
@@ -135,9 +135,7 @@ export default function VerifyPage() {
                   width={40}
                   height={40}
                 />
-                <p className="text-neutral50 font-bold text-lg">
-                  Connect Wallet
-                </p>
+                <p className="text-neutral50 font-bold text-lg">Connect Wallet</p>
               </Button>
             )}
           </div>
@@ -155,6 +153,7 @@ export default function VerifyPage() {
     </>
   );
 }
+
 
 
 // "use client";
