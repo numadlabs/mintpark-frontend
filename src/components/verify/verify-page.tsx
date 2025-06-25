@@ -34,7 +34,7 @@ export default function VerifyPage() {
 
   const handleVerify = async () => {
     if (!address || !code) {
-      toast.error("❗ Missing address or code");
+      toast.error("Missing address or code");
       return;
     }
 
@@ -47,46 +47,58 @@ export default function VerifyPage() {
 
       console.log("Verification response:", res.data);
 
-      const reason = res.data?.reason;
-      const message = res.data?.message;
-      if (reason === "ALREADY_VERIFIED") {
-        toast.info("ℹ️ This wallet has already been verified.");
+      const { hasError, reason, message } = res.data;
+
+      if (hasError) {
+        switch (reason) {
+          case "DONT_OWN_NFT":
+            toast.error(
+              "NFT not found on this wallet. Please check your wallet."
+            );
+            break;
+          case "ALREADY_VERIFIED":
+            toast.info("This wallet has already been verified.");
+            break;
+          case "SERVER_ERROR":
+            toast.error("Server error occurred. Please try again later.");
+            break;
+          default:
+            toast.error(message || ` This wallet has already been verified.`);
+            break;
+        }
       } else {
-        // toast.success("✅ Verification successful!");
+        //   toast.success("✅ Verification successful!");
         if (message) {
-          toast(message); 
+          toast(message);
         } else if (reason) {
-          toast.info(`ℹ️ ${reason}`);
+          toast.info(`${reason}`);
         }
       }
     } catch (error: any) {
       const data = error?.response?.data;
       const hasError = data?.hasError;
       const reason = data?.reason;
-
-      console.log("Error reason:", reason);
-
       if (hasError) {
         switch (reason) {
           case "DONT_OWN_NFT":
             toast.error(
-              "❌ NFT not found on this wallet. Please check your wallet."
+              "NFT not found on this wallet. Please check your wallet."
             );
             break;
           case "ALREADY_VERIFIED":
-            toast.info("ℹ️ This wallet has already been verified.");
+            toast.info("This wallet has already been verified.");
             break;
           case "SERVER_ERROR":
-            toast.error("🚨 Server error occurred. Please try again later.");
+            toast.error("Server error occurred. Please try again later.");
             break;
           default:
             toast.error(
-              data?.message || `❗ Verification failed. Reason: ${reason}`
+              data?.message || `Verification failed. Reason: ${reason}`
             );
             break;
         }
       } else {
-        toast.error(data?.message || "❗ Verification failed. Try again.");
+        toast.error(data?.message || "Verification failed. Try again.");
       }
     } finally {
       setIsVerifying(false);
@@ -98,9 +110,12 @@ export default function VerifyPage() {
       <Layout>
         <div className="h-auto w-full flex items-center justify-center pt-[264px] pb-[356px]">
           <div className="w-[600px] h-auto bg-neutral500 border border-neutral400 rounded-[32px] p-10 flex flex-col items-center gap-8">
-            <h1 className="text-neutral00 font-bold text-2xl">Verify your NFT</h1>
+            <h1 className="text-neutral00 font-bold text-2xl">
+              Verify your NFT
+            </h1>
             <p className="text-neutral100 text-lg font-normal text-center">
-              Connect your wallet and verify your NFT to join our Discord community.
+              Connect your wallet and verify your NFT to join our Discord
+              community.
             </p>
 
             {canVerify ? (
@@ -132,7 +147,9 @@ export default function VerifyPage() {
                   width={40}
                   height={40}
                 />
-                <p className="text-neutral50 font-bold text-lg">Connect Wallet</p>
+                <p className="text-neutral50 font-bold text-lg">
+                  Connect Wallet
+                </p>
               </Button>
             )}
           </div>
@@ -150,5 +167,3 @@ export default function VerifyPage() {
     </>
   );
 }
-
-
