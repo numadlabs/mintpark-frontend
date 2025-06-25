@@ -551,7 +551,7 @@ export default function Header() {
                   </Button>
                 ) : authState.authenticated && currentWallet ? (
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="flex items-center gap-2 max-w-[136px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-2 rounded-xl backdrop-blur-xl">
+                    <DropdownMenuTrigger className="flex items-center gap-2 min-w-[170px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all py-2 px-6 rounded-xl backdrop-blur-xl">
                       <Image
                         src="/Avatar.png"
                         alt="avatar"
