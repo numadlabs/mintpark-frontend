@@ -31,6 +31,15 @@ export default function VerifyPage() {
       setCanVerify(false);
     }
   }, [authState.authenticated, selectedLayerId, getWalletForLayer]);
+  const REDIRECT_URL =
+    "https://discord.com/oauth2/authorize?client_id=1386964242644734002&response_type=code&redirect_uri=https%3A%2F%2Fwww.mintpark.io%2Fdiscord%2Fverify&scope=identify";
+
+  const redirectWithMessage = (msg: string) => {
+    toast.error(msg);
+    setTimeout(() => {
+      window.location.href = REDIRECT_URL;
+    }, 2000);
+  };
 
   const handleVerify = async () => {
     if (!address || !code) {
@@ -40,84 +49,59 @@ export default function VerifyPage() {
 
     try {
       setIsVerifying(true);
+
       const res = await axiosClient.post(
         "https://mintpark-verification-endpoints.itnumadlabs.workers.dev/role",
         { address, code }
       );
 
-      console.log("Verification response:", res.data);
-
       const { hasError, reason, message } = res.data;
 
       if (hasError) {
-        switch (reason) {
-          case "DONT_OWN_NFT":
-            toast.error(
-              "NFT not found on this wallet. Please check your wallet."
-            );
-            break;
-          case "ALREADY_VERIFIED":
-            toast.info("This wallet has already been verified.");
-            break;
-          case "SERVER_ERROR":
-            toast.error("Server error occurred. Please try again later.");
-            break;
-          default:
-            toast.error(
-              message || "Discord Access has been revoked. Redirecting..."
-            );
-            setTimeout(() => {
-              window.location.href =
-                "https://discord.com/oauth2/authorize?client_id=1386964242644734002&response_type=code&redirect_uri=https%3A%2F%2Fwww.mintpark.io%2Fdiscord%2Fverify&scope=identify";
-            }, 2000);
-            break;
-        }
+        handleError(reason, message);
       } else {
         if (message) {
           toast(message);
         } else if (reason) {
-          toast.info(`${reason}`);
+          toast.info(reason);
         } else {
-          toast.error("Discord Access has been revoked. Redirecting...");
-          setTimeout(() => {
-            window.location.href =
-              "https://discord.com/oauth2/authorize?client_id=1386964242644734002&response_type=code&redirect_uri=https%3A%2F%2Fwww.mintpark.io%2Fdiscord%2Fverify&scope=identify";
-          }, 2000);
+          redirectWithMessage(
+            "Discord Access has been revoked. Redirecting..."
+          );
         }
       }
     } catch (error: any) {
       const data = error?.response?.data;
       const hasError = data?.hasError;
       const reason = data?.reason;
+      const message = data?.message;
 
       if (hasError) {
-        switch (reason) {
-          case "DONT_OWN_NFT":
-            toast.error(
-              "NFT not found on this wallet. Please check your wallet."
-            );
-            break;
-          case "ALREADY_VERIFIED":
-            toast.info("This wallet has already been verified.");
-            break;
-          case "SERVER_ERROR":
-            toast.error("Server error occurred. Please try again later.");
-            break;
-          default:
-            toast.error(
-              data?.message || `Verification failed. Reason: ${reason}`
-            );
-            setTimeout(() => {
-              window.location.href =
-                "https://discord.com/oauth2/authorize?client_id=1386964242644734002&response_type=code&redirect_uri=https%3A%2F%2Fwww.mintpark.io%2Fdiscord%2Fverify&scope=identify";
-            }, 2000);
-            break;
-        }
+        handleError(reason, message);
       } else {
-        toast.error(data?.message || "Verification failed. Try again.");
+        toast.error(message || "Verification failed. Try again.");
       }
     } finally {
       setIsVerifying(false);
+    }
+  };
+
+  const handleError = (reason?: string, message?: string) => {
+    switch (reason) {
+      case "DONT_OWN_NFT":
+        toast.error("NFT not found on this wallet. Please check your wallet.");
+        break;
+      case "ALREADY_VERIFIED":
+        toast.info("This wallet has already been verified.");
+        break;
+      case "SERVER_ERROR":
+        toast.error("Server error occurred. Please try again later.");
+        break;
+      default:
+        redirectWithMessage(
+          message || "Discord Access has been revoked. Redirecting..."
+        );
+        break;
     }
   };
 
