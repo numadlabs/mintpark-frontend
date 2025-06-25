@@ -51,8 +51,14 @@ export default function VerifyPage() {
           code,
         }
       );
-      toast.success("✅ Verification successful!");
-      console.log(res.data);
+
+      console.log("Verification response:", res.data);
+
+      // ✅ Амжилттай верификац хийсний дараа message эсвэл reason-г харуулах
+      const successMessage =
+        res.data?.message || res.data?.reason || "You are now verified.";
+
+      toast.success(`✅ Verification successful! ${successMessage}`);
     } catch (error: any) {
       const data = error?.response?.data;
       const hasError = data?.hasError;
@@ -149,7 +155,6 @@ export default function VerifyPage() {
     </>
   );
 }
-
 
 
 // "use client";
