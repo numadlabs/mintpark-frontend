@@ -63,21 +63,33 @@ export default function VerifyPage() {
             toast.error("Server error occurred. Please try again later.");
             break;
           default:
-            toast.error(message || ` This wallet has already been verified.`);
+            toast.error(
+              message || "Discord Access has been revoked. Redirecting..."
+            );
+            setTimeout(() => {
+              window.location.href =
+                "https://discord.com/oauth2/authorize?client_id=1386964242644734002&response_type=code&redirect_uri=https%3A%2F%2Fwww.mintpark.io%2Fdiscord%2Fverify&scope=identify";
+            }, 2000);
             break;
         }
       } else {
-        //   toast.success("✅ Verification successful!");
         if (message) {
           toast(message);
         } else if (reason) {
           toast.info(`${reason}`);
+        } else {
+          toast.error("Discord Access has been revoked. Redirecting...");
+          setTimeout(() => {
+            window.location.href =
+              "https://discord.com/oauth2/authorize?client_id=1386964242644734002&response_type=code&redirect_uri=https%3A%2F%2Fwww.mintpark.io%2Fdiscord%2Fverify&scope=identify";
+          }, 2000);
         }
       }
     } catch (error: any) {
       const data = error?.response?.data;
       const hasError = data?.hasError;
       const reason = data?.reason;
+
       if (hasError) {
         switch (reason) {
           case "DONT_OWN_NFT":
@@ -95,6 +107,10 @@ export default function VerifyPage() {
             toast.error(
               data?.message || `Verification failed. Reason: ${reason}`
             );
+            setTimeout(() => {
+              window.location.href =
+                "https://discord.com/oauth2/authorize?client_id=1386964242644734002&response_type=code&redirect_uri=https%3A%2F%2Fwww.mintpark.io%2Fdiscord%2Fverify&scope=identify";
+            }, 2000);
             break;
         }
       } else {
