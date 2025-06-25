@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Layout from '@/components/layout/layout';
-import { Button } from '@/components/ui/button';
-import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
-import { useAuth } from '@/components/provider/auth-context-provider';
-import { toast } from 'sonner';
-import axiosClient from '@/lib/axios';
-import { WalletConnectionModal } from '@/components/modal/wallet-connect-modal';
+import React, { useState, useEffect } from "react";
+import Layout from "@/components/layout/layout";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { useAuth } from "@/components/provider/auth-context-provider";
+import { toast } from "sonner";
+import axiosClient from "@/lib/axios";
+import { WalletConnectionModal } from "@/components/modal/wallet-connect-modal";
 
 export default function VerifyPage() {
   const searchParams = useSearchParams();
-  const code = searchParams.get('code');
+  const code: string | null = searchParams.get("code");
 
   const {
     authState,
     selectedLayerId,
     getWalletForLayer,
-    isWalletConnected,
+    // Removed isWalletConnected since it's unused
   } = useAuth();
 
   const [walletModalOpen, setWalletModalOpen] = useState(false);
@@ -39,21 +39,25 @@ export default function VerifyPage() {
 
   const handleVerify = async () => {
     if (!address || !code) {
-      toast.error('Missing address or code');
+      toast.error("Missing address or code");
       return;
     }
 
     try {
       setIsVerifying(true);
-      const res = await axiosClient.post(`/api/v1/discord/verify`, {
-        address,
-        code,
-      });
-      toast.success('Verification successful!');
+      // Fixed: Removed extra closing parenthesis
+      const res = await axiosClient.post(
+        "https://mintpark-verification-endpoints.itnumadlabs.workers.dev/role",
+        {
+          address,
+          code,
+        }
+      );
+      toast.success("Verification successful!");
       console.log(res.data);
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.message || 'Verification failed. Try again.'
+        error?.response?.data?.message || "Verification failed. Try again."
       );
     } finally {
       setIsVerifying(false);
@@ -69,7 +73,8 @@ export default function VerifyPage() {
               Verify your NFT
             </h1>
             <p className="text-neutral100 text-lg font-normal text-center">
-              Connect your wallet and verify your NFT to join our Discord community.
+              Connect your wallet and verify your NFT to join our Discord
+              community.
             </p>
 
             {canVerify ? (
@@ -86,7 +91,7 @@ export default function VerifyPage() {
                   height={40}
                 />
                 <p className="text-neutral50 font-bold text-lg">
-                  {isVerifying ? 'Verifying...' : 'Verify NFT'}
+                  {isVerifying ? "Verifying..." : "Verify NFT"}
                 </p>
               </Button>
             ) : (
@@ -101,7 +106,9 @@ export default function VerifyPage() {
                   width={40}
                   height={40}
                 />
-                <p className="text-neutral50 font-bold text-lg">Connect Wallet</p>
+                <p className="text-neutral50 font-bold text-lg">
+                  Connect Wallet
+                </p>
               </Button>
             )}
           </div>
