@@ -115,7 +115,6 @@ export async function getListedCollections(
     });
 }
 
-
 export async function getListedCollectionById(
   collectionId: string,
   orderBy: string,
@@ -224,19 +223,72 @@ export async function checkOrderStatus(id: string, txid?: string) {
     });
 }
 
-// Updated getCollectionActivity function with pagination
+// // Updated getCollectionActivity function with pagination
+// export async function getCollectionActivity(
+//   id: string,
+//   limit: number = 20,
+//   offset: number = 0,
+//   activityType?: string
+// ): Promise<ActivitySchema[]> {
+//   const params = new URLSearchParams({
+//     limit: limit.toString(),
+//     offset: offset.toString(),
+//   });
+
+//   // Only add activityType param if it's defined and not "ALL"
+//   if (activityType && activityType !== "ALL") {
+//     params.append("activityType", activityType);
+//   }
+
+//   console.log("API Call params:", params.toString()); // Debug log
+//   console.log("Activity Type:", activityType); // Debug log
+
+//   return axiosClient
+//     .get(`/api/v1/collectibles/${id}/activity?${params.toString()}`)
+//     .then((response) => {
+//       if (response.data.success) {
+//         return response.data.data.activities.map((activity: any) => ({
+//           activityType: activity.event,
+//           tokenId: activity.item.tokenId,
+//           contractAddress: activity.item.contractAddress,
+//           collectibleId: activity.item.collectibleId,
+//           fileKey: activity.item.fileKey,
+//           name: activity.item.name,
+//           fromAddress: activity.from || "Unknown",
+//           toAddress: activity.to || undefined,
+//           price: activity.price,
+//           transactionHash: activity.transactionHash,
+//           timestamp: activity.time,
+//           blockNumber: 0,
+//         }));
+//       } else {
+//         throw new Error(response.data.error);
+//       }
+//     });
+// }
+
 export async function getCollectionActivity(
   id: string,
   limit: number = 20,
-  offset: number = 0
+  offset: number = 0,
+  activityType?: string
 ): Promise<ActivitySchema[]> {
   const params = new URLSearchParams({
     limit: limit.toString(),
     offset: offset.toString(),
   });
+  if (activityType && activityType !== "ALL") {
+    params.append("activityType", activityType);
+  }
+
+  const finalUrl = `/api/v1/collectibles/${id}/activity?${params.toString()}`;
+  console.log("Full API URL:", finalUrl);
+  console.log("Collection ID:", id); 
+  console.log("Activity Type:", activityType); 
+  console.log("API Call params:", params.toString()); 
 
   return axiosClient
-    .get(`/api/v1/collectibles/${id}/activity?${params.toString()}`)
+    .get(finalUrl)
     .then((response) => {
       if (response.data.success) {
         return response.data.data.activities.map((activity: any) => ({
