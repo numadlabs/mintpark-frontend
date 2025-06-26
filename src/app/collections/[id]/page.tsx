@@ -63,6 +63,9 @@ const CollectionDetailPage = () => {
   const [orderBy, setOrderBy] = useState("recent");
   const [orderDirection, setOrderDirection] = useState("desc");
   const [searchFilter, setSearchFilter] = useState<string>("");
+  const [selectedActivity, setSelectedActivity] = useState("ALL");
+  const [activityType, setActivityType] = useState<string>("ALL");
+  const [activeTab, setActiveTab] = useState("AllCard");
   const [traitValuesByType, setTraitValuesByType] = useState<
     Record<string, string[]> | string
   >({});
@@ -123,15 +126,13 @@ const CollectionDetailPage = () => {
     },
     enabled: Boolean(id),
   });
-
-  // Activity infinite query
   const {
     data: activityData,
     fetchNextPage: fetchNextActivity,
     isFetchingNextPage: isFetchingNextActivity,
     hasNextPage: hasNextActivityPage,
   } = useInfiniteQuery({
-    queryKey: ["activityData", id, activityPageSize],
+    queryKey: ["activityData", id, activityPageSize, activityType],
     queryFn: async ({ pageParam = 0 }) => {
       if (!id) {
         throw new Error("Collection ID is required");
@@ -139,10 +140,10 @@ const CollectionDetailPage = () => {
       const response = await getCollectionActivity(
         id,
         activityPageSize,
-        pageParam * activityPageSize
+        pageParam * activityPageSize,
+        activityType // ✅ passed
       );
 
-      // Determine if we have more activities to load
       const hasMore = response.length === activityPageSize;
       setHasMoreActivity(hasMore);
 
@@ -303,6 +304,10 @@ const CollectionDetailPage = () => {
         // setOrderBy("price");
         setOrderDirection("desc");
     }
+  };
+  const handleActivtyChange = (value: string) => {
+    setSelectedActivity(value);
+    setActivityType(value);
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -572,17 +577,48 @@ const CollectionDetailPage = () => {
         </div>
       </section>
       <Tabs defaultValue="AllCard" className="mt-[43.5px] mb-10">
-        <TabsList className="border border-neutral400 p-1 rounded-xl h-12 w-fit">
-          <TabsTrigger
-            value="AllCard"
-            className="px-5 rounded-lg border-0 font-semibold"
-          >
-            Tokens
-          </TabsTrigger>
-          <TabsTrigger value="Activity" className="px-5 rounded-lg border-0">
-            Activity
-          </TabsTrigger>
-        </TabsList>
+        <div className="flex justify-between items-center">
+          <TabsList className="border border-neutral400 p-1 rounded-xl h-12 w-fit">
+            <TabsTrigger
+              value="AllCard"
+              className="px-5 rounded-lg border-0 font-semibold"
+              onClick={() => setActiveTab("AllCard")}
+            >
+              Tokens
+            </TabsTrigger>
+            <TabsTrigger
+              value="Activity"
+              className="px-5 rounded-lg border-0"
+              onClick={() => setActiveTab("Activity")}
+            >
+              Activity
+            </TabsTrigger>
+          </TabsList>
+          {activeTab === "Activity" && (
+            <Select
+              value={selectedActivity}
+              onValueChange={handleActivtyChange}
+            >
+              <SelectTrigger className="w-full md:w-60 h-12 rounded-lg bg-transparent border border-neutral400 text-md2 text-neutral50">
+                <SelectValue placeholder="Select activity" />
+              </SelectTrigger>
+              <SelectContent className="w-full -top-[53px] lg:left-0 md:w-60 rounded-xl bg-neutral600 bg-opacity-70 border-neutral400 backdrop-blur-lg pb-2 px-2">
+                <SelectItem value="ALL" className="pl-10">
+                  All Activities
+                </SelectItem>
+                <SelectItem value="CREATED" className="pl-10">
+                  Created
+                </SelectItem>
+                <SelectItem value="SOLD" className="pl-10">
+                  Sold
+                </SelectItem>
+                <SelectItem value="CANCELLED" className="pl-10">
+                  Cancelled
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        </div>
         <TabsContent value="AllCard">
           <Tabs defaultValue="Grid">
             <section className="flex flex-col md:flex-row justify-between gap-4 mb-7 pt-12 md:pt-12 md2:pt-12 lg:pt-10">
@@ -843,7 +879,6 @@ const CollectionDetailPage = () => {
             </div>
           </div>
         </TabsContent>
-        {/* Search and Filter Section */}
       </Tabs>
     </>
   );

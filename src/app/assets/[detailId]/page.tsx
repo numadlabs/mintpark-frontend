@@ -225,7 +225,7 @@ export default function AssetDetail() {
                   {currentAsset.name}
                 </span>
               </div>
-              <div className="w-full h-[1px] bg-neutral500 my-8" />
+              <div className="w-full h-[1px] bg-neutral500" />
               <div className="flex flex-col justify-center gap-6">
                 {currentAsset.price > 0 ? (
                   <div className="flex flex-col gap-6">
@@ -260,6 +260,7 @@ export default function AssetDetail() {
                 </div>
               </div>
               {/* this section is Attribute */}
+              <div className="w-full h-[1px] bg-neutral500" />
               <h1 className="font-medium text-xl text-neutral50 w-full">
                 Attributes
               </h1>
@@ -287,75 +288,86 @@ export default function AssetDetail() {
               <Accordion
                 type="multiple"
                 defaultValue={["item-1", "item-2"]}
-                className="w-full mt-8"
+                className="w-full"
               >
+                <div className="w-full h-[1px] bg-neutral500 my-4" />
                 <AccordionItem value="item-1">
-                  <AccordionTrigger className="font-medium text-xl text-neutral50 w-full">
-                    Detail
-                  </AccordionTrigger>
-                  <AccordionContent className="flex flex-col gap-6">
-                    {currentAsset.inscriptionId && (
+                  <AccordionItem value="item-1">
+                    <AccordionTrigger className="font-medium text-xl text-neutral50 w-full">
+                      Detail
+                    </AccordionTrigger>
+                    <AccordionContent className="flex flex-col gap-6">
+                      {currentAsset.inscriptionId && (
+                        <div className="flex justify-between">
+                          <h1 className="font-medium text-md text-neutral200">
+                            Original Asset (Inscription ID)
+                          </h1>
+                          <Link
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href={`https://testnet4.ordinals.com/${currentAsset.inscriptionId}`}
+                            className="font-medium cursor-pointer text-md hover:underline text-neutral50"
+                          >
+                            {truncateAddress(currentAsset.inscriptionId)}
+                          </Link>
+                        </div>
+                      )}
+
                       <div className="flex justify-between">
                         <h1 className="font-medium text-md text-neutral200">
-                          Original Asset (Inscription ID)
+                          Owned by
                         </h1>
                         <Link
+                          href={
+                            collectible &&
+                            collectible[0] &&
+                            currentAsset.ownedBy
+                              ? getAddressExplorerUrl(
+                                  collectible[0].layer,
+                                  currentAsset.ownedBy
+                                )
+                              : "#"
+                          }
                           target="_blank"
                           rel="noopener noreferrer"
-                          href={`https://testnet4.ordinals.com/${currentAsset.inscriptionId}`}
-                          className="font-medium cursor-pointer text-md hover:underline text-neutral50"
+                          className="font-medium text-md text-neutral50 hover:text-brand transition-colors"
                         >
-                          {truncateAddress(currentAsset.inscriptionId)}
+                          {truncateAddress(currentAsset.ownedBy || "-")}
                         </Link>
                       </div>
-                    )}
-                    <div className="flex justify-between">
-                      <h1 className="font-medium text-md text-neutral200">
-                        Owned by
-                      </h1>
-                      <Link
-                        href={
-                          collectible && collectible[0] && currentAsset.ownedBy
-                            ? getAddressExplorerUrl(
-                                collectible[0].layer,
-                                currentAsset.ownedBy
-                              )
-                            : "#"
-                        }
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-medium text-md text-neutral50 hover:text-brand transition-colors"
-                      >
-                        {truncateAddress(currentAsset.ownedBy || "-")}
-                      </Link>
-                    </div>
-                    <div className="flex justify-between">
-                      <h1 className="font-medium text-md text-neutral200">
-                        Floor difference
-                      </h1>
-                      <p className="font-medium text-md text-success">
-                        {currentAsset.floorDifference === 0 ||
 
-                        currentAsset.floorDifference === 1
-                          ? "-"
-                          : `${Number(
-                              currentAsset.floorDifference
-                            ).toLocaleString("en-US", {
-                              minimumFractionDigits: 0,
-                              maximumFractionDigits: 1,
-                            })}%`}
-                      </p>
-                    </div>
-                    <div className="flex justify-between">
-                      <h1 className="font-medium text-md text-neutral200">
-                        Listed time
-                      </h1>
-                      <p className="font-medium text-md text-neutral50">
-                        {formatDaysAgo(currentAsset.createdAt)}
-                      </p>
-                    </div>
-                  </AccordionContent>
+                      {currentAsset.price > 0 && (
+                        <>
+                          <div className="flex justify-between">
+                            <h1 className="font-medium text-md text-neutral200">
+                              Floor difference
+                            </h1>
+                            <p className="font-medium text-md text-success">
+                              {currentAsset.floorDifference === 0 ||
+                              currentAsset.floorDifference === 1
+                                ? "-"
+                                : `${Number(
+                                    currentAsset.floorDifference
+                                  ).toLocaleString("en-US", {
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 1,
+                                  })}%`}
+                            </p>
+                          </div>
+                          <div className="flex justify-between">
+                            <h1 className="font-medium text-md text-neutral200">
+                              Listed time
+                            </h1>
+                            <p className="font-medium text-md text-neutral50">
+                              {formatDaysAgo(currentAsset.createdAt)}
+                            </p>
+                          </div>
+                        </>
+                      )}
+                    </AccordionContent>
+                  </AccordionItem>
                 </AccordionItem>
+                <div className="w-full h-[1px] bg-neutral500 my-4" />
                 <AccordionItem value="item-2">
                   <AccordionTrigger className="font-medium text-xl text-neutral50">
                     About {currentAsset.collectionName}
