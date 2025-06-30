@@ -114,8 +114,7 @@ export default function VerifyPage() {
               Verify your NFT
             </h1>
             <p className="text-neutral100 text-lg font-normal text-center">
-              Connect your wallet and verify your NFT to join our Discord
-              community.
+              Authenticate your wallet, verify NFT ownership, and your Discord role will be assigned automatically.
             </p>
 
             {canVerify ? (
