@@ -21,7 +21,6 @@ import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 import { getLayerById } from "@/lib/service/queryHelper";
 import { Progress } from "../ui/progress";
 
-
 interface ModalProps {
   open: boolean;
   onClose: () => void;
@@ -64,21 +63,24 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   // ];
 
   const steps = [
-    { 
-      id: 0, 
-      title: "Securing Your Asset", 
-      description: "Initializing a secure transaction pathway for your digital purchase" 
+    {
+      id: 0,
+      title: "Securing Your Asset",
+      description:
+        "Initializing a secure transaction pathway for your digital purchase",
     },
-    { 
-      id: 1, 
-      title: "Network Validation", 
-      description: "Your transaction is being verified by the decentralized blockchain network" 
+    {
+      id: 1,
+      title: "Network Validation",
+      description:
+        "Your transaction is being verified by the decentralized blockchain network",
     },
-    { 
-      id: 2, 
-      title: "Transfer Completion", 
-      description: "Finalizing ownership rights and delivering the asset to your wallet" 
-    }
+    {
+      id: 2,
+      title: "Transfer Completion",
+      description:
+        "Finalizing ownership rights and delivering the asset to your wallet",
+    },
   ];
 
   // Calculate progress percentage
@@ -100,71 +102,73 @@ const BuyAssetModal: React.FC<ModalProps> = ({
       queryClient.invalidateQueries({ queryKey: ["activityData", id] });
     },
   });
-
   const handlePendingList = async () => {
     setIsLoading(true);
     setShowPendingModal(true);
     setCurrentStep(0);
-    
+
     try {
-      // Step 1: Initialize purchase
+      // Step 1: Generate buy hex
       const pendingRes = await generateBuyHexMutation({
         id: listId,
         feeRate: 1,
         userLayerId: authState.userLayerId as string,
       });
-      
-      if (pendingRes && pendingRes.success) {
-        // Step 2: Process transaction
-        setCurrentStep(1);
-        
-        let txid;
-        const { signer } = await getSigner();
-        const signedTx = await signer?.sendTransaction(pendingRes.data.txHex);
-        await signedTx?.wait();
 
-        if (signedTx?.hash) {
-          // Step 3: Finalize purchase
-          setCurrentStep(2);
-          
-          const response = await buyListedCollectible({
-            id: listId,
-            txid: signedTx?.hash,
-            userLayerId: authState.userLayerId as string,
-          });
-          
-          if (response && response.success) {
-            // Give a moment for the user to see the completed progress
-            setTimeout(() => {
-              setIsSuccess(true);
-              setShowPendingModal(false);
-              toast.success("Purchase successfully.",);
-              queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
-              queryClient.invalidateQueries({ queryKey: ["activityData", id] });
-            }, 1000);
-          } else {
-            setShowPendingModal(false);
-            toast.error("This listing has been cancelled.",);
-          }
-        } 
-        else {
-          setShowPendingModal(false);
-          toast.error("This listing has been cancelled.");
-        }
-      } else {
-        setShowPendingModal(false);
-        toast.error("This listing has been cancelled.");
+      if (!pendingRes?.success) {
+        throw new Error(
+          pendingRes?.error || "Failed to initialize transaction."
+        );
       }
+
+      // Step 2: Sign and send transaction
+      setCurrentStep(1);
+
+      const { signer } = await getSigner();
+      const signedTx = await signer?.sendTransaction(pendingRes.data.txHex);
+      await signedTx?.wait();
+
+      if (!signedTx?.hash) {
+        throw new Error("Failed to broadcast transaction.");
+      }
+
+      // Step 3: Finalize purchase
+      setCurrentStep(2);
+
+      const response = await buyListedCollectible({
+        id: listId,
+        txid: signedTx.hash,
+        userLayerId: authState.userLayerId as string,
+      });
+
+      if (!response?.success) {
+        throw new Error(response?.error || "Failed to complete purchase.");
+      }
+      // Success buy
+      setTimeout(() => {
+        setIsSuccess(true);
+        setShowPendingModal(false);
+        toast.success("Purchase successful.");
+        queryClient.invalidateQueries({ queryKey: ["collectionData", id] });
+        queryClient.invalidateQueries({ queryKey: ["activityData", id] });
+      }, 1000);
     } catch (error: any) {
       setShowPendingModal(false);
-      toast.error("This item has already been sold.", );
+
+      const message =
+        error?.response?.data?.error ||
+        error?.error ||
+        error?.message ||
+        "An unexpected error occurred.";
+
+      toast.error(message);
+      console.error("Error during purchase:", error);
     } finally {
       if (!isSuccess) {
         setIsLoading(false);
       }
     }
   };
-
   // Initial buy form
   const renderInitialForm = () => (
     <div className="w-full items-center flex flex-col gap-6">
@@ -184,9 +188,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
           alt={`logo`}
         />
         <div className="flex flex-col gap-2 justify-center items-center">
-          <p className="text-brand text-lg font-medium">
-            {collectionName}
-          </p>
+          <p className="text-brand text-lg font-medium">{collectionName}</p>
           <p className="text-xl text-neutral00 font-bold">{name}</p>
         </div>
       </div>
@@ -194,12 +196,9 @@ const BuyAssetModal: React.FC<ModalProps> = ({
       <div className="flex flex-col gap-4 w-full">
         <div className="flex flex-col gap-5 bg-white4 p-4 rounded-2xl">
           <div className="w-full flex flex-row items-center justify-between">
-            <p className="text-lg text-neutral100 font-medium">
-              List Price
-            </p>
+            <p className="text-lg text-neutral100 font-medium">List Price</p>
             <p className="text-lg text-neutral50 font-bold">
-              {formatPrice(price)}{" "}
-              {getCurrencySymbol(currentLayer.layer)}
+              {formatPrice(price)} {getCurrencySymbol(currentLayer.layer)}
             </p>
           </div>
         </div>
@@ -239,44 +238,63 @@ const BuyAssetModal: React.FC<ModalProps> = ({
       <div className="p-4 flex justify-center items-center bg-white8 rounded-full">
         <Loader2 className="animate-spin" color="#FFEE32" size={36} />
       </div>
-      
+
       <div className="flex flex-col gap-3 justify-center items-center w-full px-8">
         <p className="text-brand text-2xl font-bold">Transaction in Progress</p>
         <p className="text-neutral100 text-start mb-2">
-          Please wait while we process your purchase. This may take a few moments.
+          Please wait while we process your purchase. This may take a few
+          moments.
         </p>
-        
+
         {/* Progress bar */}
         <div className="w-full mb-4 mt-2">
           <Progress value={progressValue} className="h-2" />
         </div>
-        
+
         {/* Steps */}
         <div className="w-full space-y-4">
           {steps.map((step) => (
             <div key={step.id} className="flex items-start w-full gap-3">
-              <div className={`flex-shrink-0 h-6 w-6 rounded-full mt-0.5 flex items-center justify-center ${
-                step.id < currentStep ? "bg-brand" : 
-                step.id === currentStep ? "bg-brand/20" : 
-                "bg-neutral400"
-              }`}>
+              <div
+                className={`flex-shrink-0 h-6 w-6 rounded-full mt-0.5 flex items-center justify-center ${
+                  step.id < currentStep
+                    ? "bg-brand"
+                    : step.id === currentStep
+                    ? "bg-brand/20"
+                    : "bg-neutral400"
+                }`}
+              >
                 {step.id < currentStep ? (
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 3L4.5 8.5L2 6" stroke="#111315" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M10 3L4.5 8.5L2 6"
+                      stroke="#111315"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 ) : step.id === currentStep ? (
                   <div className="h-2 w-2 bg-brand rounded-full"></div>
                 ) : null}
               </div>
               <div>
-                <p className={`text-md2 font-medium ${
-                  step.id <= currentStep ? "text-neutral50" : "text-neutral200"
-                }`}>
+                <p
+                  className={`text-md2 font-medium ${
+                    step.id <= currentStep
+                      ? "text-neutral50"
+                      : "text-neutral200"
+                  }`}
+                >
                   {step.title}
                 </p>
-                <p className="text-md text-neutral200">
-                  {step.description}
-                </p>
+                <p className="text-md text-neutral200">{step.description}</p>
               </div>
             </div>
           ))}
@@ -298,9 +316,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
           <Check size={40} color="#FFEE32" />
         </div>
         <div className="flex flex-col gap-3 justify-center items-center">
-          <p className="text-2xl text-brand font-bold">
-            Purchase Successful!
-          </p>
+          <p className="text-2xl text-brand font-bold">Purchase Successful!</p>
           <p className="text-lg text-neutral50 font-medium">
             Your purchase was completed successfully.
           </p>
@@ -316,18 +332,12 @@ const BuyAssetModal: React.FC<ModalProps> = ({
           alt={`logo`}
         />
         <div className="flex flex-col gap-2 justify-center items-center">
-          <p className="text-lg text-brand font-medium">
-            {collectionName}
-          </p>
+          <p className="text-lg text-brand font-medium">{collectionName}</p>
           <p className="text-xl text-neutral50 font-bold">{name}</p>
         </div>
       </div>
       <div className="h-[1px] w-full bg-white8" />
-      <Button
-        variant={"secondary"}
-        className="w-full"
-        onClick={onClose}
-      >
+      <Button variant={"secondary"} className="w-full" onClick={onClose}>
         Done
       </Button>
     </div>
@@ -337,13 +347,11 @@ const BuyAssetModal: React.FC<ModalProps> = ({
     <>
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="flex flex-col p-6 gap-6 max-w-[592px] w-full items-center">
-          {showPendingModal ? (
-            renderPendingState()
-          ) : isSuccess ? (
-            renderSuccessState()
-          ) : (
-            renderInitialForm()
-          )}
+          {showPendingModal
+            ? renderPendingState()
+            : isSuccess
+            ? renderSuccessState()
+            : renderInitialForm()}
         </DialogContent>
       </Dialog>
     </>

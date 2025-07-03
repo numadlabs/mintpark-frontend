@@ -719,7 +719,8 @@ const useWalletStore = create<WalletStore>()(
 // Add type declaration for window
 declare global {
   interface Window {
-    ethereum: any;
+    ethereum?: any;
+    // ethereum: any;
     unisat: any;
     _metamaskHandlers?: {
       accountsChanged: (accounts: string[]) => void;
