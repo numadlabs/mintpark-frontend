@@ -22,8 +22,10 @@
     "@radix-ui/react-scroll-area": "^1.0.5",
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-tabs": "^1.0.4",
-    "@tanstack/react-query": "^5.32.1",
+    "@tanstack/react-query": "^5.81.5",
     "@vercel/analytics": "^1.4.1",
+    "@wagmi/chains": "^1.8.0",
+    "@wagmi/connectors": "^5.8.5",
     "axios-hooks": "^5.0.2",
     "date-fns": "^3.6.0",
     "embla-carousel-autoplay": "^8.0.2",
@@ -43,6 +45,8 @@
     "sonner": "^1.4.41",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
+    "viem": "^2.31.6",
+    "wagmi": "^2.15.6",
     "zod": "^3.23.8"
   },
   "devDependencies": {

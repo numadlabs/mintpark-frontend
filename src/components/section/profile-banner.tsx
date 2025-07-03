@@ -9,7 +9,7 @@ import { getCurrencySymbol, getCurrencyImage } from "@/lib/service/currencyHelpe
 
 declare global {
   interface Window {
-    ethereum: any;
+    ethereum?: any;
     unisat: any;
   }
 }
