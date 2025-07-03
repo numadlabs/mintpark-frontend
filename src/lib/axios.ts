@@ -7,12 +7,11 @@ import { LRUCache } from "lru-cache";
 import { clearToken, getAccessToken, getRefreshToken, saveToken } from "./auth";
 import { toast } from "sonner";
 
-// todo: axios dotor bish next config dotroos avah
 export const BACKEND_URL =
   process.env.NODE_ENV === "development"
     //  ? "http://127.0.0.1:4000" // development api
-      ? "https://mintpark-production-0006d54da9fb.herokuapp.com"
-    // ? "https://mintpark-staging-e569c5c4d83c.herokuapp.com" // staging api
+      // ? "https://mintpark-production-0006d54da9fb.herokuapp.com"
+    ? "https://mintpark-staging-e569c5c4d83c.herokuapp.com" // staging api
     :  "https://mintpark-production-0006d54da9fb.herokuapp.com";
 
 const instance = axios.create({
@@ -25,7 +24,6 @@ export const initializeAxios = (logoutHandler: () => void) => {
       if (token) {
         config.headers["Authorization"] = "Bearer " + token;
       }
-
       // Only set multipart/form-data when data is actually FormData
       if (config.data instanceof FormData) {
         config.headers["Content-Type"] = "multipart/form-data";
