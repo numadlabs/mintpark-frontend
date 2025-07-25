@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import axiosClient from "@/lib/axios";
 import { WalletConnectionModal } from "@/components/modal/wallet-connect-modal";
 
-// NFT Configuration
+
 const NFT_CONFIGS = [
   {
     id: "hemi-bros",
