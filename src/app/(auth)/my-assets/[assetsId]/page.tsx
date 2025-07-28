@@ -489,6 +489,7 @@ export default function AssetsDetails() {
         txid={txid}
         id={id}
         isOwnListing={currentAsset.isOwnListing}
+        collectionId={currentAsset.collectionId} // add to this line
       />
       <CancelListModal
         open={cancelModal}
