@@ -63,6 +63,7 @@ const CollectionDetailPage = () => {
   const [orderBy, setOrderBy] = useState("recent");
   const [orderDirection, setOrderDirection] = useState("desc");
   const [searchFilter, setSearchFilter] = useState<string>("");
+  const [debouncedSearchFilter, setDebouncedSearchFilter] = useState<string>(""); // Added debounced search
   const [selectedActivity, setSelectedActivity] = useState("ALL");
   const [activityType, setActivityType] = useState<string>("ALL");
   const [activeTab, setActiveTab] = useState("AllCard");
@@ -72,13 +73,20 @@ const CollectionDetailPage = () => {
   const [selectedTraits, setSelectedTraits] = useState<
     Record<string, string[]>
   >({});
-  // const [showOnlyListed, setShowOnlyListed] = useState(false);
-
   const [isListed, setIsListed] = useState(false);
 
   // Activity pagination state
   const [activityPageSize] = useState(ACTIVITY_PER_PAGE);
   const [hasMoreActivity, setHasMoreActivity] = useState(true);
+
+  // Debounce search filter
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchFilter(searchFilter);
+    }, 300); // 300ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchFilter]);
 
   const {
     data,
@@ -95,6 +103,7 @@ const CollectionDetailPage = () => {
       orderDirection,
       isListed,
       traitValuesByType,
+      debouncedSearchFilter, // Use debounced search filter
     ],
     queryFn: async ({ pageParam = 1 }) => {
       if (!id) {
@@ -102,7 +111,6 @@ const CollectionDetailPage = () => {
       }
       const limit = ITEMS_PER_PAGE;
       const offset = (pageParam - 1) * ITEMS_PER_PAGE;
-      const query = (pageParam - 1) * ITEMS_PER_PAGE;
 
       const response = await getListedCollectionById(
         id,
@@ -110,9 +118,9 @@ const CollectionDetailPage = () => {
         orderDirection,
         limit,
         offset,
-        searchFilter,
+        debouncedSearchFilter, // Pass debounced search filter to API
         isListed,
-        JSON.stringify(traitValuesByType) // Stringify only here if required
+        JSON.stringify(traitValuesByType)
       );
       return {
         collectibles: response?.collectibles ?? [],
@@ -126,6 +134,7 @@ const CollectionDetailPage = () => {
     },
     enabled: Boolean(id),
   });
+
   const {
     data: activityData,
     fetchNextPage: fetchNextActivity,
@@ -141,7 +150,7 @@ const CollectionDetailPage = () => {
         id,
         activityPageSize,
         pageParam * activityPageSize,
-        activityType // ✅ passed
+        activityType
       );
 
       const hasMore = response.length === activityPageSize;
@@ -186,7 +195,7 @@ const CollectionDetailPage = () => {
     return activityData?.pages?.flat() ?? [];
   }, [activityData?.pages]);
 
-  // Memoize the filtered collectibles using the memoized collectibles array
+  // Simplified filtered collectibles - search is now handled server-side
   const filteredCollectibles = React.useMemo(() => {
     let filtered = collectibles;
 
@@ -195,18 +204,11 @@ const CollectionDetailPage = () => {
       filtered = filtered.filter((item) => item.listId !== null);
     }
 
-    // Filter by search
-    if (searchFilter) {
-      filtered = filtered.filter((item) => {
-        const itemId = item.name.toString();
-        const searchValue = searchFilter.toLowerCase();
-
-        return itemId.includes(searchValue);
-      });
-    }
+    // Search filtering is now handled server-side, so we don't need client-side filtering
+    // The API already returns filtered results based on debouncedSearchFilter
 
     return filtered;
-  }, [collectibles, isListed, searchFilter]);
+  }, [collectibles, isListed]); // Removed searchFilter from dependencies
 
   const loadMoreRef = React.useCallback(
     (node: HTMLDivElement | null) => {
@@ -301,10 +303,10 @@ const CollectionDetailPage = () => {
         break;
       default:
         setOrderBy("price_low_to_high");
-        // setOrderBy("price");
         setOrderDirection("desc");
     }
   };
+
   const handleActivtyChange = (value: string) => {
     setSelectedActivity(value);
     setActivityType(value);
