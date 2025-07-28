@@ -1,5 +1,10 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Carousel, CarouselApi, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import {
+  Carousel,
+  CarouselApi,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
 import Image from "next/image";
 
 const SLIDE_INTERVAL = 5000;
@@ -14,32 +19,33 @@ interface BannerSlide {
 }
 
 const bannerData: BannerSlide[] = [
-
   {
     id: 1,
+    image: "/banners/citrea.png",
+    walletImage: "/wallets/Citrea.png",
+    title: "Citrea Phase 2 Testnet is Live",
+    description:
+      "This is your chance to get early exposure to the Citrea ecosystem and be part of their testnet phase.",
+    walletName: "citrea",
+  },
+  {
+    id: 2,
     image: "/banners/hemi.png",
     walletImage: "/wallets/hemi.png",
     title: "We are live on Hemi Mainnet!",
-    description: "Mint Park is live on Hemi Mainnet! Start minting and trading NFTs.",
-    walletName: "hemi"
+    description:
+      "Mint Park is live on Hemi Mainnet! Start minting and trading NFTs.",
+    walletName: "hemi",
   },
-  // {
-  //   id: 2,
-  //   image: "/banner.png",
-  //   walletImage: "/wallets/Citrea.png",
-  //   title: "We are live on Citrea testnet!",
-  //   description: "Mint Park is live on Citrea testnet! Start minting and trading NFTs.",
-  //   walletName: "citrea"
-  // },
   {
-    id: 2,
+    id: 3,
     image: "/banners/Nubit.png",
     walletImage: "/wallets/nubit.png",
     title: "Going Live on Nubit Soon!",
-    description: "We are excited to announce that we will be live on Nubit soon!",
-    walletName: "nubit"
+    description:
+      "We are excited to announce that we will be live on Nubit soon!",
+    walletName: "nubit",
   },
-
 ];
 
 const CollectionsBanner = () => {
@@ -55,7 +61,7 @@ const CollectionsBanner = () => {
     if (!api) return;
 
     api.on("select", handleSelect);
-    
+
     const interval = setInterval(() => {
       const nextIndex = (currentSlide + 1) % bannerData.length;
       api.scrollTo(nextIndex);
