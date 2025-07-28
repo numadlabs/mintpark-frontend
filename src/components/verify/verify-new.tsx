@@ -82,7 +82,7 @@ export default function VerifyNew() {
       setVerifyingStates((prev) => ({ ...prev, [nftConfig.id]: true }));
       // Main role endpoint
       const res = await axiosClient.post(
-        "https://mintpark-verification-endpoints.itnumadlabs.workers.dev/mint-park/role/test",
+        "https://mintpark-verification-endpoints.itnumadlabs.workers.dev/mint-park/role",
         { address, code, role: nftConfig.role }
       );
 

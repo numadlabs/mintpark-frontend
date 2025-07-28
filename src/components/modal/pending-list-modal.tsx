@@ -57,7 +57,7 @@ const PendingListModal: React.FC<ModalProps> = ({
   const [showPendingState, setShowPendingState] = useState(false);
 
   // Special collection ID that gets automatic pricing
-  const SPECIAL_COLLECTION_ID = "25d1657a-b052-4339-ba6b-ec4c2e749672";
+  const SPECIAL_COLLECTION_ID = "bapper-cap";
   const isSpecialCollection = collectionId === SPECIAL_COLLECTION_ID;
 
   // Set price automatically for special collection
