@@ -527,7 +527,7 @@ const Page = () => {
                     </div>
                   </div>
                   <div className="flex flex-col gap-4 sm:gap-6">
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold capitalize text-neutral50">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral50">
                       {collectibles?.name}
                     </h1>
                     <div className="sm:block">
