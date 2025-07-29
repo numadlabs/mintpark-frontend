@@ -561,6 +561,7 @@ export default function Header() {
       <div className="">
         <div className="h-[72px] w-full flex justify-center bg-gray500op50 backdrop-blur-[60px] mt-5 rounded-3xl sticky top-5 left-0 right-0 z-30 max-w-[1920px] mx-auto">
           <div className="flex justify-between items-center w-full">
+            {/* test */}
             <div className="flex justify-between items-center w-full pl-6 pr-4 h-full">
               {/* Logo and Navigation */}
               <div className="flex gap-6">
