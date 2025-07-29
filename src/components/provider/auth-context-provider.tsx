@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useEffect } from "react";
 import useWalletStore, {
@@ -19,7 +19,6 @@ interface ExtendedWalletStore extends WalletStore {
   connectEvmWallet?: (layerId: string, isLinking?: boolean) => Promise<void>;
   disconnectEvmWallet?: (layerId: string) => Promise<void>;
   switchToLayer?: (layerId: string) => Promise<void>;
-  linkAccountToCurrentLayer?: () => Promise<ConnectedWallet>;
 }
 
 const WalletAuthContext = createContext<ExtendedWalletStore | null>(null);
@@ -68,7 +67,6 @@ export const WalletAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     connectEvmWallet: wagmiAuth.connectEvmWallet,
     disconnectEvmWallet: wagmiAuth.disconnectEvmWallet,
     switchToLayer: wagmiAuth.switchToLayer,
-    linkAccountToCurrentLayer: wagmiAuth.linkAccountToCurrentLayer,
   };
 
   return (
@@ -86,7 +84,9 @@ export const useAuth = () => {
   return context;
 };
 
-// 'use client';
+
+
+// "use client";
 
 // import React, { createContext, useContext, useEffect } from "react";
 // import useWalletStore, {
@@ -107,6 +107,7 @@ export const useAuth = () => {
 //   connectEvmWallet?: (layerId: string, isLinking?: boolean) => Promise<void>;
 //   disconnectEvmWallet?: (layerId: string) => Promise<void>;
 //   switchToLayer?: (layerId: string) => Promise<void>;
+//   linkAccountToCurrentLayer?: () => Promise<ConnectedWallet>;
 // }
 
 // const WalletAuthContext = createContext<ExtendedWalletStore | null>(null);
@@ -155,6 +156,7 @@ export const useAuth = () => {
 //     connectEvmWallet: wagmiAuth.connectEvmWallet,
 //     disconnectEvmWallet: wagmiAuth.disconnectEvmWallet,
 //     switchToLayer: wagmiAuth.switchToLayer,
+//     linkAccountToCurrentLayer: wagmiAuth.linkAccountToCurrentLayer,
 //   };
 
 //   return (
