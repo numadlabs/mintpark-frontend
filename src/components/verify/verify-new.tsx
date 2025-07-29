@@ -14,26 +14,26 @@ const NFT_CONFIGS = [
   {
     id: "hemi-bros",
     title: "Hemi Bro's NFT",
-    description:
-      "HemiBros is a premier PFP NFT collection on Hemi, blend of nostalgia, authenticity, and innovation. Every Bro NFT unlocks entry to Bro Town. An upcoming chill farming game built natively on Hemi.",
+    // description:
+    //   "HemiBros is a premier PFP NFT collection on Hemi, blend of nostalgia, authenticity, and innovation. Every Bro NFT unlocks entry to Bro Town. An upcoming chill farming game built natively on Hemi.",
     role: 1,
   },
   {
     id: "mint-park-genesis",
     title: "Mint Park Genesis NFT",
-    description: "Genesis is our inaugural collection marking the beginning of our journey to bring EVM efficiency to Bitcoin Ordinals. These NFTs embody simplicity and value, created specifically for our community as we launch on Hemi.",
+    // description: "Genesis is our inaugural collection marking the beginning of our journey to bring EVM efficiency to Bitcoin Ordinals. These NFTs embody simplicity and value, created specifically for our community as we launch on Hemi.",
     role: 2,
   },
   {
     id: "og-badge",
     title: "OG Badge Nft",
-    description: "Be part of Mint Park's history with our exclusive OG Badge - a special NFT collection minted on Citrea testnet marking our early supporters. These badges represent the pioneers who joined us in building the future of Bitcoin Layer 2 NFTs.",
+    // description: "Be part of Mint Park's history with our exclusive OG Badge - a special NFT collection minted on Citrea testnet marking our early supporters. These badges represent the pioneers who joined us in building the future of Bitcoin Layer 2 NFTs.",
     role: 3,
   },
   {
     id: "kumquat",
     title: "Kumquat Nft",
-    description: "We're thrilled to announce a special collaboration between MintPark and Citrea to launch the exclusive Kumquat NFT Collection! This unique drop celebrates two major milestones: the successful Citrea Kumquat Fork and the joyous occasion of Chinese New Year. Kumquats, symbolizing prosperity and good fortune, perfectly align with the spirit of these celebrations. Each NFT in this limited collection will feature vibrant, culturally inspired designs, blending MintPark's creativity with the new beginnings of the Lunar New Year.",
+    // description: "We're thrilled to announce a special collaboration between MintPark and Citrea to launch the exclusive Kumquat NFT Collection! This unique drop celebrates two major milestones: the successful Citrea Kumquat Fork and the joyous occasion of Chinese New Year. Kumquats, symbolizing prosperity and good fortune, perfectly align with the spirit of these celebrations. Each NFT in this limited collection will feature vibrant, culturally inspired designs, blending MintPark's creativity with the new beginnings of the Lunar New Year.",
     role: 4,
   },
 ];
@@ -150,33 +150,25 @@ export default function VerifyNew() {
     return (
       <div
         key={nftConfig.id}
-        className="w-full max-w-none sm:max-w-[500px] lg:max-w-[600px] h-auto bg-neutral500 border border-neutral400 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 xl:p-10 flex flex-col items-center gap-4 sm:gap-6 lg:gap-8 mx-auto"
+        className="w-full max-w-none sm:max-w-[500px] lg:max-w-[500px] h-auto bg-neutral500 border border-neutral400 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-6 xl:p-6 flex flex-col items-center gap-2 sm:gap-2 lg:gap-2 mx-auto"
       >
         {/* Title */}
         <h1 className="text-neutral00 font-bold text-lg sm:text-xl lg:text-2xl text-center leading-tight">
           {nftConfig.title}
         </h1>
-        
-        {/* Description with better responsive handling */}
-        <div className="w-full">
-          <p className="text-neutral100 text-sm sm:text-base lg:text-lg font-normal text-center leading-relaxed break-words hyphens-auto">
-            {nftConfig.description}
-          </p>
-        </div>
-
         {/* Button */}
         <div className="w-full flex justify-center mt-2 sm:mt-4">
           {canVerify ? (
             <Button
               variant="secondary"
-              className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[336px] h-12 sm:h-14 lg:h-16 cursor-pointer flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 px-4 sm:px-6"
+              className="w-full sm:w-auto sm:min-w-[300px] lg:w-[336px] xl:w-[300px] h-12 sm:h-14 lg:h-16 cursor-pointer flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 px-4 sm:px-6"
               onClick={() => handleVerify(nftConfig)}
               disabled={isVerifying}
             >
               <Image
                 src="/wallets/Metamask.png"
                 alt="Metamask"
-                width={24}
+                width={20}
                 height={24}
                 className="sm:w-8 sm:h-8 lg:w-10 lg:h-10 flex-shrink-0"
               />
@@ -209,16 +201,24 @@ export default function VerifyNew() {
 
   return (
     <>
-      <Layout>
-        <div className="min-h-screen w-full px-3 sm:px-4 lg:px-6 xl:px-8 pt-32 sm:pt-40 lg:pt-48 xl:pt-64 pb-32 sm:pb-40 lg:pb-48 xl:pb-80">
-          <div className="w-full max-w-7xl mx-auto">
-            {/* Grid layout with better responsive handling */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 lg:gap-8 place-items-center">
-              {NFT_CONFIGS.map((nftConfig) => renderNFTCard(nftConfig))}
-            </div>
-          </div>
+   <Layout>
+  <div className="min-h-screen w-full px-3 sm:px-4 lg:px-6 xl:px-8 py-8 sm:py-12 lg:py-16 xl:py-20 flex flex-col">
+    <div className="flex-1 flex flex-col gap-8 sm:gap-10 lg:gap-12">
+      <div className="pt-16 sm:pt-20 lg:pt-24">
+        <h1 className="font-bold text-center xl:text-start text-neutral00 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:pl-8">
+          Mintpark NFT Holder Verification
+        </h1>
+      </div>
+      
+      <div className="flex-1 w-full max-w-7xl mx-auto">
+        {/* Grid layout with better responsive handling */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-6 lg:gap-6 place-items-center h-full content-center">
+          {NFT_CONFIGS.map((nftConfig) => renderNFTCard(nftConfig))}
         </div>
-      </Layout>
+      </div>
+    </div>
+  </div>
+</Layout>
 
       <WalletConnectionModal
         open={walletModalOpen}
