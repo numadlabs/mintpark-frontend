@@ -5,11 +5,7 @@ import { formatPriceBtc, formatPriceUsd } from "@/lib/utils";
 import { getLayerById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { useAssetsContext } from "@/lib/hooks/useAssetContext";
-import {
-  getCurrencySymbol,
-  getCurrencyImage,
-} from "@/lib/service/currencyHelper";
-import { WALLET_CONFIGS } from "@/lib/constants";
+import { getCurrencySymbol, getCurrencyImage } from "@/lib/service/currencyHelper";
 
 declare global {
   interface Window {
@@ -19,16 +15,8 @@ declare global {
 }
 
 const ProfileBanner: React.FC = () => {
-  const {
-    getAddressforCurrentLayer,
-    selectedLayerId,
-    // Add wagmi properties
-    wagmiAddress,
-    wagmiIsConnected,
-    authState,
-    layers = [],
-  } = useAuth();
-
+  const { getAddressforCurrentLayer, selectedLayerId } = useAuth();
+  const connectedWallet = getAddressforCurrentLayer();
   const [balance, setBalance] = useState({
     amount: 0,
     usdAmount: 0,
@@ -37,6 +25,7 @@ const ProfileBanner: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  
   // Get assets data from context
   const { assetsData } = useAssetsContext();
 
@@ -46,56 +35,13 @@ const ProfileBanner: React.FC = () => {
     enabled: !!selectedLayerId,
   });
 
-  // FIXED: Get connected wallet with wagmi support
-  const connectedWallet = React.useMemo(() => {
-    if (!selectedLayerId) return null;
-
-    // First check if we have a wallet in our store
-    const storeWallet = getAddressforCurrentLayer();
-    if (storeWallet) {
-      return storeWallet;
-    }
-
-    // For EVM wallets, check wagmi connection
-    if (wagmiAddress && wagmiIsConnected) {
-      const layer = layers.find((l) => l.id === selectedLayerId);
-      if (layer && WALLET_CONFIGS[layer.layer]?.type === "metamask") {
-        return {
-          address: wagmiAddress,
-          layerId: selectedLayerId,
-          layer: layer.layer,
-          layerType: layer.layerType,
-          network: layer.network,
-          userLayerId: authState.userLayerId || "",
-        };
-      }
-    }
-
-    return null;
-  }, [
-    selectedLayerId,
-    getAddressforCurrentLayer,
-    wagmiAddress,
-    wagmiIsConnected,
-    layers,
-    authState.userLayerId,
-  ]);
-
   const getBalance = async () => {
     if (!connectedWallet) return;
 
     setIsLoading(true);
-    setError(null);
-
     try {
-      // For EVM chains (including wagmi-connected wallets)
-      if (
-        connectedWallet.layerType === "EVM" ||
-        WALLET_CONFIGS[connectedWallet.layer]?.type === "metamask"
-      ) {
-        if (!window.ethereum) {
-          throw new Error("MetaMask not installed");
-        }
+      if (connectedWallet.layerType === "EVM") {
+        if (!window.ethereum) throw new Error("MetaMask not installed");
 
         const balance = await window.ethereum.request({
           method: "eth_getBalance",
@@ -103,21 +49,17 @@ const ProfileBanner: React.FC = () => {
         });
 
         const ethAmount = Number(BigInt(balance)) / 1e18;
-        const usdAmount = ethAmount * (currentLayer?.price || 0);
+        const usdAmount = ethAmount * currentLayer?.price;
 
         setBalance({
           amount: ethAmount,
           usdAmount: usdAmount,
         });
 
-        // console.log("EVM balance fetched:", ethAmount, usdAmount);
-      } else if (
-        connectedWallet.layerType === "BITCOIN" ||
-        WALLET_CONFIGS[connectedWallet.layer]?.type === "unisat"
-      ) {
-        if (!window.unisat) {
-          throw new Error("Unisat not installed");
-        }
+        // console.log("balance", ethAmount, usdAmount);
+        
+      } else if (connectedWallet.layerType === "BITCOIN") {
+        if (!window.unisat) throw new Error("Unisat not installed");
 
         const res = await window.unisat.getBalance();
         if (!res || typeof res.total !== "number") {
@@ -125,53 +67,29 @@ const ProfileBanner: React.FC = () => {
         }
 
         const btcAmount = Number(res.total) / 1e8; // Convert satoshis to BTC
-        const usdAmount = btcAmount * (currentLayer?.price || 97500); // Use layer price or fallback
+        const usdAmount = btcAmount * 97500; // Using example BTC price
 
         setBalance({
           amount: btcAmount,
           usdAmount: usdAmount,
         });
-
-        console.log("Bitcoin balance fetched:", btcAmount, usdAmount);
-      } else {
-        throw new Error(
-          `Unsupported wallet type: ${connectedWallet.layerType}`
-        );
       }
+      setError(null);
     } catch (e) {
-      const errorMessage =
-        e instanceof Error ? e.message : "Failed to fetch balance";
-      setError(errorMessage);
+      setError(e instanceof Error ? e.message : "Failed to fetch balance");
       console.error("Balance fetch error:", e);
-
-      // Reset balance on error
-      setBalance({
-        amount: 0,
-        usdAmount: 0,
-      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // FIXED: Re-fetch balance when wallet connection changes
   useEffect(() => {
-    if (connectedWallet?.address) {
-      // console.log("Wallet connected, fetching balance for:", connectedWallet);
+    if (connectedWallet) {
       getBalance();
-    } else {
-      // console.log("No wallet connected");
-      setBalance({ amount: 0, usdAmount: 0 });
-      setError(null);
+      // console.log(getBalance());
+      
     }
-  }, [
-    connectedWallet?.address,
-    connectedWallet?.layer,
-    currentLayer?.price,
-    // Also trigger when wagmi connection changes
-    wagmiAddress,
-    wagmiIsConnected,
-  ]);
+  }, [connectedWallet]);
 
   const handleCopyAddress = async () => {
     if (!connectedWallet?.address) return;
@@ -190,6 +108,7 @@ const ProfileBanner: React.FC = () => {
     const suffix = address.slice(-4);
     return `${prefix}...${suffix}`;
   };
+  
 
   // Get totalCount and listCount from assetsData
   const totalCount = assetsData?.data?.totalCount || 0;
@@ -240,24 +159,22 @@ const ProfileBanner: React.FC = () => {
                   {connectedWallet &&
                     formatWalletAddress(connectedWallet.address)}
                 </span>
-                {connectedWallet?.address && (
-                  <div className="relative">
-                    <Image
-                      src={"/profile/copy.png"}
-                      alt="copy"
-                      draggable="false"
-                      width={24}
-                      height={24}
-                      className="w-5 h-5 sm:w-6 sm:h-6 cursor-pointer"
-                      onClick={handleCopyAddress}
-                    />
-                    {copySuccess && (
-                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-success text-white text-sm py-1 px-2 rounded">
-                        Copied!
-                      </div>
-                    )}
-                  </div>
-                )}
+                <div className="relative">
+                  <Image
+                    src={"/profile/copy.png"}
+                    alt="copy"
+                    draggable="false"
+                    width={24}
+                    height={24}
+                    className="w-5 h-5 sm:w-6 sm:h-6 cursor-pointer"
+                    onClick={handleCopyAddress}
+                  />
+                  {copySuccess && (
+                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-success text-white text-sm py-1 px-2 rounded">
+                      Copied!
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Balance and Items Info */}
@@ -275,23 +192,15 @@ const ProfileBanner: React.FC = () => {
                         className="h-5 w-5 sm:h-6 sm:w-6 rounded-lg"
                       />
                       <p className="flex items-center font-bold text-lg md:text-xl text-white">
-                        {isLoading ? (
-                          <span className="animate-pulse">Loading...</span>
-                        ) : (
-                          <>
-                            {formatPriceBtc(balance.amount)}{" "}
-                            {getCurrencySymbol(connectedWallet.layer)}
-                          </>
-                        )}
+                        {formatPriceBtc(balance.amount)}{" "}
+                        {
+                          getCurrencySymbol(connectedWallet.layer)
+                        }
                       </p>
                     </div>
                     <div className="h-6 w-[1px] bg-white16" />
                     <p className="h-5 text-neutral100 text-md flex items-center">
-                      {isLoading ? (
-                        <span className="animate-pulse">Loading...</span>
-                      ) : (
-                        `$${formatPriceUsd(balance.usdAmount)}`
-                      )}
+                      ${formatPriceUsd(balance.usdAmount)}
                     </p>
                   </div>
                 )}
@@ -316,19 +225,9 @@ const ProfileBanner: React.FC = () => {
               {/* Error Display */}
               {error && (
                 <div className="text-errorMsg text-sm mt-2 text-center md:text-left">
-                  Error: {error}
+                  {error}
                 </div>
               )}
-
-              {/* Debug info (remove in production) */}
-              {/* {process.env.NODE_ENV === "development" && (
-                <div className="text-xs text-gray-400 mt-2">
-                  Debug: Layer={connectedWallet?.layer}, Type=
-                  {connectedWallet?.layerType}, WagmiConnected=
-                  {wagmiIsConnected}, Address=
-                  {connectedWallet?.address?.slice(0, 10)}...
-                </div>
-              )} */}
             </div>
           </div>
         </div>
@@ -338,3 +237,4 @@ const ProfileBanner: React.FC = () => {
 };
 
 export default ProfileBanner;
+
