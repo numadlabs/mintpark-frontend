@@ -1,3 +1,5 @@
+// auth changes
+
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "../provider/auth-context-provider";
@@ -5,60 +7,59 @@ import { formatPriceBtc, formatPriceUsd } from "@/lib/utils";
 import { getLayerById } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
 import { useAssetsContext } from "@/lib/hooks/useAssetContext";
-import { getCurrencySymbol, getCurrencyImage } from "@/lib/service/currencyHelper";
-
+import {
+  getCurrencySymbol,
+  getCurrencyImage,
+} from "@/lib/service/currencyHelper";
 declare global {
   interface Window {
     ethereum?: any;
-    unisat: any;
   }
+}
+interface Balance {
+  amount: number;
+  usdAmount: number;
 }
 
 const ProfileBanner: React.FC = () => {
-  const { getAddressforCurrentLayer, selectedLayerId } = useAuth();
-  const connectedWallet = getAddressforCurrentLayer();
-  const [balance, setBalance] = useState({
+  const { currentUserLayer } = useAuth();
+  const [balance, setBalance] = useState<Balance>({
     amount: 0,
     usdAmount: 0,
   });
-  const [copySuccess, setCopySuccess] = useState(false);
+  const [copySuccess, setCopySuccess] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
-  
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   // Get assets data from context
   const { assetsData } = useAssetsContext();
 
-  const { data: currentLayer, isLoading: isLayersLoading } = useQuery({
-    queryKey: ["currentLayerData", selectedLayerId],
-    queryFn: () => getLayerById(selectedLayerId as string),
-    enabled: !!selectedLayerId,
+  const { data: currentUserLayerData, isLoading: isLayersLoading } = useQuery({
+    queryKey: ["currentLayerData", currentUserLayer?.layerId],
+    queryFn: () => getLayerById(currentUserLayer?.layerId as string),
+    enabled: !!currentUserLayer?.layerId,
   });
 
-  const getBalance = async () => {
-    if (!connectedWallet) return;
+  const getBalance = async (): Promise<void> => {
+    if (!currentUserLayer || !currentUserLayerData) return;
 
     setIsLoading(true);
     try {
-      if (connectedWallet.layerType === "EVM") {
+      if (currentUserLayerData.type === "EVM") {
         if (!window.ethereum) throw new Error("MetaMask not installed");
 
         const balance = await window.ethereum.request({
           method: "eth_getBalance",
-          params: [connectedWallet.address, "latest"],
+          params: [currentUserLayerData.address, "latest"],
         });
 
         const ethAmount = Number(BigInt(balance)) / 1e18;
-        const usdAmount = ethAmount * currentLayer?.price;
+        const usdAmount = ethAmount * (currentUserLayerData?.price || 0);
 
         setBalance({
           amount: ethAmount,
           usdAmount: usdAmount,
         });
-
-        // console.log("balance", ethAmount, usdAmount);
-        
-      } else if (connectedWallet.layerType === "BITCOIN") {
+      } else if (currentUserLayerData.type === "BITCOIN") {
         if (!window.unisat) throw new Error("Unisat not installed");
 
         const res = await window.unisat.getBalance();
@@ -84,17 +85,15 @@ const ProfileBanner: React.FC = () => {
   };
 
   useEffect(() => {
-    if (connectedWallet) {
+    if (currentUserLayer) {
       getBalance();
-      // console.log(getBalance());
-      
     }
-  }, [connectedWallet]);
+  }, [currentUserLayer, currentUserLayerData?.price]);
 
-  const handleCopyAddress = async () => {
-    if (!connectedWallet?.address) return;
+  const handleCopyAddress = async (): Promise<void> => {
+    if (!currentUserLayer?.address) return;
     try {
-      await navigator.clipboard.writeText(connectedWallet.address);
+      await navigator.clipboard.writeText(currentUserLayer.address);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     } catch (err) {
@@ -102,7 +101,7 @@ const ProfileBanner: React.FC = () => {
     }
   };
 
-  const formatWalletAddress = (address: string | null): string => {
+  const formatWalletAddress = (address: string | null | undefined): string => {
     if (!address) return "Connect Wallet";
     const prefix = address.slice(0, 4);
     const suffix = address.slice(-4);
@@ -156,8 +155,8 @@ const ProfileBanner: React.FC = () => {
               {/* Wallet Address and Copy Button */}
               <div className="flex gap-4 items-center justify-center md:justify-start">
                 <span className="font-bold text-xl sm:text-profileTitle">
-                  {connectedWallet &&
-                    formatWalletAddress(connectedWallet.address)}
+                  {currentUserLayer &&
+                    formatWalletAddress(currentUserLayer.address)}
                 </span>
                 <div className="relative">
                   <Image
@@ -180,11 +179,11 @@ const ProfileBanner: React.FC = () => {
               {/* Balance and Items Info */}
               <div className="flex flex-col md:flex-row gap-4 justify-between w-full">
                 {/* Wallet Balance Section */}
-                {connectedWallet && (
+                {currentUserLayer && (
                   <div className="rounded-2xl bg-white4 p-3 sm:p-4 flex gap-4 items-center w-full md:w-fit justify-center md:justify-start">
                     <div className="flex flex-row items-center gap-2 md:gap-3">
                       <Image
-                        src={getCurrencyImage(connectedWallet.layer)}
+                        src={getCurrencyImage(currentUserLayerData)}
                         alt="crypto"
                         draggable="false"
                         width={24}
@@ -193,9 +192,7 @@ const ProfileBanner: React.FC = () => {
                       />
                       <p className="flex items-center font-bold text-lg md:text-xl text-white">
                         {formatPriceBtc(balance.amount)}{" "}
-                        {
-                          getCurrencySymbol(connectedWallet.layer)
-                        }
+                        {getCurrencySymbol(currentUserLayerData)}
                       </p>
                     </div>
                     <div className="h-6 w-[1px] bg-white16" />
@@ -237,4 +234,3 @@ const ProfileBanner: React.FC = () => {
 };
 
 export default ProfileBanner;
-

@@ -29,9 +29,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Wallet2, Logout, ArrowRight2, ArrowDown2 } from "iconsax-react";
 import { Button } from "../ui/button";
-import { getAllLayers, getLayerById } from "@/lib/service/queryHelper";
 import { truncateAddress, capitalizeFirstLetter } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
 import { LayerType } from "@/lib/types";
 import { toast } from "sonner";
 import Badge from "../atom/badge";
@@ -39,6 +37,7 @@ import { ArrowDown, Check, Loader2, MenuIcon, X } from "lucide-react";
 import { WalletConnectionModal } from "../modal/wallet-connect-modal";
 import { STORAGE_KEYS, WALLET_CONFIGS } from "@/lib/constants";
 import { getCurrencyImage } from "@/lib/service/currencyHelper";
+import { useLayers } from "@/lib/hooks/useWalletQueries";
 
 // Type definitions
 interface RouteItem {
@@ -59,19 +58,29 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [selectedLayer, setSelectedLayer] = useState("");
-  const [defaultLayer, setDefaultLayer] = useState("HEMI-MAINNET");
-  const prevLayerIdRef = useRef(null);
+  // const [defaultLayer, setDefaultLayer] = useState("HEMI-MAINNET");
+  const prevLayerIdRef = useRef<string | null>(null);
   const initialSetupDone = useRef(false);
 
   const {
-    authState,
-    onLogout,
+    isConnected,
+    currentLayer,
+    currentUserLayer,
+    user,
+    isLoading,
+    error,
+    availableLayers,
     selectedLayerId,
+    defaultLayer,
+
+    connectWallet,
+setDefaultLayer,
+    switchLayer,
     setSelectedLayerId,
-    getWalletForLayer,
-    isWalletConnected,
-    connectedWallets,
+    disconnectWallet,
   } = useAuth();
+  console.log("error", error);
+  console.log("selectedLayerId", selectedLayerId);
 
   useMetamaskEvents();
 
@@ -118,27 +127,12 @@ export default function Header() {
     return () => window.removeEventListener("resize", handleResize);
   }, [mobileMenuOpen]);
 
-  // Fetch all available layers
-  const { data: dynamicLayers = [] } = useQuery({
-    queryKey: ["layerData"],
-    queryFn: getAllLayers,
-    staleTime: Infinity,
-    gcTime: Infinity,
-  });
-
-  // Memoized layers
-  const layers = useMemo(() => [...dynamicLayers], [dynamicLayers]);
-
-  // Fetch current selected layer data
-  const { data: currentLayer, isLoading: isLayersLoading } = useQuery({
-    queryKey: ["currentLayerData", selectedLayerId],
-    queryFn: () => getLayerById(selectedLayerId as string),
-    enabled: !!selectedLayerId,
-  });
+  const { data: layers } = useLayers();
+  // const selectedLayerId = currentLayer?.id || ;
 
   // Initialize from localStorage and handle initial layer selection
   useEffect(() => {
-    if (dynamicLayers.length === 0 || initialSetupDone.current) return;
+    if (availableLayers.length === 0 || initialSetupDone.current) return;
 
     const savedLayer = localStorage.getItem(STORAGE_KEYS.SELECTED_LAYER);
     const savedNetwork = localStorage.getItem("selectedNetwork") || "MAINNET";
@@ -148,7 +142,7 @@ export default function Header() {
 
       // Priority 1: Find exact match for saved layer+network
       if (savedLayer) {
-        const matchingLayer = dynamicLayers.find(
+        const matchingLayer = availableLayers.find(
           (l) => l.layer === savedLayer && l.network === savedNetwork
         );
 
@@ -156,7 +150,7 @@ export default function Header() {
           targetLayer = matchingLayer;
         } else {
           // Priority 2: Find any layer with matching name
-          const anyMatchingLayer = dynamicLayers.find(
+          const anyMatchingLayer = availableLayers.find(
             (l) => l.layer === savedLayer
           );
           if (anyMatchingLayer) {
@@ -167,27 +161,35 @@ export default function Header() {
 
       // Priority 3: Find HEMI layer
       if (!targetLayer) {
-        const hemiLayer = dynamicLayers.find((l) => l.layer === "HEMI");
+        const hemiLayer = availableLayers.find((l) => l.layer === "HEMI");
         if (hemiLayer) {
           targetLayer = hemiLayer;
-        } else if (dynamicLayers.length > 0) {
+        } else if (availableLayers.length > 0) {
           // Priority 4: Use first available layer
-          targetLayer = dynamicLayers[0];
+          targetLayer = availableLayers[0];
         }
       }
 
-      // Apply the selected layer
+      // Apply the selected layer using switchLayer from new hook
       if (targetLayer) {
-        setSelectedLayerId(targetLayer.id);
+        switchLayer(targetLayer);
         setSelectedLayer(targetLayer.layer);
-        setDefaultLayer(targetLayer.id);
+        setDefaultLayer({layer: targetLayer});
+        setSelectedLayerId(targetLayer.id);
+
         localStorage.setItem(STORAGE_KEYS.SELECTED_LAYER, targetLayer.layer);
         localStorage.setItem("selectedNetwork", targetLayer.network);
       }
+
+      console.log("targetLayer:", targetLayer);
+      console.log("target.layer:", targetLayer?.layer);
+      console.log("target.id:", targetLayer?.id);
+      // console.log("selected layer:", STORAGE_KEYS.SELECTED_LAYER);
+      console.log("targetlayer network:", targetLayer?.network);
     }
 
     initialSetupDone.current = true;
-  }, [dynamicLayers, selectedLayerId, setSelectedLayerId]);
+  }, [availableLayers, selectedLayerId, switchLayer]);
 
   // Update localStorage when current layer changes
   useEffect(() => {
@@ -202,7 +204,7 @@ export default function Header() {
   useEffect(() => {
     // This effect forces a re-evaluation of isWalletDisconnected and currentWallet
     // when the authentication state or connected wallets change
-  }, [authState, connectedWallets]);
+  }, [isConnected]);
 
   // Chain switching functionality
   const switchOrAddChain = useCallback(
@@ -276,17 +278,22 @@ export default function Header() {
   );
 
   // Handle layer selection
+  // Handle layer selection using the new switchLayer function
   const handleLayerSelect = useCallback(
     async (layerId: string): Promise<void> => {
+      console.log("layer id", layerId);
+      if (!layers) return;
       if (!layerId || layerId === selectedLayerId) return;
 
       const selectedLayerObj = layers.find((l) => l.id === layerId);
       if (!selectedLayerObj) return;
 
-      // Update app state
-      setSelectedLayerId(selectedLayerObj.id);
+      // Use switchLayer from the new hook
+      await switchLayer(selectedLayerObj);
+
+      // Update local state for UI
       setSelectedLayer(selectedLayerObj.layer);
-      setDefaultLayer(layerId);
+      setDefaultLayer({layer: selectedLayerObj});
 
       // Store in localStorage
       localStorage.setItem(STORAGE_KEYS.SELECTED_LAYER, selectedLayerObj.layer);
@@ -305,16 +312,15 @@ export default function Header() {
         );
       }
     },
-    [layers, selectedLayerId, setSelectedLayerId, switchOrAddChain]
+    [layers, selectedLayerId, switchLayer, switchOrAddChain]
   );
-
   // Handle logout
   const handleLogout = useCallback((): void => {
-    if (authState.authenticated) {
-      onLogout();
+    if (isConnected) {
+      disconnectWallet();
       toast.info("Logged out successfully!");
     }
-  }, [authState.authenticated, onLogout]);
+  }, [isConnected, disconnectWallet]);
 
   // Handle navigation
   const handleNavigation = useCallback(
@@ -324,7 +330,7 @@ export default function Header() {
         return;
       }
 
-      if (requiresAuth && !authState.authenticated) {
+      if (requiresAuth && !isConnected) {
         toast.error("Please connect your wallet");
         return;
       }
@@ -332,25 +338,13 @@ export default function Header() {
       router.push(pageUrl);
       setMobileMenuOpen(false);
     },
-    [authState.authenticated, router]
+    [isConnected, router]
   );
 
   // Handle wallet modal toggle
-  const toggleWalletModal = useCallback(
-    (isOpen: boolean) => {
-      setWalletModalOpen(isOpen);
-      // If we're closing the modal, force a refresh of wallet connection state
-      if (!isOpen && selectedLayerId) {
-        // This causes a re-render and re-evaluation of isWalletConnected
-        const dummyState = {};
-        setState({ ...dummyState });
-      }
-    },
-    [selectedLayerId]
-  );
-
-  // Small state object to force re-renders when needed
-  const [state, setState] = useState({});
+  const toggleWalletModal = useCallback((isOpen: boolean) => {
+    setWalletModalOpen(isOpen);
+  }, []);
 
   // Handle mobile menu toggle
   const toggleMobileMenu = useCallback((isOpen: boolean) => {
@@ -358,16 +352,18 @@ export default function Header() {
   }, []);
 
   // Calculate current wallet - recalculate whenever connected wallets change
-  const currentWallet = useMemo(
-    () => (selectedLayerId ? getWalletForLayer(selectedLayerId) : undefined),
-    [selectedLayerId, getWalletForLayer, connectedWallets, authState]
-  );
+  const currentWallet = useMemo(() => {
+    if (!currentUserLayer) return undefined;
+    return {
+      address: currentUserLayer.address || "",
+      layerId: currentLayer?.id || "",
+    };
+  }, [currentUserLayer, currentLayer]);
 
   // Calculate wallet connection status - recalculate whenever connected wallets change
   const isWalletDisconnected = useMemo(() => {
-    const connected = selectedLayerId && isWalletConnected(selectedLayerId);
-    return !connected;
-  }, [selectedLayerId, isWalletConnected, connectedWallets, authState, state]);
+    return !isConnected;
+  }, [isConnected]);
 
   // Render dropdown layer item - memoized for performance
   const renderLayerItem = useCallback(
@@ -381,13 +377,7 @@ export default function Header() {
       if (layer.name === "EDU Chain Testnet") {
         return null;
       }
-      const isLayerConnected = connectedWallets?.some((wallet: WalletInfo) => {
-        const foundLayer = layers.find((l) => l.id === wallet.layerId);
-        return (
-          foundLayer?.layer === layer.layer &&
-          foundLayer?.network === layer.network
-        );
-      });
+      const isLayerConnected = currentLayer?.id === layer.id && isConnected;
 
       return (
         <SelectItem
@@ -410,6 +400,8 @@ export default function Header() {
                 {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(
                   layer.network
                 )}`}
+                {/* {layer.network} */}
+                {/* {layer.name} */}
               </div>
             </div>
             {isLayerConnected && <Check className="w-5 h-5 text-neutral50" />}
@@ -417,12 +409,12 @@ export default function Header() {
         </SelectItem>
       );
     },
-    [connectedWallets, layers]
+    [currentLayer?.id, isConnected]
   );
 
   // Render current layer value - memoized for performance
   const renderCurrentLayerValue = useCallback(() => {
-    if (isLayersLoading) {
+    if (isLoading) {
       return (
         <div className="flex items-center gap-2">
           <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
@@ -430,56 +422,62 @@ export default function Header() {
         </div>
       );
     }
+    if (!layers) {
+      return (
+        <div className="flex items-center gap-2">
+          {/* <Loader2 className="h-4 w-4 animate-spin text-neutral50" /> */}
+          <span>Cannot find layers, refresh the page</span>
+        </div>
+      );
+    }
 
-    const currentLayerObj = selectedLayerId
-      ? layers.find((l) => l.id === selectedLayerId)
-      : layers.find((l) => l.id === defaultLayer);
 
-    if (currentLayerObj) {
+    if (defaultLayer) {
       return (
         <div className="flex flex-row gap-2 items-center w-max">
           <div className="relative">
             <Image
-              src={getCurrencyImage(currentLayerObj.layer)}
-              alt={currentLayerObj.layer}
+              src={getCurrencyImage(defaultLayer.layer)}
+              alt={defaultLayer.layer}
               width={24}
               height={24}
               className="rounded-full"
             />
           </div>
-          {`${capitalizeFirstLetter(
+          {/* {`${capitalizeFirstLetter(
             currentLayerObj.layer
-          )} ${capitalizeFirstLetter(currentLayerObj.network)}`}
+          )} ${capitalizeFirstLetter(currentLayerObj.network)}`} */}
+          {currentLayer && currentLayer.layer}
         </div>
       );
     }
 
     return <span>Select layer</span>;
-  }, [isLayersLoading, selectedLayerId, layers]);
+  }, [isLoading, currentLayer, layers, defaultLayer]);
 
   // Handle layer selection for the wallet modal
   const handleModalLayerSelect = useCallback(
-    (layer: string, network: string) => {
+    async (layer: string, network: string) => {
+      if (!layers) return;
       const matchingLayer = layers.find(
         (l) => l.layer === layer && l.network === network
       );
 
       if (matchingLayer) {
-        setSelectedLayerId(matchingLayer.id);
+        await switchLayer(matchingLayer);
         setSelectedLayer(matchingLayer.layer);
-        setDefaultLayer(matchingLayer.id);
+        setDefaultLayer({layer:matchingLayer});
 
         localStorage.setItem(STORAGE_KEYS.SELECTED_LAYER, matchingLayer.layer);
         localStorage.setItem("selectedNetwork", matchingLayer.network);
       }
     },
-    [layers, setSelectedLayerId]
+    [layers, switchLayer]
   );
 
   // Handle wallet connection/disconnection events
   const onWalletModalClose = useCallback(() => {
     // Force a re-render to update the wallet connection state
-    setState({});
     setWalletModalOpen(false);
   }, []);
 
@@ -534,7 +532,7 @@ export default function Header() {
                   </SelectTrigger>
                   <SelectContent className="mt-4 flex flex-col p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
                     <SelectGroup className="flex flex-col gap-2">
-                      {layers.map(renderLayerItem)}
+                      {layers && layers.map(renderLayerItem)}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -549,7 +547,7 @@ export default function Header() {
                   >
                     Connect Wallet
                   </Button>
-                ) : authState.authenticated && currentWallet ? (
+                ) : isConnected && currentWallet ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger className="flex items-center gap-2 min-w-[170px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all py-2 px-6 rounded-xl backdrop-blur-xl">
                       <Image
@@ -654,7 +652,7 @@ export default function Header() {
                         </SelectTrigger>
                         <SelectContent className="flex max-w-[210px] flex-col p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
                           <SelectGroup className="flex flex-col gap-2">
-                            {layers.map(renderLayerItem)}
+                            {layers && layers.map(renderLayerItem)}
                           </SelectGroup>
                         </SelectContent>
                       </Select>
@@ -669,7 +667,7 @@ export default function Header() {
                         >
                           Connect Wallet
                         </Button>
-                      ) : authState.authenticated && currentWallet ? (
+                      ) : isConnected && currentWallet ? (
                         <DropdownMenu>
                           <DropdownMenuTrigger className="flex items-center justify-between gap-2 w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-3 rounded-xl backdrop-blur-xl">
                             <div className="flex items-center gap-2">
@@ -732,4 +730,3 @@ export default function Header() {
     </>
   );
 }
-

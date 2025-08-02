@@ -42,7 +42,14 @@ export default function VerifyNew() {
   const searchParams = useSearchParams();
   const code: string | null = searchParams.get("code");
 
-  const { authState, selectedLayerId, getWalletForLayer } = useAuth();
+  // Fixed: Use the correct properties from your auth context
+  const { 
+    isConnected, 
+    currentLayer, 
+    currentUserLayer, 
+    user,
+    connectWallet 
+  } = useAuth();
 
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [verifyingStates, setVerifyingStates] = useState<
@@ -50,17 +57,13 @@ export default function VerifyNew() {
   >({});
   const [canVerify, setCanVerify] = useState(false);
 
-  const address =
-    selectedLayerId && getWalletForLayer(selectedLayerId)?.address;
+  // Get the address from currentUserLayer
+  const address = currentUserLayer?.address;
 
   useEffect(() => {
-    if (authState.authenticated && selectedLayerId) {
-      const wallet = getWalletForLayer(selectedLayerId);
-      setCanVerify(!!wallet?.address);
-    } else {
-      setCanVerify(false);
-    }
-  }, [authState.authenticated, selectedLayerId, getWalletForLayer]);
+    // Check if user is connected and has an address
+    setCanVerify(isConnected && !!address);
+  }, [isConnected, address]);
 
   const REDIRECT_URL =
     "https://discord.com/oauth2/authorize?client_id=1386964242644734002&response_type=code&redirect_uri=https%3A%2F%2Fwww.mintpark.io%2Fdiscord%2Fmint-park%2Fverify&scope=identify";
@@ -144,6 +147,16 @@ export default function VerifyNew() {
     }
   };
 
+  const handleConnectWallet = async () => {
+    try {
+      await connectWallet();
+      setWalletModalOpen(false);
+    } catch (error) {
+      console.error("Failed to connect wallet:", error);
+      toast.error("Failed to connect wallet");
+    }
+  };
+
   const renderNFTCard = (nftConfig: (typeof NFT_CONFIGS)[0]) => {
     const isVerifying = verifyingStates[nftConfig.id] || false;
 
@@ -180,7 +193,7 @@ export default function VerifyNew() {
             <Button
               variant="secondary"
               className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[336px] h-12 sm:h-14 lg:h-16 cursor-pointer flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 px-4 sm:px-6"
-              onClick={() => setWalletModalOpen(true)}
+              onClick={handleConnectWallet}
             >
               <Image
                 src="/wallets/Metamask.png"
@@ -195,36 +208,65 @@ export default function VerifyNew() {
             </Button>
           )}
         </div>
+
+        {/* Show connection status for this card */}
+        {canVerify && address && (
+          <div className="text-center mt-2">
+            <p className="text-neutral300 text-xs">
+              Connected: {address.slice(0, 6)}...{address.slice(-4)}
+            </p>
+            {currentLayer && (
+              <p className="text-neutral400 text-xs">
+                Layer: {currentLayer.name || currentLayer.layer}
+              </p>
+            )}
+          </div>
+        )}
       </div>
     );
   };
 
   return (
     <>
-   <Layout>
-  <div className="min-h-screen w-full px-3 sm:px-4 lg:px-6 xl:px-8 py-8 sm:py-12 lg:py-16 xl:py-20 flex flex-col">
-    <div className="flex-1 flex flex-col gap-8 sm:gap-10 lg:gap-12">
-      <div className="pt-16 sm:pt-20 lg:pt-24">
-        <h1 className="font-bold text-center xl:text-start text-neutral00 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:pl-8">
-          Mintpark NFT Holder Verification
-        </h1>
-      </div>
-      
-      <div className="flex-1 w-full max-w-7xl mx-auto">
-        {/* Grid layout with better responsive handling */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-6 lg:gap-6 place-items-center h-full content-center">
-          {NFT_CONFIGS.map((nftConfig) => renderNFTCard(nftConfig))}
+      <Layout>
+        <div className="min-h-screen w-full px-3 sm:px-4 lg:px-6 xl:px-8 py-8 sm:py-12 lg:py-16 xl:py-20 flex flex-col">
+          <div className="flex-1 flex flex-col gap-8 sm:gap-10 lg:gap-12">
+            <div className="pt-16 sm:pt-20 lg:pt-24">
+              <h1 className="font-bold text-center xl:text-start text-neutral00 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:pl-8">
+                Mintpark NFT Holder Verification
+              </h1>
+            </div>
+            
+            <div className="flex-1 w-full max-w-7xl mx-auto">
+              {/* Grid layout with better responsive handling */}
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-6 lg:gap-6 place-items-center h-full content-center">
+                {NFT_CONFIGS.map((nftConfig) => renderNFTCard(nftConfig))}
+              </div>
+            </div>
+
+            {/* Global connection status */}
+            {isConnected && address && (
+              <div className="text-center border-t border-neutral400 pt-6">
+                <p className="text-neutral200 text-sm">Wallet Connected:</p>
+                <p className="text-neutral50 text-sm font-mono">
+                  {address.slice(0, 8)}...{address.slice(-6)}
+                </p>
+                {currentLayer && (
+                  <p className="text-neutral300 text-xs">
+                    Active Layer: {currentLayer.name || currentLayer.layer}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-</Layout>
+      </Layout>
 
       <WalletConnectionModal
         open={walletModalOpen}
         onClose={() => setWalletModalOpen(false)}
         activeTab="HEMI"
-        selectedLayerId={selectedLayerId as string}
+        selectedLayerId={currentLayer?.id || ""}
         onTabChange={() => {}}
         onLayerSelect={() => {}}
       />

@@ -7,8 +7,6 @@ import React, {
 } from "react";
 import { X } from "lucide-react";
 import { toast } from "sonner";
-import { useQuery } from "@tanstack/react-query";
-import { getAllLayers } from "@/lib/service/queryHelper";
 import { useAuth } from "../provider/auth-context-provider";
 import { WALLET_CONFIGS } from "@/lib/constants";
 import { getCurrencyImage } from "@/lib/service/currencyHelper";
@@ -21,18 +19,9 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { WalletCard } from "../atom/cards/wallet-card";
 import { LayerTypes } from "@/lib/types";
+import { useAccount } from "wagmi";
 
 interface WalletConnectionModalProps {
   open: boolean;
@@ -50,38 +39,36 @@ export function WalletConnectionModal({
   selectedLayerId,
   onTabChange,
   onLayerSelect,
+
 }: WalletConnectionModalProps) {
   // State management
-  const [showLinkAlert, setShowLinkAlert] = useState(false);
-  const [currentLayer, setCurrentLayer] = useState<LayerTypes | null>(null);
   const [activeLayerId, setActiveLayerId] = useState<string>("");
-  const initialSetupDone = useRef(false);
+  const initialSetupDone = useRef(false)
+    const { address, isConnected: wagmiConnected } = useAccount();
+;
 
   // Get auth context
   const {
-    authState,
-    setLayers,
-    proceedWithLinking,
+    isConnected,
+    currentLayer,
+    user,
+    isLoading,
+    error,
+    availableLayers,
     connectWallet,
+    authenticateWithWallet,
+    switchLayer,
     disconnectWallet,
-    isWalletConnected,
   } = useAuth();
 
-  // Fetch layer data
-  const { data: allLayers = [] } = useQuery({
-    queryKey: ["layerData"],
-    queryFn: getAllLayers,
-    staleTime: Infinity,
-    gcTime: Infinity,
-  });
 
-  // Memoize filtered layers to avoid re-filtering on every render
-  const layers = useMemo(() => allLayers, [allLayers]);
+  // Fetch layer data
+  const layers = useMemo(() => availableLayers, [availableLayers]);
+
 
   // Memoize filtered and sorted layer tabs
   const layerTabs = useMemo(() => {
     return [...layers]
-      // .filter((layer) => layer.layer !== "BITCOIN")
       .filter((layer) => layer.layer !== "BITCOIN" && layer.name !== "Hemi Testnet" && layer.name !== "EDU Chain Testnet")
       .sort((a, b) => {
         if (a.layer !== b.layer) {
@@ -102,15 +89,12 @@ export function WalletConnectionModal({
     return network.toUpperCase() === "MAINNET";
   }, []);
 
-  // Set layers in auth context once
-  useEffect(() => {
-    if (layers.length > 0) {
-      setLayers(layers);
-    }
-  }, [layers, setLayers]);
+    const isWalletConnected = useCallback((layerId: string) => {
+    return currentLayer?.id === layerId && isConnected;
+  }, [currentLayer, isConnected]);
 
   // Initialize active layer ID
-  useEffect(() => {
+ useEffect(() => {
     if (layers.length === 0 || initialSetupDone.current) return;
 
     let newActiveLayerId = "";
@@ -169,7 +153,6 @@ export function WalletConnectionModal({
       initialSetupDone.current = true;
     }
   }, [layers, activeTab, selectedLayerId, onTabChange]);
-
   // Update when selectedLayerId changes from parent
   useEffect(() => {
     if (
@@ -186,8 +169,7 @@ export function WalletConnectionModal({
     }
   }, [selectedLayerId, activeLayerId, layers, onTabChange]);
 
-  // Switch or add chain in Metamask - memoized to prevent recreation
-  const switchOrAddChain = useCallback(
+ const switchOrAddChain = useCallback(
     async (layer: LayerTypes): Promise<boolean> => {
       if (!layer.chainId || typeof window === "undefined" || !window.ethereum)
         return false;
@@ -257,14 +239,13 @@ export function WalletConnectionModal({
     },
     []
   );
-
   // Handle wallet connection
   const handleConnection = useCallback(
     async (layer: LayerTypes) => {
       // Handle disconnect
       if (isWalletConnected(layer.id)) {
         try {
-          await disconnectWallet(layer.id);
+          disconnectWallet();
           toast.success(`Disconnected from ${layer.name}`);
         } catch (error) {
           toast.error(`Failed to disconnect wallet. ${error}`);
@@ -274,7 +255,7 @@ export function WalletConnectionModal({
 
       // Handle connect
       try {
-        // Switch chain for Metamask wallets
+        // Switch chain for Metamask wallets first
         if (
           layer.chainId &&
           window.ethereum &&
@@ -283,21 +264,27 @@ export function WalletConnectionModal({
           await switchOrAddChain(layer);
         }
 
-        // Connect wallet
-        await connectWallet(layer.id, authState.authenticated);
+        // Use the new connectWallet function
+        // if (onConnect) {
+        //   await onConnect(layer.id);
+        // } else {
+          await connectWallet(layer.id);
+        // }
+        
         onClose();
         toast.success(
-          `${authState.authenticated ? "Linked" : "Connected to"} ${layer.name}`
+          `${user ? "Linked" : "Connected to"} ${layer.name}`
         );
       } catch (error: any) {
+        // Handle wallet already linked error
         if (
           error instanceof Error &&
-          error.message === "WALLET_ALREADY_LINKED"
+          error.message.includes("WALLET_ALREADY_LINKED")
         ) {
-          setCurrentLayer(layer);
-          setShowLinkAlert(true);
+          // setCurrentLayer(layer);
+          // setShowLinkAlert(true);
         } else {
-          toast.error(`Failed to connect: ${error.message}`);
+          toast.error(`Failed to connect: ${error.message || error}`);
         }
       }
     },
@@ -306,25 +293,42 @@ export function WalletConnectionModal({
       disconnectWallet,
       switchOrAddChain,
       connectWallet,
-      authState.authenticated,
+      // onConnect,
+      user,
       onClose,
     ]
   );
 
-  // Handle wallet linking confirmation
-  const handleProceedWithLinking = useCallback(async () => {
-    try {
-      await proceedWithLinking();
-      toast.success(`Successfully linked wallet.`);
-      setShowLinkAlert(false);
-    } catch (error) {
-      toast.error(`Failed to link wallet: ${error}`);
+    useEffect(() => {
+    // If wagmi is connected but our store isn't authenticated, trigger authentication
+    if (wagmiConnected && address && !isConnected && !isLoading) {
+      console.log("Wagmi connected but not authenticated, triggering authentication...");
+      authenticateWithWallet().catch((error) => {
+        console.error("Auto-authentication failed:", error);
+        toast.error("Authentication failed. Please try connecting again.");
+      });
     }
-  }, [proceedWithLinking]);
+  }, [wagmiConnected, address, isConnected, isLoading, authenticateWithWallet]);
+
+  // Update the connect wallet button handler
+  const handleConnectWallet = useCallback(async () => {
+    try {
+      if (wagmiConnected && address && !isConnected) {
+        // If wagmi is connected but we're not authenticated, just authenticate
+        await authenticateWithWallet(selectedLayerId || undefined);
+      } else {
+        // Otherwise, go through full connection flow
+        await connectWallet(selectedLayerId || undefined);
+      }
+    } catch (error) {
+      console.error("Connection failed:", error);
+      toast.error("Failed to connect wallet. Please try again.");
+    }
+  }, [wagmiConnected, address, isConnected, selectedLayerId, authenticateWithWallet, connectWallet]);
 
   // Handle layer selection
-  const handleLayerSelect = useCallback(
-    (layerId: string) => {
+   const handleLayerSelect = useCallback(
+    async (layerId: string) => {
       if (!layerId || layerId === activeLayerId) return;
 
       setActiveLayerId(layerId);
@@ -340,6 +344,15 @@ export function WalletConnectionModal({
         localStorage.setItem("selectedLayer", layer.layer);
         localStorage.setItem("selectedNetwork", layer.network);
 
+        // If already connected, switch to this layer
+        if (isConnected) {
+          try {
+            await switchLayer(layer);
+          } catch (error) {
+            console.error("Failed to switch layer:", error);
+          }
+        }
+
         // Switch chain if needed
         if (
           layer.chainId &&
@@ -350,35 +363,7 @@ export function WalletConnectionModal({
         }
       }
     },
-    [activeLayerId, layers, onTabChange, onLayerSelect, switchOrAddChain]
-  );
-
-  // Memoize alert dialog to prevent unnecessary re-renders
-  const alertDialog = useMemo(
-    () => (
-      <AlertDialog open={showLinkAlert} onOpenChange={setShowLinkAlert}>
-        <AlertDialogContent className="border rounded-2xl border-white8">
-          <AlertDialogHeader className="grid gap-4">
-            <AlertDialogTitle className="text-xl text-white font-bold">
-              Wallet Already Linked
-            </AlertDialogTitle>
-            <AlertDialogDescription className="font-semibold text-white text-md2">
-              This wallet is already linked to another account. Would you like
-              to move it to your current account instead?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setShowLinkAlert(false)}>
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleProceedWithLinking}>
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    ),
-    [showLinkAlert, setShowLinkAlert, handleProceedWithLinking]
+    [activeLayerId, layers, onTabChange, onLayerSelect, isConnected, switchLayer, switchOrAddChain]
   );
 
   return (
@@ -438,7 +423,7 @@ export function WalletConnectionModal({
                 <WalletCard
                   layer={layer}
                   isWalletConnected={isWalletConnected}
-                  loading={authState.loading}
+         loading={isLoading}
                   onConnect={handleConnection}
                 />
               </TabsContent>
@@ -456,8 +441,6 @@ export function WalletConnectionModal({
           </button>
         </DialogContent>
       </Dialog>
-
-      {alertDialog}
     </>
   );
 }

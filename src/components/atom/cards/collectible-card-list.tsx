@@ -1,3 +1,5 @@
+// auth changes
+
 import React, { useState } from "react";
 import Image from "next/image";
 import {
@@ -14,9 +16,6 @@ import {
   getCurrencyPrice,
   getCurrencySymbol,
 } from "@/lib/service/currencyHelper";
-import { useQuery } from "@tanstack/react-query";
-import { getLayerById } from "@/lib/service/queryHelper";
-import { useAuth } from "@/components/provider/auth-context-provider";
 import BuyAssetModal from "@/components/modal/buy-asset-modal";
 import { toast } from "sonner";
 
@@ -24,6 +23,8 @@ import { toast } from "sonner";
 interface ColDetailCardsProps {
   data: CollectionSchema;
   isOwnListing?: boolean;
+  isConnected?: boolean;
+  currentLayer: { layer: string } | null;
 }
 
 const TruncatedAddress: React.FC<{ address: string | null }> = ({
@@ -40,22 +41,17 @@ const TruncatedAddress: React.FC<{ address: string | null }> = ({
 const CollectibleCardList: React.FC<ColDetailCardsProps> = ({
   data,
   isOwnListing = false,
+  isConnected = false,
+  currentLayer,
 }) => {
-  const { authState } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
-
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
-
   const daysAgo = getDaysAgo(data.createdAt);
   const isListed = data.price > 0;
   const isPriceEqualToFloor = data.price === data.floor;
 
   const toggleModal = (e?: React.MouseEvent) => {
-    if (!authState.authenticated) {
+    // Fix: Use isConnected instead of authState.authenticated
+    if (!isConnected) {
       return toast.error("Please connect wallet first");
     }
     if (e) {
@@ -101,14 +97,17 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({
               {formatPrice(data.price)}
               <span className="ml-1">
                 {" "}
-                {getCurrencySymbol(currentLayer.layer)}
+                {currentLayer && getCurrencySymbol(currentLayer.layer)}
               </span>
             </p>
             <p>
               {" "}
               <p className="font-medium text-md text-neutral200 w-full">
                 <span className="mr-1">$</span>
-                {formatPrice(data.price * getCurrencyPrice(currentLayer.layer))}
+                {currentLayer &&
+                  formatPrice(
+                    data.price * getCurrencyPrice(currentLayer.layer)
+                  )}
               </p>
             </p>
           </div>
@@ -137,7 +136,7 @@ const CollectibleCardList: React.FC<ColDetailCardsProps> = ({
               rel="noopener noreferrer"
               className="text-md text-neutral50 font-medium hover:text-brand transition-colors cursor-pointer"
             > */}
-              <TruncatedAddress address={data.ownedBy} />
+            <TruncatedAddress address={data.ownedBy} />
             {/* </Link> */}
           </div>
           <div

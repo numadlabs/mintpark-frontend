@@ -3,31 +3,28 @@ import Link from "next/link";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
 import { CollectionSchema } from "@/lib/validations/collection-validation";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
-import { useAuth } from "@/components/provider/auth-context-provider";
-import { useQuery } from "@tanstack/react-query";
-import { getLayerById } from "@/lib/service/queryHelper";
 import { useState } from "react";
 import BuyAssetModal from "@/components/modal/buy-asset-modal";
 import { toast } from "sonner";
 
 interface CollectibleCardProps {
   data: CollectionSchema;
+  isOwnListing?: boolean;
+  isConnected?: boolean;
+  currentLayer: { id: string; layer: string } | null;
 }
 
-export default function CollectibleCard({ data }: CollectibleCardProps) {
-  const { authState } = useAuth();
+export default function CollectibleCard({
+  data,
+  isConnected,
+  currentLayer,
+}: CollectibleCardProps) {
   const [isVisible, setIsVisible] = useState(false);
-  
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
-  
+
   const isListed = data.price > 0;
 
   const toggleModal = (e?: React.MouseEvent) => {
-    if (!authState.authenticated) {
+    if (!isConnected) {
       return toast.error("Please connect wallet first");
     }
     if (e) {
@@ -75,7 +72,9 @@ export default function CollectibleCard({ data }: CollectibleCardProps) {
                         <p className="text-neutral50">
                           {formatPrice(data.price)}
                           <span className="ml-1">
-                            {getCurrencySymbol(currentLayer.layer)}
+                            {currentLayer
+                              ? getCurrencySymbol(currentLayer.id)
+                              : ""}
                           </span>
                         </p>
                       </>
@@ -86,8 +85,8 @@ export default function CollectibleCard({ data }: CollectibleCardProps) {
                     )}
                   </div>
                 </div>
-                
-                <div 
+
+                <div
                   className="absolute inset-0 w-full h-10 flex items-center justify-center bg-white4 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                   onClick={isListed ? toggleModal : undefined}
                 >
@@ -100,7 +99,7 @@ export default function CollectibleCard({ data }: CollectibleCardProps) {
           </div>
         </div>
       </Link>
-      
+
       {isListed && (
         <BuyAssetModal
           open={isVisible}

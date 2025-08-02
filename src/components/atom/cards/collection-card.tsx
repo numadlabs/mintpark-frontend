@@ -1,3 +1,5 @@
+// auth changes
+
 import Image from "next/image";
 import { Notepad, Profile2User } from "iconsax-react";
 import { CollectionDataType } from "@/lib/types";
@@ -5,22 +7,16 @@ import React from "react";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
 import HoverCard from "@/components/section/collections/hoverCard";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
-import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/components/provider/auth-context-provider";
-import { getLayerById } from "@/lib/service/queryHelper";
 
 export type CardType = {
   data: CollectionDataType;
   handleNav: () => void;
+  currentLayer: { layer: string } | null;
 };
 
-const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
-  const { authState } = useAuth();
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
+const CollectionCard: React.FC<CardType> = ({ data,currentLayer, handleNav }) => {
+
+  
   return (
     <div
       onClick={handleNav}
@@ -48,7 +44,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
             <p className="pt-1 sm:pt-2 font-bold text-xs sm:text-sm md:text-md text-neutral-50">
               {formatPrice(data.floor)}
               <span className="ml-1">
-                {getCurrencySymbol(currentLayer.layer)}
+                {currentLayer?.layer ? getCurrencySymbol(currentLayer.layer) : ''}
               </span>
             </p>
           </div>
@@ -59,7 +55,7 @@ const CollectionCard: React.FC<CardType> = ({ data, handleNav }) => {
             <p className="pt-1 sm:pt-2 font-bold text-xs sm:text-sm md:text-md text-neutral-50">
               {formatPrice(data?.volume)}
               <span className="ml-1">
-                {getCurrencySymbol(currentLayer.layer)}
+                {currentLayer?.layer ? getCurrencySymbol(currentLayer.layer) : ''}
               </span>
             </p>
           </div>

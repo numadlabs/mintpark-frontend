@@ -1,3 +1,5 @@
+// auth changes
+
 "use client";
 
 import {
@@ -18,7 +20,6 @@ import {
 import {
   getCollectibleActivity,
   getCollectionById,
-  getLayerById,
 } from "@/lib/service/queryHelper";
 import {
   getSigner,
@@ -52,7 +53,7 @@ const ACTIVITY_PER_PAGE = 20;
 export default function AssetsDetails() {
   const queryClient = useQueryClient();
   const params = useParams();
-  const { authState } = useAuth();
+  const { currentLayer, currentUserLayer } = useAuth();
 
   const id = params.assetsId as string;
   const [isVisible, setIsVisible] = useState(false);
@@ -81,7 +82,6 @@ export default function AssetsDetails() {
       enabled: !!id,
     });
 
-  // Replace regular query with infinite query for activities
   const {
     data: activityData,
     fetchNextPage: fetchNextActivity,
@@ -91,73 +91,26 @@ export default function AssetsDetails() {
   } = useInfiniteQuery({
     queryKey: ["activityData", id, activityPageSize],
     queryFn: async ({ pageParam = 0 }) => {
-      if (!id) {
-        throw new Error("Asset ID is required");
-      }
       const response = await getCollectibleActivity(
         id,
         activityPageSize,
         pageParam * activityPageSize
       );
-
-      // Determine if we have more activities to load
-      const hasMore = response.length === activityPageSize;
-      setHasMoreActivity(hasMore);
-
+      setHasMoreActivity(response.length === activityPageSize);
       return response;
     },
     initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => {
-      return hasMoreActivity ? allPages.length : undefined;
-    },
-    enabled: Boolean(id),
+    getNextPageParam: (lastPage, allPages) =>
+      hasMoreActivity ? allPages.length : undefined,
+    enabled: !!id,
   });
 
-  // Memoize all activities from all pages
   const allActivities = activityData?.pages?.flat() ?? [];
-
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
-
-  // Activity infinite scroll observer
-  const loadMoreActivityRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (!node) return;
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (
-            entries[0].isIntersecting &&
-            hasMoreActivity &&
-            !isFetchingNextActivity
-          ) {
-            fetchNextActivity();
-          }
-        },
-        {
-          rootMargin: "200px",
-          threshold: 0.1,
-        }
-      );
-
-      observer.observe(node);
-      return () => observer.disconnect();
-    },
-    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity]
-  );
 
   const currentAsset = collectionData?.[0];
 
-  const toggleModal = () => {
-    setIsVisible(!isVisible);
-  };
-
-  const toggleCancelModal = () => {
-    setCancelModal(!cancelModal);
-  };
+  const toggleModal = () => setIsVisible(!isVisible);
+  const toggleCancelModal = () => setCancelModal(!cancelModal);
 
   const HandleList = async () => {
     if (!currentAsset?.collectionId) {
@@ -169,8 +122,7 @@ export default function AssetsDetails() {
     try {
       const response = await createApprovalMutation({
         collectionId: currentAsset.collectionId,
-        // tokenId: currentAsset.,
-        userLayerId: authState.userLayerId as string,
+        userLayerId: currentUserLayer?.id as string,
       });
 
       if (response?.success) {
@@ -182,18 +134,16 @@ export default function AssetsDetails() {
           await signedTx?.wait();
           if (signedTx?.hash) setTxid(signedTx.hash);
         }
-        // else if (isApproved === true) {
+
         const registerRes = await checkAndCreateRegisterMutation({
           collectionId: currentAsset.collectionId,
-          userLayerId: authState.userLayerId as string,
-
+          userLayerId: currentUserLayer?.id as string,
           tokenId: currentAsset.uniqueIdx.split("i")[1],
           contractAddress: currentAsset.uniqueIdx.split("i")[0],
         });
-        if (registerRes.success) {
-          if (!registerRes.data.isRegistered) {
-            toggleModal();
-          }
+
+        if (registerRes.success && !registerRes.data.isRegistered) {
+          toggleModal();
         }
       }
     } catch (error: any) {
@@ -202,6 +152,27 @@ export default function AssetsDetails() {
       setIsLoading(false);
     }
   };
+
+  const loadMoreActivityRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node) return;
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (
+            entries[0].isIntersecting &&
+            hasMoreActivity &&
+            !isFetchingNextActivity
+          ) {
+            fetchNextActivity();
+          }
+        },
+        { rootMargin: "200px", threshold: 0.1 }
+      );
+      observer.observe(node);
+      return () => observer.disconnect();
+    },
+    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity]
+  );
 
   if (isCollectionLoading) {
     return (
@@ -279,7 +250,7 @@ export default function AssetsDetails() {
                       <span className="font-bold text-neutral50 text-lg">
                         <h1>
                           {formatPrice(currentAsset.price)}{" "}
-                          {getCurrencySymbol(currentLayer.layer)}
+                          {getCurrencySymbol(currentLayer?.layer ?? "Unknown")}
                         </h1>
                       </span>
                     </div>
@@ -441,7 +412,7 @@ export default function AssetsDetails() {
                                 ? currentAsset.highResolutionImageUrl
                                 : s3ImageUrlBuilder(currentAsset.fileKey)
                             }
-                            currentLayer={currentLayer?.layer}
+                            currentLayer={currentLayer}
                             currenAsset={currentAsset?.name}
                           />
                         ))

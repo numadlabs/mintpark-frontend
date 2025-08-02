@@ -1,3 +1,5 @@
+// auth changes
+"use client";
 import React from "react";
 import ActivityCard from "@/components/atom/cards/activity-card";
 import { s3ImageUrlBuilder } from "@/lib/utils";
@@ -13,15 +15,19 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 
 const Activity = () => {
   const params = useParams();
-  const { authState } = useAuth();
   const id = params.detailId as string;
 
+  const { currentUserLayer, currentLayer } = useAuth();
+  const layerId = currentUserLayer?.layerId ?? currentLayer?.id;
+
+  // 🔹 Fetch activity list
   const { data: activity = [] } = useQuery({
     queryKey: ["activityData", id],
     queryFn: () => getCollectibleActivity(id),
     enabled: !!id,
   });
 
+  // 🔹 Fetch collectible
   const { data: collectible, isLoading: isCollectionLoading } = useQuery<
     Collectible[] | null
   >({
@@ -30,10 +36,11 @@ const Activity = () => {
     enabled: !!id,
   });
 
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
+  // 🔹 Fetch current layer (if available)
+  const { data: currentLayerData } = useQuery({
+    queryKey: ["currentLayerData", layerId],
+    queryFn: () => getLayerById(layerId as string),
+    enabled: !!layerId,
   });
 
   const currentAsset = collectible?.[0];
@@ -57,20 +64,20 @@ const Activity = () => {
           Date
         </p>
       </div>
+
       <div className="mt-3 flex flex-col gap-3">
         <div className="flex flex-col gap-3 pt-3">
-          {activity && activity.length > 0 && currentAsset ? (
+          {activity.length > 0 && currentAsset ? (
             activity.map((item: any) => (
               <ActivityCard
                 key={`${item.id}-${item.event}-${item.date}`}
                 data={item}
                 imageUrl={
-                  currentAsset.highResolutionImageUrl
-                    ? currentAsset.highResolutionImageUrl
-                    : s3ImageUrlBuilder(currentAsset.fileKey)
+                  currentAsset.highResolutionImageUrl ||
+                  s3ImageUrlBuilder(currentAsset.fileKey)
                 }
                 currenAsset={currentAsset.name}
-                currentLayer={currentLayer.name}
+                currentLayer={currentLayerData?.name ?? "Unknown Layer"}
               />
             ))
           ) : (

@@ -25,7 +25,6 @@ import { Calendar2, Clock, Bitcoin, DocumentDownload } from "iconsax-react";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
-import { getLayerById } from "@/lib/service/queryHelper";
 import { cn, formatFileSize, getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -39,7 +38,7 @@ import CreateBanner from "@/components/section/create-banner";
 
 const Badge = () => {
   const router = useRouter();
-  const { authState, selectedLayerId } = useAuth();
+  const { currentUserLayer, currentLayer } = useAuth();
   const {
     imageFile,
     setImageFile,
@@ -131,12 +130,6 @@ const Badge = () => {
 
   const { mutateAsync: whitelistAddressesMutation } = useMutation({
     mutationFn: whitelistAddresses,
-  });
-
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", selectedLayerId],
-    queryFn: () => getLayerById(selectedLayerId as string),
-    enabled: !!selectedLayerId,
   });
 
   const calculateTimeUntilDate = (
@@ -240,8 +233,8 @@ const Badge = () => {
         description: description,
         priceForLaunchpad: 0.001,
         type: "IPFS_CID",
-        userLayerId: authState.userLayerId,
-        layerId: selectedLayerId,
+        layerId: currentLayer?.id || null,
+        userLayerId: currentUserLayer?.id || null,
         isBadge: true,
         creator: creator,
       };
@@ -254,7 +247,7 @@ const Badge = () => {
           setCollectionId(id);
           // console.log("create collection success", response);
 
-          if (currentLayer.layerType === "EVM") {
+          if (currentLayer.layerType) {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
             await signedTx?.wait();
@@ -347,7 +340,11 @@ const Badge = () => {
       return;
     }
 
-    if (!selectedLayerId) {
+    // if (!selectedLayerId) {
+    //   return toast.error("No selected layer");
+    // }
+
+    if (!currentLayer?.id) {
       return toast.error("No selected layer");
     }
 
@@ -382,7 +379,8 @@ const Badge = () => {
         fcfsEndsAt: fcfsEndsAt,
         fcfsMintPrice: FCFSMintPrice,
         fcfsMaxMintPerWallet: FCFSMaxMintPerWallet,
-        userLayerId: authState.userLayerId,
+        // userLayerId: authState.userLayerId,
+        userLayerId: currentUserLayer?.id || null,
       };
 
       if (params) {
@@ -408,8 +406,8 @@ const Badge = () => {
               maxSupply: WLMaxMintPerWallet * whitelistAddress.length, // Heden address bgag tus bur hed mint hiih bolomjtoigoor urjeed maxSupply ni garj irne
               maxPerWallet: WLMaxMintPerWallet,
               maxMintPerPhase: WLMaxMintPerWallet, // Unlimited mints for public phase
-              layerId: selectedLayerId,
-              userLayerId: authState.userLayerId,
+              layerId: currentLayer?.id,
+              userLayerId: currentUserLayer?.id || null,
             });
 
             if (currentLayer.layerType === "EVM") {
@@ -432,8 +430,8 @@ const Badge = () => {
               maxSupply: FCFSMaxMintPerWallet * fcfslistAddress.length, // Heden address bgag tus bur hed mint hiih bolomjtoigoor urjeed maxSupply ni garj irne
               maxPerWallet: FCFSMaxMintPerWallet,
               maxMintPerPhase: FCFSMaxMintPerWallet, // Unlimited mints for public phase
-              layerId: selectedLayerId,
-              userLayerId: authState.userLayerId,
+              layerId: currentLayer?.id,
+              userLayerId: currentUserLayer?.id || null,
               merkleRoot: "",
             });
 
@@ -457,8 +455,8 @@ const Badge = () => {
               maxSupply: 0, // Unlimited supply for public phase
               maxPerWallet: POMaxMintPerWallet,
               maxMintPerPhase: 0, // Unlimited mints for public phase
-              layerId: selectedLayerId,
-              userLayerId: authState.userLayerId,
+              layerId: currentLayer?.id,
+              userLayerId: currentUserLayer?.id || null,
             });
 
             if (currentLayer.layerType === "EVM") {
@@ -1092,7 +1090,10 @@ const Badge = () => {
                         </div>
                         <div className="absolute right-4">
                           <p className="text-md text-neutral200 font-medium">
-                            {getCurrencySymbol(currentLayer.layer)}
+                            {/* {getCurrencySymbol(currentLayer.layer)}
+                             */}
+                            {currentLayer &&
+                              getCurrencySymbol(currentLayer.layer)}
                           </p>
                         </div>
                       </div>

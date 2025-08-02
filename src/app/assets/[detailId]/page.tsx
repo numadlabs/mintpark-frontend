@@ -1,5 +1,6 @@
-"use client";
+// auth changes
 
+"use client";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import Layout from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,6 @@ import {
   getCollectibleActivity,
   getCollectibleTraits,
   getCollectionById,
-  getLayerById,
   getListedCollectionById,
 } from "@/lib/service/queryHelper";
 import {
@@ -42,7 +42,7 @@ const ACTIVITY_PER_PAGE = 20;
 export default function AssetDetail() {
   const params = useParams();
   const router = useRouter();
-  const { authState } = useAuth();
+  const { isConnected, currentLayer, currentUserLayer } = useAuth();
   const id = params.detailId as string;
   const [isVisible, setIsVisible] = useState(false);
   const [activityPageSize] = useState(ACTIVITY_PER_PAGE);
@@ -56,11 +56,6 @@ export default function AssetDetail() {
     enabled: !!id,
   });
 
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
 
   const currentAsset = collectible?.[0];
   const collectionId = currentAsset?.collectionId;
@@ -160,10 +155,12 @@ export default function AssetDetail() {
   };
 
   const toggleModal = () => {
-    if (!authState.authenticated)
+    // Fix: Use isConnected instead of authState.authenticated
+    if (!isConnected)
       return toast.error("Please connect wallet first");
     setIsVisible(!isVisible);
   };
+  
   if (isCollectionLoading) {
     return (
       <Layout>
@@ -237,7 +234,8 @@ export default function AssetDetail() {
                         <h1>
                           {currentAsset.price &&
                             formatPrice(currentAsset.price)}{" "}
-                          {getCurrencySymbol(currentLayer.layer)}
+                          {/* Fix: Use currentLayer instead of currentLayerData.layer */}
+                          {getCurrencySymbol(currentLayer?.name ?? "Unknown")}
                         </h1>
                       </span>
                     </div>
@@ -426,7 +424,7 @@ export default function AssetDetail() {
                                 ? currentAsset.highResolutionImageUrl
                                 : s3ImageUrlBuilder(currentAsset.fileKey)
                             }
-                            currentLayer={currentLayer?.layer}
+                            currentLayer={currentLayer}
                             currenAsset={currentAsset?.name}
                           />
                         ))
@@ -491,7 +489,6 @@ export default function AssetDetail() {
     </Layout>
   );
 }
-
 //   const currentAsset = collectionData?.[0];
 //  const collectionId = currentAsset?.collectionId;
 

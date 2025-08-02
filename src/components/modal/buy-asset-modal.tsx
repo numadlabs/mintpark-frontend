@@ -1,3 +1,5 @@
+// auth changes
+
 import React, { useState } from "react";
 import {
   Dialog,
@@ -18,7 +20,6 @@ import {
 import { toast } from "sonner";
 import { useAuth } from "../provider/auth-context-provider";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
-import { getLayerById } from "@/lib/service/queryHelper";
 import { Progress } from "../ui/progress";
 
 interface ModalProps {
@@ -46,7 +47,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
 }) => {
   const queryClient = useQueryClient();
   const params = useParams();
-  const { authState } = useAuth();
+  const { currentLayer, currentUserLayer } = useAuth();
 
   const id = params.detailId as string;
   const router = useRouter();
@@ -54,13 +55,6 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [showPendingModal, setShowPendingModal] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-
-  // Define the steps for the purchase process
-  // const steps = [
-  //   { id: 0, title: "Preparing Purchase", description: "Creating transaction for your purchase" },
-  //   { id: 1, title: "Processing On-chain", description: "Waiting for blockchain confirmation" },
-  //   { id: 2, title: "Finalizing Purchase", description: "Completing the purchase process" }
-  // ];
 
   const steps = [
     {
@@ -86,12 +80,6 @@ const BuyAssetModal: React.FC<ModalProps> = ({
   // Calculate progress percentage
   const progressValue = (currentStep / 3) * 100;
 
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
-
   const { mutateAsync: generateBuyHexMutation } = useMutation({
     mutationFn: generateBuyHex,
   });
@@ -112,7 +100,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
       const pendingRes = await generateBuyHexMutation({
         id: listId,
         feeRate: 1,
-        userLayerId: authState.userLayerId as string,
+        userLayerId: currentUserLayer?.id as string,
       });
 
       if (!pendingRes?.success) {
@@ -138,7 +126,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
       const response = await buyListedCollectible({
         id: listId,
         txid: signedTx.hash,
-        userLayerId: authState.userLayerId as string,
+        userLayerId: currentUserLayer?.id as string,
       });
 
       if (!response?.success) {
@@ -198,7 +186,7 @@ const BuyAssetModal: React.FC<ModalProps> = ({
           <div className="w-full flex flex-row items-center justify-between">
             <p className="text-lg text-neutral100 font-medium">List Price</p>
             <p className="text-lg text-neutral50 font-bold">
-              {formatPrice(price)} {getCurrencySymbol(currentLayer.layer)}
+              {formatPrice(price)} {currentLayer?.layer ? getCurrencySymbol(currentLayer.layer) : ''}
             </p>
           </div>
         </div>
