@@ -8,22 +8,14 @@ import {
   getCurrencyPrice,
   getCurrencySymbol,
 } from "@/lib/service/currencyHelper";
-import { useQuery } from "@tanstack/react-query";
-import { getLayerById } from "@/lib/service/queryHelper";
 
 interface cardProps {
   data: CollectibleSchema;
+  currentLayer: { layer: string } | null;
+
 }
 
-const AssetsCardList: React.FC<cardProps> = ({ data }) => {
-  const { selectedLayerId } = useAuth();
-
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", selectedLayerId],
-    queryFn: () => getLayerById(selectedLayerId as string),
-    enabled: !!selectedLayerId,
-  });
-
+const AssetsCardList: React.FC<cardProps> = ({ data, currentLayer }) => {
   const TruncatedAddress = ({ address }: { address: string | null }) => {
     if (!address) return <span>-</span>;
     return (
@@ -71,12 +63,12 @@ const AssetsCardList: React.FC<cardProps> = ({ data }) => {
             <p className="font-medium text-lg text-neutral50 w-full">
               {formatPrice(data.floor)}
               <span className="ml-1">
-                {getCurrencySymbol(currentLayer.layer)}
+               {/* { currentLayer && getCurrencySymbol(currentLayer.layer) } */}
               </span>
             </p>
             <p className="font-medium text-sm text-neutral200 w-full">
               <span className="mr-1">$</span>
-              {formatPrice(data.floor * getCurrencyPrice(currentLayer.layer))}
+              {currentLayer && formatPrice(data.floor * getCurrencyPrice(currentLayer.layer))}
             </p>
           </div>
           <div className="min-w-[200px] w-full max-w-[392px]">

@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import HeaderItem from "../ui/headerItem";
 import { useAuth } from "../provider/auth-context-provider";
+import { useMetamaskEvents } from "@/lib/hooks/useWalletAuth";
 import {
   Select,
   SelectContent,
@@ -28,9 +29,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Wallet2, Logout, ArrowRight2, ArrowDown2 } from "iconsax-react";
 import { Button } from "../ui/button";
-import { getAllLayers, getLayerById } from "@/lib/service/queryHelper";
 import { truncateAddress, capitalizeFirstLetter } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
 import { LayerType } from "@/lib/types";
 import { toast } from "sonner";
 import Badge from "../atom/badge";
@@ -38,6 +37,7 @@ import { ArrowDown, Check, Loader2, MenuIcon, X } from "lucide-react";
 import { WalletConnectionModal } from "../modal/wallet-connect-modal";
 import { STORAGE_KEYS, WALLET_CONFIGS } from "@/lib/constants";
 import { getCurrencyImage } from "@/lib/service/currencyHelper";
+import { useLayers } from "@/lib/hooks/useWalletQueries";
 
 // Type definitions
 interface RouteItem {
@@ -58,27 +58,31 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [selectedLayer, setSelectedLayer] = useState("");
-  const [defaultLayer, setDefaultLayer] = useState("HEMI");
-  const prevLayerIdRef = useRef(null);
+  // const [defaultLayer, setDefaultLayer] = useState("HEMI-MAINNET");
+  const prevLayerIdRef = useRef<string | null>(null);
   const initialSetupDone = useRef(false);
 
   const {
-    authState,
-    onLogout,
+    isConnected,
+    currentLayer,
+    currentUserLayer,
+    user,
+    isLoading,
+    error,
+    availableLayers,
     selectedLayerId,
+    defaultLayer,
+
+    connectWallet,
+setDefaultLayer,
+    switchLayer,
     setSelectedLayerId,
-    getWalletForLayer,
-    isWalletConnected,
-    connectedWallets,
-    // Wagmi-specific properties
-    wagmiAddress,
-    wagmiIsConnected,
-    isSigningPending,
-    isSwitchingChain,
-    connectEvmWallet,
-    disconnectEvmWallet,
-    switchToLayer,
+    disconnectWallet,
   } = useAuth();
+  console.log("error", error);
+  console.log("selectedLayerId", selectedLayerId);
+
+  useMetamaskEvents();
 
   // Define navigation routes
   const routes = useMemo<RouteItem[]>(
@@ -92,6 +96,7 @@ export default function Header() {
       },
       { title: "Launchpad", pageUrl: "/launchpad" },
       { title: "Collections", pageUrl: "/collections" },
+      // { title: "Verify", pageUrl: "/discord/verify" },
     ],
     []
   );
@@ -122,27 +127,12 @@ export default function Header() {
     return () => window.removeEventListener("resize", handleResize);
   }, [mobileMenuOpen]);
 
-  // Fetch all available layers
-  const { data: dynamicLayers = [] } = useQuery({
-    queryKey: ["layerData"],
-    queryFn: getAllLayers,
-    staleTime: Infinity,
-    gcTime: Infinity,
-  });
-
-  // Memoized layers
-  const layers = useMemo(() => [...dynamicLayers], [dynamicLayers]);
-
-  // Fetch current selected layer data
-  const { data: currentLayer, isLoading: isLayersLoading } = useQuery({
-    queryKey: ["currentLayerData", selectedLayerId],
-    queryFn: () => getLayerById(selectedLayerId as string),
-    enabled: !!selectedLayerId,
-  });
+  const { data: layers } = useLayers();
+  // const selectedLayerId = currentLayer?.id || ;
 
   // Initialize from localStorage and handle initial layer selection
   useEffect(() => {
-    if (dynamicLayers.length === 0 || initialSetupDone.current) return;
+    if (availableLayers.length === 0 || initialSetupDone.current) return;
 
     const savedLayer = localStorage.getItem(STORAGE_KEYS.SELECTED_LAYER);
     const savedNetwork = localStorage.getItem("selectedNetwork") || "MAINNET";
@@ -152,7 +142,7 @@ export default function Header() {
 
       // Priority 1: Find exact match for saved layer+network
       if (savedLayer) {
-        const matchingLayer = dynamicLayers.find(
+        const matchingLayer = availableLayers.find(
           (l) => l.layer === savedLayer && l.network === savedNetwork
         );
 
@@ -160,7 +150,7 @@ export default function Header() {
           targetLayer = matchingLayer;
         } else {
           // Priority 2: Find any layer with matching name
-          const anyMatchingLayer = dynamicLayers.find(
+          const anyMatchingLayer = availableLayers.find(
             (l) => l.layer === savedLayer
           );
           if (anyMatchingLayer) {
@@ -171,27 +161,35 @@ export default function Header() {
 
       // Priority 3: Find HEMI layer
       if (!targetLayer) {
-        const hemiLayer = dynamicLayers.find((l) => l.layer === "HEMI");
+        const hemiLayer = availableLayers.find((l) => l.layer === "HEMI");
         if (hemiLayer) {
           targetLayer = hemiLayer;
-        } else if (dynamicLayers.length > 0) {
+        } else if (availableLayers.length > 0) {
           // Priority 4: Use first available layer
-          targetLayer = dynamicLayers[0];
+          targetLayer = availableLayers[0];
         }
       }
 
-      // Apply the selected layer
+      // Apply the selected layer using switchLayer from new hook
       if (targetLayer) {
-        setSelectedLayerId(targetLayer.id);
+        switchLayer(targetLayer);
         setSelectedLayer(targetLayer.layer);
-        setDefaultLayer(targetLayer.id);
+        setDefaultLayer({layer: targetLayer});
+        setSelectedLayerId(targetLayer.id);
+
         localStorage.setItem(STORAGE_KEYS.SELECTED_LAYER, targetLayer.layer);
         localStorage.setItem("selectedNetwork", targetLayer.network);
       }
+
+      console.log("targetLayer:", targetLayer);
+      console.log("target.layer:", targetLayer?.layer);
+      console.log("target.id:", targetLayer?.id);
+      // console.log("selected layer:", STORAGE_KEYS.SELECTED_LAYER);
+      console.log("targetlayer network:", targetLayer?.network);
     }
 
     initialSetupDone.current = true;
-  }, [dynamicLayers, selectedLayerId, setSelectedLayerId]);
+  }, [availableLayers, selectedLayerId, switchLayer]);
 
   // Update localStorage when current layer changes
   useEffect(() => {
@@ -202,73 +200,127 @@ export default function Header() {
     }
   }, [currentLayer]);
 
-  // Small state object to force re-renders when needed
-  const [state, setState] = useState({});
-
   // Force re-render when auth state or connected wallets change
   useEffect(() => {
-    // Force re-render when wagmi connection state changes
-    setState(prev => ({ ...prev, timestamp: Date.now() }));
-  }, [authState, connectedWallets, wagmiAddress, wagmiIsConnected]);
+    // This effect forces a re-evaluation of isWalletDisconnected and currentWallet
+    // when the authentication state or connected wallets change
+  }, [isConnected]);
 
-  // Handle layer selection using wagmi for EVM chains
+  // Chain switching functionality
+  const switchOrAddChain = useCallback(
+    async (
+      chainId: string,
+      layer: string,
+      network: string
+    ): Promise<boolean> => {
+      if (!chainId || typeof window === "undefined" || !window.ethereum)
+        return false;
+
+      try {
+        const chainIdHex = `0x${parseInt(chainId).toString(16)}`;
+
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: chainIdHex }],
+        });
+
+        return true;
+      } catch (error: any) {
+        if (error.code === 4902) {
+          try {
+            const walletConfig = WALLET_CONFIGS[layer];
+            if (!walletConfig) return false;
+
+            const networkType = network.toUpperCase();
+            const networkConfig = walletConfig.networks[networkType];
+            if (!networkConfig) return false;
+
+            // Add the chain to Metamask
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [
+                {
+                  chainId: `0x${parseInt(chainId).toString(16)}`,
+                  chainName: networkConfig.chainName || `${layer} ${network}`,
+                  rpcUrls: networkConfig.rpcUrls,
+                  blockExplorerUrls: networkConfig.blockExplorerUrls,
+                  nativeCurrency: networkConfig.nativeCurrency || {
+                    name: layer,
+                    symbol: layer.substring(0, 5),
+                    decimals: 18,
+                  },
+                },
+              ],
+            });
+
+            // Try switching again after adding
+            await window.ethereum.request({
+              method: "wallet_switchEthereumChain",
+              params: [{ chainId: `0x${parseInt(chainId).toString(16)}` }],
+            });
+
+            return true;
+          } catch (addError: any) {
+            console.error("Failed to add chain:", addError);
+            return false;
+          }
+        } else if (error.code === 4001) {
+          toast.error("User rejected the request", error);
+          // console.log("User rejected chain switch");
+          return false;
+        } else {
+          toast.error("Error switching chain:", error);
+          return false;
+        }
+      }
+    },
+    []
+  );
+
+  // Handle layer selection
+  // Handle layer selection using the new switchLayer function
   const handleLayerSelect = useCallback(
     async (layerId: string): Promise<void> => {
+      console.log("layer id", layerId);
+      if (!layers) return;
       if (!layerId || layerId === selectedLayerId) return;
 
       const selectedLayerObj = layers.find((l) => l.id === layerId);
       if (!selectedLayerObj) return;
 
-      try {
-        // Use wagmi for EVM chains
-        const walletConfig = WALLET_CONFIGS[selectedLayerObj.layer];
-        if (walletConfig?.type === "metamask" && wagmiIsConnected && switchToLayer) {
-          await switchToLayer(layerId);
-        } else {
-          // For non-EVM chains or when not connected, just update the selection
-          setSelectedLayerId(selectedLayerObj.id);
-          setSelectedLayer(selectedLayerObj.layer);
-          setDefaultLayer(layerId);
+      // Use switchLayer from the new hook
+      await switchLayer(selectedLayerObj);
 
-          // Store in localStorage
-          localStorage.setItem(STORAGE_KEYS.SELECTED_LAYER, selectedLayerObj.layer);
-          localStorage.setItem("selectedNetwork", selectedLayerObj.network);
-        }
-      } catch (error: any) {
-        console.error("Failed to switch layer:", error);
-        // Still update the UI selection even if chain switch fails
-        setSelectedLayerId(selectedLayerObj.id);
-        setSelectedLayer(selectedLayerObj.layer);
-        setDefaultLayer(layerId);
-        localStorage.setItem(STORAGE_KEYS.SELECTED_LAYER, selectedLayerObj.layer);
-        localStorage.setItem("selectedNetwork", selectedLayerObj.network);
+      // Update local state for UI
+      setSelectedLayer(selectedLayerObj.layer);
+      setDefaultLayer({layer: selectedLayerObj});
+
+      // Store in localStorage
+      localStorage.setItem(STORAGE_KEYS.SELECTED_LAYER, selectedLayerObj.layer);
+      localStorage.setItem("selectedNetwork", selectedLayerObj.network);
+
+      // If this is a Metamask layer and we have access to the ethereum object, switch chain
+      if (
+        selectedLayerObj.chainId &&
+        window.ethereum &&
+        WALLET_CONFIGS[selectedLayerObj.layer]?.type === "metamask"
+      ) {
+        await switchOrAddChain(
+          selectedLayerObj.chainId,
+          selectedLayerObj.layer,
+          selectedLayerObj.network
+        );
       }
     },
-    [layers, selectedLayerId, wagmiIsConnected, switchToLayer, setSelectedLayerId]
+    [layers, selectedLayerId, switchLayer, switchOrAddChain]
   );
-
-  // Handle logout - UPDATED to reset layer
+  // Handle logout
   const handleLogout = useCallback((): void => {
-    if (authState.authenticated) {
-      // Call the original logout function
-      onLogout();
-      
-      // Reset layer selection to default (HEMI or first available)
-      const defaultLayerObj = layers.find((l) => l.layer === "HEMI") || layers[0];
-      
-      if (defaultLayerObj) {
-        setSelectedLayerId(defaultLayerObj.id);
-        setSelectedLayer(defaultLayerObj.layer);
-        setDefaultLayer(defaultLayerObj.id);
-        
-        // Update localStorage with default layer
-        localStorage.setItem(STORAGE_KEYS.SELECTED_LAYER, defaultLayerObj.layer);
-        localStorage.setItem("selectedNetwork", defaultLayerObj.network);
-      }
-      
+    if (isConnected) {
+      disconnectWallet();
       toast.info("Logged out successfully!");
     }
-  }, [authState.authenticated, onLogout, layers, setSelectedLayerId]);
+  }, [isConnected, disconnectWallet]);
 
   // Handle navigation
   const handleNavigation = useCallback(
@@ -278,7 +330,7 @@ export default function Header() {
         return;
       }
 
-      if (requiresAuth && !authState.authenticated) {
+      if (requiresAuth && !isConnected) {
         toast.error("Please connect your wallet");
         return;
       }
@@ -286,151 +338,34 @@ export default function Header() {
       router.push(pageUrl);
       setMobileMenuOpen(false);
     },
-    [authState.authenticated, router]
-  );
-
-  // Handle wallet connection - FIXED VERSION
-  const handleWalletConnect = useCallback(
-    async (isLinking: boolean = false) => {
-      if (!selectedLayerId) {
-        toast.error("Please select a layer first");
-        return;
-      }
-
-      try {
-        const layer = layers.find((l) => l.id === selectedLayerId);
-        if (!layer) {
-          toast.error("Layer not found");
-          return;
-        }
-
-        const walletConfig = WALLET_CONFIGS[layer.layer];
-        if (walletConfig?.type === "metamask" && connectEvmWallet) {
-          // Use wagmi for EVM wallets
-          await connectEvmWallet(selectedLayerId, isLinking);
-          // Force state update after connection
-          setState(prev => ({ ...prev, lastConnection: Date.now() }));
-        } else {
-          // Use original method for non-EVM wallets (Bitcoin/Unisat)
-          setWalletModalOpen(true);
-        }
-      } catch (error: any) {
-        console.error("Failed to connect wallet:", error);
-      }
-    },
-    [selectedLayerId, layers, connectEvmWallet]
-  );
-
-  // Handle wallet disconnection
-  const handleWalletDisconnect = useCallback(
-    async (layerId: string) => {
-      try {
-        const layer = layers.find((l) => l.id === layerId);
-        if (layer && WALLET_CONFIGS[layer.layer]?.type === "metamask" && disconnectEvmWallet) {
-          await disconnectEvmWallet(layerId);
-        } else {
-          // Use original method for non-EVM wallets
-          // You'll need to import your original disconnectWallet method here
-          // await disconnectWallet(layerId);
-        }
-      } catch (error: any) {
-        console.error("Failed to disconnect wallet:", error);
-      }
-    },
-    [layers, disconnectEvmWallet]
+    [isConnected, router]
   );
 
   // Handle wallet modal toggle
-  const toggleWalletModal = useCallback(
-    (isOpen: boolean) => {
-      setWalletModalOpen(isOpen);
-      // If we're closing the modal, force a refresh of wallet connection state
-      if (!isOpen && selectedLayerId) {
-        // This causes a re-render and re-evaluation of isWalletConnected
-        setState(prev => ({ ...prev, modalClosed: Date.now() }));
-      }
-    },
-    [selectedLayerId]
-  );
+  const toggleWalletModal = useCallback((isOpen: boolean) => {
+    setWalletModalOpen(isOpen);
+  }, []);
 
   // Handle mobile menu toggle
   const toggleMobileMenu = useCallback((isOpen: boolean) => {
     setMobileMenuOpen(isOpen);
   }, []);
 
-  // Calculate current wallet - FIXED VERSION
+  // Calculate current wallet - recalculate whenever connected wallets change
   const currentWallet = useMemo(() => {
-    if (!selectedLayerId) return undefined;
+    if (!currentUserLayer) return undefined;
+    return {
+      address: currentUserLayer.address || "",
+      layerId: currentLayer?.id || "",
+    };
+  }, [currentUserLayer, currentLayer]);
 
-    // First check if we have a wallet in our store
-    const storeWallet = getWalletForLayer(selectedLayerId);
-    if (storeWallet) {
-      return storeWallet;
-    }
-
-    // For EVM wallets, check wagmi connection
-    if (wagmiAddress && wagmiIsConnected) {
-      const layer = layers.find((l) => l.id === selectedLayerId);
-      if (layer && WALLET_CONFIGS[layer.layer]?.type === "metamask") {
-        return {
-          address: wagmiAddress,
-          layerId: selectedLayerId,
-          layer: layer.layer,
-          layerType: layer.layerType,
-          network: layer.network,
-          userLayerId: authState.userLayerId || "", // Use userLayerId from authState
-        };
-      }
-    }
-
-    return undefined;
-  }, [
-    selectedLayerId, 
-    getWalletForLayer, 
-    connectedWallets, 
-    wagmiAddress, 
-    wagmiIsConnected, 
-    layers, 
-    authState.userLayerId,
-    state // Force recalculation when state changes
-  ]);
-
-  // Calculate wallet connection status - FIXED VERSION
+  // Calculate wallet connection status - recalculate whenever connected wallets change
   const isWalletDisconnected = useMemo(() => {
-    if (!selectedLayerId) return true;
-    
-    const layer = layers.find((l) => l.id === selectedLayerId);
-    if (!layer) return true;
+    return !isConnected;
+  }, [isConnected]);
 
-    const walletConfig = WALLET_CONFIGS[layer.layer];
-    
-    // For EVM wallets
-    if (walletConfig?.type === "metamask") {
-      // Check if we have a connected wallet in store OR wagmi is connected
-      const hasStoreWallet = isWalletConnected(selectedLayerId);
-      const hasWagmiConnection = wagmiIsConnected && wagmiAddress;
-      
-      return !hasStoreWallet && !hasWagmiConnection;
-    } else {
-      // For non-EVM wallets (Bitcoin/Unisat), only check store
-      return !isWalletConnected(selectedLayerId);
-    }
-  }, [
-    selectedLayerId, 
-    layers, 
-    wagmiIsConnected, 
-    wagmiAddress,
-    isWalletConnected, 
-    connectedWallets, 
-    authState.authenticated,
-    state
-  ]);
-
-  // Calculate render conditions - FIXED VERSION
-  const showConnectButton = isWalletDisconnected || (!authState.authenticated && currentWallet);
-  const showWalletDropdown = !isWalletDisconnected && authState.authenticated && currentWallet;
-
-  // Render dropdown layer item - UPDATED with selected layer indicator
+  // Render dropdown layer item - memoized for performance
   const renderLayerItem = useCallback(
     (layer: LayerType) => {
       if (layer.layer === "BITCOIN") {
@@ -442,18 +377,7 @@ export default function Header() {
       if (layer.name === "EDU Chain Testnet") {
         return null;
       }
-      
-      // Check if this layer has a connected wallet
-      // const isLayerConnected = connectedWallets?.some((wallet: WalletInfo) => {
-      //   const foundLayer = layers.find((l) => l.id === wallet.layerId);
-      //   return (
-      //     foundLayer?.layer === layer.layer &&
-      //     foundLayer?.network === layer.network
-      //   );
-      // });
-
-      // Check if this is the currently selected layer
-      const isCurrentlySelected = selectedLayerId === layer.id;
+      const isLayerConnected = currentLayer?.id === layer.id && isConnected;
 
       return (
         <SelectItem
@@ -476,26 +400,21 @@ export default function Header() {
                 {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(
                   layer.network
                 )}`}
+                {/* {layer.network} */}
+                {/* {layer.name} */}
               </div>
             </div>
-            
-            <div className="flex items-center gap-1">
-              {/* Connected wallet indicator - green check */}
-              {/* {isLayerConnected && <Check className="w-4 h-4 text-green-500" />} */}
-              {isCurrentlySelected && (
-                <div className="w-2 h-2 bg-green-500 animate-pulse rounded-full"></div>
-              )}
-            </div>
+            {isLayerConnected && <Check className="w-5 h-5 text-neutral50" />}
           </div>
         </SelectItem>
       );
     },
-    [connectedWallets, layers, selectedLayerId] // Added selectedLayerId to dependencies
+    [currentLayer?.id, isConnected]
   );
 
   // Render current layer value - memoized for performance
   const renderCurrentLayerValue = useCallback(() => {
-    if (isLayersLoading) {
+    if (isLoading) {
       return (
         <div className="flex items-center gap-2">
           <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
@@ -503,56 +422,62 @@ export default function Header() {
         </div>
       );
     }
+    if (!layers) {
+      return (
+        <div className="flex items-center gap-2">
+          {/* <Loader2 className="h-4 w-4 animate-spin text-neutral50" /> */}
+          <span>Cannot find layers, refresh the page</span>
+        </div>
+      );
+    }
 
-    const currentLayerObj = selectedLayerId
-      ? layers.find((l) => l.id === selectedLayerId)
-      : layers.find((l) => l.id === defaultLayer);
 
-    if (currentLayerObj) {
+    if (defaultLayer) {
       return (
         <div className="flex flex-row gap-2 items-center w-max">
           <div className="relative">
             <Image
-              src={getCurrencyImage(currentLayerObj.layer)}
-              alt={currentLayerObj.layer}
+              src={getCurrencyImage(defaultLayer.layer)}
+              alt={defaultLayer.layer}
               width={24}
               height={24}
               className="rounded-full"
             />
           </div>
-          {`${capitalizeFirstLetter(
+          {/* {`${capitalizeFirstLetter(
             currentLayerObj.layer
-          )} ${capitalizeFirstLetter(currentLayerObj.network)}`}
+          )} ${capitalizeFirstLetter(currentLayerObj.network)}`} */}
+          {currentLayer && currentLayer.layer}
         </div>
       );
     }
 
-    return <span>Select layer </span>;
-  }, [isLayersLoading, selectedLayerId, layers]);
+    return <span>Select layer</span>;
+  }, [isLoading, currentLayer, layers, defaultLayer]);
 
   // Handle layer selection for the wallet modal
   const handleModalLayerSelect = useCallback(
-    (layer: string, network: string) => {
+    async (layer: string, network: string) => {
+      if (!layers) return;
       const matchingLayer = layers.find(
         (l) => l.layer === layer && l.network === network
       );
 
       if (matchingLayer) {
-        setSelectedLayerId(matchingLayer.id);
+        await switchLayer(matchingLayer);
         setSelectedLayer(matchingLayer.layer);
-        setDefaultLayer(matchingLayer.id);
+        setDefaultLayer({layer:matchingLayer});
 
         localStorage.setItem(STORAGE_KEYS.SELECTED_LAYER, matchingLayer.layer);
         localStorage.setItem("selectedNetwork", matchingLayer.network);
       }
     },
-    [layers, setSelectedLayerId]
+    [layers, switchLayer]
   );
 
   // Handle wallet connection/disconnection events
   const onWalletModalClose = useCallback(() => {
     // Force a re-render to update the wallet connection state
-    setState(prev => ({ ...prev, modalClosed: Date.now() }));
     setWalletModalOpen(false);
   }, []);
 
@@ -599,46 +524,30 @@ export default function Header() {
                 <Select
                   onValueChange={handleLayerSelect}
                   value={selectedLayerId as string}
-                  disabled={isSwitchingChain}
                 >
                   <SelectTrigger className="flex items-center h-10 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl max-w-[190px] w-full">
                     <SelectValue placeholder="Select layer">
-                      {isSwitchingChain ? (
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
-                          <span>Switching...</span>
-                        </div>
-                      ) : (
-                        renderCurrentLayerValue()
-                      )}
+                      {renderCurrentLayerValue()}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent className="mt-4 flex flex-col p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
                     <SelectGroup className="flex flex-col gap-2">
-                      {layers.map(renderLayerItem)}
+                      {layers && layers.map(renderLayerItem)}
                     </SelectGroup>
                   </SelectContent>
                 </Select>
 
-                {/* Wallet Connection - FIXED VERSION */}
-                {showConnectButton ? (
+                {/* Wallet Connection */}
+                {isWalletDisconnected ? (
                   <Button
                     variant="secondary"
                     size="lg"
-                    onClick={() => handleWalletConnect(false)}
-                    disabled={isSigningPending}
+                    onClick={() => setWalletModalOpen(true)}
                     className="min-w-[170px]"
                   >
-                    {isSigningPending ? (
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Connecting...
-                      </div>
-                    ) : (
-                      "Connect Wallet"
-                    )}
+                    Connect Wallet
                   </Button>
-                ) : showWalletDropdown ? (
+                ) : isConnected && currentWallet ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger className="flex items-center gap-2 min-w-[170px] w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all py-2 px-6 rounded-xl backdrop-blur-xl">
                       <Image
@@ -674,7 +583,7 @@ export default function Header() {
                 ) : null}
               </div>
 
-              {/* Mobile Menu Button */}
+              {/* Mobile Menu Button - Now uses Sheet from shadcn/ui */}
               <Sheet open={mobileMenuOpen}>
                 <SheetTrigger asChild className="lg:hidden">
                   <Button
@@ -691,12 +600,14 @@ export default function Header() {
                 >
                   <div className="flex justify-between items-center w-full px-4 py-6">
                     <div>
+                      {/* <Link href="/#" className="flex ml-4"> */}
                       <Image
                         src="/newLogo.png"
                         alt="Mintpark logo"
                         width={40}
                         height={40}
                       />
+                      {/* </Link> */}
                     </div>
                     <div>
                       <X
@@ -729,50 +640,34 @@ export default function Header() {
 
                     {/* Mobile layer and wallet controls */}
                     <div className="grid items-center pt-6 border-t border-neutral400 gap-4">
-                      {/* Mobile layer selector */}
+                      {/* Same layer selector as desktop but with mobile styling */}
                       <Select
                         onValueChange={handleLayerSelect}
                         value={selectedLayerId as string}
-                        disabled={isSwitchingChain}
                       >
                         <SelectTrigger className="flex items-center h-12 border border-transparent bg-white8 hover:bg-white16 duration-300 transition-all text-md font-medium text-neutral50 rounded-xl w-full">
                           <SelectValue placeholder="Select layer">
-                            {isSwitchingChain ? (
-                              <div className="flex items-center gap-2">
-                                <Loader2 className="h-4 w-4 animate-spin text-neutral50" />
-                                <span>Switching...</span>
-                              </div>
-                            ) : (
-                              renderCurrentLayerValue()
-                            )}
+                            {renderCurrentLayerValue()}
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent className="flex max-w-[210px] flex-col p-2 gap-2 bg-white4 backdrop-blur-lg border border-white4 rounded-2xl w-[var(--radix-select-trigger-width)]">
                           <SelectGroup className="flex flex-col gap-2">
-                            {layers.map(renderLayerItem)}
+                            {layers && layers.map(renderLayerItem)}
                           </SelectGroup>
                         </SelectContent>
                       </Select>
 
-                      {/* Mobile wallet buttons - FIXED VERSION */}
-                      {showConnectButton ? (
+                      {/* Mobile wallet buttons */}
+                      {isWalletDisconnected ? (
                         <Button
                           variant="secondary"
                           size="lg"
-                          onClick={() => handleWalletConnect(false)}
-                          disabled={isSigningPending}
+                          onClick={() => setWalletModalOpen(true)}
                           className="w-full"
                         >
-                          {isSigningPending ? (
-                            <div className="flex items-center gap-2">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              Connecting...
-                            </div>
-                          ) : (
-                            "Connect Wallet"
-                          )}
+                          Connect Wallet
                         </Button>
-                      ) : showWalletDropdown ? (
+                      ) : isConnected && currentWallet ? (
                         <DropdownMenu>
                           <DropdownMenuTrigger className="flex items-center justify-between gap-2 w-full bg-white8 hover:bg-white16 outline-none duration-300 transition-all p-3 rounded-xl backdrop-blur-xl">
                             <div className="flex items-center gap-2">

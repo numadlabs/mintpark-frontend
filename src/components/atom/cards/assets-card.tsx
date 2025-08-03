@@ -4,9 +4,7 @@ import { formatPrice, s3ImageUrlBuilder, getSigner } from "@/lib/utils";
 import { CollectibleSchema } from "@/lib/validations/asset-validation";
 import Link from "next/link";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { useAuth } from "@/components/provider/auth-context-provider";
-import { getLayerById } from "@/lib/service/queryHelper";
+import { useMutation } from "@tanstack/react-query";
 import {
   createApprovalTransaction,
   checkAndCreateRegister,
@@ -17,23 +15,22 @@ import { toast } from "sonner";
 
 interface CardProps {
   data: CollectibleSchema;
+  currentLayer: { layer: string } | null;
+  currentUserLayer: { id: string } | null;
+  currenAsset?: string;
 }
 
-const AssetsCard: React.FC<CardProps> = ({ data }) => {
-  const { authState } = useAuth();
+const AssetsCard: React.FC<CardProps> = ({
+  data,
+  currentLayer,
+  currentUserLayer,
+}) => {
   const [isListModalOpen, setIsListModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [txid, setTxid] = useState("");
 
   const isListed = (data?.price ?? 0) > 0;
-
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
-
   const { mutateAsync: createApprovalMutation } = useMutation({
     mutationFn: createApprovalTransaction,
   });
@@ -52,7 +49,8 @@ const AssetsCard: React.FC<CardProps> = ({ data }) => {
     try {
       const approvalResponse = await createApprovalMutation({
         collectionId: data.collectionId,
-        userLayerId: authState.userLayerId as string,
+        // Fix: Use currentUserLayer?.id instead of authState.userLayerId
+        userLayerId: currentUserLayer?.id as string,
       });
 
       if (approvalResponse?.success) {
@@ -125,7 +123,8 @@ const AssetsCard: React.FC<CardProps> = ({ data }) => {
                         <p className="text-neutral50 group-hover:hidden">
                           {formatPrice(data.price ?? 0)}
                           <span className="ml-1">
-                            {getCurrencySymbol(currentLayer.layer)}
+                            {currentLayer &&
+                              getCurrencySymbol(currentLayer.layer)}
                           </span>
                         </p>
                       </>
@@ -192,4 +191,3 @@ const AssetsCard: React.FC<CardProps> = ({ data }) => {
 };
 
 export default AssetsCard;
-

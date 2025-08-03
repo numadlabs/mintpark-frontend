@@ -43,8 +43,8 @@ const orderConfigs: Record<string, OrderConfig> = {
 export default function Collections({ searchParams }: CollectionsProps) {
   const detail = searchParams.detail === "true";
   const router = useRouter();
-  const { authState, selectedLayerId } = useAuth();
-  const id = selectedLayerId;
+  const { currentUserLayer, currentLayer } = useAuth();
+  const id = currentUserLayer?.layerId;
   const intervals = ["1h", "24h", "7d", "30d", "All"];
   const [active, setActive] = useState(true);
   const [selectedInterval, setSelectedInterval] = useState("All");
@@ -240,6 +240,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                               <CollectionCard
                                 data={item}
                                 handleNav={() => handleNavigation(item)}
+                                currentLayer={currentLayer}
                               />
                             </div>
                           ))}
@@ -265,6 +266,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                             <CollectionCardList
                               data={item}
                               handleNav={() => handleNavigation(item)}
+                              currentLayer={currentLayer}
                             />
                           </div>
                         ))}

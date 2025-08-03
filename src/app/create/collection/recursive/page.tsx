@@ -1,8 +1,7 @@
+// auth changes
 "use client";
 
 import React, { useState } from "react";
-import Banner from "@/components/section/create-banner";
-import Header from "@/components/layout/header";
 import { Input } from "@/components/ui/input";
 import UploadFile from "@/components/section/upload-file";
 import { useRouter } from "next/navigation";
@@ -40,7 +39,6 @@ import {
 import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
-import { getLayerById } from "@/lib/service/queryHelper";
 import { Loader2 } from "lucide-react";
 import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { toast } from "sonner";
@@ -50,7 +48,7 @@ import CreateBanner from "@/components/section/create-banner";
 
 const Recursive = () => {
   const router = useRouter();
-  const { authState } = useAuth();
+  const { currentLayer, currentUserLayer, user } = useAuth();
   const {
     imageFile,
     setImageFile,
@@ -133,12 +131,6 @@ const Recursive = () => {
     });
   };
 
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
-
   const calculateTimeUntilDate = (
     dateString: string,
     timeString: string
@@ -177,11 +169,12 @@ const Recursive = () => {
   };
 
   const handleCreateCollection = async () => {
+    // Fix: Use currentLayerData instead of currentLayer
     if (!currentLayer) {
       toast.error("Layer information not available");
       return;
     }
-    if (currentLayer.layerType === "EVM" && !window.ethereum) {
+    if (currentLayer.layerType === "EVM") {
       toast.error("Please install MetaMask extension to continue");
       return;
     }
@@ -193,8 +186,9 @@ const Recursive = () => {
         logo: imageFile[0],
         priceForLaunchpad: 0.001,
         type: "INSCRIPTION",
-        userLayerId: authState.userLayerId,
-        layerId: authState.layerId,
+        // Fix: Use currentUserLayer?.id and currentLayer?.id with nullish coalescing
+        userLayerId: currentUserLayer?.id ?? null,
+        layerId: currentLayer?.id ?? null,
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
@@ -312,7 +306,8 @@ const Recursive = () => {
         poEndsAt: poEndsAt,
         poMintPrice: POMintPrice,
         poMaxMintPerWallet: POMaxMintPerWallet,
-        userLayerId: authState.userLayerId,
+        // Fix: Use currentUserLayer?.id instead of authState.userLayerId
+        userLayerId: currentUserLayer?.id ?? null,
       };
 
       if (params && totalFileSize) {
@@ -382,6 +377,7 @@ const Recursive = () => {
   };
 
   const handlePay = async () => {
+    // Fix: Use currentLayerData instead of currentLayer
     if (!currentLayer) {
       toast.error("Layer information not available");
       return false;
@@ -393,12 +389,13 @@ const Recursive = () => {
     const batchSize = 10;
     const totalBatches = Math.ceil(files.length / batchSize);
     try {
-      if (collectionId && authState.userLayerId && totalFileSize) {
+      // Fix: Use currentUserLayer?.id instead of authState.userLayerId
+      if (collectionId && currentUserLayer?.id && totalFileSize) {
         const response = await createOrder({
           collectionId: collectionId,
           feeRate: 1,
           txid: "0x41aad9ebeee10d124f4abd123d1fd41dbb80162e339e9d61db7e90dd6139e89e",
-          userLayerId: authState.userLayerId,
+          userLayerId: currentUserLayer.id,
           totalFileSize: totalFileSize,
           totalCollectibleCount: files.length,
         });
@@ -481,11 +478,11 @@ const Recursive = () => {
                   </div>
                   <div className="grid gap-3">
                     <p className="font-medium text-lg text-neutral50">
-                      Creater (optional)
+                      Creator (optional)
                     </p>
                     <Input
                       onReset={reset}
-                      name="Creater optional"
+                      name="Creator optional"
                       title="Description"
                       placeholder="Collection creator name"
                       value={creator}

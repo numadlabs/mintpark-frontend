@@ -1,5 +1,7 @@
 "use client";
+
 import { WagmiProvider } from "wagmi";
+import { WalletAuthProvider } from "./auth-context-provider";
 import { wagmiConfig } from "@/lib/wagmiConfig";
 
 export default function WalletConnectProvider({
@@ -7,17 +9,9 @@ export default function WalletConnectProvider({
 }: {
   children: React.ReactNode;
 }) {
-  return <WagmiProvider config={wagmiConfig}>{children}</WagmiProvider>;
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <WalletAuthProvider>{children}</WalletAuthProvider>
+    </WagmiProvider>
+  );
 }
-
-// "use client";
-
-// import { WalletAuthProvider } from "./auth-context-provider";
-
-// export default function WalletConnectProvider({
-//   children,
-// }: {
-//   children: React.ReactNode;
-// }) {
-//   return <WalletAuthProvider>{children}</WalletAuthProvider>;
-// }

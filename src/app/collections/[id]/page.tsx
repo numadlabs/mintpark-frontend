@@ -26,7 +26,6 @@ import {
   getById,
   getCollectionActivity,
   getCollectionById,
-  getLayerById,
   getListedCollectionById,
 } from "@/lib/service/queryHelper";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
@@ -56,7 +55,8 @@ const CollectionDetailPageWrapper = () => {
 };
 
 const CollectionDetailPage = () => {
-  const { authState } = useAuth();
+  // Fix: Use the correct properties from your WalletAuthContextType
+  const { currentLayer, currentUserLayer } = useAuth();
   const params = useParams();
   const id = params?.id as string;
   const [active, setActive] = useState(true);
@@ -171,12 +171,6 @@ const CollectionDetailPage = () => {
     queryKey: ["collectionData", id],
     queryFn: () => getCollectionById(id),
     enabled: !!id,
-  });
-
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
   });
 
   const { data: collection, isLoading } = useQuery({
@@ -407,7 +401,8 @@ const CollectionDetailPage = () => {
                   <div className="">
                     <Link
                       href={getCollectibleExplorerUrl(
-                        currentLayer?.layer,
+                        // Fix: Use currentLayer instead of currentLayerData
+                        currentLayer?.name || "unknown",
                         collection?.contractAddress
                       )}
                       target="_blank"
@@ -436,7 +431,7 @@ const CollectionDetailPage = () => {
                         width={24}
                         height={20}
                         draggable="false"
-                        src={getCurrencyIcon(currentLayer.layer)}
+                        src={getCurrencyIcon(currentLayer?.name || "unknown")}
                         alt="bitcoin"
                         className="aspect-square"
                       />
@@ -446,7 +441,7 @@ const CollectionDetailPage = () => {
                             ? formatPrice(collection.floor)
                             : "-"}
                         </span>{" "}
-                        {getCurrencySymbol(currentLayer.layer)}
+                        {getCurrencySymbol(currentLayer?.name || "unknown")}
                       </p>
                     </div>
                   </div>
@@ -460,7 +455,7 @@ const CollectionDetailPage = () => {
                         width={24}
                         draggable="false"
                         height={20}
-                        src={getCurrencyIcon(currentLayer.layer)}
+                        src={getCurrencyIcon(currentLayer?.name || "unknown")}
                         alt="bitcoin"
                         className="aspect-square"
                       />
@@ -470,7 +465,7 @@ const CollectionDetailPage = () => {
                             ? formatPrice(collection?.volume)
                             : "-"}
                         </span>{" "}
-                        {getCurrencySymbol(currentLayer.layer)}
+                        {getCurrencySymbol(currentLayer?.name || "unknown")}
                       </p>
                     </div>
                   </div>
@@ -517,7 +512,7 @@ const CollectionDetailPage = () => {
                     width={24}
                     draggable="false"
                     height={20}
-                    src={getCurrencyIcon(currentLayer.layer)}
+                    src={getCurrencyIcon(currentLayer?.name || "unknown")}
                     alt="bitcoin"
                     className="aspect-square"
                   />
@@ -525,7 +520,7 @@ const CollectionDetailPage = () => {
                     <span>
                       {collection?.floor ? formatPrice(collection.floor) : "-"}
                     </span>{" "}
-                    {getCurrencySymbol(currentLayer.layer)}
+                    {getCurrencySymbol(currentLayer?.name || "unknown")}
                   </p>
                 </div>
               </div>
@@ -539,7 +534,7 @@ const CollectionDetailPage = () => {
                     width={24}
                     height={20}
                     draggable="false"
-                    src={getCurrencyIcon(currentLayer.layer)}
+                    src={getCurrencyIcon(currentLayer?.name || "unknown")}
                     alt="bitcoin"
                     className="aspect-square"
                   />
@@ -549,7 +544,7 @@ const CollectionDetailPage = () => {
                         ? formatPrice(collection?.volume)
                         : "-"}
                     </span>{" "}
-                    {getCurrencySymbol(currentLayer.layer)}
+                    {getCurrencySymbol(currentLayer?.name || "unknown")}
                   </p>
                 </div>
               </div>
@@ -747,7 +742,7 @@ const CollectionDetailPage = () => {
                       >
                         {filteredCollectibles.map((item) => (
                           <div key={item.id}>
-                            <CollectibleCard data={item} />
+                            <CollectibleCard data={item}  currentLayer={currentLayer}/>
                           </div>
                         ))}
                       </div>
@@ -809,7 +804,7 @@ const CollectionDetailPage = () => {
                         <div className="flex flex-col pt-4 gap-4">
                           {filteredCollectibles.map((item) => (
                             <div key={item.id}>
-                              <CollectibleCardList data={item} />
+                              <CollectibleCardList data={item}  currentLayer={currentLayer}/>
                             </div>
                           ))}
 
@@ -855,7 +850,7 @@ const CollectionDetailPage = () => {
                     <CollectionActivityCard
                       key={`${item.transactionHash}-${item.activityType}-${item.timestamp}`}
                       data={item}
-                      currentLayer={currentLayer?.layer}
+                      currentLayer={currentLayer}
                     />
                   ))
                 ) : (

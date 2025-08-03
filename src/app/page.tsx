@@ -52,7 +52,10 @@ const sendEmail = async (
 };
 
 export default function Home() {
-  const { authState } = useAuth();
+  const {
+    isConnected,
+
+  } = useAuth();
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
 
@@ -82,7 +85,7 @@ export default function Home() {
   const [isLaunchFormValid, setIsLaunchFormValid] = useState(false);
 
   const handleNavigation = () => {
-    if (!authState.authenticated) {
+    if (!isConnected) {
       toast.error("Please connect your wallet");
       return;
     }

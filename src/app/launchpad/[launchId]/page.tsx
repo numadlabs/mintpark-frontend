@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   getLaunchByCollectionId,
-  getLayerById,
 } from "@/lib/service/queryHelper";
 import PhaseCard from "@/components/atom/cards/phase-card";
 import { useParams, useRouter } from "next/navigation";
@@ -33,7 +32,7 @@ import DiscordIcon from "@/components/icon/hoverIcon";
 const Page = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { authState, selectedLayerId } = useAuth();
+  const { currentUserLayer, currentLayer } = useAuth();
   const params = useParams();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -95,23 +94,14 @@ const Page = () => {
       queryFn: () => getLaunchByCollectionId(id as string),
       enabled: !!id,
     });
-  // console.log("unconfirmed", collectibles)
-  // console.log("unconfirmed", collectibles.status)
-
-  const { data: currentLayer, isLoading: isLayerLoading } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
-
   const handleConfirm = async () => {
-    if (!authState.authenticated) {
+    if (!currentUserLayer) {
       setError("Please connect wallet first");
       setShowErrorModal(true); // Show error modal instead of toast
       return;
     }
 
-    if (!currentLayer || !authState.userLayerId) {
+    if (!currentLayer || !currentUserLayer.id) {
       setError("Layer information not available");
       setShowErrorModal(true); // Show error modal instead of toast
       return;
@@ -127,7 +117,8 @@ const Page = () => {
       setSteps(1);
       const response = await createBuyLaunchMutation({
         id: collectibles.launchId,
-        userLayerId: authState.userLayerId,
+        // userLayerId: authState.userLayerId,
+        userLayerId: currentUserLayer!.id,
         feeRate: 1,
       });
       if (!response?.success) {
@@ -161,7 +152,8 @@ const Page = () => {
           orderId,
           txid,
           launchItemId,
-          userLayerId: authState.userLayerId,
+          // userLayerId: authState.userLayerId,
+          userLayerId: currentUserLayer!.id,
           feeRate: 1,
         });
 
@@ -455,7 +447,7 @@ const Page = () => {
     );
   };
 
-  if (isCollectiblesLoading || isLayerLoading) {
+  if (isCollectiblesLoading) {
     return <LaunchDetailSkeleton />;
   }
 
@@ -500,7 +492,7 @@ const Page = () => {
       >
         <DetailLayout>
           <Header />
-          {isCollectiblesLoading || isLayerLoading ? (
+          {isCollectiblesLoading ? (
             <div className="w-full">
               <LaunchDetailSkeleton />
             </div>

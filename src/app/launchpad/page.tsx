@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Header from "@/components/layout/header";
 import Layout from "@/components/layout/layout";
 import LaunchpadBanner from "@/components/section/launchpad-banner";
 import { fetchLaunchs } from "@/lib/service/queryHelper";
@@ -12,14 +11,13 @@ import LaunchpadCard from "@/components/atom/cards/launchpad-card";
 import LaunchpadCardSkeleton from "@/components/atom/skeleton/launchpad-skeleton";
 
 const Launchpad = () => {
-  const { selectedLayerId } = useAuth();
+  const {   currentLayer } = useAuth();
   const [interval, setInterval] = useState<string>("all");
-
-  const { data: launch = [], isLoading } = useQuery({
-    queryKey: ["launchData", selectedLayerId, interval],
-    queryFn: () => fetchLaunchs(selectedLayerId as string, interval),
-    enabled: !!selectedLayerId,
-  });
+ const { data: launch = [], isLoading } = useQuery({
+  queryKey: ["launchData", currentLayer?.id, interval],
+  queryFn: () => fetchLaunchs(currentLayer?.id!, interval),
+  enabled: !!currentLayer,
+});
 
   const handleIntervalChange = (value: string) => {
     setInterval(value);
@@ -68,7 +66,7 @@ const Launchpad = () => {
             {isLoading
               ? renderSkeletons()
               : launch.map((item: any) => (
-                  <LaunchpadCard id={item.id} key={item.id} data={item} />
+                  <LaunchpadCard id={item.id} key={item.id} data={item}  currentLayer={currentLayer}/>
                 ))}
           </TabsContent>
           <TabsContent
@@ -78,7 +76,7 @@ const Launchpad = () => {
             {isLoading
               ? renderSkeletons()
               : launch.map((item: any) => (
-                  <LaunchpadCard id={item.id} key={item.id} data={item} />
+                  <LaunchpadCard id={item.id} key={item.id} data={item}  currentLayer={currentLayer}/>
                 ))}
           </TabsContent>
           <TabsContent
@@ -88,7 +86,7 @@ const Launchpad = () => {
             {isLoading
               ? renderSkeletons()
               : launch.map((item: any) => (
-                  <LaunchpadCard id={item.id} key={item.id} data={item} />
+                  <LaunchpadCard id={item.id} key={item.id} data={item}  currentLayer={currentLayer}/>
                 ))}
           </TabsContent>
         </Tabs>

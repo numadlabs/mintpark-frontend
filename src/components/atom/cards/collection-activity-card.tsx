@@ -16,7 +16,7 @@ import Link from "next/link";
 
 interface cardProps {
   data: CollectibleActivityType;
-  currentLayer: string;
+  currentLayer: { layer: string } | null;
 }
 
 const CollectionActivityCard: React.FC<cardProps> = ({
@@ -58,7 +58,7 @@ const CollectionActivityCard: React.FC<cardProps> = ({
         <div className="min-w-[90px] w-full max-w-[350px] text-start flex flex-col gap-1">
           <p className="text-md text-neutral50 font-medium">
             {isTransferType ? "-" : priceInEth}{" "}
-            {isTransferType ? "" : getCurrencySymbol(currentLayer)}
+            {isTransferType ? "" : getCurrencySymbol(currentLayer?.layer || "unknown")}
           </p>
           <p className="text-sm text-neutral200 font-medium">
             {isTransferType ? "" : "$"}{" "}
@@ -67,7 +67,7 @@ const CollectionActivityCard: React.FC<cardProps> = ({
         </div>
         <div className="min-w-[90px] w-full max-w-[260px] gap-2 flex items-center">
           <a
-            href={getAddressExplorerUrl(currentLayer, data?.fromAddress || "")}
+            href={getAddressExplorerUrl(currentLayer?.layer || "unknown", data?.fromAddress || "")}
             target="_blank"
             rel="noopener noreferrer"
             className="text-md text-neutral50 font-medium hover:text-brand transition-colors cursor-pointer"
@@ -79,7 +79,7 @@ const CollectionActivityCard: React.FC<cardProps> = ({
               <ArrowRight size={16} color="#88898A" />
               <a
                 href={getAddressExplorerUrl(
-                  currentLayer,
+                  currentLayer?.layer || "unknown",
                   data?.toAddress || ""
                 )}
                 target="_blank"

@@ -17,6 +17,7 @@ import { AssetSchema, ActivitySchema } from "../validations/asset-validation";
 import { UserSchema } from "../validations/user-schema";
 import { boolean, number } from "zod";
 import { ActivityType } from "../types";
+import { Layer } from "../types/wallet";
 
 export async function getAllOrders(id: string): Promise<OrderSchema> {
   return axiosClient.get(`/api/v1/orders/user/${id}`).then((response) => {
@@ -74,7 +75,7 @@ export async function getById(id: string) {
   });
 }
 
-export async function getAllLayers(): Promise<LayerSchema[]> {
+export async function getAllLayers(): Promise<Layer[]> {
   return axiosClient.get(`/api/v1/layers/`).then((response) => {
     if (response.data.success) {
       return response.data.data;
@@ -177,7 +178,7 @@ export async function getListableById(
   limit: number,
   offset: number,
   collectionIds: string[],
-  availability: string
+  availability: string,
 ): Promise<AssetSchema> {
   // Create base query parameters
   const params = new URLSearchParams({
@@ -283,32 +284,30 @@ export async function getCollectionActivity(
 
   const finalUrl = `/api/v1/collectibles/${id}/activity?${params.toString()}`;
   console.log("Full API URL:", finalUrl);
-  console.log("Collection ID:", id); 
-  console.log("Activity Type:", activityType); 
-  console.log("API Call params:", params.toString()); 
+  console.log("Collection ID:", id);
+  console.log("Activity Type:", activityType);
+  console.log("API Call params:", params.toString());
 
-  return axiosClient
-    .get(finalUrl)
-    .then((response) => {
-      if (response.data.success) {
-        return response.data.data.activities.map((activity: any) => ({
-          activityType: activity.event,
-          tokenId: activity.item.tokenId,
-          contractAddress: activity.item.contractAddress,
-          collectibleId: activity.item.collectibleId,
-          fileKey: activity.item.fileKey,
-          name: activity.item.name,
-          fromAddress: activity.from || "Unknown",
-          toAddress: activity.to || undefined,
-          price: activity.price,
-          transactionHash: activity.transactionHash,
-          timestamp: activity.time,
-          blockNumber: 0,
-        }));
-      } else {
-        throw new Error(response.data.error);
-      }
-    });
+  return axiosClient.get(finalUrl).then((response) => {
+    if (response.data.success) {
+      return response.data.data.activities.map((activity: any) => ({
+        activityType: activity.event,
+        tokenId: activity.item.tokenId,
+        contractAddress: activity.item.contractAddress,
+        collectibleId: activity.item.collectibleId,
+        fileKey: activity.item.fileKey,
+        name: activity.item.name,
+        fromAddress: activity.from || "Unknown",
+        toAddress: activity.to || undefined,
+        price: activity.price,
+        transactionHash: activity.transactionHash,
+        timestamp: activity.time,
+        blockNumber: 0,
+      }));
+    } else {
+      throw new Error(response.data.error);
+    }
+  });
 }
 
 // getCollectibleActivity function with pagination

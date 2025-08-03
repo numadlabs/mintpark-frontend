@@ -14,23 +14,27 @@ export default function VerifyPage() {
   const searchParams = useSearchParams();
   const code: string | null = searchParams.get("code");
 
-  const { authState, selectedLayerId, getWalletForLayer } = useAuth();
+  // Fixed: Use the correct properties from your auth context
+  const { 
+    isConnected, 
+    currentLayer, 
+    currentUserLayer, 
+    user,
+    connectWallet 
+  } = useAuth();
 
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [canVerify, setCanVerify] = useState(false);
 
-  const address =
-    selectedLayerId && getWalletForLayer(selectedLayerId)?.address;
+  // Get the address from currentUserLayer
+  const address = currentUserLayer?.address;
 
   useEffect(() => {
-    if (authState.authenticated && selectedLayerId) {
-      const wallet = getWalletForLayer(selectedLayerId);
-      setCanVerify(!!wallet?.address);
-    } else {
-      setCanVerify(false);
-    }
-  }, [authState.authenticated, selectedLayerId, getWalletForLayer]);
+    // Check if user is connected and has an address
+    setCanVerify(isConnected && !!address);
+  }, [isConnected, address]);
+
   const REDIRECT_URL =
     "https://discord.com/oauth2/authorize?client_id=1386964242644734002&response_type=code&redirect_uri=https%3A%2F%2Fwww.mintpark.io%2Fdiscord%2Fverify&scope=identify";
 
@@ -105,6 +109,16 @@ export default function VerifyPage() {
     }
   };
 
+  const handleConnectWallet = async () => {
+    try {
+      await connectWallet();
+      setWalletModalOpen(false);
+    } catch (error) {
+      console.error("Failed to connect wallet:", error);
+      toast.error("Failed to connect wallet");
+    }
+  };
+
   return (
     <>
       <Layout>
@@ -138,7 +152,7 @@ export default function VerifyPage() {
               <Button
                 variant="secondary"
                 className="w-full md:w-[336px] h-16 cursor-pointer flex gap-4"
-                onClick={() => setWalletModalOpen(true)}
+                onClick={handleConnectWallet}
               >
                 <Image
                   src="/wallets/Metamask.png"
@@ -151,6 +165,21 @@ export default function VerifyPage() {
                 </p>
               </Button>
             )}
+
+            {/* Show current connection status */}
+            {isConnected && address && (
+              <div className="text-center">
+                <p className="text-neutral200 text-sm">Connected to:</p>
+                <p className="text-neutral50 text-sm font-mono">
+                  {address.slice(0, 6)}...{address.slice(-4)}
+                </p>
+                {currentLayer && (
+                  <p className="text-neutral300 text-xs">
+                    Layer: {currentLayer.name || currentLayer.layer}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </Layout>
@@ -159,7 +188,7 @@ export default function VerifyPage() {
         open={walletModalOpen}
         onClose={() => setWalletModalOpen(false)}
         activeTab="HEMI"
-        selectedLayerId={selectedLayerId as string}
+        selectedLayerId={currentLayer?.id || ""}
         onTabChange={() => {}}
         onLayerSelect={() => {}}
       />

@@ -1,10 +1,10 @@
+// auth changes
+
 import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { Lock1, Unlimited } from "iconsax-react";
 import Countdown, { CountdownRenderProps } from "react-countdown";
 import { useAuth } from "@/components/provider/auth-context-provider";
-import { useQuery } from "@tanstack/react-query";
-import { getLayerById } from "@/lib/service/queryHelper";
 import {
   getCurrencyIcon,
   getCurrencySymbol,
@@ -64,12 +64,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   isWhitelisted = false,
   hasFCFS = false,
 }) => {
-  const { authState } = useAuth();
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
+  const { currentLayer } = useAuth();
 
   const [status, setStatus] = useState("");
   const [isClickable, setIsClickable] = useState(false);
@@ -261,14 +256,16 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
               width={20}
               height={20}
               draggable="false"
-              src={getCurrencyIcon(currentLayer.layer)}
+              // src={getCurrencyIcon(currentLayer.layer)}
+                src={currentLayer?.layer ? getCurrencyIcon(currentLayer.layer) : ''}
               alt="Icon"
               className="aspect-square h-5 w-5"
             />
             {mintPrice !== undefined && (
               <p className="text-neutral50">
                 <span className="mr-1">{mintPrice}</span>
-                {getCurrencySymbol(currentLayer.layer)}
+                {/* {getCurrencySymbol(currentLayer.layer)} */}
+                {currentLayer?.layer ? getCurrencySymbol(currentLayer.layer) : ''}
               </p>
             )}
           </div>

@@ -14,6 +14,7 @@ import { ScrollArea } from "@radix-ui/react-scroll-area";
 import CollectibleCardList from "../atom/cards/collectible-card-list";
 import CollectionSideBar from "./collections/sideBar";
 import { CollectionDetail } from "@/lib/validations/collection-validation";
+import { useAuth } from "../provider/auth-context-provider";
 
 interface MoreCollectionProps {
   collection: CollectionDetail | null;
@@ -25,6 +26,7 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
   currentAssetId,
 }) => {
   const [active, setActive] = useState(false);
+  const { currentLayer } = useAuth();
   const [searchFilter, setSearchFilter] = useState(""); // Add this state
   const [filteredCollection, setFilteredCollection] = useState(
     collection?.collectibles || []
@@ -144,7 +146,10 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
                 >
                   {filteredCollection.map((item) => (
                     <div key={item.id}>
-                      <CollectibleCard data={item} />
+                      <CollectibleCard
+                        data={item}
+                        currentLayer={currentLayer}
+                      />
                     </div>
                   ))}
                 </div>
@@ -177,7 +182,10 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
                       <div className="flex flex-col pt-4 gap-4">
                         {filteredCollection.map((item) => (
                           <div key={item.id}>
-                            <CollectibleCardList data={item} />
+                            <CollectibleCardList
+                              data={item}
+                              currentLayer={currentLayer}
+                            />
                           </div>
                         ))}
                       </div>
