@@ -12,16 +12,19 @@ import {
   CreationFlowProvider,
   useCreationFlow,
 } from "@/components/createn-flow/CreationFlowProvider";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 function CreateFlowContent() {
   const { currentStep, resetFlow } = useCreationFlow();
   const [showChainModal, setShowChainModal] = useState(true);
   const router = useRouter();
 
+  
   const handleClose = () => {
     resetFlow();
     router.push("/creater-tool");
   };
+
 
   const renderCurrentStep = () => {
     switch (currentStep) {

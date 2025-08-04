@@ -3,11 +3,12 @@ import React, { useState } from 'react';
 import { Folder, FileText, Trash2, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCreationFlow } from './CreationFlowProvider';
+import Toggle from "@/components/ui/toggle";
 // import Toggle, { toggle } from '@/components/ui/toggle';
 
 export function TraitsUploadStep() {
   const { traitData, updateTraitData, setCurrentStep } = useCreationFlow();
-  const [oneOfOneEnabled, setOneOfOneEnabled] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
 
   const handleFileUpload = (type: 'traitAssets' | 'oneOfOneEditions' | 'metadataJson') => (
     event: React.ChangeEvent<HTMLInputElement>
@@ -18,6 +19,10 @@ export function TraitsUploadStep() {
     }
   };
 
+  const toggleOneOfOne = () =>{
+    setIsChecked(!isChecked);
+  }
+
   const handleRemoveFile = (type: 'traitAssets' | 'oneOfOneEditions' | 'metadataJson') => {
     updateTraitData({ [type]: null });
   };
@@ -27,7 +32,7 @@ export function TraitsUploadStep() {
   };
 
   const isFormValid = traitData.traitAssets && traitData.metadataJson && 
-    (!oneOfOneEnabled || traitData.oneOfOneEditions);
+    (!toggleOneOfOne || traitData.oneOfOneEditions);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -84,14 +89,11 @@ export function TraitsUploadStep() {
               ?
             </div>
           </div>
-          {/* <Toggle
-            // checked={oneOfOneEnabled}
-            // onCheckedChange={setOneOfOneEnabled}
-          /> */}
+            <Toggle isChecked={isChecked} onChange={toggleOneOfOne} />
         </div>
 
         {/* One of one editions upload */}
-        {oneOfOneEnabled && (
+        {isChecked && (
           <div>
             {traitData.oneOfOneEditions ? (
               <div className="bg-darkSecondary border border-transLight4 rounded-xl p-4 flex items-center justify-between">

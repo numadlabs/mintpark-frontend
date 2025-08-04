@@ -24,7 +24,7 @@ export function ChainSelectionModal({ isOpen, onClose }: ChainSelectionModalProp
     {
       id: 'hemi-mainnet',
       name: 'Hemi Mainnet',
-      icon: '⚪', // Replace with actual icon
+      icon: '⚪', 
       features: [
         'NFTs bridging Bitcoin and Ethereum',
         'Secure with Bitcoin\'s PoP consensus',
@@ -36,7 +36,7 @@ export function ChainSelectionModal({ isOpen, onClose }: ChainSelectionModalProp
     {
       id: 'core-mainnet',
       name: 'Core Mainnet',
-      icon: '⬟', // Replace with actual icon
+      icon: '⬟', 
       features: [
         'Low fees for minting and trading',
         'High scalability for large projects',
@@ -48,7 +48,7 @@ export function ChainSelectionModal({ isOpen, onClose }: ChainSelectionModalProp
     {
       id: 'citrea',
       name: 'Citrea',
-      icon: '⬢', // Replace with actual icon
+      icon: '⬢',
       features: [
         'ZK rollups boost Bitcoin scalability',
         'Inherits Bitcoin\'s robust security',
@@ -60,7 +60,9 @@ export function ChainSelectionModal({ isOpen, onClose }: ChainSelectionModalProp
   ];
 
   const handleChainSelect = (chainId: string) => {
-    updateCollectionData({ selectedChain: chainId });
+    // updateCollectionData({ selectedChain: chainId });
+       // Use layerId instead of selectedChain
+    // updateCollectionData({ layerId: chainId });
     setCurrentStep(1);
     onClose();
   };

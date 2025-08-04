@@ -537,7 +537,7 @@ export default function CreateHeader() {
                         variant="primary"
                         size="lg"
                         className="min-w-[150px] bg-primary text-white hover:bg-primary/90"
-                        onClick={() => router.push("/creater-tool/create")}
+                        onClick={() => router.push("/creater-tool/inscribe")}
                       >
                         Start Creating
                       </Button>
@@ -644,7 +644,7 @@ export default function CreateHeader() {
                             variant="primary"
                             size="lg"
                             className="w-full bg-primary text-white hover:bg-primary/90"
-                            onClick={() => router.push("/creater-tool/create")}
+                            onClick={() => router.push("/creater-tool/inscribe")}
                           >
                             Start Creating
                           </Button>

@@ -13,9 +13,10 @@ import {
   CreateLaunchParams,
   AddPhaseRequest,
 } from "../types";
-import { collectibleFormData } from "./formHelper";
+import { collectibleFormData, newCollectibleFormData } from "./formHelper";
 import { toast } from "sonner";
 import { LinkAccountResponse, LoginResponse } from "../types/wallet";
+import { NewCollectionData } from "@/components/createn-flow/CreationFlowProvider";
 
 // Connect and Login sections
 export async function generateMessageHandler({ address }: { address: string }) {
@@ -126,6 +127,42 @@ export async function linkAccountToAnotherUser({
 //Collection section
 export async function createCollection({ data }: { data: CollectionData }) {
   const formData = collectibleFormData(data);
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/collections`,
+
+    data: formData,
+  };
+
+  const response = await axiosClient.request(config);
+  return response.data;
+}
+
+// new Create Collection
+
+export async function newCreateCollection({
+  data,
+}: {
+  data: NewCollectionData;
+}) {
+  const formData = newCollectibleFormData(data);
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/collections`,
+
+    data: formData,
+  };
+
+  const response = await axiosClient.request(config);
+  return response.data;
+}
+
+export async function newCreateLaunch({
+  data,
+}: {
+  data: NewCollectionData;
+}) {
+  const formData = newCollectibleFormData(data);
   const config: AxiosRequestConfig = {
     method: "post",
     url: `/api/v1/collections`,

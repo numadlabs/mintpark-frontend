@@ -1,14 +1,16 @@
 "use client";
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from "react";
 
-export interface CollectionData {
+export interface NewCollectionData {
   name: string;
-  symbol: string;
+  symbol?: string;
   logo: File | null;
-  background: File | null;
-  selectedChain: string;
+  description: string;
+  type: string;
+  userLayerId: string | null;
+  layerId: string | null;
+  //  selectedChain?: string;
 }
-
 export interface TraitData {
   traitAssets: File | null;
   oneOfOneEditions: File | null;
@@ -33,7 +35,7 @@ export interface InscriptionData {
 
 interface CreationFlowState {
   currentStep: number;
-  collectionData: CollectionData;
+  collectionData: NewCollectionData;
   traitData: TraitData;
   inscriptionData: InscriptionData | null;
   isLoading: boolean;
@@ -41,7 +43,7 @@ interface CreationFlowState {
 
 interface CreationFlowContextType extends CreationFlowState {
   setCurrentStep: (step: number) => void;
-  updateCollectionData: (data: Partial<CollectionData>) => void;
+  updateCollectionData: (data: Partial<NewCollectionData>) => void;
   updateTraitData: (data: Partial<TraitData>) => void;
   updateInscriptionData: (data: Partial<InscriptionData>) => void;
   setIsLoading: (loading: boolean) => void;
@@ -51,11 +53,13 @@ interface CreationFlowContextType extends CreationFlowState {
 const initialState: CreationFlowState = {
   currentStep: 0,
   collectionData: {
-    name: '',
-    symbol: '',
+    name: "",
+    symbol: "",
     logo: null,
-    background: null,
-    selectedChain: '',
+    description: "",
+    type: "",
+    layerId: "",
+    userLayerId: "",
   },
   traitData: {
     traitAssets: null,
@@ -66,40 +70,42 @@ const initialState: CreationFlowState = {
   isLoading: false,
 };
 
-const CreationFlowContext = createContext<CreationFlowContextType | undefined>(undefined);
+const CreationFlowContext = createContext<CreationFlowContextType | undefined>(
+  undefined
+);
 
 export function CreationFlowProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<CreationFlowState>(initialState);
 
   const setCurrentStep = (step: number) => {
-    setState(prev => ({ ...prev, currentStep: step }));
+    setState((prev) => ({ ...prev, currentStep: step }));
   };
 
-  const updateCollectionData = (data: Partial<CollectionData>) => {
-    setState(prev => ({
+  const updateCollectionData = (data: Partial<NewCollectionData>) => {
+    setState((prev) => ({
       ...prev,
-      collectionData: { ...prev.collectionData, ...data }
+      collectionData: { ...prev.collectionData, ...data },
     }));
   };
 
   const updateTraitData = (data: Partial<TraitData>) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      traitData: { ...prev.traitData, ...data }
+      traitData: { ...prev.traitData, ...data },
     }));
   };
 
   const updateInscriptionData = (data: Partial<InscriptionData>) => {
-    setState(prev => ({
+    setState((prev) => ({
       ...prev,
-      inscriptionData: prev.inscriptionData 
+      inscriptionData: prev.inscriptionData
         ? { ...prev.inscriptionData, ...data }
-        : data as InscriptionData
+        : (data as InscriptionData),
     }));
   };
 
   const setIsLoading = (loading: boolean) => {
-    setState(prev => ({ ...prev, isLoading: loading }));
+    setState((prev) => ({ ...prev, isLoading: loading }));
   };
 
   const resetFlow = () => {
@@ -126,7 +132,9 @@ export function CreationFlowProvider({ children }: { children: ReactNode }) {
 export function useCreationFlow() {
   const context = useContext(CreationFlowContext);
   if (context === undefined) {
-    throw new Error('useCreationFlow must be used within a CreationFlowProvider');
+    throw new Error(
+      "useCreationFlow must be used within a CreationFlowProvider"
+    );
   }
   return context;
 }
