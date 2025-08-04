@@ -12,29 +12,10 @@ import { WalletConnectionModal } from "@/components/modal/wallet-connect-modal";
 
 const NFT_CONFIGS = [
   {
-    id: "hemi-bros",
-    title: "Hemi Bro's NFT",
-    // description:
-    //   "HemiBros is a premier PFP NFT collection on Hemi, blend of nostalgia, authenticity, and innovation. Every Bro NFT unlocks entry to Bro Town. An upcoming chill farming game built natively on Hemi.",
-    role: 1,
-  },
-  {
-    id: "mint-park-genesis",
-    title: "Mint Park Genesis NFT",
-    // description: "Genesis is our inaugural collection marking the beginning of our journey to bring EVM efficiency to Bitcoin Ordinals. These NFTs embody simplicity and value, created specifically for our community as we launch on Hemi.",
-    role: 2,
-  },
-  {
-    id: "og-badge",
-    title: "OG Badge Nft",
-    // description: "Be part of Mint Park's history with our exclusive OG Badge - a special NFT collection minted on Citrea testnet marking our early supporters. These badges represent the pioneers who joined us in building the future of Bitcoin Layer 2 NFTs.",
-    role: 3,
-  },
-  {
     id: "kumquat",
     title: "Kumquat Nft",
     // description: "We're thrilled to announce a special collaboration between MintPark and Citrea to launch the exclusive Kumquat NFT Collection! This unique drop celebrates two major milestones: the successful Citrea Kumquat Fork and the joyous occasion of Chinese New Year. Kumquats, symbolizing prosperity and good fortune, perfectly align with the spirit of these celebrations. Each NFT in this limited collection will feature vibrant, culturally inspired designs, blending MintPark's creativity with the new beginnings of the Lunar New Year.",
-    role: 4,
+    role: 1,
   },
 ];
 
@@ -43,13 +24,8 @@ export default function VerifyNew() {
   const code: string | null = searchParams.get("code");
 
   // Fixed: Use the correct properties from your auth context
-  const { 
-    isConnected, 
-    currentLayer, 
-    currentUserLayer, 
-    user,
-    connectWallet 
-  } = useAuth();
+  const { isConnected, currentLayer, currentUserLayer, user, connectWallet } =
+    useAuth();
 
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [verifyingStates, setVerifyingStates] = useState<
@@ -66,7 +42,7 @@ export default function VerifyNew() {
   }, [isConnected, address]);
 
   const REDIRECT_URL =
-    "https://discord.com/oauth2/authorize?client_id=1386964242644734002&response_type=code&redirect_uri=https%3A%2F%2Fwww.mintpark.io%2Fdiscord%2Fmint-park%2Fverify&scope=identify";
+    "https://discord.com/oauth2/authorize?client_id=1386964242644734002&response_type=code&redirect_uri=https%3A%2F%2Fwww.mintpark.io%2Fdiscord%2Fcitrea%2Fverify&scope=identify";
 
   const redirectWithMessage = (msg: string) => {
     toast.error(msg);
@@ -85,7 +61,7 @@ export default function VerifyNew() {
       setVerifyingStates((prev) => ({ ...prev, [nftConfig.id]: true }));
       // Main role endpoint
       const res = await axiosClient.post(
-        "https://mintpark-verification-endpoints.itnumadlabs.workers.dev/mint-park/role",
+        "https://mintpark-verification-endpoints.itnumadlabs.workers.dev/citrea/role",
         { address, code, role: nftConfig.role }
       );
 
@@ -163,18 +139,18 @@ export default function VerifyNew() {
     return (
       <div
         key={nftConfig.id}
-        className="w-full max-w-none sm:max-w-[500px] lg:max-w-[500px] h-auto bg-neutral500 border border-neutral400 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-6 xl:p-6 flex flex-col items-center gap-2 sm:gap-2 lg:gap-2 mx-auto"
+        className="w-full max-w-none sm:max-w-[500px] lg:max-w-[600px] bg-neutral500 border border-neutral400 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 flex flex-col items-center gap-2 sm:gap-3 mx-auto"
       >
         {/* Title */}
         <h1 className="text-neutral00 font-bold text-lg sm:text-xl lg:text-2xl text-center leading-tight">
           {nftConfig.title}
         </h1>
         {/* Button */}
-        <div className="w-full flex justify-center mt-2 sm:mt-4">
+        <div className="w-full flex justify-center mt-2 sm:mt-3">
           {canVerify ? (
             <Button
               variant="secondary"
-              className="w-full sm:w-auto sm:min-w-[300px] lg:w-[336px] xl:w-[300px] h-12 sm:h-14 lg:h-16 cursor-pointer flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 px-4 sm:px-6"
+              className="w-full sm:w-auto sm:min-w-[300px] lg:w-[336px] xl:w-[300px] h-12 sm:h-12 lg:h-14 cursor-pointer flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 px-4 sm:px-6"
               onClick={() => handleVerify(nftConfig)}
               disabled={isVerifying}
             >
@@ -183,7 +159,7 @@ export default function VerifyNew() {
                 alt="Metamask"
                 width={20}
                 height={24}
-                className="sm:w-8 sm:h-8 lg:w-10 lg:h-10 flex-shrink-0"
+                className="sm:w-6 sm:h-6 lg:w-8 lg:h-8 flex-shrink-0"
               />
               <p className="text-neutral50 font-bold text-sm sm:text-base lg:text-lg whitespace-nowrap">
                 {isVerifying ? "Verifying..." : "Verify NFT"}
@@ -192,7 +168,7 @@ export default function VerifyNew() {
           ) : (
             <Button
               variant="secondary"
-              className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[336px] h-12 sm:h-14 lg:h-16 cursor-pointer flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 px-4 sm:px-6"
+              className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[336px] h-12 sm:h-12 lg:h-14 cursor-pointer flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 px-4 sm:px-6"
               onClick={handleConnectWallet}
             >
               <Image
@@ -200,7 +176,7 @@ export default function VerifyNew() {
                 alt="Metamask"
                 width={24}
                 height={24}
-                className="sm:w-8 sm:h-8 lg:w-10 lg:h-10 flex-shrink-0"
+                className="sm:w-6 sm:h-6 lg:w-8 lg:h-8 flex-shrink-0"
               />
               <p className="text-neutral50 font-bold text-sm sm:text-base lg:text-lg whitespace-nowrap">
                 Connect Wallet
@@ -208,8 +184,6 @@ export default function VerifyNew() {
             </Button>
           )}
         </div>
-
-     
       </div>
     );
   };
@@ -217,21 +191,20 @@ export default function VerifyNew() {
   return (
     <>
       <Layout>
-        <div className="min-h-screen w-full px-3 sm:px-4 lg:px-6 xl:px-8 py-8 sm:py-12 lg:py-16 xl:py-20 flex flex-col">
-          <div className="flex-1 flex flex-col gap-8 sm:gap-10 lg:gap-12">
-            <div className="pt-16 sm:pt-20 lg:pt-24">
+        <div className="w-full px-3 sm:px-4 lg:px-6 xl:px-8 py-4 sm:py-6 lg:py-8 xl:py-12 flex flex-col">
+          <div className="flex flex-col gap-6 sm:gap-8 lg:gap-10">
+            <div className="pt-8 sm:pt-12 lg:pt-16">
               <h1 className="font-bold text-center xl:text-start text-neutral00 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:pl-8">
                 Mintpark NFT Holder Verification
               </h1>
             </div>
-            
-            <div className="flex-1 w-full max-w-7xl mx-auto">
+
+            <div className="w-full max-w-7xl mx-auto">
               {/* Grid layout with better responsive handling */}
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-6 lg:gap-6 place-items-center h-full content-center">
+              <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:gap-6 place-items-center">
                 {NFT_CONFIGS.map((nftConfig) => renderNFTCard(nftConfig))}
               </div>
             </div>
-
           </div>
         </div>
       </Layout>
