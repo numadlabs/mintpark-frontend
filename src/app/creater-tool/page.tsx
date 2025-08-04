@@ -47,7 +47,7 @@ const CretaerTool = () => {
             {/* Start Creating Button */}
             <Button
               className="group relative inline-flex items-center gap-3 px-8 py-4 bg-white text-black font-semibold rounded-xl"
-             onClick={() => router.push("/creater-tool/create")}
+             onClick={() => router.push("/creater-tool/inscribe")}
             >
               <span>Start Creating</span>
               <ArrowRight

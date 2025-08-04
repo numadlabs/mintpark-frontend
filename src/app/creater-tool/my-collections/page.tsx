@@ -37,7 +37,7 @@ const MyCollectionsPage = () => {
   ]);
 
   const handleStartCreating = () => {
-    router.push('/creater-tool/create');
+    router.push('/creater-tool/inscribe');
   };
 
   const handleLaunch = (collectionId: string) => {
@@ -69,9 +69,9 @@ const MyCollectionsPage = () => {
     <div key={collection.id} className="bg-darkSecondary border border-transLight4 rounded-xl p-6">
       <div className="flex items-start gap-4">
         {/* Collection Logo */}
-        <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <div className="w-20 h-20 bg-white rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
           {/* Pixel art style logo - replace with actual image */}
-          <div className="w-full h-full bg-purple-600 flex items-center justify-center">
+          <div className="w-full h-full bg-black flex items-center justify-center">
             <div className="w-12 h-12 bg-white rounded-sm"></div>
           </div>
         </div>
