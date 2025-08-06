@@ -18,7 +18,6 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
 
   const mockFees = {
     inscription: 0.013,
-    network: 0.0022,
     service: 0.0001,
     total: 0.0153
   };
@@ -50,7 +49,7 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
   };
 
   const handleGoToCollections = () => {
-    router.push('/creater-tool/my-collections');
+    router.push('/creater-tool');
   };
 
   const handleCustomizeCollection = () => {
@@ -108,15 +107,6 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
                   <span className="text-lightSecondary text-sm ml-2">~$4,104</span>
                 </div>
               </div>
-              
-              <div className="flex justify-between items-center">
-                <span className="text-lightSecondary">Network Fee</span>
-                <div className="text-right">
-                  <span className="text-white font-medium">0.0022 BTC</span>
-                  <span className="text-lightSecondary text-sm ml-2">~$139</span>
-                </div>
-              </div>
-              
               <div className="flex justify-between items-center">
                 <span className="text-lightSecondary">Service Fee</span>
                 <div className="text-right">

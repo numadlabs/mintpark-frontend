@@ -209,27 +209,6 @@ const MyCollectionsPage = () => {
             </div>
           )}
 
-          {/* Info Section */}
-          <div className="bg-darkSecondary border border-transLight4 rounded-xl p-6">
-            <div className="flex items-center justify-between cursor-pointer group">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-transLight12">
-                  <span className="text-white font-bold text-lg">?</span>
-                </div>
-                <div className="flex-1">
-                  <p className="text-white text-lg font-medium">
-                    Learn about launching recursive NFT collection on Mint Park
-                  </p>
-                </div>
-              </div>
-              <div className="flex-shrink-0 ml-4">
-                <ArrowRight
-                  size={24}
-                  className="text-lightSecondary transition-all duration-300 group-hover:translate-x-2 group-hover:text-white"
-                />
-              </div>
-            </div>
-          </div>
 
           {/* Create New Collection */}
           {collections.length > 0 && (

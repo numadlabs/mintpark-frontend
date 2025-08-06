@@ -6,18 +6,38 @@ import {
   CollectionDetailApiResponse,
   Collectible,
   CollectibleApiResponse,
+  CreatorCollection,
+  CreateOrderResponse,
 } from "../validations/collection-validation";
 import { Launchschema } from "../validations/launchpad-validation";
-import {
-  LayerSchema,
-  CurrentLayerSchema,
-} from "../validations/layer-validation";
 import { OrderSchema } from "../validations/asset-validation";
 import { AssetSchema, ActivitySchema } from "../validations/asset-validation";
-import { UserSchema } from "../validations/user-schema";
-import { boolean, number } from "zod";
 import { ActivityType } from "../types";
 import { Layer } from "../types/wallet";
+
+
+// new creater tool api
+export async function createrCollection(
+  userLayerId: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<CreatorCollection[]> {
+  const params = new URLSearchParams({
+    userLayerId,
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  return axiosClient
+    .get(`/api/v1/collections/creator-owned?${params.toString()}`)
+    .then((response) => {
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      } else {
+        throw new Error(response.data.message || "Failed to fetch creator collections");
+      }
+    });
+}
 
 export async function getAllOrders(id: string): Promise<OrderSchema> {
   return axiosClient.get(`/api/v1/orders/user/${id}`).then((response) => {

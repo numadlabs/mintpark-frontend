@@ -22,7 +22,6 @@ export interface InscriptionData {
   walletAddress: string;
   fees: {
     inscription: number;
-    network: number;
     service: number;
     total: number;
   };
