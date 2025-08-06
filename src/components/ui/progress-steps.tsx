@@ -41,11 +41,11 @@ export function ProgressSteps({ currentStep }: ProgressStepsProps) {
           <div className="flex items-center gap-2">
             <div
               className={`
-                w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
+                w-8 h-8 rounded-[4px] flex items-center justify-center text-sm font-semibold
                 ${step.completed
-                  ? 'bg-white text-black'
+                  ? 'bg-lightPrimary text-lightSecondary'
                   : step.active
-                  ? 'bg-white text-black'
+                  ? 'bg-lightPrimary text-black'
                   : 'bg-transLight12 text-lightSecondary'
                 }
               `}

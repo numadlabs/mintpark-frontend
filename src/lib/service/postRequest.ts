@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { LinkAccountResponse, LoginResponse } from "../types/wallet";
 import { NewCollectionData } from "@/components/createn-flow/CreationFlowProvider";
 
+
 // Connect and Login sections
 export async function generateMessageHandler({ address }: { address: string }) {
   try {
@@ -139,7 +140,6 @@ export async function createCollection({ data }: { data: CollectionData }) {
 }
 
 // new Create Collection
-
 export async function newCreateCollection({
   data,
 }: {
@@ -157,21 +157,49 @@ export async function newCreateCollection({
   return response.data;
 }
 
+//new Create launch
 export async function newCreateLaunch({
-  data,
+  collectionId,
+  poStartsAt,
+  poEndsAt,
+  poMintPrice,
+  poMaxMintPerWallet,
+  userLayerId,
+  txid,
 }: {
-  data: NewCollectionData;
+  collectionId: string;
+  poStartsAt: number;
+  poEndsAt: number;
+  poMintPrice: number;
+  poMaxMintPerWallet: number;
+  userLayerId: string;
+  txid: string;
 }) {
-  const formData = newCollectibleFormData(data);
-  const config: AxiosRequestConfig = {
-    method: "post",
-    url: `/api/v1/collections`,
+  try {
+    const launchData = {
+      collectionId,
+      poStartsAt,
+      poEndsAt,
+      poMintPrice,
+      poMaxMintPerWallet,
+      userLayerId,
+    };
 
-    data: formData,
-  };
-
-  const response = await axiosClient.request(config);
-  return response.data;
+    return axiosClient
+      .post(`/api/v1/launchpad`, {
+        data: JSON.stringify(launchData),
+        txid: txid,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
 }
 
 export async function createBadgeCollection({ data }: { data: BadgeType }) {

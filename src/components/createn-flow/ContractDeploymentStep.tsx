@@ -5,12 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { NewCollectionData, useCreationFlow } from "./CreationFlowProvider";
 import Image from "next/image";
-import { newCreateCollection } from "@/lib/service/postRequest";
+import {
+  newCreateCollection,
+  newCreateLaunch,
+} from "@/lib/service/postRequest";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "../provider/auth-context-provider";
-import { sendTransaction } from '@wagmi/core';
-import { wagmiConfig } from '@/lib/wagmiConfig';
+import { sendTransaction, waitForTransactionReceipt } from "@wagmi/core";
+import { wagmiConfig } from "@/lib/wagmiConfig";
 
 export function ContractDeploymentStep() {
   const { collectionData, updateCollectionData, setCurrentStep } =
@@ -23,94 +26,119 @@ export function ContractDeploymentStep() {
     mutationFn: newCreateCollection,
   });
 
-  console.log("currenLayer layerID", currentLayer?.id);
-  console.log("currenUserLayer useLayerId", currentUserLayer?.id);
-
+  const { mutateAsync: createLaunchMutation } = useMutation({
+    mutationFn: newCreateLaunch,
+  });
+  
   const handleCreateCollection = async () => {
-    // Validation
-    if (!collectionData.name || !collectionData.logo) {
-      toast.error("Please fill in all required fields");
+  // Validation
+  if (!collectionData.name || !collectionData.logo) {
+    toast.error("Please fill in all required fields");
+    return;
+  }
+
+  if (!currentLayer) {
+    toast.error("Layer information not available");
+    return;
+  }
+
+  if (currentLayer.layerType === "EVM" && !window.ethereum) {
+    toast.error("Please install MetaMask extension to continue");
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    // Step 1: Create the collection
+    const collectionParams: NewCollectionData = {
+      name: collectionData?.name,
+      logo: collectionData?.logo,
+      description: collectionData?.description,
+      type: "RECURSIVE_INSCRIPTION",
+      layerId: currentLayer?.id || null,
+      userLayerId: currentUserLayer?.id || null,
+    };
+
+    // Call the API to create collection
+    const collectionResponse = await createCollectionMutation({
+      data: collectionParams,
+    });
+
+    if (!collectionResponse.success) {
+      if (collectionResponse.error) {
+        toast.error(`Error: ${collectionResponse.error}`);
+      } else {
+        throw new Error(
+          "Unknown error creating collection. Please try again later or contact support"
+        );
+      }
       return;
     }
 
-    if (!currentLayer) {
-      toast.error("Layer information not available");
-      return;
-    }
+    console.log("Collection created successfully:", {
+      deployContractTxHex: collectionResponse.data.deployContractTxHex,
+    });
 
-    if (currentLayer.layerType === "EVM" && !window.ethereum) {
-      toast.error("Please install MetaMask extension to continue");
-      return;
-    }
+    // Initialize contractTxHash variable
+    let contractTxHash = "";
 
-    setIsLoading(true);
-
-    try {
-      // Prepare the collection data
-      const collectionParams: NewCollectionData = {
-        name: collectionData?.name,
-        // symbol: collectionData?.symbol || "",
-        logo: collectionData?.logo,
-        description: collectionData?.description,
-        type: "RECURSIVE_INSCRIPTION",
-        layerId: currentLayer?.id || null, // Use selectedChain or fallback
-        userLayerId: currentUserLayer?.id || null, // Use currentLayer.id directly, not from collectionData
-      };
-      
-      // Call the API to create collection
-      const response = await createCollectionMutation({
-        data: collectionParams,
+    // Handle contract deployment for EVM chains
+    const { deployContractTxHex } = collectionResponse.data;
+    if (deployContractTxHex && currentLayer.layerType === "EVM") {
+      // Send the transaction
+      const txHash = await sendTransaction(wagmiConfig, {
+        to: deployContractTxHex.to,
+        data: deployContractTxHex.data,
+        value: deployContractTxHex.value || "0x0",
+        gas: deployContractTxHex.gas,
+        gasPrice: deployContractTxHex.gasPrice,
       });
 
-      if (response && response.success) {
-        const { deployContractTxHex } = response.data;
-        console.log("Collection created successfully:", {
-          deployContractTxHex,
-        });
-        
-        // If we have a contract deployment transaction and we're on EVM
-        if (deployContractTxHex && currentLayer.layerType === "EVM") {
-          try {
-            // Parse the transaction hex data to get transaction parameters
-            // Assuming deployContractTxHex contains the necessary transaction data
-            const txHash = await sendTransaction(wagmiConfig, {
-              to: deployContractTxHex.to,
-              data: deployContractTxHex.data,
-              value: deployContractTxHex.value || '0x0',
-              gas: deployContractTxHex.gas,
-              gasPrice: deployContractTxHex.gasPrice,
-              // Add other necessary transaction parameters as needed
-            });
+      // Wait for 1 block confirmation
+      toast.info("Waiting for transaction confirmation...");
+      const receipt = await waitForTransactionReceipt(wagmiConfig, {
+        hash: txHash,
+        confirmations: 1,
+      });
 
-            console.log("Contract deployed with tx hash:", txHash);
-            // You might want to store this tx hash somewhere
-            
-          } catch (contractError) {
-            console.error("Error deploying contract:", contractError);
-            toast.error("Collection created but contract deployment failed");
-            // You might still want to proceed to next step even if contract deployment fails
-          }
-        }
-
-        // call to Create launch api logic.  collectionData
-        // Move to next step
-        setCurrentStep(2);
-
-        toast.success("Collection created successfully!");
-      } else {
-        throw new Error("Failed to create collection");
-      }
-    } catch (error) {
-      console.error("Error creating collection:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Error creating collection. Please try again."
-      );
-    } finally {
-      setIsLoading(false);
+      contractTxHash = txHash;
+      toast.success("Contract deployed successfully!");
     }
-  };
+
+    // Step 2: Create the launch
+    const launchResponse = await createLaunchMutation({
+      collectionId: collectionResponse.data.l2Collection.id,
+      poStartsAt: 1,
+      poEndsAt: 10,
+      poMintPrice: 0,
+      poMaxMintPerWallet: 1,
+      userLayerId: currentUserLayer?.id || "",
+      txid: contractTxHash || "",
+    });
+
+    if (!launchResponse.success) {
+      if (launchResponse.error) {
+        toast.error(`Error: ${launchResponse.error}`);
+      } else {
+        toast.error("Unknown error creating launch. Please try again later or contact support");
+      }
+      return;
+    }
+
+    console.log("Launch created successfully:", launchResponse.data);
+    toast.success("Collection and launch created successfully!");
+
+    // Move to next step only if both collection and launch are successful
+    setCurrentStep(2);
+
+  } catch (error) {
+    console.error("Error in handleCreateCollection:", error);
+    toast.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -132,24 +160,13 @@ export function ContractDeploymentStep() {
   const isFormValid = collectionData.name && collectionData.logo;
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">
-          Let&apos;s Upload Your Contract
-        </h1>
-        <p className="text-lightSecondary">
-          Enter your collection details to deploy ERC-721 contract.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="w-full flex flex-col items-center justify-center">
+      <div className="flex gap-16">
         {/* Logo Upload */}
-        <div className="space-y-4">
-          <label className="text-white font-medium">Collection logo</label>
-
+        <div className="w-full">
           {logoPreview ? (
             <div className="relative">
-              <div className="w-full h-48 bg-darkSecondary border border-transLight4 rounded-xl overflow-hidden">
+              <div className="h-[400px] w-[400px] bg-darkSecondary border border-transLight4 rounded-lg overflow-hidden">
                 <Image
                   src={logoPreview}
                   alt="Collection logo preview"
@@ -178,7 +195,7 @@ export function ContractDeploymentStep() {
           ) : (
             <div
               onClick={() => document.getElementById("logo-upload")?.click()}
-              className="w-full h-48 border-2 border-dashed border-transLight16 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-transLight24 transition-colors"
+              className="w-[400px] h-[400px] border-2 border-dashed border-transLight16 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-transLight24 transition-colors"
             >
               <Upload size={32} className="text-lightSecondary mb-2" />
               <p className="text-lightSecondary font-medium">
@@ -198,9 +215,16 @@ export function ContractDeploymentStep() {
             className="hidden"
           />
         </div>
-
         {/* Form Fields */}
-        <div className="space-y-6">
+        <div className="w-full grid gap-10">
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-white mb-2">
+              Let&apos;s Upload Your Contract
+            </h1>
+            <p className="text-lightSecondary text-lg">
+              Enter your collection details to deploy ERC-721 contract.
+            </p>
+          </div>
           <div>
             <label className="block text-white font-medium mb-2">
               Collection name
@@ -221,7 +245,7 @@ export function ContractDeploymentStep() {
               onChange={(e) =>
                 updateCollectionData({ description: e.target.value })
               }
-              placeholder="Enter your collection name (Hemi Bros etc.)"
+              placeholder="Enter your collection description"
               className="bg-darkSecondary border-transLight8 text-white placeholder:text-lightTertiary"
             />
           </div>
@@ -240,7 +264,7 @@ export function ContractDeploymentStep() {
 
           <Button
             onClick={handleCreateCollection}
-            disabled={!isFormValid}
+            disabled={!isFormValid || isLoading}
             className="w-full bg-white text-black hover:bg-gray-200 disabled:bg-transLight8 disabled:text-lightTertiary"
           >
             {isLoading ? (
@@ -250,7 +274,7 @@ export function ContractDeploymentStep() {
                 size={24}
               />
             ) : (
-              "   Publish Contract"
+              "Publish Contract"
             )}
             <ArrowRight size={16} className="ml-2" />
           </Button>

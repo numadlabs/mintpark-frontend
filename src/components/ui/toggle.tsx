@@ -17,11 +17,11 @@ const Toggle: React.FC<ToggleProps> = ({ isChecked, onChange }) => {
           className="sr-only peer"
         />
         <div
-          className={`relative w-16 h-9 bg-neutral500 peer-focus:outline-none rounded-full peer after:transition-all 
+          className={`relative w-16 h-8 p-2 bg-neutral500 peer-focus:outline-none rounded-full peer after:transition-all 
                     peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full
-                    after:content-[''] after:absolute after:top-[6px] after:start-[6px]
-                    after:rounded-full after:h-6 after:w-6 peer-checked:bg-brand 
-                    ${isChecked ? "after:bg-neutral600" : "after:bg-white"}`}
+                    after:content-[''] after:absolute after:top-[4px] after:start-[6px]
+                    after:rounded-full after:h-6 after:w-6 peer-checked:bg-successPrimary 
+                    ${isChecked ? "after:bg-white" : "after:bg-white"}`}
         />
       </label>
     </>
