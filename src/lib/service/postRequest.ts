@@ -18,7 +18,6 @@ import { toast } from "sonner";
 import { LinkAccountResponse, LoginResponse } from "../types/wallet";
 import { NewCollectionData } from "@/components/createn-flow/CreationFlowProvider";
 
-
 // Connect and Login sections
 export async function generateMessageHandler({ address }: { address: string }) {
   try {
@@ -194,6 +193,48 @@ export async function newCreateLaunch({
         return response.data;
       });
   } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
+}
+
+//new Create order
+
+
+// Add this new function to your postRequest.ts file
+
+export async function createNewOrder({
+  collectionId,
+  estimatedFeeInSats,
+  feeRate,
+  userLayerId,
+}: {
+  collectionId: string;
+  estimatedFeeInSats: number;
+  feeRate: number;
+  userLayerId: string;
+}) {
+  try {
+    const orderData = {
+      collectionId,
+      estimatedFeeInSats,
+      feeRate,
+      userLayerId,
+    };
+
+    console.log("Creating order with data:", orderData);
+
+    return axiosClient
+      .post(`/api/v1/orders`, orderData)
+      .then((response) => {
+        console.log("Order created successfully:", response.data);
+        return response.data;
+      });
+  } catch (error) {
+    console.error("Error creating order:", error);
     if (axios.isAxiosError(error) && error.response) {
       throw error.response.data;
     } else {

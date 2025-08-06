@@ -43,13 +43,13 @@ export const collectionDetailSchema = z.object({
   ownedBy: z.string().nullable(),
   listedAt: z.date().nullable(),
   listId: z.string().nullable(),
-  isOwnListing:z.boolean(),
+  isOwnListing: z.boolean(),
 });
 
 export const collectibleSchema = z.object({
   id: z.string(),
   name: z.string(),
-  layer:z.string(),
+  layer: z.string(),
   uniqueIdx: z.string(),
   createdAt: z.string(),
   fileKey: z.string(),
@@ -65,9 +65,8 @@ export const collectibleSchema = z.object({
   listedAt: z.date().nullable(),
   listId: z.string().nullable(),
   inscriptionId: z.string(),
-  isOwnListing:z.boolean(),
+  isOwnListing: z.boolean(),
 });
-
 
 // NEW: Creator Collection Schema
 export const creatorCollectionSchema = z.object({
@@ -90,44 +89,12 @@ export const creatorCollectionSchema = z.object({
   progressState: z.string(),
 });
 
-//new: Creator Collection Schema for API response
-
-// Zod schema for CreateOrderResponse
-export const createOrderResponseSchema = z.object({
-  success: z.boolean(),
-  data: z.object({
-    order: z.object({
-      id: z.string(),
-      feeRate: z.number(),
-      fundingAddress: z.string(),
-      fundingAmount: z.number(),
-      fundingTxId: z.string().nullable(),
-      createdAt: z.string(),
-      mintedAt: z.string().nullable(),
-      orderType: z.string(),
-      orderStatus: z.string(),
-      userId: z.string(),
-      userLayerId: z.string(),
-      collectionId: z.string(),
-      launchItemId: z.string().nullable(),
-      purchaseId: z.string().nullable(),
-    }),
-    walletQrString: z.string(),
-  }),
-  message: z.string().optional(),
-});
-
-
-
 // Schema for the complete API response
 export const detailQuerySchema = z.object({
   collectibles: z.array(collectionDetailSchema),
   listedCollectibleCount: z.string(),
   hasMore: z.boolean(),
 });
-
-
-
 
 //Collection type
 export type Collection = z.infer<typeof collectionSchema>;
@@ -151,9 +118,6 @@ export type Collectible = z.infer<typeof collectibleSchema>;
 
 // NEW: Creator Collection type
 export type CreatorCollection = z.infer<typeof creatorCollectionSchema>;
-
-// NEW Type inference from the schema (replaces your interface)
-export type CreateOrderResponse = z.infer<typeof createOrderResponseSchema>;
 
 const collectibleArraySchema = z.array(collectibleSchema);
 

@@ -9,8 +9,8 @@ export interface NewCollectionData {
   type: string;
   userLayerId: string | null;
   layerId: string | null;
-  //  selectedChain?: string;
 }
+
 export interface TraitData {
   traitAssets: File | null;
   oneOfOneEditions: File | null;
@@ -38,14 +38,16 @@ interface CreationFlowState {
   traitData: TraitData;
   inscriptionData: InscriptionData | null;
   isLoading: boolean;
+  collectionId: string | null;
 }
 
 interface CreationFlowContextType extends CreationFlowState {
   setCurrentStep: (step: number) => void;
   updateCollectionData: (data: Partial<NewCollectionData>) => void;
-  updateTraitData: (data: Partial<TraitData>) => void;
+  updateTraitData: (data: Partial<TraitData>) => void; // Энэ line байгаа эсэхийг шалгаарай
   updateInscriptionData: (data: Partial<InscriptionData>) => void;
   setIsLoading: (loading: boolean) => void;
+  setCollectionId: (id: string) => void;
   resetFlow: () => void;
 }
 
@@ -61,12 +63,14 @@ const initialState: CreationFlowState = {
     userLayerId: "",
   },
   traitData: {
+    // Энэ хэсэг байгаа эсэхийг шалгаарай
     traitAssets: null,
     oneOfOneEditions: null,
     metadataJson: null,
   },
   inscriptionData: null,
   isLoading: false,
+  collectionId: null,
 };
 
 const CreationFlowContext = createContext<CreationFlowContextType | undefined>(
@@ -87,6 +91,7 @@ export function CreationFlowProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  // Энэ функц байгаа эсэхийг шалгаарай
   const updateTraitData = (data: Partial<TraitData>) => {
     setState((prev) => ({
       ...prev,
@@ -107,6 +112,10 @@ export function CreationFlowProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, isLoading: loading }));
   };
 
+  const setCollectionId = (id: string) => {
+    setState((prev) => ({ ...prev, collectionId: id }));
+  };
+
   const resetFlow = () => {
     setState(initialState);
   };
@@ -117,9 +126,10 @@ export function CreationFlowProvider({ children }: { children: ReactNode }) {
         ...state,
         setCurrentStep,
         updateCollectionData,
-        updateTraitData,
+        updateTraitData, // Энэ line байгаа эсэхийг шалгаарай
         updateInscriptionData,
         setIsLoading,
+        setCollectionId,
         resetFlow,
       }}
     >

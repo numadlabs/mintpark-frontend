@@ -1,43 +1,40 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Copy, Upload, Settings, Edit } from 'lucide-react';
+import { Copy, Upload, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCreationFlow } from './CreationFlowProvider';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 interface InscriptionStepProps {
   onComplete?: () => void;
 }
 
 export function InscriptionStep({ onComplete }: InscriptionStepProps) {
-  const { inscriptionData, updateInscriptionData } = useCreationFlow();
+  const { inscriptionData } = useCreationFlow();
   const [currentView, setCurrentView] = useState<'payment' | 'uploading' | 'progress' | 'complete'>('payment');
   const [discordUsername, setDiscordUsername] = useState('');
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
   const router = useRouter();
 
-  const mockFees = {
-    inscription: 0.013,
-    service: 0.0001,
-    total: 0.0153
+
+  const satsToBTC = (sats: number): number => {
+    return sats / 10*8; 
   };
 
-  const mockProgress = {
-    current: 12,
-    total: 2000,
-    estimatedTime: '1d 12h 20m'
+  const btcToUsd = (btc: number, btcPrice = 31500) => {
+    return (btc * btcPrice).toLocaleString();
   };
 
   useEffect(() => {
-    if (!inscriptionData) {
-      updateInscriptionData({
-        orderId: '557b9526-3688-4587-a855-9d1c75ddf0e4',
-        walletAddress: 'bc1p...mhw6',
-        fees: mockFees,
-        progress: mockProgress
-      });
+    if (inscriptionData?.walletAddress) {
+      const amount = satsToBTC(inscriptionData.fees.total);
+      const walletQrString = `bitcoin:${inscriptionData.walletAddress}?amount=${amount}`;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(walletQrString)}`;
+      setQrCodeUrl(qrUrl);
     }
-  }, [inscriptionData, updateInscriptionData]);
+  }, [inscriptionData]);
 
   const handleCheckPayment = () => {
     setCurrentView('uploading');
@@ -52,16 +49,24 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
     router.push('/creater-tool');
   };
 
-  const handleCustomizeCollection = () => {
-    // Navigate to customize page
-    console.log('Navigate to customize collection');
-  };
-
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
 
+  // Хэрэв inscription data байхгүй бол loading харуулах
+  if (!inscriptionData) {
+    return (
+      <div className="max-w-2xl mx-auto text-center">
+        <p className="text-lightSecondary">Loading inscription data...</p>
+      </div>
+    );
+  }
+
   if (currentView === 'payment') {
+    const inscriptionFeeBTC = satsToBTC(inscriptionData.fees.inscription);
+    const serviceFeeBTC = satsToBTC(inscriptionData.fees.service);
+    const totalBTC = satsToBTC(inscriptionData.fees.total);
+
     return (
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
@@ -76,10 +81,17 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
           <div className="text-center">
             <p className="text-lightSecondary mb-4">Scan the QR code with your wallet to pay</p>
             <div className="w-48 h-48 bg-white mx-auto rounded-xl flex items-center justify-center">
-              {/* Replace with actual QR code */}
-              <div className="w-40 h-40 bg-black flex items-center justify-center text-xs">
-                QR Code
-              </div>
+              {qrCodeUrl ? (
+                <Image
+                  src={qrCodeUrl} 
+                  alt="Payment QR Code"
+                  className="w-40 h-40 rounded-lg"
+                />
+              ) : (
+                <div className="w-40 h-40 bg-black flex items-center justify-center text-xs text-white">
+                  Generating QR Code...
+                </div>
+              )}
             </div>
           </div>
 
@@ -87,10 +99,10 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
           <div className="flex items-center justify-between bg-darkSecondary border border-transLight4 rounded-xl p-4">
             <div className="flex justify-between items-center w-full">
               <p className="text-lightSecondary text-sm mb-1">Wallet Address</p>
-              <p className="text-white font-medium">{inscriptionData?.walletAddress}</p>
+              <p className="text-white font-medium">{inscriptionData.walletAddress}</p>
             </div>
             <button
-              onClick={() => copyToClipboard(inscriptionData?.walletAddress || '')}
+              onClick={() => copyToClipboard(inscriptionData.walletAddress)}
               className="p-2 text-lightSecondary hover:text-white transition-colors"
             >
               <Copy size={16} />
@@ -103,15 +115,15 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
               <div className="flex justify-between items-center">
                 <span className="text-lightSecondary">Inscription Fee</span>
                 <div className="text-right">
-                  <span className="text-white font-medium">0.013 BTC</span>
-                  <span className="text-lightSecondary text-sm ml-2">~$4,104</span>
+                  <span className="text-white font-medium">{inscriptionFeeBTC.toFixed(8)} BTC</span>
+                  <span className="text-lightSecondary text-sm ml-2">~${btcToUsd(inscriptionFeeBTC)}</span>
                 </div>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-lightSecondary">Service Fee</span>
                 <div className="text-right">
-                  <span className="text-white font-medium">0.0001 BTC</span>
-                  <span className="text-lightSecondary text-sm ml-2">~$32</span>
+                  <span className="text-white font-medium">{serviceFeeBTC.toFixed(8)} BTC</span>
+                  <span className="text-lightSecondary text-sm ml-2">~${btcToUsd(serviceFeeBTC)}</span>
                 </div>
               </div>
               
@@ -119,8 +131,8 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
                 <div className="flex justify-between items-center">
                   <span className="text-white font-semibold">Total</span>
                   <div className="text-right">
-                    <span className="text-white font-semibold">0.0153 BTC</span>
-                    <span className="text-lightSecondary text-sm ml-2">~$4,275</span>
+                    <span className="text-white font-semibold">{totalBTC.toFixed(8)} BTC</span>
+                    <span className="text-lightSecondary text-sm ml-2">~${btcToUsd(totalBTC)}</span>
                   </div>
                 </div>
               </div>
@@ -167,11 +179,14 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
         <div className="bg-darkSecondary border border-transLight4 rounded-xl p-6">
           <div className="flex justify-between items-center mb-4">
             <span className="text-lightSecondary">Uploading process</span>
-            <span className="text-white font-medium">892 / 2,000</span>
+            <span className="text-white font-medium">{inscriptionData.progress.current} / {inscriptionData.progress.total}</span>
           </div>
           
           <div className="w-full bg-transLight8 rounded-full h-2 mb-6">
-            <div className="bg-white h-2 rounded-full" style={{ width: '44.6%' }}></div>
+            <div 
+              className="bg-white h-2 rounded-full" 
+              style={{ width: `${(inscriptionData.progress.current / inscriptionData.progress.total) * 100}%` }}
+            ></div>
           </div>
 
           <div className="bg-warningQueternary border border-warningTertiary rounded-xl p-4">
@@ -204,10 +219,10 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
           <div className="flex justify-between items-center">
             <div>
               <p className="text-lightSecondary text-sm mb-1">Order ID</p>
-              <p className="text-white font-medium">{inscriptionData?.orderId}</p>
+              <p className="text-white font-medium">{inscriptionData.orderId}</p>
             </div>
             <button
-              onClick={() => copyToClipboard(inscriptionData?.orderId || '')}
+              onClick={() => copyToClipboard(inscriptionData.orderId)}
               className="p-2 text-lightSecondary hover:text-white transition-colors"
             >
               <Copy size={16} />
@@ -229,11 +244,11 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
           <div className="grid grid-cols-2 gap-6">
             <div>
               <p className="text-lightSecondary text-sm mb-1">Progress</p>
-              <p className="text-white font-medium">{mockProgress.current} / {mockProgress.total}</p>
+              <p className="text-white font-medium">{inscriptionData.progress.current} / {inscriptionData.progress.total}</p>
             </div>
             <div>
               <p className="text-lightSecondary text-sm mb-1">Estimated remaining time</p>
-              <p className="text-white font-medium">{mockProgress.estimatedTime}</p>
+              <p className="text-white font-medium">{inscriptionData.progress.estimatedTime}</p>
             </div>
           </div>
         </div>
@@ -269,14 +284,6 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
 
         {/* Action Buttons */}
         <div className="flex gap-4">
-          <Button
-            onClick={handleCustomizeCollection}
-            variant="outline"
-            className="flex-1 bg-transparent border-transLight16 text-white hover:bg-transLight8"
-          >
-            <Edit size={16} className="mr-2" />
-            Customize Collection
-          </Button>
           <Button
             onClick={handleGoToCollections}
             className="flex-1 bg-white text-black hover:bg-gray-200"

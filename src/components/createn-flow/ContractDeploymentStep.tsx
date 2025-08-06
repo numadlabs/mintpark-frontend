@@ -16,7 +16,7 @@ import { sendTransaction, waitForTransactionReceipt } from "@wagmi/core";
 import { wagmiConfig } from "@/lib/wagmiConfig";
 
 export function ContractDeploymentStep() {
-  const { collectionData, updateCollectionData, setCurrentStep } =
+  const { collectionData, updateCollectionData, setCurrentStep, setCollectionId } =
     useCreationFlow();
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const { currentLayer, currentUserLayer } = useAuth();
@@ -31,114 +31,118 @@ export function ContractDeploymentStep() {
   });
   
   const handleCreateCollection = async () => {
-  // Validation
-  if (!collectionData.name || !collectionData.logo) {
-    toast.error("Please fill in all required fields");
-    return;
-  }
-
-  if (!currentLayer) {
-    toast.error("Layer information not available");
-    return;
-  }
-
-  if (currentLayer.layerType === "EVM" && !window.ethereum) {
-    toast.error("Please install MetaMask extension to continue");
-    return;
-  }
-
-  setIsLoading(true);
-
-  try {
-    // Step 1: Create the collection
-    const collectionParams: NewCollectionData = {
-      name: collectionData?.name,
-      logo: collectionData?.logo,
-      description: collectionData?.description,
-      type: "RECURSIVE_INSCRIPTION",
-      layerId: currentLayer?.id || null,
-      userLayerId: currentUserLayer?.id || null,
-    };
-
-    // Call the API to create collection
-    const collectionResponse = await createCollectionMutation({
-      data: collectionParams,
-    });
-
-    if (!collectionResponse.success) {
-      if (collectionResponse.error) {
-        toast.error(`Error: ${collectionResponse.error}`);
-      } else {
-        throw new Error(
-          "Unknown error creating collection. Please try again later or contact support"
-        );
-      }
+    // Validation
+    if (!collectionData.name || !collectionData.logo) {
+      toast.error("Please fill in all required fields");
       return;
     }
 
-    console.log("Collection created successfully:", {
-      deployContractTxHex: collectionResponse.data.deployContractTxHex,
-    });
-
-    // Initialize contractTxHash variable
-    let contractTxHash = "";
-
-    // Handle contract deployment for EVM chains
-    const { deployContractTxHex } = collectionResponse.data;
-    if (deployContractTxHex && currentLayer.layerType === "EVM") {
-      // Send the transaction
-      const txHash = await sendTransaction(wagmiConfig, {
-        to: deployContractTxHex.to,
-        data: deployContractTxHex.data,
-        value: deployContractTxHex.value || "0x0",
-        gas: deployContractTxHex.gas,
-        gasPrice: deployContractTxHex.gasPrice,
-      });
-
-      // Wait for 1 block confirmation
-      toast.info("Waiting for transaction confirmation...");
-      const receipt = await waitForTransactionReceipt(wagmiConfig, {
-        hash: txHash,
-        confirmations: 1,
-      });
-
-      contractTxHash = txHash;
-      toast.success("Contract deployed successfully!");
-    }
-
-    // Step 2: Create the launch
-    const launchResponse = await createLaunchMutation({
-      collectionId: collectionResponse.data.l2Collection.id,
-      poStartsAt: 1,
-      poEndsAt: 10,
-      poMintPrice: 0,
-      poMaxMintPerWallet: 1,
-      userLayerId: currentUserLayer?.id || "",
-      txid: contractTxHash || "",
-    });
-
-    if (!launchResponse.success) {
-      if (launchResponse.error) {
-        toast.error(`Error: ${launchResponse.error}`);
-      } else {
-        toast.error("Unknown error creating launch. Please try again later or contact support");
-      }
+    if (!currentLayer) {
+      toast.error("Layer information not available");
       return;
     }
 
-    console.log("Launch created successfully:", launchResponse.data);
-    toast.success("Collection and launch created successfully!");
+    if (currentLayer.layerType === "EVM" && !window.ethereum) {
+      toast.error("Please install MetaMask extension to continue");
+      return;
+    }
 
-    // Move to next step only if both collection and launch are successful
-    setCurrentStep(2);
+    setIsLoading(true);
 
-  } catch (error) {
-    console.error("Error in handleCreateCollection:", error);
-    toast.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
-  } finally {
-    setIsLoading(false);
-  }
-};
+    try {
+      // Step 1: Create the collection
+      const collectionParams: NewCollectionData = {
+        name: collectionData?.name,
+        logo: collectionData?.logo,
+        description: collectionData?.description,
+        type: "RECURSIVE_INSCRIPTION",
+        layerId: currentLayer?.id || null,
+        userLayerId: currentUserLayer?.id || null,
+      };
+
+      // Call the API to create collection
+      const collectionResponse = await createCollectionMutation({
+        data: collectionParams,
+      });
+
+      if (!collectionResponse.success) {
+        if (collectionResponse.error) {
+          toast.error(`Error: ${collectionResponse.error}`);
+        } else {
+          throw new Error(
+            "Unknown error creating collection. Please try again later or contact support"
+          );
+        }
+        return;
+      }
+
+      console.log("Collection created successfully:", {
+        deployContractTxHex: collectionResponse.data.deployContractTxHex,
+      });
+
+      // Store the collectionId in the context
+      const collectionId = collectionResponse.data.l2Collection.id;
+      setCollectionId(collectionId);
+
+      // Initialize contractTxHash variable
+      let contractTxHash = "";
+
+      // Handle contract deployment for EVM chains
+      const { deployContractTxHex } = collectionResponse.data;
+      if (deployContractTxHex && currentLayer.layerType === "EVM") {
+        // Send the transaction
+        const txHash = await sendTransaction(wagmiConfig, {
+          to: deployContractTxHex.to,
+          data: deployContractTxHex.data,
+          value: deployContractTxHex.value || "0x0",
+          gas: deployContractTxHex.gas,
+          gasPrice: deployContractTxHex.gasPrice,
+        });
+
+        // Wait for 1 block confirmation
+        toast.info("Waiting for transaction confirmation...");
+        const receipt = await waitForTransactionReceipt(wagmiConfig, {
+          hash: txHash,
+          confirmations: 1,
+        });
+
+        contractTxHash = txHash;
+        toast.success("Contract deployed successfully!");
+      }
+
+      // Step 2: Create the launch
+      const launchResponse = await createLaunchMutation({
+        collectionId: collectionId, // Use the stored collectionId
+        poStartsAt: 1,
+        poEndsAt: 10,
+        poMintPrice: 0,
+        poMaxMintPerWallet: 1,
+        userLayerId: currentUserLayer?.id || "",
+        txid: contractTxHash || "",
+      });
+
+      if (!launchResponse.success) {
+        if (launchResponse.error) {
+          toast.error(`Error: ${launchResponse.error}`);
+        } else {
+          toast.error("Unknown error creating launch. Please try again later or contact support");
+        }
+        return;
+      }
+
+      console.log("Launch created successfully:", launchResponse.data);
+      toast.success("Collection and launch created successfully!");
+
+      // Move to next step only if both collection and launch are successful
+      setCurrentStep(2);
+
+    } catch (error) {
+      console.error("Error in handleCreateCollection:", error);
+      toast.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

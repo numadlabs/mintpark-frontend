@@ -7,7 +7,6 @@ import {
   Collectible,
   CollectibleApiResponse,
   CreatorCollection,
-  CreateOrderResponse,
 } from "../validations/collection-validation";
 import { Launchschema } from "../validations/launchpad-validation";
 import { OrderSchema } from "../validations/asset-validation";
