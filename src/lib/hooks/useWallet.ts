@@ -23,6 +23,7 @@ import { getWagmiChainByLayerConfig } from "../wagmiConfig";
 import { useEffect, useRef } from "react";
 import { Layer } from "../types/wallet";
 
+//todo: switch hiih uyd event sonsdog bolon darahd ajilladag zereg trigger hiij bgag boliulah
 export const useWallet = () => {
   const queryClient = useQueryClient();
   const isInitialized = useRef(false);
@@ -173,6 +174,7 @@ export const useWallet = () => {
       !isSwitchingChain &&
       isInitialized.current
     ) {
+      console.log("isSwitching", isSwitchingChain);
       const matchingLayer = availableLayers.find((layer) => {
         if (!isEVMLayer(layer)) return false;
         const layerChainId = getChainIdAsNumber(layer.chainId);

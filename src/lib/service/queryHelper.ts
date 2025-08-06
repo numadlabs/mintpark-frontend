@@ -160,8 +160,9 @@ export async function getListedCollectionById(
 
 export async function getCollectionById(
   id: string,
-): Promise<Collectible[] | null> {
+): Promise<Collectible | null> {
   return axiosClient.get(`/api/v1/collectibles/${id}`).then((response) => {
+    console.log(response.data.data);
     if (response.data.success) {
       return response.data.data;
     } else {

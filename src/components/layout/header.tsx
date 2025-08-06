@@ -179,6 +179,7 @@ export default function Header() {
     [isConnected, router],
   );
 
+  //todo: core iin icon oruulah
   // Filtered layers for display
   const displayLayers = useMemo(() => {
     if (process.env.NODE_ENV == "development") {

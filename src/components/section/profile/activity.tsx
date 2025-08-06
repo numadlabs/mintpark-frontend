@@ -28,11 +28,16 @@ const Activity = () => {
   });
 
   // 🔹 Fetch collectible
-  const { data: collectible, isLoading: isCollectionLoading } = useQuery<
-    Collectible[] | null
-  >({
+  const {
+    data: collectible,
+    isLoading: isCollectibleLoading,
+    error,
+  } = useQuery({
     queryKey: ["collectionData", id],
-    queryFn: () => getCollectionById(id),
+    queryFn: async () => {
+      const result = await getCollectionById(id);
+      return result;
+    },
     enabled: !!id,
   });
 
@@ -43,7 +48,7 @@ const Activity = () => {
     enabled: !!layerId,
   });
 
-  const currentAsset = collectible?.[0];
+  // const collectible = collectible?.[0];
 
   return (
     <div className="mt-8 flex flex-col w-full">
@@ -67,23 +72,23 @@ const Activity = () => {
 
       <div className="mt-3 flex flex-col gap-3">
         <div className="flex flex-col gap-3 pt-3">
-          {activity.length > 0 && currentAsset ? (
+          {activity.length > 0 && collectible ? (
             activity.map((item: any) => (
               <ActivityCard
                 key={`${item.id}-${item.event}-${item.date}`}
                 data={item}
                 imageUrl={
-                  currentAsset.highResolutionImageUrl ||
-                  s3ImageUrlBuilder(currentAsset.fileKey)
+                  collectible.highResolutionImageUrl ||
+                  s3ImageUrlBuilder(collectible.fileKey)
                 }
-                currenAsset={currentAsset.name}
+                currenAsset={collectible.name}
                 currentLayer={currentLayerData?.name ?? "Unknown Layer"}
               />
             ))
           ) : (
             <div className="flex justify-center items-center mt-3 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
               <p className="text-neutral200 font-medium text-lg">
-                {isCollectionLoading ? "Loading..." : "No activity recorded"}
+                {isCollectibleLoading ? "Loading..." : "No activity recorded"}
               </p>
             </div>
           )}

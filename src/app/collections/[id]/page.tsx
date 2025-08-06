@@ -57,7 +57,7 @@ const CollectionDetailPageWrapper = () => {
 //todo: collection id endpoint s irj bga layerid g ashiglaj symbol haruulah
 const CollectionDetailPage = () => {
   // Fix: Use the correct properties from your WalletAuthContextType
-  const { currentLayer } = useAuth();
+  const { currentLayer, isConnected } = useAuth();
   const activeLayer = useActiveLayer();
 
   const params = useParams();
@@ -167,13 +167,13 @@ const CollectionDetailPage = () => {
     enabled: Boolean(id),
   });
 
-  const { data: collectible, isLoading: isCollectionLoading } = useQuery<
-    Collectible[] | null
-  >({
-    queryKey: ["collectionData", id],
-    queryFn: () => getCollectionById(id),
-    enabled: !!id,
-  });
+  // const { data: collectible, isLoading: isCollectionLoading } = useQuery<
+  //   Collectible[] | null
+  // >({
+  //   queryKey: ["collectionData", id],
+  //   queryFn: () => getCollectionById(id),
+  //   enabled: !!id,
+  // });
 
   const { data: collection, isLoading } = useQuery({
     queryKey: ["collectionData"],
@@ -811,6 +811,7 @@ const CollectionDetailPage = () => {
                             <div key={item.id}>
                               <CollectibleCardList
                                 data={item}
+                                isConnected={isConnected}
                                 currentLayer={currentLayer}
                               />
                             </div>
