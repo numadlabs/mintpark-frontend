@@ -1,5 +1,3 @@
-// auth changes
-
 "use client";
 
 import {
@@ -18,8 +16,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
+  getAssetById,
   getCollectibleActivity,
-  getCollectionById,
 } from "@/lib/service/queryHelper";
 import {
   getSigner,
@@ -39,7 +37,6 @@ import { toast } from "sonner";
 import ActivityCard from "@/components/atom/cards/activity-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AssetDetailSkeleton from "@/components/atom/skeleton/asset-detail-skeleton";
-import { Collectible } from "@/lib/validations/collection-validation";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import CancelListModal from "@/components/modal/cancel-list-modal";
 import Link from "next/link";
@@ -82,7 +79,7 @@ export default function AssetsDetails() {
   } = useQuery({
     queryKey: ["collectionData", id],
     queryFn: async () => {
-      const result = await getCollectionById(id);
+      const result = await getAssetById(id);
       return result;
     },
     enabled: !!id,
@@ -100,7 +97,7 @@ export default function AssetsDetails() {
       const response = await getCollectibleActivity(
         id,
         activityPageSize,
-        pageParam * activityPageSize,
+        pageParam * activityPageSize
       );
       setHasMoreActivity(response.length === activityPageSize);
       return response;
@@ -172,12 +169,12 @@ export default function AssetsDetails() {
             fetchNextActivity();
           }
         },
-        { rootMargin: "200px", threshold: 0.1 },
+        { rootMargin: "200px", threshold: 0.1 }
       );
       observer.observe(node);
       return () => observer.disconnect();
     },
-    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity],
+    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity]
   );
 
   if (isCollectibleLoading) {
@@ -323,7 +320,7 @@ export default function AssetsDetails() {
                           collectible.ownedBy
                             ? getAddressExplorerUrl(
                                 collectible.layer,
-                                collectible.ownedBy,
+                                collectible.ownedBy
                               )
                             : "#"
                         }
@@ -343,7 +340,7 @@ export default function AssetsDetails() {
                         collectible.floorDifference === 1
                           ? "-"
                           : `${Number(
-                              collectible.floorDifference,
+                              collectible.floorDifference
                             ).toLocaleString("en-US", {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 4,

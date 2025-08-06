@@ -25,7 +25,6 @@ import CollectibleCardList from "@/components/atom/cards/collectible-card-list";
 import {
   getById,
   getCollectionActivity,
-  getCollectionById,
   getListedCollectionById,
 } from "@/lib/service/queryHelper";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
@@ -39,7 +38,6 @@ import {
 import { useAuth } from "@/components/provider/auth-context-provider";
 import Link from "next/link";
 import CollectionActivityCard from "@/components/atom/cards/collection-activity-card";
-import { Collectible } from "@/lib/validations/collection-validation";
 import { useActiveLayer } from "@/lib/hooks/useActiveLayer";
 
 const ITEMS_PER_PAGE = 10;
@@ -122,7 +120,7 @@ const CollectionDetailPage = () => {
         offset,
         debouncedSearchFilter, // Pass debounced search filter to API
         isListed,
-        JSON.stringify(traitValuesByType),
+        JSON.stringify(traitValuesByType)
       );
       return {
         collectibles: response?.collectibles ?? [],
@@ -152,7 +150,7 @@ const CollectionDetailPage = () => {
         id,
         activityPageSize,
         pageParam * activityPageSize,
-        activityType,
+        activityType
       );
 
       const hasMore = response.length === activityPageSize;
@@ -171,7 +169,7 @@ const CollectionDetailPage = () => {
   //   Collectible[] | null
   // >({
   //   queryKey: ["collectionData", id],
-  //   queryFn: () => getCollectionById(id),
+  //   queryFn: () => getAssetById(id),
   //   enabled: !!id,
   // });
 
@@ -219,13 +217,13 @@ const CollectionDetailPage = () => {
         {
           rootMargin: "200px",
           threshold: 0.1,
-        },
+        }
       );
 
       observer.observe(node);
       return () => observer.disconnect();
     },
-    [hasNextPage, isFetchingNextPage, fetchNextPage],
+    [hasNextPage, isFetchingNextPage, fetchNextPage]
   );
 
   // Activity infinite scroll observer
@@ -246,13 +244,13 @@ const CollectionDetailPage = () => {
         {
           rootMargin: "200px",
           threshold: 0.1,
-        },
+        }
       );
 
       observer.observe(node);
       return () => observer.disconnect();
     },
-    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity],
+    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity]
   );
 
   const links = [
@@ -405,7 +403,7 @@ const CollectionDetailPage = () => {
                       href={getCollectibleExplorerUrl(
                         // Fix: Use currentLayer instead of currentLayerData
                         currentLayer?.layer || "unknown",
-                        collection?.contractAddress,
+                        collection?.contractAddress
                       )}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -433,7 +431,11 @@ const CollectionDetailPage = () => {
                         width={24}
                         height={20}
                         draggable="false"
-                        src={getCurrencyIcon(currentLayer?.name || "unknown")}
+                          src={
+                          currentLayer?.layer
+                            ? getCurrencyIcon(currentLayer.layer)
+                            : ""
+                        }
                         alt="bitcoin"
                         className="aspect-square"
                       />
@@ -443,7 +445,9 @@ const CollectionDetailPage = () => {
                             ? formatPrice(collection.floor)
                             : "-"}
                         </span>{" "}
-                        {getCurrencySymbol(currentLayer?.name || "unknown")}
+                       {currentLayer?.layer
+                          ? getCurrencySymbol(currentLayer.layer)
+                          : ""}
                       </p>
                     </div>
                   </div>
@@ -457,7 +461,11 @@ const CollectionDetailPage = () => {
                         width={24}
                         draggable="false"
                         height={20}
-                        src={getCurrencyIcon(currentLayer?.name || "unknown")}
+                        src={
+                          currentLayer?.layer
+                            ? getCurrencyIcon(currentLayer.layer)
+                            : ""
+                        }
                         alt="bitcoin"
                         className="aspect-square"
                       />
@@ -467,7 +475,9 @@ const CollectionDetailPage = () => {
                             ? formatPrice(collection?.volume)
                             : "-"}
                         </span>{" "}
-                        {getCurrencySymbol(currentLayer?.name || "unknown")}
+                        {currentLayer?.layer
+                          ? getCurrencySymbol(currentLayer.layer)
+                          : ""}
                       </p>
                     </div>
                   </div>
@@ -514,7 +524,11 @@ const CollectionDetailPage = () => {
                     width={24}
                     draggable="false"
                     height={20}
-                    src={getCurrencyIcon(currentLayer?.name || "unknown")}
+                      src={
+                          currentLayer?.layer
+                            ? getCurrencyIcon(currentLayer.layer)
+                            : ""
+                        }
                     alt="bitcoin"
                     className="aspect-square"
                   />
@@ -522,7 +536,9 @@ const CollectionDetailPage = () => {
                     <span>
                       {collection?.floor ? formatPrice(collection.floor) : "-"}
                     </span>{" "}
-                    {getCurrencySymbol(currentLayer?.name || "unknown")}
+                     {currentLayer?.layer
+                          ? getCurrencySymbol(currentLayer.layer)
+                          : ""}
                   </p>
                 </div>
               </div>
@@ -536,7 +552,11 @@ const CollectionDetailPage = () => {
                     width={24}
                     height={20}
                     draggable="false"
-                    src={getCurrencyIcon(currentLayer?.name || "unknown")}
+                      src={
+                          currentLayer?.layer
+                            ? getCurrencyIcon(currentLayer.layer)
+                            : ""
+                        }
                     alt="bitcoin"
                     className="aspect-square"
                   />
@@ -546,7 +566,9 @@ const CollectionDetailPage = () => {
                         ? formatPrice(collection?.volume)
                         : "-"}
                     </span>{" "}
-                    {getCurrencySymbol(currentLayer?.name || "unknown")}
+                   {currentLayer?.layer
+                          ? getCurrencySymbol(currentLayer.layer)
+                          : ""}
                   </p>
                 </div>
               </div>

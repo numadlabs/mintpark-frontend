@@ -1,15 +1,13 @@
-// auth changes
 "use client";
 import React from "react";
 import ActivityCard from "@/components/atom/cards/activity-card";
 import { s3ImageUrlBuilder } from "@/lib/utils";
 import {
+  getAssetById,
   getCollectibleActivity,
-  getCollectionById,
   getLayerById,
 } from "@/lib/service/queryHelper";
 import { useQuery } from "@tanstack/react-query";
-import { Collectible } from "@/lib/validations/collection-validation";
 import { useParams } from "next/navigation";
 import { useAuth } from "@/components/provider/auth-context-provider";
 
@@ -35,7 +33,7 @@ const Activity = () => {
   } = useQuery({
     queryKey: ["collectionData", id],
     queryFn: async () => {
-      const result = await getCollectionById(id);
+      const result = await getAssetById(id);
       return result;
     },
     enabled: !!id,

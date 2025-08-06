@@ -158,7 +158,7 @@ export async function getListedCollectionById(
     });
 }
 
-export async function getCollectionById(
+export async function getAssetById(
   id: string,
 ): Promise<Collectible | null> {
   return axiosClient.get(`/api/v1/collectibles/${id}`).then((response) => {
