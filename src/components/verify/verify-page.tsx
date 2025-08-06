@@ -183,7 +183,8 @@ export default function VerifyPage() {
       <WalletConnectionModal
         open={walletModalOpen}
         onClose={() => setWalletModalOpen(false)}
-        // activeTab="HEMI"
+        // 
+        
         // selectedLayerId={currentLayer?.id || ""}
         // onTabChange={() => {}}
         // onLayerSelect={() => {}}
