@@ -212,10 +212,10 @@ export default function VerifyNew() {
       <WalletConnectionModal
         open={walletModalOpen}
         onClose={() => setWalletModalOpen(false)}
-        activeTab="HEMI"
-        selectedLayerId={currentLayer?.id || ""}
-        onTabChange={() => {}}
-        onLayerSelect={() => {}}
+        // activeTab="HEMI"
+        // selectedLayerId={currentLayer?.id || ""}
+        // onTabChange={() => {}}
+        // onLayerSelect={() => {}}
       />
     </>
   );
