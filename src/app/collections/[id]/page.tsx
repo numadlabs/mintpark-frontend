@@ -40,6 +40,7 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import Link from "next/link";
 import CollectionActivityCard from "@/components/atom/cards/collection-activity-card";
 import { Collectible } from "@/lib/validations/collection-validation";
+import { useActiveLayer } from "@/lib/hooks/useActiveLayer";
 
 const ITEMS_PER_PAGE = 10;
 const ACTIVITY_PER_PAGE = 20;
@@ -53,26 +54,27 @@ const CollectionDetailPageWrapper = () => {
     </QueryClientProvider>
   );
 };
-
+//todo: collection id endpoint s irj bga layerid g ashiglaj symbol haruulah
 const CollectionDetailPage = () => {
   // Fix: Use the correct properties from your WalletAuthContextType
-  const { currentLayer, currentUserLayer } = useAuth();
+  const { currentLayer } = useAuth();
+  const activeLayer = useActiveLayer();
+
   const params = useParams();
   const id = params?.id as string;
   const [active, setActive] = useState(true);
   const [orderBy, setOrderBy] = useState("recent");
   const [orderDirection, setOrderDirection] = useState("desc");
   const [searchFilter, setSearchFilter] = useState<string>("");
-  const [debouncedSearchFilter, setDebouncedSearchFilter] = useState<string>(""); // Added debounced search
+  const [debouncedSearchFilter, setDebouncedSearchFilter] =
+    useState<string>(""); // Added debounced search
   const [selectedActivity, setSelectedActivity] = useState("ALL");
   const [activityType, setActivityType] = useState<string>("ALL");
   const [activeTab, setActiveTab] = useState("AllCard");
   const [traitValuesByType, setTraitValuesByType] = useState<
     Record<string, string[]> | string
   >({});
-  const [selectedTraits, setSelectedTraits] = useState<
-    Record<string, string[]>
-  >({});
+
   const [isListed, setIsListed] = useState(false);
 
   // Activity pagination state
@@ -120,7 +122,7 @@ const CollectionDetailPage = () => {
         offset,
         debouncedSearchFilter, // Pass debounced search filter to API
         isListed,
-        JSON.stringify(traitValuesByType)
+        JSON.stringify(traitValuesByType),
       );
       return {
         collectibles: response?.collectibles ?? [],
@@ -150,7 +152,7 @@ const CollectionDetailPage = () => {
         id,
         activityPageSize,
         pageParam * activityPageSize,
-        activityType
+        activityType,
       );
 
       const hasMore = response.length === activityPageSize;
@@ -217,13 +219,13 @@ const CollectionDetailPage = () => {
         {
           rootMargin: "200px",
           threshold: 0.1,
-        }
+        },
       );
 
       observer.observe(node);
       return () => observer.disconnect();
     },
-    [hasNextPage, isFetchingNextPage, fetchNextPage]
+    [hasNextPage, isFetchingNextPage, fetchNextPage],
   );
 
   // Activity infinite scroll observer
@@ -244,13 +246,13 @@ const CollectionDetailPage = () => {
         {
           rootMargin: "200px",
           threshold: 0.1,
-        }
+        },
       );
 
       observer.observe(node);
       return () => observer.disconnect();
     },
-    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity]
+    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity],
   );
 
   const links = [
@@ -402,8 +404,8 @@ const CollectionDetailPage = () => {
                     <Link
                       href={getCollectibleExplorerUrl(
                         // Fix: Use currentLayer instead of currentLayerData
-                        currentLayer?.name || "unknown",
-                        collection?.contractAddress
+                        currentLayer?.layer || "unknown",
+                        collection?.contractAddress,
                       )}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -742,7 +744,10 @@ const CollectionDetailPage = () => {
                       >
                         {filteredCollectibles.map((item) => (
                           <div key={item.id}>
-                            <CollectibleCard data={item}  currentLayer={currentLayer}/>
+                            <CollectibleCard
+                              data={item}
+                              currentLayer={currentLayer}
+                            />
                           </div>
                         ))}
                       </div>
@@ -804,7 +809,10 @@ const CollectionDetailPage = () => {
                         <div className="flex flex-col pt-4 gap-4">
                           {filteredCollectibles.map((item) => (
                             <div key={item.id}>
-                              <CollectibleCardList data={item}  currentLayer={currentLayer}/>
+                              <CollectibleCardList
+                                data={item}
+                                currentLayer={currentLayer}
+                              />
                             </div>
                           ))}
 

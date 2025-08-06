@@ -10,9 +10,7 @@ import { getSigner, s3ImageUrlBuilder } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import {
-  getLaunchByCollectionId,
-} from "@/lib/service/queryHelper";
+import { getLaunchByCollectionId } from "@/lib/service/queryHelper";
 import PhaseCard from "@/components/atom/cards/phase-card";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/components/provider/auth-context-provider";
@@ -29,6 +27,7 @@ import ErrorModal from "@/components/modal/error-modal";
 import PendingModal from "@/components/modal/pending-modal";
 import DiscordIcon from "@/components/icon/hoverIcon";
 
+//todo: ene type error iig zasah
 const Page = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
@@ -88,12 +87,13 @@ const Page = () => {
     },
   });
 
-  const { data: collectibles = [], isLoading: isCollectiblesLoading } =
-    useQuery({
-      queryKey: ["collectiblesByCollections", id],
-      queryFn: () => getLaunchByCollectionId(id as string),
-      enabled: !!id,
-    });
+  const { data: launchData, isLoading: isCollectiblesLoading } = useQuery({
+    queryKey: ["collectiblesByCollections", id],
+    queryFn: () => getLaunchByCollectionId(id as string),
+    enabled: !!id,
+  });
+
+  //todo: zov chain id luu ehleed connect hiilgeh
   const handleConfirm = async () => {
     if (!currentUserLayer) {
       setError("Please connect wallet first");
@@ -116,7 +116,7 @@ const Page = () => {
       let launchItemId;
       setSteps(1);
       const response = await createBuyLaunchMutation({
-        id: collectibles.launchId,
+        id: launchData.launchId,
         // userLayerId: authState.userLayerId,
         userLayerId: currentUserLayer!.id,
         feeRate: 1,
@@ -132,7 +132,7 @@ const Page = () => {
         setSteps(2);
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(
-          response.data.singleMintTxHex
+          response.data.singleMintTxHex,
         );
         const tx = await signedTx?.wait();
         if (tx) {
@@ -141,7 +141,7 @@ const Page = () => {
       } else {
         await window.unisat.sendBitcoin(
           response.data.order.fundingAddress,
-          Math.ceil(response.data.order.fundingAmount)
+          Math.ceil(response.data.order.fundingAmount),
         );
         await new Promise((resolve) => setTimeout(resolve, 10000));
       }
@@ -186,18 +186,17 @@ const Page = () => {
     const now = moment().unix();
 
     // Make sure we're only checking phases that are actually configured
-    const wlExists = collectibles.isWhitelisted && collectibles.wlStartsAt > 0;
-    const fcfsExists = collectibles.hasFCFS && collectibles.fcfsStartsAt > 0;
-    const poExists = collectibles.poStartsAt > 0;
+    const wlExists = launchData.isWhitelisted && launchData.wlStartsAt > 0;
+    const fcfsExists = launchData.hasFCFS && launchData.fcfsStartsAt > 0;
+    const poExists = launchData.poStartsAt > 0;
 
     // Check if all configured end times are in the past
     const wlEnded =
-      !wlExists || (collectibles.wlEndsAt > 0 && collectibles.wlEndsAt < now);
+      !wlExists || (launchData.wlEndsAt > 0 && launchData.wlEndsAt < now);
     const fcfsEnded =
-      !fcfsExists ||
-      (collectibles.fcfsEndsAt > 0 && collectibles.fcfsEndsAt < now);
+      !fcfsExists || (launchData.fcfsEndsAt > 0 && launchData.fcfsEndsAt < now);
     const poEnded =
-      !poExists || (collectibles.poEndsAt > 0 && collectibles.poEndsAt < now);
+      !poExists || (launchData.poEndsAt > 0 && launchData.poEndsAt < now);
 
     // Only return true if at least one phase was configured and all configured phases have ended
     const hasAnyPhase = wlExists || fcfsExists || poExists;
@@ -210,18 +209,18 @@ const Page = () => {
 
     // Check if any start time is in the past
     const wlStarted =
-      collectibles.isWhitelisted &&
-      collectibles.wlStartsAt > 0 && // Ensure valid start time
-      collectibles.wlStartsAt <= now;
+      launchData.isWhitelisted &&
+      launchData.wlStartsAt > 0 && // Ensure valid start time
+      launchData.wlStartsAt <= now;
 
     const fcfsStarted =
-      collectibles.hasFCFS &&
-      collectibles.fcfsStartsAt > 0 && // Ensure valid start time
-      collectibles.fcfsStartsAt <= now;
+      launchData.hasFCFS &&
+      launchData.fcfsStartsAt > 0 && // Ensure valid start time
+      launchData.fcfsStartsAt <= now;
 
     const poStarted =
-      collectibles.poStartsAt > 0 && // Ensure valid start time
-      collectibles.poStartsAt <= now;
+      launchData.poStartsAt > 0 && // Ensure valid start time
+      launchData.poStartsAt <= now;
 
     return wlStarted || fcfsStarted || poStarted;
   };
@@ -229,11 +228,11 @@ const Page = () => {
   // Helper function to check if all supplies are exhausted
   const isSupplyExhausted = () => {
     // For badges with infinite supply, supply is never exhausted
-    if (collectibles.isBadge && collectibles.badgeSupply === null) {
+    if (launchData.isBadge && launchData.badgeSupply === null) {
       return false;
     }
 
-    return collectibles.supply === collectibles.mintedAmount;
+    return launchData.supply === launchData.mintedAmount;
   };
 
   // Comprehensive function to determine which button to show
@@ -259,7 +258,7 @@ const Page = () => {
     }
 
     // // Check if status is unconfirmed
-    // if (collectibles.status === "UNCONFIRMED") {
+    // if (launchData.status === "UNCONFIRMED") {
     //   return "unconfirmedCollection";
     // }
 
@@ -269,42 +268,44 @@ const Page = () => {
 
   const determineActivePhase = () => {
     const now = moment();
+    if (!launchData) {
+      return null;
+    }
 
     // Check Guaranteed (Whitelist) phase
-    if (collectibles.isWhitelisted && collectibles.wlStartsAt > 0) {
-      const wlStart = moment.unix(collectibles.wlStartsAt);
-      const wlEnd = moment.unix(collectibles.wlEndsAt);
+    if (launchData.isWhitelisted && launchData.wlStartsAt > 0) {
+      const wlStart = moment.unix(launchData.wlStartsAt);
+      const wlEnd = moment.unix(launchData.wlEndsAt);
 
       if (
         now.isBetween(wlStart, wlEnd) ||
-        (collectibles.wlStartsAt <= now.unix() && collectibles.wlEndsAt === 0)
+        (launchData.wlStartsAt <= now.unix() && launchData.wlEndsAt === 0)
       ) {
         return "guaranteed";
       }
     }
 
     // Check FCFS list phase
-    if (collectibles.hasFCFS && collectibles.fcfsStartsAt > 0) {
-      const fcfsStart = moment.unix(collectibles.fcfsStartsAt);
-      const fcfsEnd = moment.unix(collectibles.fcfsEndsAt);
+    if (launchData.hasFCFS && launchData.fcfsStartsAt > 0) {
+      const fcfsStart = moment.unix(launchData.fcfsStartsAt);
+      const fcfsEnd = moment.unix(launchData.fcfsEndsAt);
 
       if (
         now.isBetween(fcfsStart, fcfsEnd) ||
-        (collectibles.fcfsStartsAt <= now.unix() &&
-          collectibles.fcfsEndsAt === 0)
+        (launchData.fcfsStartsAt <= now.unix() && launchData.fcfsEndsAt === 0)
       ) {
         return "FCFS";
       }
     }
 
     // Check Public phase
-    if (collectibles.poStartsAt > 0) {
-      const poStart = moment.unix(collectibles.poStartsAt);
-      const poEnd = moment.unix(collectibles.poEndsAt);
+    if (launchData.poStartsAt > 0) {
+      const poStart = moment.unix(launchData.poStartsAt);
+      const poEnd = moment.unix(launchData.poEndsAt);
 
       if (
         now.isBetween(poStart, poEnd) ||
-        (collectibles.poStartsAt <= now.unix() && collectibles.poEndsAt === 0)
+        (launchData.poStartsAt <= now.unix() && launchData.poEndsAt === 0)
       ) {
         return "public";
       }
@@ -317,57 +318,54 @@ const Page = () => {
     const now = moment().unix();
 
     // For badges with infinite supply, only check if it's started
-    if (collectibles.isBadge && collectibles.badgeSupply === null) {
+    if (launchData.isBadge && launchData.badgeSupply === null) {
       // Check whitelist period - only if it exists
       const isInWhitelistPeriod =
-        collectibles.isWhitelisted &&
-        collectibles.wlStartsAt > 0 &&
-        collectibles.wlStartsAt <= now &&
-        (collectibles.wlEndsAt === 0 || collectibles.wlEndsAt > now);
+        launchData.isWhitelisted &&
+        launchData.wlStartsAt > 0 &&
+        launchData.wlStartsAt <= now &&
+        (launchData.wlEndsAt === 0 || launchData.wlEndsAt > now);
 
       // Check fcfs period - only if it exists
       const isInFcfslistPeriod =
-        collectibles.hasFCFS &&
-        collectibles.fcfsStartsAt > 0 &&
-        collectibles.fcfsStartsAt <= now &&
-        (collectibles.fcfsEndsAt === 0 || collectibles.fcfsEndsAt > now);
+        launchData.hasFCFS &&
+        launchData.fcfsStartsAt > 0 &&
+        launchData.fcfsStartsAt <= now &&
+        (launchData.fcfsEndsAt === 0 || launchData.fcfsEndsAt > now);
 
       // Check public period - only if it exists
       const isInPublicPeriod =
-        collectibles.poStartsAt > 0 &&
-        collectibles.poStartsAt <= now &&
-        (collectibles.poEndsAt === 0 || collectibles.poEndsAt > now);
+        launchData.poStartsAt > 0 &&
+        launchData.poStartsAt <= now &&
+        (launchData.poEndsAt === 0 || launchData.poEndsAt > now);
 
       return isInWhitelistPeriod || isInPublicPeriod || isInFcfslistPeriod;
     }
 
     // If supply is reached for non-infinite supply, minting is not active
-    if (
-      !collectibles.isBadge &&
-      collectibles.supply === collectibles.mintedAmount
-    ) {
+    if (!launchData.isBadge && launchData.supply === launchData.mintedAmount) {
       return false;
     }
 
     // Check whitelist period - only if it exists
     const isInWhitelistPeriod =
-      collectibles.isWhitelisted &&
-      collectibles.wlStartsAt > 0 &&
-      collectibles.wlStartsAt <= now &&
-      (collectibles.wlEndsAt === 0 || collectibles.wlEndsAt > now);
+      launchData.isWhitelisted &&
+      launchData.wlStartsAt > 0 &&
+      launchData.wlStartsAt <= now &&
+      (launchData.wlEndsAt === 0 || launchData.wlEndsAt > now);
 
     // Check fcfs period - only if it exists
     const isInFcfslistPeriod =
-      collectibles.hasFCFS &&
-      collectibles.fcfsStartsAt > 0 &&
-      collectibles.fcfsStartsAt <= now &&
-      (collectibles.fcfsEndsAt === 0 || collectibles.fcfsEndsAt > now);
+      launchData.hasFCFS &&
+      launchData.fcfsStartsAt > 0 &&
+      launchData.fcfsStartsAt <= now &&
+      (launchData.fcfsEndsAt === 0 || launchData.fcfsEndsAt > now);
 
     // Check public period - only if it exists
     const isInPublicPeriod =
-      collectibles.poStartsAt > 0 &&
-      collectibles.poStartsAt <= now &&
-      (collectibles.poEndsAt === 0 || collectibles.poEndsAt > now);
+      launchData.poStartsAt > 0 &&
+      launchData.poStartsAt <= now &&
+      (launchData.poEndsAt === 0 || launchData.poEndsAt > now);
 
     return isInWhitelistPeriod || isInPublicPeriod || isInFcfslistPeriod;
   };
@@ -376,13 +374,13 @@ const Page = () => {
     const now = moment().unix();
 
     // For badges with infinite supply, only show when not active
-    if (collectibles.isBadge && collectibles.badgeSupply === null) {
+    if (launchData.isBadge && launchData.badgeSupply === null) {
       const hasEitherPhaseStarted = hasAnyPhaseStarted();
       return hasEitherPhaseStarted && !isMintActive();
     }
 
     // Show "Go to Collection" if supply is reached
-    if (collectibles.supply === collectibles.mintedAmount) {
+    if (launchData.supply === launchData.mintedAmount) {
       return true;
     }
 
@@ -397,7 +395,7 @@ const Page = () => {
     if (!selectedPhase && currentPhase) {
       setSelectedPhase(currentPhase);
     }
-  }, [collectibles]);
+  }, [launchData]);
 
   const handlePhaseClick = (phaseType: "guaranteed" | "public" | "FCFS") => {
     setSelectedPhase(phaseType);
@@ -405,25 +403,25 @@ const Page = () => {
 
   // add to go to collection condition
   const handlCollectionClick = () => {
-    router.push(`/collections/${collectibles.id}`);
+    router.push(`/collections/${launchData.id}`);
   };
 
   // Helper function to calculate progress value
   const calculateProgress = () => {
-    if (collectibles.isBadge && collectibles.badgeSupply === null) {
+    if (launchData.isBadge && launchData.badgeSupply === null) {
       // For infinite supply, don't show progress
       return 0;
     }
-    return (collectibles?.mintedAmount / collectibles?.supply) * 100;
+    return (launchData?.mintedAmount / launchData?.supply) * 100;
   };
 
   // Helper function to render supply display
   const renderSupplyDisplay = () => {
-    if (collectibles.isBadge && collectibles.badgeSupply === null) {
+    if (launchData.isBadge && launchData.badgeSupply === null) {
       return (
         <div className="flex gap-1 items-center">
           <span className="text-neutral50 font-medium text-lg">
-            {collectibles?.mintedAmount}
+            {launchData?.mintedAmount}
           </span>
           <span className="text-brand font-medium text-lg"> / </span>
           <span className="text-neutral200 font-medium text-lg">
@@ -437,11 +435,11 @@ const Page = () => {
     return (
       <>
         <span className="text-neutral50 font-medium text-lg">
-          {collectibles?.mintedAmount}
+          {launchData?.mintedAmount}
         </span>
         <span className="text-brand font-medium text-lg"> / </span>
         <span className="text-neutral200 font-medium text-lg">
-          {collectibles?.supply}
+          {launchData?.supply}
         </span>
       </>
     );
@@ -453,19 +451,19 @@ const Page = () => {
 
   const links = [
     {
-      url: collectibles.websiteUrl,
+      url: launchData.websiteUrl,
       isIcon: true,
       icon: <Global size={32} className="hover:text-brand text-neutral00" />,
     },
     {
-      url: collectibles.twitterUrl,
+      url: launchData.twitterUrl,
       isIcon: false,
       icon: (
         <ThreadIcon size={32} className="hover:text-brand  text-neutral00" />
       ),
     },
     {
-      url: collectibles.discordUrl,
+      url: launchData.discordUrl,
       isIcon: false,
       icon: (
         <DiscordIcon size={32} className="hover:text-brand  text-neutral00" />
@@ -486,7 +484,7 @@ const Page = () => {
         className="min-h-screen bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${s3ImageUrlBuilder(
-            collectibles?.logoKey || ""
+            launchData?.logoKey || "",
           )})`,
         }}
       >
@@ -520,13 +518,13 @@ const Page = () => {
                   </div>
                   <div className="flex flex-col gap-4 sm:gap-6">
                     <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-neutral50">
-                      {collectibles?.name}
+                      {launchData?.name}
                     </h1>
                     <div className="sm:block">
                       <p className="h-1 w-[120px] rounded bg-brand shadow-shadowBrands"></p>
                     </div>
                     <p className="text-base sm:text-lg lg:text-lg text-neutral100 line-clamp-4 sm:line-clamp-none">
-                      {collectibles?.description}
+                      {launchData?.description}
                     </p>
                   </div>
                   <div className="space-y-2 sm:space-y-3 block md2:hidden">
@@ -566,13 +564,13 @@ const Page = () => {
                 <div className="flex flex-col pt-10 lg:p-0 gap-4 sm:gap-8 w-full order-1 lg:order-2">
                   <div className="w-full aspect-square relative rounded-2xl sm:rounded-3xl overflow-hidden max-h-[384px]">
                     <Carousel className="w-full justify-center items-center rounded-3xl flex">
-                      {collectibles?.logoKey && (
+                      {launchData?.logoKey && (
                         <ImageLoaderComponent
                           width={384}
                           height={384}
-                          src={s3ImageUrlBuilder(collectibles?.logoKey)}
+                          src={s3ImageUrlBuilder(launchData?.logoKey)}
                           className="object-cover aspect-square rounded-3xl justify-center items-center"
-                          alt={collectibles?.name || "Collection image"}
+                          alt={launchData?.name || "Collection image"}
                         />
                       )}
                     </Carousel>
@@ -598,52 +596,52 @@ const Page = () => {
                 <div className="flex flex-col gap-4 sm:gap-4 w-full lg:gap-4 order-3">
                   <ScrollArea className="flex-grow h-[384px] w-full">
                     <div className="flex flex-col gap-4">
-                      {collectibles.isWhitelisted && (
+                      {launchData.isWhitelisted && (
                         <PhaseCard
                           phaseType="guaranteed"
-                          maxMintPerWallet={collectibles.wlMaxMintPerWallet}
-                          mintPrice={collectibles.wlMintPrice}
-                          endsAt={collectibles.wlEndsAt}
-                          startsAt={collectibles.wlStartsAt}
+                          maxMintPerWallet={launchData.wlMaxMintPerWallet}
+                          mintPrice={launchData.wlMintPrice}
+                          endsAt={launchData.wlEndsAt}
+                          startsAt={launchData.wlStartsAt}
                           isActive={selectedPhase === "guaranteed"}
                           onClick={() => handlePhaseClick("guaranteed")}
-                          supply={collectibles.supply}
-                          mintedAmount={collectibles.mintedAmount}
-                          isBadge={collectibles.isBadge}
-                          badgeSupply={collectibles.badgeSupply}
+                          supply={launchData.supply}
+                          mintedAmount={launchData.mintedAmount}
+                          isBadge={launchData.isBadge}
+                          badgeSupply={launchData.badgeSupply}
                         />
                       )}
 
-                      {collectibles.hasFCFS && (
+                      {launchData.hasFCFS && (
                         <PhaseCard
                           phaseType="FCFS"
-                          maxMintPerWallet={collectibles.fcfsMaxMintPerWallet}
-                          mintPrice={collectibles.fcfsMintPrice}
-                          endsAt={collectibles.fcfsEndsAt}
-                          startsAt={collectibles.fcfsStartsAt}
+                          maxMintPerWallet={launchData.fcfsMaxMintPerWallet}
+                          mintPrice={launchData.fcfsMintPrice}
+                          endsAt={launchData.fcfsEndsAt}
+                          startsAt={launchData.fcfsStartsAt}
                           isActive={selectedPhase === "FCFS"}
                           onClick={() => handlePhaseClick("FCFS")}
-                          supply={collectibles.supply}
-                          mintedAmount={collectibles.mintedAmount}
-                          isBadge={collectibles.isBadge}
-                          badgeSupply={collectibles.badgeSupply}
+                          supply={launchData.supply}
+                          mintedAmount={launchData.mintedAmount}
+                          isBadge={launchData.isBadge}
+                          badgeSupply={launchData.badgeSupply}
                         />
                       )}
 
-                      {collectibles.poStartsAt !== 0 &&
-                        collectibles.poStartsAt > 0 && (
+                      {launchData.poStartsAt !== 0 &&
+                        launchData.poStartsAt > 0 && (
                           <PhaseCard
                             phaseType="public"
-                            maxMintPerWallet={collectibles.poMaxMintPerWallet}
-                            mintPrice={collectibles.poMintPrice}
-                            endsAt={collectibles.poEndsAt}
-                            startsAt={collectibles.poStartsAt}
+                            maxMintPerWallet={launchData.poMaxMintPerWallet}
+                            mintPrice={launchData.poMintPrice}
+                            endsAt={launchData.poEndsAt}
+                            startsAt={launchData.poStartsAt}
                             isActive={selectedPhase === "public"}
                             onClick={() => handlePhaseClick("public")}
-                            supply={collectibles.supply}
-                            mintedAmount={collectibles.mintedAmount}
-                            isBadge={collectibles.isBadge}
-                            badgeSupply={collectibles.badgeSupply}
+                            supply={launchData.supply}
+                            mintedAmount={launchData.mintedAmount}
+                            isBadge={launchData.isBadge}
+                            badgeSupply={launchData.badgeSupply}
                           />
                         )}
                     </div>

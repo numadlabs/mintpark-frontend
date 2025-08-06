@@ -39,6 +39,9 @@ import { getAddressExplorerUrl } from "@/lib/service/currencyHelper";
 
 const ACTIVITY_PER_PAGE = 20;
 
+//todo: current layer iin orond getAssetById s irj bga data naas chainId ashiglah
+//todo: getCollectionById ene function yag unende getAssetById yum bn enenii neriig zov bolgoh
+//todo: gomboo d helj array bish gants asset
 export default function AssetDetail() {
   const params = useParams();
   const router = useRouter();
@@ -56,8 +59,7 @@ export default function AssetDetail() {
     enabled: !!id,
   });
 
-
-  const currentAsset = collectible?.[0];
+  const currentAsset = collectible;
   const collectionId = currentAsset?.collectionId;
 
   // Replace regular query with infinite query for activities
@@ -76,7 +78,7 @@ export default function AssetDetail() {
       const response = await getCollectibleActivity(
         id,
         activityPageSize,
-        pageParam * activityPageSize
+        pageParam * activityPageSize,
       );
 
       // Determine if we have more activities to load
@@ -113,13 +115,13 @@ export default function AssetDetail() {
         {
           rootMargin: "200px",
           threshold: 0.1,
-        }
+        },
       );
 
       observer.observe(node);
       return () => observer.disconnect();
     },
-    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity]
+    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity],
   );
 
   const { data: attribute = [] } = useQuery({
@@ -139,7 +141,7 @@ export default function AssetDetail() {
         0,
         "",
         false,
-        {}
+        {},
       ),
     enabled: !!collectionId,
     retry: 1,
@@ -156,11 +158,10 @@ export default function AssetDetail() {
 
   const toggleModal = () => {
     // Fix: Use isConnected instead of authState.authenticated
-    if (!isConnected)
-      return toast.error("Please connect wallet first");
+    if (!isConnected) return toast.error("Please connect wallet first");
     setIsVisible(!isVisible);
   };
-  
+
   if (isCollectionLoading) {
     return (
       <Layout>
@@ -322,7 +323,7 @@ export default function AssetDetail() {
                             currentAsset.ownedBy
                               ? getAddressExplorerUrl(
                                   collectible[0].layer,
-                                  currentAsset.ownedBy
+                                  currentAsset.ownedBy,
                                 )
                               : "#"
                           }
@@ -345,7 +346,7 @@ export default function AssetDetail() {
                               currentAsset.floorDifference === 1
                                 ? "-"
                                 : `${Number(
-                                    currentAsset.floorDifference
+                                    currentAsset.floorDifference,
                                   ).toLocaleString("en-US", {
                                     minimumFractionDigits: 0,
                                     maximumFractionDigits: 1,
