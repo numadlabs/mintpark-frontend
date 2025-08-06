@@ -1,5 +1,3 @@
-// auth changes
-
 "use client";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import Layout from "@/components/layout/layout";
@@ -12,9 +10,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
+  getAssetById,
   getCollectibleActivity,
   getCollectibleTraits,
-  getCollectionById,
   getListedCollectionById,
 } from "@/lib/service/queryHelper";
 import {
@@ -40,7 +38,6 @@ import { getAddressExplorerUrl } from "@/lib/service/currencyHelper";
 const ACTIVITY_PER_PAGE = 20;
 
 //todo: current layer iin orond getAssetById s irj bga data naas chainId ashiglah
-//todo: getCollectionById ene function yag unende getAssetById yum bn enenii neriig zov bolgoh
 //todo: gomboo d helj array bish gants asset
 export default function AssetDetail() {
   const params = useParams();
@@ -58,7 +55,7 @@ export default function AssetDetail() {
   } = useQuery({
     queryKey: ["collectionData", id],
     queryFn: async () => {
-      const result = await getCollectionById(id);
+      const result = await getAssetById(id);
       return result;
     },
     enabled: !!id,

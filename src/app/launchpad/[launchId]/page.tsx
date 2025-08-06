@@ -27,7 +27,6 @@ import ErrorModal from "@/components/modal/error-modal";
 import PendingModal from "@/components/modal/pending-modal";
 import DiscordIcon from "@/components/icon/hoverIcon";
 
-//todo: ene type error iig zasah
 const Page = () => {
   const queryClient = useQueryClient();
   const router = useRouter();

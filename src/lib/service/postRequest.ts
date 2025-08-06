@@ -65,36 +65,6 @@ export async function loginHandler({
   }
 }
 
-//todo: eniig ustgah
-export async function loginWalletLink({
-  address,
-  signedMessage,
-  layerId,
-  pubkey,
-}: {
-  address: string;
-  signedMessage: string;
-  layerId: string;
-  pubkey?: string;
-}) {
-  try {
-    return axiosClient
-      .post(
-        `/api/v1/users/link-account`,
-        JSON.stringify({ address, signedMessage, layerId, pubkey })
-      )
-      .then((response) => {
-        return response.data;
-      });
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
-      throw error.response.data;
-    } else {
-      throw error;
-    }
-  }
-}
-
 export async function linkAccount({
   address,
   signedMessage,

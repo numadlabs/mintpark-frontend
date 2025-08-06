@@ -29,7 +29,6 @@ export interface AssetsData {
 }
 
 import { Dispatch, SetStateAction } from "react";
-import { CollectionSchema } from "../validations/collection-validation";
 import { AssetColSchema } from "../validations/asset-validation";
 
 // Define the type for our assets context
