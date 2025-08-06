@@ -49,6 +49,7 @@ const countdownRenderer = ({
   }
 };
 
+//todo: launch data nd irj bga layer id aar currency symbol, zurag haruulah(current layer iig avj hayaad)
 const PhaseCard: React.FC<PhaseCardProps> = ({
   maxMintPerWallet,
   mintPrice,
@@ -257,7 +258,9 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
               height={20}
               draggable="false"
               // src={getCurrencyIcon(currentLayer.layer)}
-                src={currentLayer?.layer ? getCurrencyIcon(currentLayer.layer) : ''}
+              src={
+                currentLayer?.layer ? getCurrencyIcon(currentLayer.layer) : ""
+              }
               alt="Icon"
               className="aspect-square h-5 w-5"
             />
@@ -265,7 +268,9 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
               <p className="text-neutral50">
                 <span className="mr-1">{mintPrice}</span>
                 {/* {getCurrencySymbol(currentLayer.layer)} */}
-                {currentLayer?.layer ? getCurrencySymbol(currentLayer.layer) : ''}
+                {currentLayer?.layer
+                  ? getCurrencySymbol(currentLayer.layer)
+                  : ""}
               </p>
             )}
           </div>

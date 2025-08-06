@@ -2,10 +2,16 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWalletStore } from "../store/walletStore";
 import { getAllLayers } from "../service/queryHelper";
-import { Layer, LinkAccountResponse, LoginResponse } from "../types/wallet";
+import {
+  Layer,
+  LinkAccountResponse,
+  LoginResponse,
+  UserLayer,
+} from "../types/wallet";
 import {
   generateMessageHandler,
   linkAccount,
+  linkAccountToAnotherUser,
   loginHandler,
 } from "../service/postRequest";
 
@@ -60,7 +66,7 @@ export const useLogin = () => {
       queryClient.setQueryData(WALLET_QUERY_KEYS.user(), user);
       queryClient.setQueryData(
         WALLET_QUERY_KEYS.userLayer(userLayer.layerId),
-        userLayer
+        userLayer,
       );
 
       // Store auth tokens
@@ -78,30 +84,59 @@ export const useLogin = () => {
 export const useLinkAccount = () => {
   const queryClient = useQueryClient();
   const addUserLayerToCache = useWalletStore(
-    (state) => state.addUserLayerToCache
+    (state) => state.addUserLayerToCache,
   );
 
   return useMutation({
     mutationFn: linkAccount,
-    onSuccess: (response: LinkAccountResponse) => {
-      const { userLayer } = response.data;
+    onSuccess: async (response: LinkAccountResponse, variables) => {
+      const { userLayer, hasAlreadyBeenLinkedToAnotherUser } = response.data;
 
-      // Update Zustand cache
-      addUserLayerToCache(userLayer.layerId, userLayer);
+      let userLayerFinal: UserLayer | null = null;
 
-      // Update TanStack Query cache
-      queryClient.setQueryData(
-        WALLET_QUERY_KEYS.userLayer(userLayer.layerId),
-        userLayer
-      );
+      if (!userLayer && hasAlreadyBeenLinkedToAnotherUser) {
+        try {
+          // Use the original variables passed to linkAccount
+          const anotherUserResponse = await linkAccountToAnotherUser({
+            address: variables.address,
+            signedMessage: variables.signedMessage,
+            layerId: variables.layerId,
+            pubkey: variables.pubkey, // Include pubkey if available
+          });
 
-      // Invalidate related queries that depend on chain
-      queryClient.invalidateQueries({
-        queryKey: ["myAssets"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["chainSpecific"],
-      });
+          if (anotherUserResponse.success) {
+            userLayerFinal = anotherUserResponse.data.userLayer; // Fixed typo: userLAyer -> userLayer
+          }
+        } catch (error) {
+          console.error("Failed to link account to another user:", error);
+          throw error; // Re-throw to trigger onError
+        }
+      } else {
+        userLayerFinal = userLayer;
+      }
+
+      // Only proceed if we have a valid userLayer
+      if (userLayerFinal) {
+        // Update Zustand cache
+        addUserLayerToCache(userLayerFinal.layerId, userLayerFinal);
+
+        // Update TanStack Query cache - use userLayerFinal consistently
+        queryClient.setQueryData(
+          WALLET_QUERY_KEYS.userLayer(userLayerFinal.layerId),
+          userLayerFinal, // Changed from userLayer to userLayerFinal
+        );
+
+        // Invalidate related queries that depend on chain
+        queryClient.invalidateQueries({
+          queryKey: ["myAssets"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["chainSpecific"],
+        });
+      } else {
+        // Handle case where no userLayer was obtained
+        console.warn("No userLayer obtained from either linking method");
+      }
     },
     onError: (error) => {
       console.error("Account linking failed:", error);

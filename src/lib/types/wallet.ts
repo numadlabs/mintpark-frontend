@@ -34,7 +34,9 @@ export interface LoginResponse {
 export interface LinkAccountResponse {
   success: boolean;
   data: {
+    hasAlreadyBeenLinkedToAnotherUser: boolean;
     userLayer: UserLayer;
+    user: User;
   };
 }
 

@@ -26,10 +26,10 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
   currentAssetId,
 }) => {
   const [active, setActive] = useState(false);
-  const { currentLayer } = useAuth();
+  const { currentLayer, isConnected } = useAuth();
   const [searchFilter, setSearchFilter] = useState(""); // Add this state
   const [filteredCollection, setFilteredCollection] = useState(
-    collection?.collectibles || []
+    collection?.collectibles || [],
   );
 
   // Update the useEffect to include search filtering
@@ -184,6 +184,7 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
                           <div key={item.id}>
                             <CollectibleCardList
                               data={item}
+                              isConnected={isConnected}
                               currentLayer={currentLayer}
                             />
                           </div>

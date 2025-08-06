@@ -43,13 +43,8 @@ export default function VerifyNew() {
   const code: string | null = searchParams.get("code");
 
   // Fixed: Use the correct properties from your auth context
-  const { 
-    isConnected, 
-    currentLayer, 
-    currentUserLayer, 
-    user,
-    connectWallet 
-  } = useAuth();
+  const { isConnected, currentLayer, currentUserLayer, user, connectWallet } =
+    useAuth();
 
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [verifyingStates, setVerifyingStates] = useState<
@@ -86,7 +81,7 @@ export default function VerifyNew() {
       // Main role endpoint
       const res = await axiosClient.post(
         "https://mintpark-verification-endpoints.itnumadlabs.workers.dev/mint-park/role",
-        { address, code, role: nftConfig.role }
+        { address, code, role: nftConfig.role },
       );
 
       const { hasError, reason, message } = res.data;
@@ -112,7 +107,7 @@ export default function VerifyNew() {
         handleError(reason, message, nftConfig.title);
       } else {
         toast.error(
-          `${nftConfig.title}: ${message || "Verification failed. Try again."}`
+          `${nftConfig.title}: ${message || "Verification failed. Try again."}`,
         );
       }
     } finally {
@@ -123,14 +118,14 @@ export default function VerifyNew() {
   const handleError = (
     reason?: string,
     message?: string,
-    nftTitle?: string
+    nftTitle?: string,
   ) => {
     const prefix = nftTitle ? `${nftTitle}: ` : "";
 
     switch (reason) {
       case "DONT_OWN_NFT":
         toast.error(
-          `${prefix}NFT not found on this wallet. Please check your wallet.`
+          `${prefix}NFT not found on this wallet. Please check your wallet.`,
         );
         break;
       case "ALREADY_VERIFIED":
@@ -141,7 +136,7 @@ export default function VerifyNew() {
         break;
       default:
         redirectWithMessage(
-          message || "Discord Access has been revoked. Redirecting..."
+          message || "Discord Access has been revoked. Redirecting...",
         );
         break;
     }
@@ -224,7 +219,7 @@ export default function VerifyNew() {
                 Mintpark NFT Holder Verification
               </h1>
             </div>
-            
+
             <div className="flex-1 w-full max-w-7xl mx-auto">
               {/* Grid layout with better responsive handling */}
               <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-6 lg:gap-6 place-items-center h-full content-center">
@@ -239,10 +234,10 @@ export default function VerifyNew() {
       <WalletConnectionModal
         open={walletModalOpen}
         onClose={() => setWalletModalOpen(false)}
-        activeTab="HEMI"
-        selectedLayerId={currentLayer?.id || ""}
-        onTabChange={() => {}}
-        onLayerSelect={() => {}}
+        // activeTab="HEMI"
+        // selectedLayerId={currentLayer?.id || ""}
+        // onTabChange={() => {}}
+        // onLayerSelect={() => {}}
       />
     </>
   );

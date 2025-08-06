@@ -14,7 +14,7 @@ export type ExtendedLayerType = {
 
 interface WalletCardProps {
   layer: ExtendedLayerType;
-  isWalletConnected: (id: string) => boolean;
+  // isWalletConnected: (id: string) => boolean;
   loading: boolean;
   onConnect: (layer: ExtendedLayerType) => void;
 }
@@ -57,11 +57,11 @@ const getWalletName = (layer: string) => {
 
 export const WalletCard = ({
   layer,
-  isWalletConnected,
+  // isWalletConnected,
   loading,
   onConnect,
 }: WalletCardProps) => {
-  const connected = isWalletConnected(layer.id);
+  // const connected = isWalletConnected(layer.id);
 
   return (
     <button
@@ -85,11 +85,12 @@ export const WalletCard = ({
         <span className="text-xs bg-white8 px-2 py-1 rounded-full">Soon</span>
       ) : loading ? (
         <Loader2 className="h-4 w-4 animate-spin" />
-      ) : connected ? (
-        <span className="text-xs bg-success text-white px-2 py-1 rounded-full">
-          Connected
-        </span>
-      ) : null}
+      ) : // : connected ? (
+      //   <span className="text-xs bg-success text-white px-2 py-1 rounded-full">
+      //     Connected
+      //   </span>
+      // )
+      null}
     </button>
   );
 };

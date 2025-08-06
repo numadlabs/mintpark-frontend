@@ -91,7 +91,7 @@ const SingleCollectible = () => {
       // Calculate file sizes and types
       const newFileSizes = Array.from(files).map((file) => file.size);
       const newFileTypeSizes = Array.from(files).map(
-        (file) => file.type.length
+        (file) => file.type.length,
       );
       const newFileTypes = new Set(Array.from(files).map((file) => file.type));
 
@@ -116,10 +116,10 @@ const SingleCollectible = () => {
   const handleDelete = (indexToDelete: number) => {
     // Create new arrays without the deleted items
     const newImageFile = Array.from(imageFile).filter(
-      (_, index) => index !== indexToDelete
+      (_, index) => index !== indexToDelete,
     );
     const newImageFiles = imageFiles.filter(
-      (_, index) => index !== indexToDelete
+      (_, index) => index !== indexToDelete,
     );
 
     // Update state with the new arrays directly
@@ -192,10 +192,12 @@ const SingleCollectible = () => {
             await signedTx?.wait();
             if (signedTx?.hash) setHash(signedTx?.hash);
           } else if (currentLayer.layer === "FRACTAL") {
-            await window.unisat.sendBitcoin(
-              response.data.order.fundingAddress,
-              Math.ceil(response.data.order.fundingAmount)
-            );
+            if (window.unisat) {
+              await window.unisat.sendBitcoin(
+                response.data.order.fundingAddress,
+                Math.ceil(response.data.order.fundingAmount),
+              );
+            }
           }
           await new Promise((resolve) => setTimeout(resolve, 1000));
           setData(response.data.order.id);

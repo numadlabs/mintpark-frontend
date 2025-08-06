@@ -15,13 +15,8 @@ export default function VerifyPage() {
   const code: string | null = searchParams.get("code");
 
   // Fixed: Use the correct properties from your auth context
-  const { 
-    isConnected, 
-    currentLayer, 
-    currentUserLayer, 
-    user,
-    connectWallet 
-  } = useAuth();
+  const { isConnected, currentLayer, currentUserLayer, user, connectWallet } =
+    useAuth();
 
   const [walletModalOpen, setWalletModalOpen] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -56,7 +51,7 @@ export default function VerifyPage() {
 
       const res = await axiosClient.post(
         "https://mintpark-verification-endpoints.itnumadlabs.workers.dev/role",
-        { address, code }
+        { address, code },
       );
 
       const { hasError, reason, message } = res.data;
@@ -70,7 +65,7 @@ export default function VerifyPage() {
           toast.info(reason);
         } else {
           redirectWithMessage(
-            "Discord Access has been revoked. Redirecting..."
+            "Discord Access has been revoked. Redirecting...",
           );
         }
       }
@@ -103,7 +98,7 @@ export default function VerifyPage() {
         break;
       default:
         redirectWithMessage(
-          message || "Discord Access has been revoked. Redirecting..."
+          message || "Discord Access has been revoked. Redirecting...",
         );
         break;
     }
@@ -128,7 +123,8 @@ export default function VerifyPage() {
               Verify your NFT
             </h1>
             <p className="text-neutral100 text-lg font-normal text-center">
-              Authenticate your wallet, verify NFT ownership, and your Discord role will be assigned automatically.
+              Authenticate your wallet, verify NFT ownership, and your Discord
+              role will be assigned automatically.
             </p>
 
             {canVerify ? (
@@ -187,10 +183,10 @@ export default function VerifyPage() {
       <WalletConnectionModal
         open={walletModalOpen}
         onClose={() => setWalletModalOpen(false)}
-        activeTab="HEMI"
-        selectedLayerId={currentLayer?.id || ""}
-        onTabChange={() => {}}
-        onLayerSelect={() => {}}
+        // activeTab="HEMI"
+        // selectedLayerId={currentLayer?.id || ""}
+        // onTabChange={() => {}}
+        // onLayerSelect={() => {}}
       />
     </>
   );
