@@ -331,7 +331,7 @@ const NFTTraitsUpload: React.FC = () => {
       )}
 
       {/* Upload Button and Status */}
-      {/* {Object.keys(traits).length > 0 && (
+      {Object.keys(traits).length > 0 && (
         <div className="flex items-center justify-between bg-transLight4 rounded-lg p-4">
           <div className="flex items-center space-x-4">
             {uploadStatus && (
@@ -356,7 +356,7 @@ const NFTTraitsUpload: React.FC = () => {
             Total images: {getTotalImagesCount()}
           </div>
         </div>
-      )} */}
+      )}
 
       {/* Instructions */}
       <div className="mt-8 bg-transLight4 border border-transLight24 rounded-lg p-4">

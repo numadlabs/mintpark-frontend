@@ -10,43 +10,40 @@ import { toast } from "sonner";
 import { createNewOrder } from "@/lib/service/postRequest";
 import { useAuth } from "../provider/auth-context-provider";
 
-// Fee calculation functions
-function estimateRecursiveInscriptionFee(numItems: number, feeRate = 1) {
+// Updated fee calculation functions
+function estimateRecursiveInscriptionVBytes(numItems: number) {
+  // Calculate sizes
   const baseSize = 1000;
   const perItemSize = 100;
   const inscriptionSize = baseSize + numItems * perItemSize;
 
+  // Commit transaction (typically ~150-200 vBytes)
   const commitVBytes = 200;
-  const commitFee = commitVBytes * feeRate;
 
-  const DUST_THRESHOLD = 546;
+  // Reveal transaction
   const opCodeOverheadVBytes = Math.ceil(inscriptionSize / 520) * 3;
-  const revealVBytes = Math.ceil(inscriptionSize / 4) + 200;
-  const revealFee =
-    (revealVBytes + opCodeOverheadVBytes) * feeRate + DUST_THRESHOLD;
+  const revealVBytes =
+    Math.ceil(inscriptionSize / 4) + opCodeOverheadVBytes + 200; // Transaction overhead included
 
   return {
-    commitFee: commitFee,
-    revealFee: revealFee,
-    totalFeeSats: commitFee + revealFee,
+    totalVBytes: commitVBytes + revealVBytes,
   };
 }
 
-function estimateRegularInscriptionFee(fileSize: number, feeRate = 1) {
+function estimateRegularInscriptionVBytes(fileSize: number) {
+  // For regular inscriptions, the entire file is inscribed
   const inscriptionSize = fileSize;
-  const commitVBytes = 200;
-  const commitFee = commitVBytes * feeRate;
 
-  const DUST_THRESHOLD = 546;
+  // Commit transaction (typically ~150-200 vBytes)
+  const commitVBytes = 200;
+
+  // Reveal transaction
   const opCodeOverheadVBytes = Math.ceil(inscriptionSize / 520) * 3;
-  const revealVBytes = Math.ceil(inscriptionSize / 4) + 180;
-  const revealFee =
-    (revealVBytes + opCodeOverheadVBytes) * feeRate + DUST_THRESHOLD;
+  const revealVBytes =
+    Math.ceil(inscriptionSize / 4) + opCodeOverheadVBytes + 180;
 
   return {
-    commitFee: commitFee,
-    revealFee: revealFee,
-    totalFeeSats: commitFee + revealFee,
+    totalVBytes: commitVBytes + revealVBytes,
   };
 }
 
@@ -57,7 +54,7 @@ export function TraitsUploadStep() {
     setIsLoading,
     collectionId,
     traitData,
-    updateTraitData, // CreationFlow-аас trait data update хийх
+    updateTraitData,
   } = useCreationFlow();
 
   // useTraitsStore-г зөвхөн validation-д ашиглах
@@ -102,14 +99,57 @@ export function TraitsUploadStep() {
     updateTraitData({ [type]: null });
   };
 
-  // Calculate fees based on uploaded data
-  const calculateFees = () => {
-    let totalFee = 0;
-    const feeRate = 1;
+  // Calculate total dust value based on new formula
+  const calculateTotalDustValue = () => {
+    const DUST_VALUE_PER_ITEM = 546; // sats per item
+    let totalItems = 0;
+
+    // Count trait types
+    if (traitData.traitAssets) {
+      const files = (traitData.traitAssets as any).fileList as FileList;
+      if (files) {
+        // Get unique trait types from folder structure
+        const traitTypes = new Set<string>();
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const pathParts = file.webkitRelativePath?.split("/") || [];
+          if (pathParts.length >= 2) {
+            let traitType: string;
+            if (pathParts.length === 2) {
+              traitType = pathParts[0];
+            } else if (pathParts[0] === "traits") {
+              traitType = pathParts[1];
+            } else {
+              traitType = pathParts[pathParts.length - 2];
+            }
+            traitTypes.add(traitType);
+          }
+        }
+        totalItems += traitTypes.size;
+      }
+    }
+
+    // Count recursive collectibles (assuming 1 for the main collection)
+    totalItems += 1;
+
+    // Count one of one editions
+    if (isOneOfOneEnabled && traitData.oneOfOneEditions) {
+      const files = (traitData.oneOfOneEditions as any).fileList as FileList;
+      if (files) {
+        totalItems += files.length;
+      }
+    }
+
+    return totalItems * DUST_VALUE_PER_ITEM;
+  };
+
+  // Calculate total vBytes based on uploaded data (keeping for display purposes)
+  const calculateTotalVBytes = () => {
+    let totalVBytes = 0;
 
     if (traitData.metadataJson) {
-      const jsonFee = estimateRecursiveInscriptionFee(1, feeRate);
-      totalFee += jsonFee.totalFeeSats;
+      const jsonEstimate = estimateRecursiveInscriptionVBytes(1);
+      totalVBytes += jsonEstimate.totalVBytes;
     }
 
     if (isOneOfOneEnabled && traitData.oneOfOneEditions) {
@@ -118,8 +158,8 @@ export function TraitsUploadStep() {
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
           if (file && file.size) {
-            const fileFee = estimateRegularInscriptionFee(file.size, feeRate);
-            totalFee += fileFee.totalFeeSats;
+            const fileEstimate = estimateRegularInscriptionVBytes(file.size);
+            totalVBytes += fileEstimate.totalVBytes;
           }
         }
       }
@@ -131,13 +171,13 @@ export function TraitsUploadStep() {
         for (let i = 0; i < files.length; i++) {
           const file = files[i];
           if (file && file.size) {
-            const fileFee = estimateRegularInscriptionFee(file.size, feeRate);
-            totalFee += fileFee.totalFeeSats;
+            const fileEstimate = estimateRegularInscriptionVBytes(file.size);
+            totalVBytes += fileEstimate.totalVBytes;
           }
         }
       }
     }
-    return totalFee;
+    return totalVBytes;
   };
 
   const handleContinue = async () => {
@@ -155,23 +195,37 @@ export function TraitsUploadStep() {
     setIsLoading(true);
 
     try {
-      const estimatedFee = calculateFees();
+      const totalDustValue = calculateTotalDustValue();
+      const estimatedTxSizeInVBytes = calculateTotalVBytes();
+      const feeRate = 1; // sats per vByte (keeping for network fee estimation)
+      const estimatedNetworkFeeInSats = estimatedTxSizeInVBytes * feeRate;
+
+      console.log("Total dust value:", totalDustValue);
+      console.log("Estimated tx size in vBytes:", estimatedTxSizeInVBytes);
+      console.log("Estimated network fee:", estimatedNetworkFeeInSats);
 
       const orderResponse = await createNewOrder({
         collectionId: collectionId,
-        estimatedFeeInSats: estimatedFee,
-        feeRate: 1,
+        totalDustValue: totalDustValue,
+        estimatedTxSizeInVBytes: estimatedTxSizeInVBytes,
         userLayerId: currentUserLayer?.id || "",
       });
 
-      // Inscription data-г CreationFlow-д хадгалах
+      if (!orderResponse.success) {
+        throw new Error(orderResponse.error || "Failed to create order");
+      }
+
+      // Extract data from the response structure
+      const orderData = orderResponse.data;
+      
+      // Inscription data-г CreationFlow-д хадгалах (шинэ structure-аар)
       updateInscriptionData({
-        orderId: orderResponse.data.order.id,
-        walletAddress: orderResponse.data.order.fundingAddress,
+        orderId: orderData.order.id,
+        walletAddress: orderData.order.fundingAddress,
         fees: {
-          inscription: estimatedFee,
-          service: 0,
-          total: estimatedFee,
+          inscription: orderData.order.networkFeeInSats || 0,
+          service: orderData.order.serviceFeeInSats || 0,
+          total: orderData.order.fundingAmount,
         },
         progress: {
           current: 0,
@@ -406,14 +460,22 @@ export function TraitsUploadStep() {
         </div>
 
         {/* Fee estimation display */}
-        {/* {isFormValid && (
+        {isFormValid && (
           <div className="bg-transLight8 rounded-xl p-4 border border-transLight16">
             <h3 className="text-white font-medium mb-2">Estimated Fees</h3>
-            <p className="text-sm text-lightSecondary">
-              Total inscription fee: {calculateFees().toLocaleString()} sats
-            </p>
+            <div className="space-y-1">
+              <p className="text-sm text-lightSecondary">
+                Total dust value: {calculateTotalDustValue().toLocaleString()} sats
+              </p>
+              <p className="text-sm text-lightSecondary">
+                Estimated vBytes: {calculateTotalVBytes().toLocaleString()}
+              </p>
+              <p className="text-sm text-lightSecondary">
+                Estimated network fee: {(calculateTotalVBytes() * 1).toLocaleString()} sats
+              </p>
+            </div>
           </div>
-        )} */}
+        )}
 
         {/* Continue button */}
         <div className="pt-4">

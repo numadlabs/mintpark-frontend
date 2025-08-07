@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "sonner";
 import { truncateAddress } from "@/lib/utils";
+import { checkPaymentStatus } from "@/lib/service/queryHelper";
 
 interface InscriptionStepProps {
   onComplete?: () => void;
@@ -21,6 +22,7 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
   const [discordUsername, setDiscordUsername] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const router = useRouter();
+  const [isCheckingPayment, setIsCheckingPayment] = useState(false);
 
   const satsToBTC = (sats: number): number => {
     return sats / 10 ** 8;
@@ -33,6 +35,7 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
   useEffect(() => {
     if (inscriptionData?.walletAddress) {
       const amount = satsToBTC(inscriptionData.fees.total);
+      // Use the walletQrString if available from response, otherwise create bitcoin URI
       const walletQrString = `bitcoin:${inscriptionData.walletAddress}?amount=${amount}`;
       const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
         walletQrString
@@ -41,13 +44,55 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
     }
   }, [inscriptionData]);
 
-  const handleCheckPayment = () => {
-    setCurrentView("uploading");
+  const handleCheckPayment = async () => {
+    if (!inscriptionData?.orderId) {
+      toast.error("Order ID not found");
+      return;
+    }
 
-    // Simulate upload process
-    setTimeout(() => {
-      setCurrentView("progress");
-    }, 3000);
+    setIsCheckingPayment(true);
+
+    try {
+      const result = await checkPaymentStatus(inscriptionData.orderId);
+
+      console.log("Payment check result:", result);
+
+      // Check if payment was successful
+      if (result.success && result.data?.isPaid === true) {
+        toast.success("Payment confirmed! Starting inscription process...");
+        setCurrentView("uploading");
+
+        setTimeout(() => {
+          setCurrentView("progress");
+          if (onComplete) {
+            onComplete();
+          }
+        }, 3000);
+      } else {
+        console.log("Payment not confirmed:", result);
+
+        // Dynamic error message from response
+        const errorMessage =
+          (result as any).error ||
+          (result as any).message ||
+          "Payment not yet received";
+        toast.error(errorMessage);
+      }
+    } catch (error: unknown) {
+      console.error("Payment check error:", error);
+
+      let errorMessage = "Failed to check payment status";
+
+      if (error instanceof Error) {
+        // queryHelper-аас ирсэн error message (backend-аас ирсэн error орсон)
+        errorMessage = error.message;
+      }
+
+      // Backend error message-ийг toast дээр харуулах
+      toast.error(errorMessage);
+    } finally {
+      setIsCheckingPayment(false);
+    }
   };
 
   const handleGoToCollections = () => {
@@ -137,7 +182,7 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
           <div className="bg-darkSecondary border border-transLight4 rounded-xl p-6">
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-lightSecondary">Inscription Fee</span>
+                <span className="text-lightSecondary">Network Fee</span>
                 <div className="text-right">
                   <span className="text-white font-medium">
                     {inscriptionFeeBTC.toFixed(6)} BTC
@@ -191,9 +236,10 @@ export function InscriptionStep({ onComplete }: InscriptionStepProps) {
 
           <Button
             onClick={handleCheckPayment}
-            className="w-full bg-white text-black hover:bg-gray-200"
+            disabled={isCheckingPayment}
+            className="w-full bg-white text-black hover:bg-gray-200 disabled:opacity-50"
           >
-            Check Payment
+            {isCheckingPayment ? "Checking Payment..." : "Check Payment"}
           </Button>
         </div>
       </div>
