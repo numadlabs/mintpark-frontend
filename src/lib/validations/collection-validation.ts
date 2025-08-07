@@ -1,5 +1,6 @@
 import * as z from "zod";
 import { apiResponseSchema } from "../utils";
+import { error } from "console";
 
 export const collectionSchema = z.object({
   id: z.string(),
@@ -96,6 +97,17 @@ export const detailQuerySchema = z.object({
   hasMore: z.boolean(),
 });
 
+//  add to PaymentStatusResponse
+export const checkPaymentSchema = z.object({
+  success: z.boolean(),
+  error: z.string().optional(),
+  data: z
+    .object({
+      isPaid: z.boolean(),
+    })
+    .optional(),
+});
+
 //Collection type
 export type Collection = z.infer<typeof collectionSchema>;
 export type CollectionSchema = z.infer<typeof collectionDetailSchema>;
@@ -118,9 +130,15 @@ export type Collectible = z.infer<typeof collectibleSchema>;
 
 // NEW: Creator Collection type
 export type CreatorCollection = z.infer<typeof creatorCollectionSchema>;
+//checkpayment process
+export type CheckPaymentProcess = z.infer<typeof checkPaymentSchema>;
 
 const collectibleArraySchema = z.array(collectibleSchema);
 
 export type CollectibleApiResponse = z.infer<
   ReturnType<typeof apiResponseSchema<typeof collectibleArraySchema>>
+>;
+
+export type CheckPaymentApiResponse = z.infer<
+  ReturnType<typeof apiResponseSchema<typeof checkPaymentSchema>>
 >;

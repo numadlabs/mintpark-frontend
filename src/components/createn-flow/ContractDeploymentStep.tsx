@@ -21,6 +21,7 @@ export function ContractDeploymentStep() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const { currentLayer, currentUserLayer } = useAuth();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [symbolError, setSymbolError] = useState<string>("");
 
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: newCreateCollection,
@@ -29,12 +30,37 @@ export function ContractDeploymentStep() {
   const { mutateAsync: createLaunchMutation } = useMutation({
     mutationFn: newCreateLaunch,
   });
+
+  // Validation function for symbol
+  const validateSymbol = (symbol: string): string => {
+    if (!symbol) return ""; // Symbol is optional
+    if (symbol.length < 2) return "Token symbol must be at least 2 characters";
+    if (symbol.length > 10) return "Token symbol must not exceed 10 characters";
+    return "";
+  };
+
+  // Handle symbol input change with validation
+  const handleSymbolChange = (value: string) => {
+    const upperCaseValue = value.toUpperCase(); // Convert to uppercase for token symbols
+    updateCollectionData({ symbol: upperCaseValue });
+    const error = validateSymbol(upperCaseValue);
+    setSymbolError(error);
+  };
   
   const handleCreateCollection = async () => {
     // Validation
     if (!collectionData.name || !collectionData.logo) {
       toast.error("Please fill in all required fields");
       return;
+    }
+
+    // Validate symbol if provided
+    if (collectionData.symbol) {
+      const symbolValidationError = validateSymbol(collectionData.symbol);
+      if (symbolValidationError) {
+        toast.error(symbolValidationError);
+        return;
+      }
     }
 
     if (!currentLayer) {
@@ -53,6 +79,7 @@ export function ContractDeploymentStep() {
       // Step 1: Create the collection
       const collectionParams: NewCollectionData = {
         name: collectionData?.name,
+        symbol: collectionData?.symbol || "", // Include symbol if provided
         logo: collectionData?.logo,
         description: collectionData?.description,
         type: "RECURSIVE_INSCRIPTION",
@@ -161,7 +188,8 @@ export function ContractDeploymentStep() {
     setLogoPreview(null);
   };
 
-  const isFormValid = collectionData.name && collectionData.logo;
+  // Update form validation to exclude symbol from required fields
+  const isFormValid = collectionData.name && collectionData.logo && !symbolError;
 
   return (
     <div className="w-full flex flex-col items-center justify-center">
@@ -231,7 +259,7 @@ export function ContractDeploymentStep() {
           </div>
           <div>
             <label className="block text-white font-medium mb-2">
-              Collection name
+              Collection name <span className="text-red-500">*</span>
             </label>
             <Input
               value={collectionData.name}
@@ -256,14 +284,23 @@ export function ContractDeploymentStep() {
 
           <div>
             <label className="block text-white font-medium mb-2">
-              Token symbol
+              Token symbol <span className="text-lightTertiary text-sm">(Optional)</span>
             </label>
             <Input
-              value={collectionData.symbol}
-              onChange={(e) => updateCollectionData({ symbol: e.target.value })}
+              value={collectionData.symbol || ""}
+              onChange={(e) => handleSymbolChange(e.target.value)}
               placeholder="Enter your token symbol (HEMI etc.)"
-              className="bg-darkSecondary border-transLight8 text-white placeholder:text-lightTertiary"
+              className={`bg-darkSecondary border-transLight8 text-white placeholder:text-lightTertiary ${
+                symbolError ? "border-red-500" : ""
+              }`}
+              maxLength={10}
             />
+            {symbolError && (
+              <p className="text-red-500 text-sm mt-1">{symbolError}</p>
+            )}
+            <p className="text-lightTertiary text-xs mt-1">
+              2-10 characters, will be converted to uppercase
+            </p>
           </div>
 
           <Button

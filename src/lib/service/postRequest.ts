@@ -208,20 +208,20 @@ export async function newCreateLaunch({
 
 export async function createNewOrder({
   collectionId,
-  estimatedFeeInSats,
-  feeRate,
+  totalDustValue,
+  estimatedTxSizeInVBytes,
   userLayerId,
 }: {
   collectionId: string;
-  estimatedFeeInSats: number;
-  feeRate: number;
+  totalDustValue: number;
+  estimatedTxSizeInVBytes: number;
   userLayerId: string;
 }) {
   try {
     const orderData = {
       collectionId,
-      estimatedFeeInSats,
-      feeRate,
+      totalDustValue,
+      estimatedTxSizeInVBytes,
       userLayerId,
     };
 

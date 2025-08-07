@@ -7,6 +7,7 @@ import {
   Collectible,
   CollectibleApiResponse,
   CreatorCollection,
+  CheckPaymentProcess,
 } from "../validations/collection-validation";
 import { Launchschema } from "../validations/launchpad-validation";
 import { OrderSchema } from "../validations/asset-validation";
@@ -14,8 +15,31 @@ import { AssetSchema, ActivitySchema } from "../validations/asset-validation";
 import { ActivityType } from "../types";
 import { Layer } from "../types/wallet";
 
+export const checkPaymentStatus = async (
+  orderId: string
+): Promise<CheckPaymentProcess> => {
+  return axiosClient
+    .get(`/api/v1/orders/${orderId}/check-paid`)
+    .then((response) => {
+      if (response.data.success) {
+        return response.data;
+      } else {
+        // response.data.error эсвэл response.data.message-ийг шалгах
+        throw new Error(
+          response.data.error ||
+            response.data.message ||
+            "Failed to check payment status"
+        );
+      }
+    })
+    .catch((error) => {
+      console.error("Error checking payment status:", error);
+      throw error;
+    });
+};
 
 // new creater tool api
+
 export async function createrCollection(
   userLayerId: string,
   page: number = 1,
@@ -33,7 +57,9 @@ export async function createrCollection(
       if (response.data.success && response.data.data) {
         return response.data.data;
       } else {
-        throw new Error(response.data.message || "Failed to fetch creator collections");
+        throw new Error(
+          response.data.message || "Failed to fetch creator collections"
+        );
       }
     });
 }
@@ -59,7 +85,7 @@ export async function getOrderById(id: string) {
 
 export async function fetchLaunchs(
   layerId: string,
-  interval: string,
+  interval: string
 ): Promise<Launchschema[]> {
   return axiosClient
     .get(`/api/v1/launchpad?layerId=${layerId}&interval=${interval}`)
@@ -118,18 +144,18 @@ export async function getListedCollections(
   layerId: string,
   interval: string,
   orderBy: string,
-  orderDirection: string,
+  orderDirection: string
 ): Promise<Collection[]> {
   return axiosClient
     .get<CollectionApiResponse>(
-      `/api/v1/collections/listed?layerId=${layerId}&interval=${interval}&orderBy=${orderBy}&orderDirection=${orderDirection}`,
+      `/api/v1/collections/listed?layerId=${layerId}&interval=${interval}&orderBy=${orderBy}&orderDirection=${orderDirection}`
     )
     .then((response) => {
       if (response.data.success && response.data.data) {
         return response.data.data;
       } else {
         throw new Error(
-          response.data.message || "Failed to fetch listed collections",
+          response.data.message || "Failed to fetch listed collections"
         );
       }
     });
@@ -143,7 +169,7 @@ export async function getListedCollectionById(
   offset: number,
   query: string,
   isListed: boolean,
-  traitValuesByType: Record<string, string[]> | string, // Update type to handle both
+  traitValuesByType: Record<string, string[]> | string // Update type to handle both
 ): Promise<CollectionDetail | null> {
   const params = new URLSearchParams({
     orderBy,
@@ -166,7 +192,7 @@ export async function getListedCollectionById(
 
   return axiosClient
     .get<CollectionDetailApiResponse>(
-      `/api/v1/collectibles/${collectionId}/collection/listable?${params.toString()}&isListed=${isListed}`,
+      `/api/v1/collectibles/${collectionId}/collection/listable?${params.toString()}&isListed=${isListed}`
     )
     .then((response) => {
       if (response.data.success) {
@@ -177,9 +203,7 @@ export async function getListedCollectionById(
     });
 }
 
-export async function getAssetById(
-  id: string,
-): Promise<Collectible | null> {
+export async function getAssetById(id: string): Promise<Collectible | null> {
   return axiosClient.get(`/api/v1/collectibles/${id}`).then((response) => {
     console.log(response.data.data);
     if (response.data.success) {
@@ -198,7 +222,7 @@ export async function getListableById(
   limit: number,
   offset: number,
   collectionIds: string[],
-  availability: string,
+  availability: string
 ): Promise<AssetSchema> {
   // Create base query parameters
   const params = new URLSearchParams({
@@ -292,7 +316,7 @@ export async function getCollectionActivity(
   id: string,
   limit: number = 20,
   offset: number = 0,
-  activityType?: string,
+  activityType?: string
 ): Promise<ActivitySchema[]> {
   const params = new URLSearchParams({
     limit: limit.toString(),
@@ -330,7 +354,7 @@ export async function getCollectionActivity(
 export async function getCollectibleActivity(
   id: string,
   limit: number = 20,
-  offset: number = 0,
+  offset: number = 0
 ): Promise<ActivityType[]> {
   const params = new URLSearchParams({
     limit: limit.toString(),
