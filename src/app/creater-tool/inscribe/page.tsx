@@ -62,7 +62,7 @@ function CreateFlowContent() {
                 <Button
                   variant="secondary"
                   onClick={handleClose}
-                  className="p-[10px] text-white bg-transLight4 hover:hidden cursor-pointer"
+                  className="p-[10px] text-white bg-transLight4 hover:bg-transparent cursor-pointer"
                 >
                   <X size={24} />
                 </Button>

@@ -8,6 +8,15 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 
+
+// Extend HTMLInputElement to include webkitdirectory
+declare module "react" {
+  interface InputHTMLAttributes<T> {
+    webkitdirectory?: string;
+    directory?: string;
+  }
+}
+
 interface TraitImage {
   file: File;
   name: string;
@@ -176,8 +185,8 @@ const NFTTraitsUpload: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-gray-900 text-white">
-      <div className="mb-8">
+    <div className="max-w-6xl mx-auto bg-transDark4 text-white">
+      {/* <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">
           NFT Traits Upload
         </h1>
@@ -185,7 +194,7 @@ const NFTTraitsUpload: React.FC = () => {
           Upload your traits folder structure. Each trait type should be in its
           own folder containing the trait images.
         </p>
-      </div>
+      </div> */}
 
       {/* Upload Area */}
       <div
@@ -196,8 +205,8 @@ const NFTTraitsUpload: React.FC = () => {
         onDrop={handleDrop}
         className={`border-2 border-dashed rounded-lg p-8 mb-6 text-center cursor-pointer transition-colors ${
           isDragActive
-            ? "border-blue-500 bg-blue-900/20"
-            : "border-gray-600 hover:border-gray-500"
+            ? "border-transLight4 bg-transLight2"
+            : "border-transLight24 hover:border-transLight72"
         }`}
       >
         <input
@@ -212,7 +221,7 @@ const NFTTraitsUpload: React.FC = () => {
         <div className="space-y-2">
           <Folder size={48} className="text-gray-400 mx-auto" />
           {isDragActive ? (
-            <p className="text-blue-400 font-medium">
+            <p className="text-white font-medium">
               Drop the traits folder here...
             </p>
           ) : (
@@ -261,7 +270,7 @@ const NFTTraitsUpload: React.FC = () => {
 
           <div className="grid gap-6">
             {Object.entries(traits).map(([traitType, traitData]) => (
-              <div key={traitType} className="bg-gray-800 rounded-lg p-4">
+              <div key={traitType} className="bg-transLight2 border border-transLight4 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-medium text-white capitalize">
                     {traitType} ({traitData.images.length} images)
@@ -322,8 +331,8 @@ const NFTTraitsUpload: React.FC = () => {
       )}
 
       {/* Upload Button and Status */}
-      {Object.keys(traits).length > 0 && (
-        <div className="flex items-center justify-between bg-gray-800 rounded-lg p-4">
+      {/* {Object.keys(traits).length > 0 && (
+        <div className="flex items-center justify-between bg-transLight4 rounded-lg p-4">
           <div className="flex items-center space-x-4">
             {uploadStatus && (
               <div
@@ -343,19 +352,19 @@ const NFTTraitsUpload: React.FC = () => {
             )}
           </div>
 
-          <div className="text-sm text-gray-400">
+          <div className="text-sm text-lightPrimary">
             Total images: {getTotalImagesCount()}
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Instructions */}
-      <div className="mt-8 bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
-        <h3 className="font-medium text-blue-400 mb-2 flex items-center gap-2">
+      <div className="mt-8 bg-transLight4 border border-transLight24 rounded-lg p-4">
+        <h3 className="font-medium text-lightPrimary mb-2 flex items-center gap-2">
           <HelpCircle size={16} />
           Instructions:
         </h3>
-        <ul className="text-sm text-blue-300 space-y-1">
+        <ul className="text-sm text-lightPrimary space-y-1">
           <li>
             • Create a main traits folder with subfolders for each trait type
           </li>
