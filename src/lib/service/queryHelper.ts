@@ -9,6 +9,7 @@ import {
   CreatorCollection,
   CheckPaymentProcess,
   InscriptionProgress,
+  LaunchCreaterToolData,
 } from "../validations/collection-validation";
 import { Launchschema } from "../validations/launchpad-validation";
 import { OrderSchema } from "../validations/asset-validation";
@@ -38,26 +39,26 @@ export const checkPaymentStatus = async (
     });
 };
 
-
 //inscription progress done
 export async function getInscriptionProgress({
   collectionId,
   userLayerId,
 }: {
-  collectionId: string
-  userLayerId?: string
+  collectionId: string;
+  userLayerId?: string;
 }): Promise<InscriptionProgress> {
-  const url = `/api/v1/collections/${collectionId}/inscription-progress?userLayerId=${userLayerId}`
+  const url = `/api/v1/collections/${collectionId}/inscription-progress?userLayerId=${userLayerId}`;
 
   return axiosClient.get(url).then((response) => {
     if (response.data.success) {
-      return response.data.data as InscriptionProgress
+      return response.data.data as InscriptionProgress;
     } else {
-      throw new Error(response.data.message || "Failed to fetch inscription progress")
+      throw new Error(
+        response.data.message || "Failed to fetch inscription progress"
+      );
     }
-  })
+  });
 }
-
 
 // new creater tool api
 
@@ -128,6 +129,25 @@ export async function getLaunchByCollectionId(id: string) {
       } else {
         throw new Error(response.data.error);
       }
+    });
+}
+
+//call to launch details api
+export async function getLaunchByDetailCreaterTool(
+  id: string
+): Promise<LaunchCreaterToolData | null> {
+  return axiosClient
+    .get(`/api/v1/launchpad/${id}/collection`)
+    .then((response) => {
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      } else {
+        return null;
+      }
+    })
+    .catch((error) => {
+      console.error("Failed to fetch launch data:", error);
+      return null;
     });
 }
 

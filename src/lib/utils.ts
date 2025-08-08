@@ -115,16 +115,15 @@ export const formatDaysAgo = (dateString: string) => {
   }
 };
 
-
-export const formatTimeRemaining = (totalMinutes:number) => {
+export const formatTimeRemaining = (totalMinutes: number) => {
   if (!totalMinutes || totalMinutes < 0) return "0m";
-  
+
   const days = Math.floor(totalMinutes / (24 * 60));
   const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
-  const minutes = totalMinutes % 60;
-  
+  const minutes = Math.floor(totalMinutes % 60);
+
   const parts = [];
-  
+
   if (days > 0) {
     parts.push(`${days} d`);
   }
@@ -134,8 +133,8 @@ export const formatTimeRemaining = (totalMinutes:number) => {
   if (minutes > 0 || parts.length === 0) {
     parts.push(`${minutes} m`);
   }
-  
-  return parts.join(' ');
+
+  return parts.join(" ");
 };
 
 export const formatTimeAgo = (dateString: string) => {
@@ -171,8 +170,8 @@ export const truncateAddress = (address: string) => {
 // };
 export const capitalizeFirstLetter = (string: string | undefined | null) => {
   // Add safety checks for undefined/null values
-  if (!string || typeof string !== 'string') {
-    return '';
+  if (!string || typeof string !== "string") {
+    return "";
   }
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 };

@@ -34,7 +34,7 @@ export function ContractDeploymentStep() {
   // Validation function for symbol
   const validateSymbol = (symbol: string): string => {
     if (!symbol) return ""; // Symbol is optional
-    if (symbol.length < 2) return "Token symbol must be at least 2 characters";
+    if (symbol.length < 3) return "Token symbol must be at least 2 characters";
     if (symbol.length > 10) return "Token symbol must not exceed 10 characters";
     return "";
   };
@@ -299,7 +299,7 @@ export function ContractDeploymentStep() {
               <p className="text-red-500 text-sm mt-1">{symbolError}</p>
             )}
             <p className="text-lightTertiary text-xs mt-1">
-              2-10 characters, will be converted to uppercase
+              3-10 characters, will be converted to uppercase
             </p>
           </div>
 

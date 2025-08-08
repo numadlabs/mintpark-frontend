@@ -90,6 +90,31 @@ export const creatorCollectionSchema = z.object({
   progressState: z.string(),
 });
 
+// NEW: Launch Creator Tool Data Schema
+export const launchCreaterToolDataSchema = z.object({
+  id: z.string(),
+  collectionId: z.string(),
+  isWhitelisted: z.boolean(),
+  wlStartsAt: z.string().nullable(),
+  wlEndsAt: z.string().nullable(),
+  wlMintPrice: z.number().nullable(),
+  wlMaxMintPerWallet: z.number().nullable(),
+  poStartsAt: z.string(),
+  poEndsAt: z.string(),
+  poMintPrice: z.number(),
+  poMaxMintPerWallet: z.number(),
+  createdAt: z.string(),
+  status: z.string(),
+  userLayerId: z.string(),
+  userId: z.string().nullable(),
+  reservedCount: z.number(),
+  updatedAt: z.string(),
+  //add types
+    logoKey: z.string().nullable(),
+  layer: z.string(),
+  supply: z.number()
+});
+
 //inscription progress
 
 export const inscriptionProgressSchema = z.object({
@@ -166,6 +191,9 @@ export type InscriptionProgress = z.infer<typeof inscriptionProgressSchema>;
 
 // NEW: Creator Collection type
 export type CreatorCollection = z.infer<typeof creatorCollectionSchema>;
+
+// NEW: Launch Creator Tool Data type
+export type LaunchCreaterToolData = z.infer<typeof launchCreaterToolDataSchema>;
 
 // Detail type
 export type CollectionDetail = z.infer<typeof detailQuerySchema>;
