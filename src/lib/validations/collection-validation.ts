@@ -90,6 +90,18 @@ export const creatorCollectionSchema = z.object({
   progressState: z.string(),
 });
 
+//inscription progress
+
+export const inscriptionProgressSchema = z.object({
+  totalTraitValueCount: z.number(),
+  doneTraitValueCount: z.number(),
+  totalCollectibleCount: z.number(),
+  doneCollectibleCount: z.number(),
+  done: z.number(),
+  total: z.number(),
+  etaInMinutes: z.number(),
+});
+
 // Schema for the complete API response
 export const detailQuerySchema = z.object({
   collectibles: z.array(collectionDetailSchema),
@@ -108,6 +120,34 @@ export const checkPaymentSchema = z.object({
     .optional(),
 });
 
+//invoke order
+// invokeMintSchema
+export const invokeMintSchema = z.object({
+  success: z.boolean(),
+  data: z
+    .object({
+      order: z.object({
+        id: z.string(),
+        userId: z.string(),
+        collectionId: z.string(),
+        feeRate: z.number(),
+        fundingAddress: z.string(),
+        privateKey: z.string(),
+        createdAt: z.string(),
+        paidAt: z.string().nullable(),
+        expiredAt: z.string().nullable(),
+        orderType: z.string(),
+        orderStatus: z.string(),
+        purchaseId: z.string().nullable(),
+        fundingTxId: z.string().nullable(),
+        launchItemId: z.string().nullable(),
+        userLayerId: z.string(),
+      }),
+    })
+    .optional(),
+  error: z.string().optional(),
+});
+
 //Collection type
 export type Collection = z.infer<typeof collectionSchema>;
 export type CollectionSchema = z.infer<typeof collectionDetailSchema>;
@@ -117,6 +157,15 @@ const collectionsArraySchema = z.array(collectionSchema);
 export type CollectionApiResponse = z.infer<
   ReturnType<typeof apiResponseSchema<typeof collectionsArraySchema>>
 >;
+
+// new invoke order mint
+export type InvokeMintResponse = z.infer<typeof invokeMintSchema>;
+
+//new inscription progress
+export type InscriptionProgress = z.infer<typeof inscriptionProgressSchema>;
+
+// NEW: Creator Collection type
+export type CreatorCollection = z.infer<typeof creatorCollectionSchema>;
 
 // Detail type
 export type CollectionDetail = z.infer<typeof detailQuerySchema>;
@@ -128,8 +177,6 @@ export type CollectionDetailApiResponse = z.infer<
 // Collectible type
 export type Collectible = z.infer<typeof collectibleSchema>;
 
-// NEW: Creator Collection type
-export type CreatorCollection = z.infer<typeof creatorCollectionSchema>;
 //checkpayment process
 export type CheckPaymentProcess = z.infer<typeof checkPaymentSchema>;
 

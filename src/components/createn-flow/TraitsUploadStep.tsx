@@ -9,6 +9,7 @@ import NFTTraitsUpload from "./NftTraitsUpload";
 import { toast } from "sonner";
 import { createNewOrder } from "@/lib/service/postRequest";
 import { useAuth } from "../provider/auth-context-provider";
+import { calculateUploadParameters } from "@/lib/utils";
 
 // Updated fee calculation functions
 function estimateRecursiveInscriptionVBytes(numItems: number) {
@@ -195,15 +196,20 @@ export function TraitsUploadStep() {
     setIsLoading(true);
 
     try {
+      // Use the utility function to calculate all upload parameters
+      console.log("Starting calculation with trait data:", traitData);
+      const calculatedData = await calculateUploadParameters(traitData, isOneOfOneEnabled);
+
+      console.log("Calculated values:", calculatedData);
+
+      // Calculate fees (existing logic)
       const totalDustValue = calculateTotalDustValue();
       const estimatedTxSizeInVBytes = calculateTotalVBytes();
-      const feeRate = 1; // sats per vByte (keeping for network fee estimation)
-      const estimatedNetworkFeeInSats = estimatedTxSizeInVBytes * feeRate;
 
       console.log("Total dust value:", totalDustValue);
       console.log("Estimated tx size in vBytes:", estimatedTxSizeInVBytes);
-      console.log("Estimated network fee:", estimatedNetworkFeeInSats);
 
+      // Create order
       const orderResponse = await createNewOrder({
         collectionId: collectionId,
         totalDustValue: totalDustValue,
@@ -215,10 +221,9 @@ export function TraitsUploadStep() {
         throw new Error(orderResponse.error || "Failed to create order");
       }
 
-      // Extract data from the response structure
       const orderData = orderResponse.data;
       
-      // Inscription data-г CreationFlow-д хадгалах (шинэ structure-аар)
+      // Update inscription data
       updateInscriptionData({
         orderId: orderData.order.id,
         walletAddress: orderData.order.fundingAddress,
@@ -229,10 +234,13 @@ export function TraitsUploadStep() {
         },
         progress: {
           current: 0,
-          total: 1,
+          total: calculatedData.expectedTraitTypes + calculatedData.expectedTraitValues + calculatedData.expectedRecursive + calculatedData.expectedOOOEditions,
           estimatedTime: "5-10 minutes",
         },
       });
+
+      // Store the calculated values for later use in the inscription step
+      localStorage.setItem('calculatedUploadData', JSON.stringify(calculatedData));
 
       toast.success("Order created successfully!");
       setCurrentStep(3);
@@ -261,9 +269,6 @@ export function TraitsUploadStep() {
         <h1 className="text-3xl font-bold text-white mb-2">
           Upload Your Collection Assets
         </h1>
-        {/* <p className="text-lightSecondary">
-          Upload trait groups, one-of-one editions (if any), and your metadata JSON.
-        </p> */}
       </div>
 
       <div className="space-y-6 mt-4">

@@ -60,8 +60,15 @@ const CreatorTool = () => {
     router.push(`/creater-tool/upload-traits/${collectionId}`);
   };
 
+  // const handleInscriptionProgress = (collectionId: string) => {
+  //   console.log("View inscription progress for collection:", collectionId);
+  //   router.push(`/creater-tool/inscription-progress/${collectionId}`);
+  // };
+
+  // Updated handleInscriptionProgress function in CreatorTool
   const handleInscriptionProgress = (collectionId: string) => {
     console.log("View inscription progress for collection:", collectionId);
+    // Navigate to the new inscription progress page
     router.push(`/creater-tool/inscription-progress/${collectionId}`);
   };
 

@@ -8,6 +8,7 @@ import {
   CollectibleApiResponse,
   CreatorCollection,
   CheckPaymentProcess,
+  InscriptionProgress,
 } from "../validations/collection-validation";
 import { Launchschema } from "../validations/launchpad-validation";
 import { OrderSchema } from "../validations/asset-validation";
@@ -24,7 +25,6 @@ export const checkPaymentStatus = async (
       if (response.data.success) {
         return response.data;
       } else {
-        // response.data.error эсвэл response.data.message-ийг шалгах
         throw new Error(
           response.data.error ||
             response.data.message ||
@@ -37,6 +37,27 @@ export const checkPaymentStatus = async (
       throw error;
     });
 };
+
+
+//inscription progress done
+export async function getInscriptionProgress({
+  collectionId,
+  userLayerId,
+}: {
+  collectionId: string
+  userLayerId?: string
+}): Promise<InscriptionProgress> {
+  const url = `/api/v1/collections/${collectionId}/inscription-progress?userLayerId=${userLayerId}`
+
+  return axiosClient.get(url).then((response) => {
+    if (response.data.success) {
+      return response.data.data as InscriptionProgress
+    } else {
+      throw new Error(response.data.message || "Failed to fetch inscription progress")
+    }
+  })
+}
+
 
 // new creater tool api
 

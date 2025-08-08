@@ -1,4 +1,5 @@
 "use client";
+
 import React, { createContext, useContext, useState, ReactNode } from "react";
 
 export interface NewCollectionData {
@@ -32,11 +33,20 @@ export interface InscriptionData {
   };
 }
 
+// New interface for calculated upload data
+export interface CalculatedUploadData {
+  expectedTraitTypes: number;
+  expectedTraitValues: number;
+  expectedRecursive: number;
+  expectedOOOEditions: number;
+}
+
 interface CreationFlowState {
   currentStep: number;
   collectionData: NewCollectionData;
   traitData: TraitData;
   inscriptionData: InscriptionData | null;
+  calculatedUploadData: CalculatedUploadData | null; 
   isLoading: boolean;
   collectionId: string | null;
 }
@@ -44,8 +54,9 @@ interface CreationFlowState {
 interface CreationFlowContextType extends CreationFlowState {
   setCurrentStep: (step: number) => void;
   updateCollectionData: (data: Partial<NewCollectionData>) => void;
-  updateTraitData: (data: Partial<TraitData>) => void; // Энэ line байгаа эсэхийг шалгаарай
+  updateTraitData: (data: Partial<TraitData>) => void;
   updateInscriptionData: (data: Partial<InscriptionData>) => void;
+  updateCalculatedUploadData: (data: CalculatedUploadData) => void; 
   setIsLoading: (loading: boolean) => void;
   setCollectionId: (id: string) => void;
   resetFlow: () => void;
@@ -63,12 +74,12 @@ const initialState: CreationFlowState = {
     userLayerId: "",
   },
   traitData: {
-    // Энэ хэсэг байгаа эсэхийг шалгаарай
     traitAssets: null,
     oneOfOneEditions: null,
     metadataJson: null,
   },
   inscriptionData: null,
+  calculatedUploadData: null, 
   isLoading: false,
   collectionId: null,
 };
@@ -91,7 +102,6 @@ export function CreationFlowProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  // Энэ функц байгаа эсэхийг шалгаарай
   const updateTraitData = (data: Partial<TraitData>) => {
     setState((prev) => ({
       ...prev,
@@ -105,6 +115,14 @@ export function CreationFlowProvider({ children }: { children: ReactNode }) {
       inscriptionData: prev.inscriptionData
         ? { ...prev.inscriptionData, ...data }
         : (data as InscriptionData),
+    }));
+  };
+
+  // Add this new function
+  const updateCalculatedUploadData = (data: CalculatedUploadData) => {
+    setState((prev) => ({
+      ...prev,
+      calculatedUploadData: data,
     }));
   };
 
@@ -126,8 +144,9 @@ export function CreationFlowProvider({ children }: { children: ReactNode }) {
         ...state,
         setCurrentStep,
         updateCollectionData,
-        updateTraitData, // Энэ line байгаа эсэхийг шалгаарай
+        updateTraitData,
         updateInscriptionData,
+        updateCalculatedUploadData,
         setIsLoading,
         setCollectionId,
         resetFlow,
