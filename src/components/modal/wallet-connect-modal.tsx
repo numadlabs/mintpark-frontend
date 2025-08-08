@@ -52,9 +52,9 @@ export function WalletConnectionModal({
 
   // Filter and sort layers for display
   const displayLayers = useMemo(() => {
-    // if (process.env.NODE_ENV == "development") {
-    //   return availableLayers;
-    // }
+    if (process.env.NODE_ENV == "development") {
+      return availableLayers;
+    }
     return [...availableLayers]
       .filter(
         (layer) =>
