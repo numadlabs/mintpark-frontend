@@ -149,7 +149,6 @@ export const eduChainTestnet = defineChain({
   testnet: true,
 });
 
-//todo:core iin zurag nemeh
 export const coreTestnet = defineChain({
   id: 1114, // 0xa045c in decimal
   name: "CORE Testnet",
@@ -214,6 +213,10 @@ export const wagmiConfig = createConfig({
     eduChainTestnet,
     coreTestnet2,
     coreDao,
+
+    // Core chains
+    coreDao, // Core Mainnet (from wagmi/chains)
+    coreTestnet, // Core Testnet (custom definition)
   ],
   transports: {
     // Ethereum
@@ -244,6 +247,8 @@ export const CHAIN_ICONS = {
   [eduChainTestnet.id]: "/wallets/edu.png",
   [mainnet.id]: "/wallets/eth.png",
   [sepolia.id]: "/wallets/eth.png",
+  [coreDao.id]: "/wallets/core.png",
+  [coreTestnet2.id]: "/wallets/core.png",
 } as const;
 
 // Helper function to get chain icon by chain ID

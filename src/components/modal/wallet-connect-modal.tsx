@@ -32,7 +32,6 @@ export function WalletConnectionModal({
   const {
     isConnected,
     currentLayer,
-    user,
     isLoading,
     availableLayers,
     connectWallet,
@@ -53,15 +52,17 @@ export function WalletConnectionModal({
 
   // Filter and sort layers for display
   const displayLayers = useMemo(() => {
-    if (process.env.NODE_ENV == "development") {
-      return availableLayers;
-    }
+    // if (process.env.NODE_ENV == "development") {
+    //   return availableLayers;
+    // }
     return [...availableLayers]
       .filter(
         (layer) =>
           layer.layer !== "BITCOIN" &&
           layer.name !== "Hemi Testnet" &&
-          layer.name !== "EDU Chain Testnet",
+          layer.name !== "EDU Chain Testnet" &&
+          layer.name !== "EDU Chain" &&
+          layer.name !== "CORE Testnet"
       )
       .sort((a, b) => {
         if (a.layer !== b.layer) {
@@ -87,7 +88,7 @@ export function WalletConnectionModal({
       try {
         const wagmiChain = getWagmiChainByLayerConfig(
           layer.layer,
-          layer.network,
+          layer.network
         );
 
         if (!wagmiChain) {
@@ -99,7 +100,7 @@ export function WalletConnectionModal({
         console.log(
           "Switching to chain with wagmi:",
           wagmiChain.name,
-          wagmiChain.id,
+          wagmiChain.id
         );
 
         await switchChain({ chainId: wagmiChain.id });
@@ -118,7 +119,7 @@ export function WalletConnectionModal({
         return false;
       }
     },
-    [switchChain],
+    [switchChain]
   );
 
   //todo: switch chain ene component dotroos avj hayh
@@ -162,7 +163,7 @@ export function WalletConnectionModal({
         }
       }
     },
-    [disconnectWallet, switchToChain],
+    [disconnectWallet, switchToChain]
   );
 
   // Handle signing step
@@ -234,7 +235,7 @@ export function WalletConnectionModal({
       currentLayer,
       switchLayer,
       switchToChain,
-    ],
+    ]
   );
 
   // Reset state when modal opens/closes
@@ -274,6 +275,8 @@ export function WalletConnectionModal({
         return "/wallets/Metamask.png";
       case "EDUCHAIN":
         return "/wallets/Metamask.png";
+      case "CORE":
+        return "/wallets/Metamask.png";
       default:
         return "/wallets/Unisat.png";
     }
@@ -290,6 +293,8 @@ export function WalletConnectionModal({
       case "HEMI":
         return "MetaMask Wallet";
       case "EDUCHAIN":
+        return "MetaMask Wallet";
+      case "CORE":
         return "MetaMask Wallet";
       default:
         return "Wallet";
@@ -318,8 +323,16 @@ export function WalletConnectionModal({
             className="w-full"
           >
             <TabsList className="w-full">
-              <div className="grid grid-cols-3 gap-3 items-center w-full">
-                {displayLayers.slice(0, 3).map((layer) => (
+              <div
+                className="grid gap-3 items-center w-full"
+                style={{
+                  gridTemplateColumns: `repeat(${Math.min(
+                    displayLayers.length,
+                    3
+                  )}, 1fr)`,
+                }}
+              >
+                {displayLayers.map((layer) => (
                   <TabsTrigger
                     key={layer.id}
                     value={layer.id}

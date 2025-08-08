@@ -11,7 +11,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import HeaderItem from "../ui/headerItem";
 import { useAuth } from "../provider/auth-context-provider";
-// import { useMetamaskEvents } from "@/lib/hooks/useWalletAuth";
 import {
   Select,
   SelectContent,
@@ -65,7 +64,6 @@ export default function Header() {
     disconnectWallet,
     setSelectedLayerId,
   } = useAuth();
-
   // Navigation routes - memoized to prevent re-creation
   const routes = useMemo<RouteItem[]>(
     () => [
@@ -79,7 +77,7 @@ export default function Header() {
       { title: "Launchpad", pageUrl: "/launchpad" },
       { title: "Collections", pageUrl: "/collections" },
     ],
-    [],
+    []
   );
 
   //todo: no more mobile menu. Instead just render one responsive menu. Remove all the logic related to mobile menu
@@ -121,7 +119,7 @@ export default function Header() {
           // User is already connected - switch layer without signing
           console.log(
             "Switching layer from header (no signing required):",
-            selectedLayerObj.name,
+            selectedLayerObj.name
           );
           await switchLayer(selectedLayerObj);
           toast.success(`Switched to ${selectedLayerObj.name}`);
@@ -129,7 +127,7 @@ export default function Header() {
           // User not connected - just update the selection for when they connect
           console.log(
             "Layer selected for future connection:",
-            selectedLayerObj.name,
+            selectedLayerObj.name
           );
           localStorage.setItem("selectedLayer", selectedLayerObj.layer);
           localStorage.setItem("selectedNetwork", selectedLayerObj.network);
@@ -149,7 +147,7 @@ export default function Header() {
       isConnected,
       user,
       currentLayer,
-    ],
+    ]
   );
 
   // Handle logout
@@ -176,20 +174,21 @@ export default function Header() {
       router.push(pageUrl);
       setMobileMenuOpen(false);
     },
-    [isConnected, router],
+    [isConnected, router]
   );
 
-  //todo: core iin icon oruulah
   // Filtered layers for display
   const displayLayers = useMemo(() => {
-    if (process.env.NODE_ENV == "development") {
-      return availableLayers;
-    }
+    // if (process.env.NODE_ENV == "development") {
+    //   return availableLayers;
+    // }
     return availableLayers.filter(
       (layer) =>
         layer.layer !== "BITCOIN" &&
         layer.name !== "Hemi Testnet" &&
-        layer.name !== "EDU Chain Testnet",
+        layer.name !== "EDU Chain Testnet" &&
+        layer.name !== "EDU Chain" &&
+        layer.name !== "CORE Testnet"
     );
   }, [availableLayers]);
 
@@ -218,22 +217,26 @@ export default function Header() {
               <div className="relative">
                 <Image
                   src={getCurrencyImage(layer.layer)}
-                  alt={layer.layer}
+                  alt={layer.name}
                   width={24}
                   height={24}
                   className="rounded-full"
                 />
               </div>
               <div className="flex items-center gap-2 flex-1">
-                {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(layer.network)}`}
+                {`${capitalizeFirstLetter(layer.layer)} ${capitalizeFirstLetter(
+                  layer.network
+                )}`}
               </div>
             </div>
-            {isLayerConnected && <Check className="w-5 h-5 text-neutral50" />}
+            {isLayerConnected && (
+              <div className="w-2 h-2 bg-green-500 animate-pulse rounded-full" />
+            )}
           </div>
         </SelectItem>
       );
     },
-    [currentLayer?.id, isConnected],
+    [currentLayer?.id, isConnected]
   );
 
   // Render current layer value in select trigger
@@ -261,13 +264,17 @@ export default function Header() {
           <div className="relative">
             <Image
               src={getCurrencyImage(displayLayer.layer)}
-              alt={displayLayer.layer}
+              alt={displayLayer.name}
               width={24}
               height={24}
               className="rounded-full"
             />
           </div>
-          <span>{displayLayer.layer}</span>
+          <span>
+            {`${capitalizeFirstLetter(
+              displayLayer.layer
+            )} ${capitalizeFirstLetter(displayLayer.network)}`}
+          </span>
         </div>
       );
     }
@@ -275,7 +282,6 @@ export default function Header() {
     return <span>Select layer</span>;
   }, [isLoading, currentLayer, availableLayers, selectedLayerId]);
 
-  //todo: layer name zov haruulah
   return (
     <>
       <div className="">
@@ -303,7 +309,7 @@ export default function Header() {
                           handleNavigation(
                             item.pageUrl,
                             item.requiresAuth,
-                            item.disabled,
+                            item.disabled
                           )
                         }
                       />
@@ -424,7 +430,7 @@ export default function Header() {
                             handleNavigation(
                               item.pageUrl,
                               item.requiresAuth,
-                              item.disabled,
+                              item.disabled
                             )
                           }
                         >
