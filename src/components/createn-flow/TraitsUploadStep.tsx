@@ -198,7 +198,10 @@ export function TraitsUploadStep() {
     try {
       // Use the utility function to calculate all upload parameters
       console.log("Starting calculation with trait data:", traitData);
-      const calculatedData = await calculateUploadParameters(traitData, isOneOfOneEnabled);
+      const calculatedData = await calculateUploadParameters(
+        traitData,
+        isOneOfOneEnabled
+      );
 
       console.log("Calculated values:", calculatedData);
 
@@ -222,7 +225,7 @@ export function TraitsUploadStep() {
       }
 
       const orderData = orderResponse.data;
-      
+
       // Update inscription data
       updateInscriptionData({
         orderId: orderData.order.id,
@@ -234,13 +237,20 @@ export function TraitsUploadStep() {
         },
         progress: {
           current: 0,
-          total: calculatedData.expectedTraitTypes + calculatedData.expectedTraitValues + calculatedData.expectedRecursive + calculatedData.expectedOOOEditions,
+          total:
+            calculatedData.expectedTraitTypes +
+            calculatedData.expectedTraitValues +
+            calculatedData.expectedRecursive +
+            calculatedData.expectedOOOEditions,
           estimatedTime: "5-10 minutes",
         },
       });
 
       // Store the calculated values for later use in the inscription step
-      localStorage.setItem('calculatedUploadData', JSON.stringify(calculatedData));
+      localStorage.setItem(
+        "calculatedUploadData",
+        JSON.stringify(calculatedData)
+      );
 
       toast.success("Order created successfully!");
       setCurrentStep(3);
@@ -465,7 +475,7 @@ export function TraitsUploadStep() {
         </div>
 
         {/* Fee estimation display */}
-        {isFormValid && (
+        {/* {isFormValid && (
           <div className="bg-transLight8 rounded-xl p-4 border border-transLight16">
             <h3 className="text-white font-medium mb-2">Estimated Fees</h3>
             <div className="space-y-1">
@@ -480,7 +490,7 @@ export function TraitsUploadStep() {
               </p>
             </div>
           </div>
-        )}
+        )} */}
 
         {/* Continue button */}
         <div className="pt-4">

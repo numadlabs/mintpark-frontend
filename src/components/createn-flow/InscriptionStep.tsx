@@ -12,7 +12,7 @@
 //   checkPaymentStatus,
 //   getInscriptionProgress,
 // } from "@/lib/service/queryHelper";
-// import { 
+// import {
 //   initiateUploadSession,
 //   createTraitTypes,
 //   createTraitValues,
@@ -158,7 +158,7 @@
 //       // Extract trait groups and metadata
 //       const traitGroups = extractTraitGroups();
 //       let metadata: any[] = [];
-      
+
 //       if (traitData.metadataJson) {
 //         const { collectionItems } = await parseMetadataJson(traitData.metadataJson);
 //         metadata = collectionItems;
@@ -213,7 +213,7 @@
 
 //       for (const group of traitGroups) {
 //         const fileBatches = chunkArray(group.files, 10);
-        
+
 //         for (const files of fileBatches) {
 //           const res = await createTraitValues({
 //             value: group.type, // Using group type as value
@@ -233,13 +233,13 @@
 //       // Step 3: Map metadata to traitValueIds and create recursive inscriptions
 //       if (metadata.length > 0) {
 //         setUploadProgress(prev => ({ ...prev, currentStep: "Creating recursive inscriptions..." }));
-        
+
 //         let matrix: string[][] = [];
 //         try {
 //           matrix = metadata.map((item, idx) => {
 //             if (!item.attributes || !Array.isArray(item.attributes))
 //               throw new Error(`Item ${idx} missing attributes array`);
-            
+
 //             return item.attributes.map((attr: any) => {
 //               const type = attr.trait_type.replace(/\s+/g, "_").toLowerCase();
 //               const value = attr.value.replace(/\s+/g, "_").toLowerCase();
@@ -272,7 +272,7 @@
 //       // Step 4: Upload 1-of-1 editions if any
 //       if (oooFiles.length > 0) {
 //         setUploadProgress(prev => ({ ...prev, currentStep: "Uploading 1-of-1 editions..." }));
-        
+
 //         const oooBatches = chunkArray(oooFiles, 10);
 //         let totalOoo = 0;
 
@@ -291,7 +291,7 @@
 //       // Step 5: Invoke mint if order ID exists
 //       if (inscriptionData?.orderId) {
 //         setUploadProgress(prev => ({ ...prev, currentStep: "Invoking mint..." }));
-        
+
 //         try {
 //           const mintResult = await postInvokeMint(inscriptionData.orderId);
 //           if (mintResult.success) {
@@ -307,10 +307,10 @@
 //         }
 //       }
 
-//       setUploadProgress(prev => ({ 
-//         ...prev, 
-//         current: totalSteps, 
-//         currentStep: "Upload completed!" 
+//       setUploadProgress(prev => ({
+//         ...prev,
+//         current: totalSteps,
+//         currentStep: "Upload completed!"
 //       }));
 
 //       setTimeout(() => {
@@ -322,9 +322,9 @@
 
 //     } catch (error: any) {
 //       console.error("Upload process failed:", error);
-//       setUploadProgress(prev => ({ 
-//         ...prev, 
-//         error: error?.message || "Upload failed" 
+//       setUploadProgress(prev => ({
+//         ...prev,
+//         error: error?.message || "Upload failed"
 //       }));
 //       toast.error(error?.message || "Upload failed");
 //     }
@@ -343,7 +343,7 @@
 
 //       if (result.success && result.data?.isPaid === true) {
 //         toast.success("Payment confirmed! Starting upload process...");
-        
+
 //         try {
 //           // Get the calculated values from localStorage or recalculate
 //           const storedData = localStorage.getItem('calculatedUploadData');
@@ -587,7 +587,7 @@
 //               <span className="text-lightSecondary">Current Step:</span>
 //               <span className="text-white font-medium">{uploadProgress.currentStep}</span>
 //             </div>
-            
+
 //             <div className="flex justify-between items-center">
 //               <span className="text-lightSecondary">Progress:</span>
 //               <span className="text-white font-medium">
@@ -597,12 +597,12 @@
 
 //             {/* Progress Bar */}
 //             <div className="w-full bg-gray-700 rounded-full h-2.5">
-//               <div 
+//               <div
 //                 className="bg-white h-2.5 rounded-full transition-all duration-300"
-//                 style={{ 
-//                   width: uploadProgress.total > 0 
-//                     ? `${(uploadProgress.current / uploadProgress.total) * 100}%` 
-//                     : '0%' 
+//                 style={{
+//                   width: uploadProgress.total > 0
+//                     ? `${(uploadProgress.current / uploadProgress.total) * 100}%`
+//                     : '0%'
 //                 }}
 //               />
 //             </div>
@@ -724,8 +724,6 @@
 //   return null;
 // }
 
-
-
 "use client";
 import React, { useState, useEffect } from "react";
 import { Copy, Upload, Settings } from "lucide-react";
@@ -735,19 +733,24 @@ import { useCreationFlow } from "./CreationFlowProvider";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { toast } from "sonner";
-import { calculateUploadParameters, truncateAddress, parseMetadataJson } from "@/lib/utils";
+import {
+  calculateUploadParameters,
+  truncateAddress,
+  parseMetadataJson,
+} from "@/lib/utils";
 import {
   checkPaymentStatus,
   getInscriptionProgress,
 } from "@/lib/service/queryHelper";
-import { 
+import {
   initiateUploadSession,
   createTraitTypes,
   createTraitValues,
   createRecursiveInscription,
   createOneOfOneEditions,
-  postInvokeMint
+  postInvokeMint,
 } from "@/lib/service/postRequest";
+import { useAuth } from "../provider/auth-context-provider";
 
 // Utility function to chunk arrays
 function chunkArray<T>(array: T[], size: number): T[][] {
@@ -767,7 +770,7 @@ interface TraitGroup {
 export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
   const { traitData, inscriptionData, collectionId, updateInscriptionData } =
     useCreationFlow();
-
+  const { currentUserLayer } = useAuth();
   const [currentView, setCurrentView] = useState<
     "payment" | "uploading" | "progress" | "complete"
   >("payment");
@@ -816,7 +819,7 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
       try {
         const res = await getInscriptionProgress({
           collectionId,
-          userLayerId: inscriptionData?.walletAddress, // Now optional
+          userLayerId: currentUserLayer?.id || "",
         });
         setProgressData(res);
       } catch (err) {
@@ -861,7 +864,7 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
           traitGroups[traitType] = {
             type: traitType,
             zIndex: zIndex,
-            files: []
+            files: [],
           };
         }
 
@@ -880,22 +883,30 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
     }
 
     setCurrentView("uploading");
-    setUploadProgress({ current: 0, total: 0, currentStep: "Initializing...", error: null });
+    setUploadProgress({
+      current: 0,
+      total: 0,
+      currentStep: "Initializing...",
+      error: null,
+    });
 
     try {
       // Extract trait groups and metadata
       const traitGroups = extractTraitGroups();
       let metadata: any[] = [];
-      
+
       if (traitData.metadataJson) {
-        const { collectionItems } = await parseMetadataJson(traitData.metadataJson);
+        const { collectionItems } = await parseMetadataJson(
+          traitData.metadataJson
+        );
         metadata = collectionItems;
       }
 
       // Get one-of-one files
       const oooFiles: File[] = [];
       if (traitData.oneOfOneEditions) {
-        const oooFileList = (traitData.oneOfOneEditions as any).fileList as FileList;
+        const oooFileList = (traitData.oneOfOneEditions as any)
+          .fileList as FileList;
         if (oooFileList) {
           for (let i = 0; i < oooFileList.length; i++) {
             const file = oooFileList[i];
@@ -907,17 +918,24 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
       }
 
       // Calculate total steps
-      const totalSteps = traitGroups.length + // trait types
-                       traitGroups.reduce((acc, g) => acc + Math.ceil(g.files.length / 10), 0) + // trait values
-                       Math.ceil(metadata.length / 10) + // recursive inscriptions
-                       Math.ceil(oooFiles.length / 10); // 1-of-1 editions
+      const totalSteps =
+        traitGroups.length + // trait types
+        traitGroups.reduce(
+          (acc, g) => acc + Math.ceil(g.files.length / 10),
+          0
+        ) + // trait values
+        Math.ceil(metadata.length / 10) + // recursive inscriptions
+        Math.ceil(oooFiles.length / 10); // 1-of-1 editions
 
-      setUploadProgress(prev => ({ ...prev, total: totalSteps }));
+      setUploadProgress((prev) => ({ ...prev, total: totalSteps }));
 
       let currentStep = 0;
 
       // Step 1: Create trait types in batches
-      setUploadProgress(prev => ({ ...prev, currentStep: "Creating trait types..." }));
+      setUploadProgress((prev) => ({
+        ...prev,
+        currentStep: "Creating trait types...",
+      }));
       const traitTypeBatches = chunkArray(traitGroups, 10);
       let traitTypeIdMap: Record<string, string> = {};
 
@@ -932,16 +950,19 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
         }
 
         currentStep++;
-        setUploadProgress(prev => ({ ...prev, current: currentStep }));
+        setUploadProgress((prev) => ({ ...prev, current: currentStep }));
       }
 
       // Step 2: Upload trait values for each trait type
-      setUploadProgress(prev => ({ ...prev, currentStep: "Uploading trait values..." }));
+      setUploadProgress((prev) => ({
+        ...prev,
+        currentStep: "Uploading trait values...",
+      }));
       let traitValueIdMap: Record<string, string> = {};
 
       for (const group of traitGroups) {
         const fileBatches = chunkArray(group.files, 10);
-        
+
         for (const files of fileBatches) {
           const res = await createTraitValues({
             value: group.type, // Using group type as value
@@ -954,20 +975,23 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
           }
 
           currentStep++;
-          setUploadProgress(prev => ({ ...prev, current: currentStep }));
+          setUploadProgress((prev) => ({ ...prev, current: currentStep }));
         }
       }
 
       // Step 3: Map metadata to traitValueIds and create recursive inscriptions
       if (metadata.length > 0) {
-        setUploadProgress(prev => ({ ...prev, currentStep: "Creating recursive inscriptions..." }));
-        
+        setUploadProgress((prev) => ({
+          ...prev,
+          currentStep: "Creating recursive inscriptions...",
+        }));
+
         let matrix: string[][] = [];
         try {
           matrix = metadata.map((item, idx) => {
             if (!item.attributes || !Array.isArray(item.attributes))
               throw new Error(`Item ${idx} missing attributes array`);
-            
+
             return item.attributes.map((attr: any) => {
               const type = attr.trait_type.replace(/\s+/g, "_").toLowerCase();
               const value = attr.value.replace(/\s+/g, "_").toLowerCase();
@@ -993,14 +1017,17 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
 
           totalRecursive += recursiveRes.data?.collectibles?.length || 0;
           currentStep++;
-          setUploadProgress(prev => ({ ...prev, current: currentStep }));
+          setUploadProgress((prev) => ({ ...prev, current: currentStep }));
         }
       }
 
       // Step 4: Upload 1-of-1 editions if any
       if (oooFiles.length > 0) {
-        setUploadProgress(prev => ({ ...prev, currentStep: "Uploading 1-of-1 editions..." }));
-        
+        setUploadProgress((prev) => ({
+          ...prev,
+          currentStep: "Uploading 1-of-1 editions...",
+        }));
+
         const oooBatches = chunkArray(oooFiles, 10);
         let totalOoo = 0;
 
@@ -1012,21 +1039,24 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
 
           totalOoo += oooRes.data?.collectibles?.length || 0;
           currentStep++;
-          setUploadProgress(prev => ({ ...prev, current: currentStep }));
+          setUploadProgress((prev) => ({ ...prev, current: currentStep }));
         }
       }
 
       // Step 5: Invoke mint if order ID exists
       if (inscriptionData?.orderId) {
-        setUploadProgress(prev => ({ ...prev, currentStep: "Invoking mint..." }));
-        
+        setUploadProgress((prev) => ({
+          ...prev,
+          currentStep: "Invoking mint...",
+        }));
+
         try {
           const mintResult = await postInvokeMint(inscriptionData.orderId);
-          
+
           if (mintResult.success) {
             console.log("Mint invoked successfully:", mintResult.data);
             toast.success("Mint invoked successfully!");
-            
+
             // Optionally update inscription data with mint result
             if (mintResult.data?.order) {
               updateInscriptionData({
@@ -1039,20 +1069,26 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
             }
           } else {
             console.error("Mint invoke failed:", mintResult.error);
-            toast.warning("Upload completed but mint invoke failed: " + (mintResult.error || "Unknown error"));
+            toast.warning(
+              "Upload completed but mint invoke failed: " +
+                (mintResult.error || "Unknown error")
+            );
           }
         } catch (err: any) {
           console.error("Failed to invoke mint:", err);
           // Don't fail the entire process for mint invoke error
-          const errorMessage = err?.response?.data?.error || err?.message || "Unknown error";
-          toast.warning("Upload completed but mint invoke failed: " + errorMessage);
+          const errorMessage =
+            err?.response?.data?.error || err?.message || "Unknown error";
+          toast.warning(
+            "Upload completed but mint invoke failed: " + errorMessage
+          );
         }
       }
 
-      setUploadProgress(prev => ({ 
-        ...prev, 
-        current: totalSteps, 
-        currentStep: "Upload completed!" 
+      setUploadProgress((prev) => ({
+        ...prev,
+        current: totalSteps,
+        currentStep: "Upload completed!",
       }));
 
       setTimeout(() => {
@@ -1061,12 +1097,11 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
       }, 2000);
 
       toast.success("All files uploaded successfully!");
-
     } catch (error: any) {
       console.error("Upload process failed:", error);
-      setUploadProgress(prev => ({ 
-        ...prev, 
-        error: error?.message || "Upload failed" 
+      setUploadProgress((prev) => ({
+        ...prev,
+        error: error?.message || "Upload failed",
       }));
       toast.error(error?.message || "Upload failed");
     }
@@ -1085,10 +1120,10 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
 
       if (result.success && result.data?.isPaid === true) {
         toast.success("Payment confirmed! Starting upload process...");
-        
+
         try {
           // Get the calculated values from localStorage or recalculate
-          const storedData = localStorage.getItem('calculatedUploadData');
+          const storedData = localStorage.getItem("calculatedUploadData");
           let calculatedValues;
 
           if (storedData) {
@@ -1098,18 +1133,27 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
             // Recalculate if not stored (fallback)
             console.log("Recalculating upload parameters...");
             const isOneOfOneEnabled = !!traitData.oneOfOneEditions;
-            calculatedValues = await calculateUploadParameters(traitData, isOneOfOneEnabled);
+            calculatedValues = await calculateUploadParameters(
+              traitData,
+              isOneOfOneEnabled
+            );
             console.log("Recalculated values:", calculatedValues);
           }
 
           // Validate that we have meaningful values
-          if (calculatedValues.expectedTraitTypes === 0 && calculatedValues.expectedTraitValues === 0) {
+          if (
+            calculatedValues.expectedTraitTypes === 0 &&
+            calculatedValues.expectedTraitValues === 0
+          ) {
             console.warn("No trait data found! Check file upload structure.");
             toast.error("No trait data found. Please check your file uploads.");
             return;
           }
 
-          console.log("Final values being sent to upload session:", calculatedValues);
+          console.log(
+            "Final values being sent to upload session:",
+            calculatedValues
+          );
 
           // Initiate upload session with correct values
           const uploadResponse = await initiateUploadSession({
@@ -1139,14 +1183,16 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
           });
 
           // Clean up stored data
-          localStorage.removeItem('calculatedUploadData');
+          localStorage.removeItem("calculatedUploadData");
 
           // Start the actual upload process
           await handleUploadProcess();
-
         } catch (uploadError) {
           console.error("Upload session failed:", uploadError);
-          toast.error("Failed to initiate upload session: " + (uploadError as Error).message);
+          toast.error(
+            "Failed to initiate upload session: " +
+              (uploadError as Error).message
+          );
           return;
         }
       } else {
@@ -1312,7 +1358,8 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
             Uploading Your Assets
           </h1>
           <p className="text-lightSecondary">
-            Please wait while we process and upload your NFT collection to the blockchain.
+            Please wait while we process and upload your NFT collection to the
+            blockchain.
           </p>
         </div>
 
@@ -1327,9 +1374,11 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-lightSecondary">Current Step:</span>
-              <span className="text-white font-medium">{uploadProgress.currentStep}</span>
+              <span className="text-white font-medium">
+                {uploadProgress.currentStep}
+              </span>
             </div>
-            
+
             <div className="flex justify-between items-center">
               <span className="text-lightSecondary">Progress:</span>
               <span className="text-white font-medium">
@@ -1339,12 +1388,15 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
 
             {/* Progress Bar */}
             <div className="w-full bg-gray-700 rounded-full h-2.5">
-              <div 
+              <div
                 className="bg-white h-2.5 rounded-full transition-all duration-300"
-                style={{ 
-                  width: uploadProgress.total > 0 
-                    ? `${(uploadProgress.current / uploadProgress.total) * 100}%` 
-                    : '0%' 
+                style={{
+                  width:
+                    uploadProgress.total > 0
+                      ? `${
+                          (uploadProgress.current / uploadProgress.total) * 100
+                        }%`
+                      : "0%",
                 }}
               />
             </div>
