@@ -17,6 +17,7 @@ import { collectibleFormData, newCollectibleFormData } from "./formHelper";
 import { toast } from "sonner";
 import { LinkAccountResponse, LoginResponse } from "../types/wallet";
 import { NewCollectionData } from "@/components/createn-flow/CreationFlowProvider";
+import { InvokeMintResponse } from "../validations/collection-validation";
 
 // Connect and Login sections
 export async function generateMessageHandler({ address }: { address: string }) {
@@ -201,11 +202,207 @@ export async function newCreateLaunch({
   }
 }
 
+//initiate Upload session
+export async function initiateUploadSession({
+  collectionId,
+  expectedTraitTypes,
+  expectedTraitValues,
+  expectedRecursive,
+  expectedOOOEditions,
+}: {
+  collectionId: string;
+  expectedTraitTypes: number;
+  expectedTraitValues: number;
+  expectedRecursive: number;
+  expectedOOOEditions?: number;
+}) {
+  try {
+    const response = await axiosClient.post(
+      `/api/v1/collections/${collectionId}/initiate-upload-session`,
+      {
+        expectedTraitTypes,
+        expectedTraitValues,
+        expectedRecursive,
+        expectedOOOEditions: expectedOOOEditions ?? 0,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in initiateUploadSession:", error);
+    throw error;
+  }
+}
+
+// trait types api
+export async function createTraitTypes({
+  collectionId,
+  data,
+}: {
+  collectionId: string;
+  data: { name: string; zIndex: number }[];
+}) {
+  try {
+    const response = await axiosClient.post(`/api/v1/trait-types`, {
+      collectionId,
+      data,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error in createTraitTypes:", error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
+}
+
+//trait values api
+export async function createTraitValues({
+  value,
+  traitTypeId,
+  files,
+}: {
+  value: string;
+  traitTypeId: string;
+  files: File[];
+}) {
+  const formData = new FormData();
+  formData.append("traitTypeId", traitTypeId);
+
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
+
+  try {
+    const response = await axiosClient.post(
+      `/api/v1/trait-values?${encodeURIComponent(value)}=${traitTypeId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading trait values:", error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
+}
+
+//new create launch items recurisive
+export async function createRecursiveInscription({
+  collectionId,
+  data,
+}: {
+  collectionId: string;
+  data: { traitValueId: string }[][];
+}) {
+  try {
+    const response = await axiosClient.post(
+      `/api/v1/launchpad/recursive-inscription`,
+      {
+        collectionId,
+        data,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error in createRecursiveInscription:", error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
+}
+
+//new 1 of 1 edtions
+
+export async function createOneOfOneEditions({
+  collectionId,
+  files,
+}: {
+  collectionId: string;
+  files: File[];
+}) {
+  const formData = new FormData();
+
+  formData.append("collectionId", collectionId);
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
+
+  try {
+    const response = await axiosClient.post(
+      `/api/v1/launchpad/1-of-1-edition`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading 1-of-1 editions:", error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
+}
+// invoke order mint
+
+// export async function postInvokeMint(
+//   orderId: string
+// ): Promise<InvokeMintResponse> {
+//   try {
+//     const response = await axios.post(`/api/v1/orders/${orderId}/invoke-mint`);
+//     return response.data as InvokeMintResponse;
+//   } catch (error: any) {
+//     console.error("POST /invoke-mint failed", error);
+//     return {
+//       success: false,
+//       error: error?.response?.data?.error || error.message || "Unknown error",
+//     };
+//   }
+// }
+
+export async function postInvokeMint(
+  orderId: string
+): Promise<InvokeMintResponse> {
+  try {
+    // Use axiosClient instead of direct axios to ensure proper base URL and headers
+    const response = await axiosClient.post(`/api/v1/orders/${orderId}/invoke-mint`);
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    console.error("POST /invoke-mint failed", error);
+    return {
+      success: false,
+      error: error?.response?.data?.error || error.message || "Unknown error",
+    };
+  }
+}
+
 //new Create order
-
-
-// Add this new function to your postRequest.ts file
-
 export async function createNewOrder({
   collectionId,
   totalDustValue,
@@ -227,12 +424,10 @@ export async function createNewOrder({
 
     console.log("Creating order with data:", orderData);
 
-    return axiosClient
-      .post(`/api/v1/orders`, orderData)
-      .then((response) => {
-        console.log("Order created successfully:", response.data);
-        return response.data;
-      });
+    return axiosClient.post(`/api/v1/orders`, orderData).then((response) => {
+      console.log("Order created successfully:", response.data);
+      return response.data;
+    });
   } catch (error) {
     console.error("Error creating order:", error);
     if (axios.isAxiosError(error) && error.response) {
