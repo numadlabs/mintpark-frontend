@@ -72,7 +72,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   function determinePhaseState(
     phase: string,
     startsAt: number,
-    endsAt: number | null,
+    endsAt: number | null
   ) {
     const now = Math.floor(Date.now() / 1000);
     const isInfiniteSupplyBadge = isBadge && badgeSupply === null;
@@ -220,8 +220,8 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
             {phaseType === "guaranteed"
               ? "Guaranteed"
               : phaseType === "FCFS"
-                ? "FCFS"
-                : "Public"}
+              ? "FCFS"
+              : "Public"}
           </p>
           {!isClickable && <Lock1 size={16} color="#D7D8D8" />}
         </div>

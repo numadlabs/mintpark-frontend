@@ -22,7 +22,7 @@ interface Balance {
 }
 
 const ProfileBanner: React.FC = () => {
-  const { currentUserLayer } = useAuth();
+  const { currentUserLayer, currentLayer } = useAuth();
   const [balance, setBalance] = useState<Balance>({
     amount: 0,
     usdAmount: 0,
@@ -107,7 +107,6 @@ const ProfileBanner: React.FC = () => {
     const suffix = address.slice(-4);
     return `${prefix}...${suffix}`;
   };
-  
 
   // Get totalCount and listCount from assetsData
   const totalCount = assetsData?.data?.totalCount || 0;
@@ -183,7 +182,11 @@ const ProfileBanner: React.FC = () => {
                   <div className="rounded-2xl bg-white4 p-3 sm:p-4 flex gap-4 items-center w-full md:w-fit justify-center md:justify-start">
                     <div className="flex flex-row items-center gap-2 md:gap-3">
                       <Image
-                        src={getCurrencyImage(currentUserLayerData)}
+                        src={
+                          currentLayer?.layer
+                            ? getCurrencyImage(currentLayer.layer)
+                            : ""
+                        }
                         alt="crypto"
                         draggable="false"
                         width={24}
@@ -192,7 +195,9 @@ const ProfileBanner: React.FC = () => {
                       />
                       <p className="flex items-center font-bold text-lg md:text-xl text-white">
                         {formatPriceBtc(balance.amount)}{" "}
-                        {getCurrencySymbol(currentUserLayerData)}
+                        {currentLayer?.layer
+                          ? getCurrencySymbol(currentLayer.layer)
+                          : ""}
                       </p>
                     </div>
                     <div className="h-6 w-[1px] bg-white16" />

@@ -29,8 +29,8 @@ const getWalletImage = (layer: string) => {
       return "/wallets/Metamask.png";
     case "HEMI":
       return "/wallets/Metamask.png";
-    // case "HEMITESTNET":
-    //   return "/wallets/Metamask.png";
+    case "CORE":
+      return "/wallets/Metamask.png";
     case "EDUCHAIN":
       return "/wallets/Metamask.png";
     default:
@@ -47,6 +47,8 @@ const getWalletName = (layer: string) => {
     case "SEPOLIA":
       return "MetaMask Wallet";
     case "HEMI":
+      return "MetaMask Wallet";
+    case "CORE":
       return "MetaMask Wallet";
     case "EDUCHAIN":
       return "MetaMask Wallet";

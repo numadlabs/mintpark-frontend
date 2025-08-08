@@ -17,6 +17,7 @@ export const FEERATE = 1;
 
 export const ETH_PRICE = 1937.96;
 export const CITREA_PRICE = 102500;
+export const CORE_PRICE = 0.5177;
 
 export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
   BITCOIN: {
@@ -174,7 +175,42 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
       },
     },
   },
+
+   // Add Core Network configuration
+  CORE: {
+    type: "metamask",
+    chainId: "0x45c", // 1116 in hex
+    name: "Core DAO",
+    icon: "/wallets/core.png",
+    currencyIcon: "/wallets/core.png",
+    currencyPrice: CORE_PRICE,
+    networks: {
+      MAINNET: {
+        chainId: "0x45c", // 1116 in hex
+        chainName: "Core DAO",
+        rpcUrls: ["https://rpc.coredao.org"],
+        blockExplorerUrls: ["https://scan.coredao.org"],
+        nativeCurrency: {
+          name: "CORE",
+          symbol: "CORE",
+          decimals: 18,
+        },
+      },
+      TESTNET: {
+        chainId: "0x45a", // 1114 in hex
+        chainName: "Core Testnet",
+        rpcUrls: ["https://rpc.test.btcs.network"],
+        blockExplorerUrls: ["https://scan.test.btcs.network"],
+        nativeCurrency: {
+          name: "CORE",
+          symbol: "CORE",
+          decimals: 18,
+        },
+      },
+    },
+  },
 };
+
 
 export const serviceData = [
   {
