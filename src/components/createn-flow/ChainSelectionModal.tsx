@@ -1,17 +1,13 @@
 "use client";
-import React from "react";
+import React, { useMemo } from "react";
 import { X, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCreationFlow } from "./CreationFlowProvider";
 import { useRouter } from "next/navigation";
-
-interface Chain {
-  id: string;
-  name: string;
-  icon: string;
-  features: string[];
-  isAvailable: boolean;
-}
+import { useAuth } from "../provider/auth-context-provider";
+import { getCurrencyImage } from "@/lib/service/currencyHelper";
+import Image from "next/image";
+import { toast } from "sonner";
 
 interface ChainSelectionModalProps {
   isOpen: boolean;
@@ -23,53 +19,93 @@ export function ChainSelectionModal({
   onClose,
 }: ChainSelectionModalProps) {
   const { updateCollectionData, setCurrentStep } = useCreationFlow();
-    const router = useRouter();
+  const router = useRouter();
 
-  const chains: Chain[] = [
-    {
-      id: "hemi-mainnet",
-      name: "Hemi Mainnet",
-      icon: "⚪",
-      features: [
-        "NFTs bridging Bitcoin and Ethereum",
-        "Secure with Bitcoin's PoP consensus",
-        "Handles high transaction volumes",
-        "Developer-friendly with hVM and tools",
-      ],
-      isAvailable: true,
-    },
-    {
-      id: "core-mainnet",
-      name: "Core Mainnet",
-      icon: "⬟",
-      features: [
-        "Low fees for minting and trading",
-        "High scalability for large projects",
-        "Large user base for visibility",
-        "EVM-compatible for easy development",
-      ],
-      isAvailable: true,
-    },
-    {
-      id: "citrea",
-      name: "Citrea",
-      icon: "⬢",
-      features: [
-        "ZK rollups boost Bitcoin scalability",
-        "Inherits Bitcoin's robust security",
-        "Lowers fees with off-chain processing",
-        "EVM compatibility eases development",
-      ],
-      isAvailable: false,
-    },
-  ];
+  const {
+    availableLayers,
+    currentLayer,
+    selectedLayerId,
+    setSelectedLayerId,
+    switchLayer,
+    isConnected,
+    user,
+  } = useAuth();
 
-  const handleChainSelect = (chainId: string) => {
-    // updateCollectionData({ selectedChain: chainId });
-    // Use layerId instead of selectedChain
-    // updateCollectionData({ layerId: chainId });
+  const displayLayers = useMemo(() => {
+    return availableLayers.filter(
+      (layer) =>
+        layer.layer !== "BITCOIN" &&
+        layer.name !== "Hemi Testnet" &&
+        layer.name !== "EDU Chain Testnet" &&
+        layer.name !== "EDU Chain" &&
+        layer.name !== "CORE Testnet"
+    );
+  }, [availableLayers]);
+
+  console.log("availableLayers in modal", availableLayers);
+
+  // const handleChainSelect = async (layerId: string) => {
+  //   const selected = availableLayers.find((l) => l.id === layerId);
+  //   if (!selected) return;
+
+  //   if (layerId === selectedLayerId) {
+  //     toast.info("Already on this chain.");
+  //     return;
+  //   }
+
+  //   setSelectedLayerId(layerId); // update UI selection immediately
+  //   updateCollectionData({ layerId }); // update creation flow
+  //   setCurrentStep(1);
+  //   onClose();
+
+  //   try {
+  //     if (isConnected && user) {
+  //       console.log("Switching layer from modal:", selected.name);
+  //       await switchLayer(selected);
+  //       toast.success(`Switched to ${selected.name}`);
+  //     } else {
+  //       localStorage.setItem("selectedLayer", selected.layer);
+  //       localStorage.setItem("selectedNetwork", selected.network);
+  //       toast.success(`Selected ${selected.name} for future connection`);
+  //     }
+  //   } catch (err) {
+  //     console.error("Layer switch failed", err);
+  //     toast.error("Failed to switch layer");
+  //     setSelectedLayerId(currentLayer?.id || null); // revert on error
+  //   }
+  // };
+
+  const handleChainSelect = async (layerId: string) => {
+    const selected = availableLayers.find((l) => l.id === layerId);
+    if (!selected) return;
+
+    if (layerId === selectedLayerId) {
+      updateCollectionData({ layerId });
+      setCurrentStep(1);
+      onClose();
+      return;
+    }
+
+    setSelectedLayerId(layerId);
+    updateCollectionData({ layerId });
     setCurrentStep(1);
     onClose();
+
+    try {
+      if (isConnected && user) {
+        console.log("Switching layer from modal:", selected.name);
+        await switchLayer(selected);
+        toast.success(`Switched to ${selected.name}`);
+      } else {
+        localStorage.setItem("selectedLayer", selected.layer);
+        localStorage.setItem("selectedNetwork", selected.network);
+        toast.success(`Selected ${selected.name} for future connection`);
+      }
+    } catch (err) {
+      console.error("Layer switch failed", err);
+      toast.error("Failed to switch layer");
+      setSelectedLayerId(currentLayer?.id || null);
+    }
   };
 
   if (!isOpen) return null;
@@ -82,7 +118,7 @@ export function ChainSelectionModal({
             Choose a Chain to Create a Collection
           </h2>
           <button
-             onClick={() => router.push("/creater-tool")}
+            onClick={() => router.push("/creater-tool")}
             className="text-lightSecondary hover:text-white transition-colors"
           >
             <X size={24} />
@@ -90,55 +126,41 @@ export function ChainSelectionModal({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 w-full gap-6">
-          {chains.map((chain) => (
+          {displayLayers.map((layer) => (
             <div
-              key={chain.id}
-              className={`
-                bg-darkSecondary border border-transLight4 rounded-xl p-5 w-[320px] h-auto
-                ${
-                  chain.isAvailable
-                    ? "cursor-pointer hover:border-transLight16"
-                    : "opacity-50"
-                }
-              `}
+              key={layer.id}
+              className="bg-darkSecondary border border-transLight4 rounded-xl p-5 w-[320px] h-auto cursor-pointer hover:border-transLight16"
             >
               <div className="flex flex-col items-center text-center mb-6">
-                <div className="w-16 h-16 bg-transLight8 rounded-full flex items-center justify-center mb-4">
-                  <span className="text-2xl">{chain.icon}</span>
+                <div className="w-16 h-16 bg-transLight8 rounded-xl flex items-center justify-center mb-4">
+                  <Image
+                    src={getCurrencyImage(layer.layer)}
+                    alt={layer.name}
+                    width={32}
+                    height={32}
+                    className="rounded-full"
+                  />
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-2">
-                  {chain.name}
+                  {layer.name}
                 </h3>
               </div>
 
-              <div className="space-y-3 mb-6">
-                {chain.features.map((feature, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <Check
-                      size={16}
-                      className="text-white mt-0.5 flex-shrink-0"
-                    />
-                    <span className="text-sm text-lightSecondary">
-                      {feature}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <Button
-                onClick={() => handleChainSelect(chain.id)}
-                disabled={!chain.isAvailable}
-                className={`
-                  w-full
-                  ${
-                    chain.isAvailable
-                      ? "bg-white text-black hover:bg-gray-200"
-                      : "bg-transLight8 text-lightSecondary cursor-not-allowed"
-                  }
-                `}
-              >
-                {chain.isAvailable ? "Choose" : "Coming Soon"}
-              </Button>
+              {layer.name === "Citrea Testnet" ? (
+                <Button
+                  disabled
+                  className="w-full bg-transLight12 text-white cursor-not-allowed"
+                >
+                  Coming Soon
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => handleChainSelect(layer.id)}
+                  className="w-full bg-white cursor-pointer text-black hover:bg-gray-200"
+                >
+                  Choose
+                </Button>
+              )}
             </div>
           ))}
         </div>
