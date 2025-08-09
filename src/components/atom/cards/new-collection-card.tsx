@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "iconsax-react";
 import { CreatorCollection } from "@/lib/validations/collection-validation";
 import { s3ImageUrlBuilder } from "@/lib/utils";
-import { Info, Clock, Pause, CheckCircle } from "lucide-react";
+import { Info, Clock, Pause, CheckCircle, Copy, Check, Hourglass } from "lucide-react";
 import { getInscriptionProgress } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
+import { getCurrencyImage } from "@/lib/service/currencyHelper";
 
 interface NewCollectionCardProps {
   collection: CreatorCollection;
@@ -14,6 +15,7 @@ interface NewCollectionCardProps {
   onClaim?: () => void;
   onUploadTraits?: () => void;
   onInscriptionProgress?: () => void;
+  onLaunchDetails?: () => void;
 }
 
 interface ProgressData {
@@ -24,6 +26,7 @@ interface ProgressData {
   done: number;
   total: number;
   etaInMinutes: number;
+  orderId?: string;
 }
 
 const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
@@ -32,10 +35,12 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
   onClaim,
   onUploadTraits,
   onInscriptionProgress,
+  onLaunchDetails,
 }) => {
   const { currentUserLayer } = useAuth();
   const [progressData, setProgressData] = useState<ProgressData | null>(null);
   const [isLoadingProgress, setIsLoadingProgress] = useState(false);
+  const [copiedOrderId, setCopiedOrderId] = useState(false);
 
   // Fetch progress data for collections that are inscribing
   useEffect(() => {
@@ -58,12 +63,42 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
         collectionId: collection.collectionId,
         userLayerId: currentUserLayer?.id,
       });
+
+      // Debug: Log the actual data structure to see what fields are available
+      // console.log("Collection progress data received:", data);
+      // console.log("Available fields:", Object.keys(data));
+
       setProgressData(data);
     } catch (error) {
       console.error("Failed to fetch progress data:", error);
       // Don't show error to user, just use fallback data
     } finally {
       setIsLoadingProgress(false);
+    }
+  };
+
+  const handleCopyOrderId = async (orderId: string) => {
+    try {
+      await navigator.clipboard.writeText(orderId);
+      setCopiedOrderId(true);
+      // Reset the copied state after 2 seconds
+      setTimeout(() => setCopiedOrderId(false), 2000);
+    } catch (error) {
+      console.error("Failed to copy order ID:", error);
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement("textarea");
+      textArea.value = orderId;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand("copy");
+        setCopiedOrderId(true);
+        setTimeout(() => setCopiedOrderId(false), 2000);
+      } catch (fallbackError) {
+        console.error("Fallback copy failed:", fallbackError);
+      }
+      document.body.removeChild(textArea);
     }
   };
 
@@ -74,7 +109,6 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
         collection.retopAmount || 0
       }`;
     }
-
     return `Progress: ${progressData.done} / ${progressData.total}`;
   };
 
@@ -119,6 +153,7 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
           etaText: progressData
             ? `${progressData.etaInMinutes} min remaining`
             : null,
+          showOrderId: true,
         };
 
       case "RAN_OUT_OF_FUNDS":
@@ -142,6 +177,22 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
             ? (progressData.done / progressData.total) * 100
             : 0,
           etaText: "Paused - Add funds to continue",
+          showOrderId: true,
+        };
+
+      case "LAUNCH_IN_REVIEW":
+        return {
+          showBottomCard: true,
+          bottomType: "info",
+          bottomTitle: "Reviewing your launch details",
+          bottomMessage: "Review in progress. Your minter will be visible when approved.",
+          BottomIconComponent: Hourglass,
+          bottomIconBg: "bg-transLight4",
+          primaryButton: {
+            text: "Launch Details",
+            action: onLaunchDetails,
+          },
+          showSecondaryButton: false,
         };
 
       case "COMPLETED":
@@ -212,7 +263,7 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
             <div className="flex gap-2 items-center">
               <div className="flex border border-transLight4 rounded-lg px-2 py-1 items-center gap-2">
                 <Image
-                  src="/wallets/core.png"
+                  src={getCurrencyImage(collection.layer)}
                   alt="layer"
                   width={20}
                   height={20}
@@ -237,11 +288,8 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
                 </p>
               </div>
             </div>
-
-            {/* Enhanced Status Section - Only show for inscribing states */}
           </div>
         </div>
-
         <div className="flex gap-3">
           <Button
             className="group relative inline-flex items-center gap-3 pt-3 pr-[14px] pb-3 pl-4 bg-white text-black font-semibold text-md rounded-xl disabled:opacity-50"
@@ -263,7 +311,7 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
 
       {/* Bottom Card - Conditional based on state */}
       {config.showBottomCard && (
-        <div className="flex h-[88px] justify-start items-center gap-16 bg-darkSecondary p-4 rounded-xl rounded-tl-none rounded-tr-none relative bottom-1 -z-0 border border-transLight4">
+        <div className="flex h-auto min-h-[88px] justify-start items-start gap-16 bg-darkSecondary p-4 rounded-xl rounded-tl-none rounded-tr-none relative bottom-1 -z-0 border border-transLight4">
           {config.showStatus && (
             <div className="flex items-center gap-6">
               <div className="flex flex-col">
@@ -281,40 +329,12 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
                   </p>
                 </div>
               </div>
-              {/* <div className="flex flex-col">
-                  <p className="text-lightSecondary text-sm font-medium">
-                    Progress
-                  </p>
-                  <p className="text-lightPrimary font-medium">
-                    {getProgressText()}
-                  </p>
-            
-                  {config.progressPercentage !== undefined && (
-                    <div className="w-full bg-gray-700 rounded-full h-1 mt-1">
-                      <div 
-                        className={`h-1 rounded-full transition-all duration-500 ${
-                          config.statusColor === 'text-green-500' ? 'bg-green-500' : 'bg-red-500'
-                        }`}
-                        style={{ width: `${Math.min(config.progressPercentage, 100)}%` }}
-                      />
-                    </div>
-                  )}
-                </div>
-                {config.etaText && (
-                  <div className="flex flex-col">
-                    <p className="text-lightSecondary text-sm font-medium">
-                      ETA
-                    </p>
-                    <p className="text-lightPrimary font-medium text-sm">
-                      {config.etaText}
-                    </p>
-                  </div>
-                )} */}
             </div>
           )}
-          <div className="flex items-center gap-4">
+
+          <div className="flex items-start gap-4 flex-1">
             <div
-              className={`w-12 h-12 ${config.bottomIconBg} p-3 rounded-lg flex items-center justify-center`}
+              className={`w-12 h-12 ${config.bottomIconBg} p-3 rounded-lg flex items-center justify-center flex-shrink-0`}
             >
               {config.BottomIconComponent && (
                 <config.BottomIconComponent
@@ -323,34 +343,63 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
                 />
               )}
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 flex-1 min-w-0">
               <h1 className="text-lightPrimary font-medium text-lg">
                 {config.bottomTitle}
               </h1>
               <p className="text-lightSecondary font-medium text-md">
                 {config.bottomMessage}
               </p>
+
+              {/* Order ID Section - Only show for inscribing states */}
+              {config.showOrderId && progressData?.orderId && (
+                <div className="mt-3 p-3 bg-darkPrimary border border-transLight4 rounded-lg">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-lightSecondary text-xs mb-1">
+                        Order ID
+                      </p>
+                      <p className="text-lightPrimary font-medium font-mono text-xs break-all">
+                        {progressData.orderId}
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => handleCopyOrderId(progressData.orderId!)}
+                      className="ml-2 p-1.5 bg-transLight4 hover:bg-transLight3 text-white flex-shrink-0"
+                      size="sm"
+                    >
+                      {copiedOrderId ? (
+                        <Check size={12} className="text-green-500" />
+                      ) : (
+                        <Copy size={12} />
+                      )}
+                    </Button>
+                  </div>
+                  {copiedOrderId && (
+                    <p className="text-green-500 text-xs mt-1">
+                      Order ID copied!
+                    </p>
+                  )}
+                </div>
+              )}
+
               {/* Show loading indicator when fetching progress */}
-              {isLoadingProgress &&
+              {/* {isLoadingProgress &&
                 (collection.progressState === "QUEUED" ||
                   collection.progressState === "RAN_OUT_OF_FUNDS") && (
-                  <p className="text-lightTertiary text-xs">
+                  <p className="text-lightTertiary text-xs mt-2">
                     Updating progress...
                   </p>
-                )}
+                )} */}
             </div>
           </div>
 
           {config.showSecondaryButton && config.secondaryButton && (
             <Button
-              className="group relative inline-flex items-center gap-3 pt-3 pr-[16px] pb-3 pl-4 bg-white text-black font-semibold text-md rounded-xl"
+              className="group relative inline-flex items-center gap-3 pt-3 pr-[16px] pb-3 pl-4 bg-white text-black font-semibold text-md rounded-xl flex-shrink-0"
               onClick={config.secondaryButton.action}
             >
               <span>{config.secondaryButton.text}</span>
-              {/* <ArrowRight
-                size={20}
-                className="transition-transform duration-300 group-hover:translate-x-1"
-              /> */}
             </Button>
           )}
         </div>

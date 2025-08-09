@@ -5,7 +5,6 @@ import {
   CollectionDetail,
   CollectionDetailApiResponse,
   Collectible,
-  CollectibleApiResponse,
   CreatorCollection,
   CheckPaymentProcess,
   InscriptionProgress,
@@ -17,6 +16,30 @@ import { AssetSchema, ActivitySchema } from "../validations/asset-validation";
 import { ActivityType } from "../types";
 import { Layer } from "../types/wallet";
 
+// export const checkPaymentStatus = async (
+//   orderId: string
+// ): Promise<CheckPaymentProcess> => {
+//   return axiosClient
+//     .get(`/api/v1/orders/${orderId}/check-paid`)
+//     .then((response) => {
+//       if (response.data.success) {
+//         return response.data;
+//       } else {
+//         throw new Error(
+//           response.data.error ||
+//             response.data.message ||
+//             "Failed to check payment status"
+//         );
+//       }
+//     })
+//     .catch((error) => {
+//       console.error("Error checking payment status:", error);
+//       throw error;
+//     });
+// };
+
+//inscription progress done
+
 export const checkPaymentStatus = async (
   orderId: string
 ): Promise<CheckPaymentProcess> => {
@@ -26,20 +49,28 @@ export const checkPaymentStatus = async (
       if (response.data.success) {
         return response.data;
       } else {
-        throw new Error(
-          response.data.error ||
-            response.data.message ||
-            "Failed to check payment status"
-        );
+        const errorMessage = response.data.error || 
+                           response.data.message || 
+                           "Failed to check payment status";
+        throw new Error(errorMessage);
       }
     })
     .catch((error) => {
       console.error("Error checking payment status:", error);
+      
+      // If it's an axios error, extract the response error message
+      if (error.response?.data) {
+        const serverError = error.response.data.error || 
+                           error.response.data.message || 
+                           `Server error: ${error.response.status}`;
+        throw new Error(serverError);
+      }
+      
+      // Re-throw the error to maintain the original error message
       throw error;
     });
 };
 
-//inscription progress done
 export async function getInscriptionProgress({
   collectionId,
   userLayerId,

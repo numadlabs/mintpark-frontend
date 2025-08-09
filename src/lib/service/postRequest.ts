@@ -1177,31 +1177,11 @@ export async function mintFeeOfCitrea({
   }
 }
 
-export async function whitelistAddresses({
-  launchId,
-  addresses,
-  phase,
-}: {
-  phase: string;
-  launchId: string;
-  addresses: string[];
-}) {
-  try {
-    return axiosClient
-      .post(`/api/v1/launchpad/whitelist-addresses`, {
-        phase,
-        launchId,
-        addresses,
-      })
-      .then((response) => {
-        return response.data;
-      });
-  } catch (error) {
-    console.log("Error:", error);
-  }
-}
+
 
 // Frontend: service/postRequest.ts
+
+// Add launch phase
 export async function addPhase({
   collectionId,
   phaseType,
@@ -1236,6 +1216,58 @@ export async function addPhase({
   return response.data;
 }
 
+//Add whitelist addresses
+export async function whitelistAddresses({
+  launchId,
+  addresses,
+  phase,
+}: {
+  phase: string;
+  launchId: string;
+  addresses: string[];
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/whitelist-addresses`, {
+        phase,
+        launchId,
+        addresses,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+//Submit Lunch For Review
+export async function submitCollectionForReview({
+  collectionId,
+  address,
+}: {
+  collectionId: string;
+  address: string;
+}) {
+  try {
+    const response = await axiosClient.post(
+      `/api/v1/collections/${collectionId}/submit-for-review`,
+      { address }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error submitting collection for review:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
+}
+
+
+
+
 export async function ifpsLaunchItem({
   collectionId,
   isLastBatch,
@@ -1256,3 +1288,7 @@ export async function ifpsLaunchItem({
     console.log("Error:", error);
   }
 }
+
+
+
+

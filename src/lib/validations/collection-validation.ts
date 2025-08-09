@@ -88,6 +88,7 @@ export const creatorCollectionSchema = z.object({
   launchRejected: z.boolean(),
   launchConfirmed: z.boolean(),
   progressState: z.string(),
+  inscriptionCount:z.number(),
 });
 
 // NEW: Launch Creator Tool Data Schema

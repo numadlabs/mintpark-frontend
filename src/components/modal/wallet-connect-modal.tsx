@@ -52,17 +52,17 @@ export function WalletConnectionModal({
 
   // Filter and sort layers for display
   const displayLayers = useMemo(() => {
-    if (process.env.NODE_ENV == "development") {
-      return availableLayers;
-    }
+    // if (process.env.NODE_ENV == "development") {
+    //   return availableLayers;
+    // }
     return [...availableLayers]
       .filter(
         (layer) =>
           layer.layer !== "BITCOIN" &&
           layer.name !== "Hemi Testnet" &&
           layer.name !== "EDU Chain Testnet" &&
-          layer.name !== "EDU Chain" &&
-          layer.name !== "CORE Testnet"
+          layer.name !== "EDU Chain" 
+          //&& layer.name !== "CORE Testnet"
       )
       .sort((a, b) => {
         if (a.layer !== b.layer) {
