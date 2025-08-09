@@ -1,72 +1,66 @@
+
 'use client';
 
 import React, { createContext, useContext, useEffect } from "react";
-import useWalletStore, {
-  ConnectedWallet,
-  Wallet,
-  WalletStore,
-} from "@/lib/hooks/useWalletAuth";
-import { useWagmiWalletAuth } from "@/lib/hooks/useWagmiWalletAuth";
+import { useWallet } from "@/lib/hooks/useWallet";
 import { initializeAxios } from "@/lib/axios";
+import { Layer, User, UserLayer } from "@/lib/types/wallet";
 
-interface ExtendedWalletStore extends WalletStore {
-  // Wagmi-specific properties and methods
-  wagmiAddress?: string;
-  wagmiIsConnected?: boolean;
-  wagmiChainId?: number;
-  isSigningPending?: boolean;
-  isSwitchingChain?: boolean;
-  connectEvmWallet?: (layerId: string, isLinking?: boolean) => Promise<void>;
-  disconnectEvmWallet?: (layerId: string) => Promise<void>;
-  switchToLayer?: (layerId: string) => Promise<void>;
+// Updated interface to match the new useWallet hook structure
+interface WalletAuthContextType {
+  // State
+  isConnected: boolean;
+  currentLayer: Layer | null;
+  currentUserLayer: UserLayer | null;
+  user: User | null;
+  isLoading: boolean;
+  error: string | null;
+  availableLayers: Layer[];
+  selectedLayerId: string | null;
+  defaultLayer: Layer | null;
+
+  // Actions
+  setSelectedLayerId: (layerId: string | null) => void;
+  connectWallet: (targetLayerId?: string) => Promise<void>;
+  authenticateWithWallet: (targetLayerId?: string) => Promise<void>;
+  switchLayer: (targetLayer: Layer) => Promise<void>;
+  setDefaultLayer: (data: { layer: Layer; userLayer?: UserLayer }) => void;
+  disconnectWallet: () => void;
+  getUserLayerFromCache: (layerId: string) => any;
 }
 
-const WalletAuthContext = createContext<ExtendedWalletStore | null>(null);
+const WalletAuthContext = createContext<WalletAuthContextType | null>(null);
 
 export const WalletAuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const store = useWalletStore();
-
-  // Get wagmi-specific functionality
-  const wagmiAuth = useWagmiWalletAuth();
+  const wallet = useWallet();
 
   useEffect(() => {
-    initializeAxios(store.onLogout);
-  }, [store.onLogout]);
+    // Initialize axios with disconnect function
+    initializeAxios(wallet.disconnectWallet);
+  }, [wallet.disconnectWallet]);
 
-  const value: ExtendedWalletStore = {
-    // Original store properties - ALL OF THEM
-    authState: store.authState,
-    selectedLayerId: store.selectedLayerId,
-    setSelectedLayerId: store.setSelectedLayerId,
-    updateAuthStateForLayer: store.updateAuthStateForLayer,
-    layers: store.layers,
-    onLogout: store.onLogout,
-    setLayers: store.setLayers,
-    connectedWallets: store.connectedWallets,
-    connectWallet: store.connectWallet,
-    disconnectWallet: store.disconnectWallet,
-    isWalletConnected: store.isWalletConnected,
-    getWalletForLayer: store.getWalletForLayer,
-    getAddressforCurrentLayer: store.getAddressforCurrentLayer,
-    proceedWithLinking: store.proceedWithLinking,
+  const value: WalletAuthContextType = {
+    // State from useWallet
+    isConnected: wallet.isConnected,
+    currentLayer: wallet.currentLayer,
+    currentUserLayer: wallet.currentUserLayer,  
+    user: wallet.user, 
+    isLoading: wallet.isLoading,
+    error: wallet.error,
+    availableLayers: wallet.availableLayers,
+    selectedLayerId: wallet.selectedLayerId,
+    defaultLayer:wallet.currentLayer,
 
-    // Add the missing properties from WalletStore
-    pendingConnection: store.pendingConnection,
-    setPendingConnection: store.setPendingConnection,
-    clearPendingConnection: store.clearPendingConnection,
-    completeEvmWalletConnection: store.completeEvmWalletConnection,
-
-    // Add wagmi-specific properties
-    wagmiAddress: wagmiAuth.address,
-    wagmiIsConnected: wagmiAuth.isConnected,
-    wagmiChainId: wagmiAuth.chainId,
-    isSigningPending: wagmiAuth.isSigningPending,
-    isSwitchingChain: wagmiAuth.isSwitchingChain,
-    connectEvmWallet: wagmiAuth.connectEvmWallet,
-    disconnectEvmWallet: wagmiAuth.disconnectEvmWallet,
-    switchToLayer: wagmiAuth.switchToLayer,
+    // Actions from useWallet
+    setSelectedLayerId: wallet.setSelectedLayerId,
+    connectWallet:wallet.connectWallet,
+    setDefaultLayer:wallet.setLayer,
+    authenticateWithWallet: wallet.authenticateWithWallet,
+    switchLayer: wallet.switchLayer,
+    disconnectWallet: wallet.disconnectWallet,
+    getUserLayerFromCache: wallet.getUserLayerFromCache,
   };
 
   return (
@@ -79,97 +73,10 @@ export const WalletAuthProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useAuth = () => {
   const context = useContext(WalletAuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within a WalletAuthProvider");
+    throw new Error("useWalletAuth must be used within a WalletAuthProvider");
   }
   return context;
 };
 
 
 
-// "use client";
-
-// import React, { createContext, useContext, useEffect } from "react";
-// import useWalletStore, {
-//   ConnectedWallet,
-//   Wallet,
-//   WalletStore,
-// } from "@/lib/hooks/useWalletAuth";
-// import { useWagmiWalletAuth } from "@/lib/hooks/useWagmiWalletAuth";
-// import { initializeAxios } from "@/lib/axios";
-
-// interface ExtendedWalletStore extends WalletStore {
-//   // Wagmi-specific properties and methods
-//   wagmiAddress?: string;
-//   wagmiIsConnected?: boolean;
-//   wagmiChainId?: number;
-//   isSigningPending?: boolean;
-//   isSwitchingChain?: boolean;
-//   connectEvmWallet?: (layerId: string, isLinking?: boolean) => Promise<void>;
-//   disconnectEvmWallet?: (layerId: string) => Promise<void>;
-//   switchToLayer?: (layerId: string) => Promise<void>;
-//   linkAccountToCurrentLayer?: () => Promise<ConnectedWallet>;
-// }
-
-// const WalletAuthContext = createContext<ExtendedWalletStore | null>(null);
-
-// export const WalletAuthProvider: React.FC<{ children: React.ReactNode }> = ({
-//   children,
-// }) => {
-//   const store = useWalletStore();
-
-//   // Get wagmi-specific functionality
-//   const wagmiAuth = useWagmiWalletAuth();
-
-//   useEffect(() => {
-//     initializeAxios(store.onLogout);
-//   }, [store.onLogout]);
-
-//   const value: ExtendedWalletStore = {
-//     // Original store properties - ALL OF THEM
-//     authState: store.authState,
-//     selectedLayerId: store.selectedLayerId,
-//     setSelectedLayerId: store.setSelectedLayerId,
-//     updateAuthStateForLayer: store.updateAuthStateForLayer,
-//     layers: store.layers,
-//     onLogout: store.onLogout,
-//     setLayers: store.setLayers,
-//     connectedWallets: store.connectedWallets,
-//     connectWallet: store.connectWallet,
-//     disconnectWallet: store.disconnectWallet,
-//     isWalletConnected: store.isWalletConnected,
-//     getWalletForLayer: store.getWalletForLayer,
-//     getAddressforCurrentLayer: store.getAddressforCurrentLayer,
-//     proceedWithLinking: store.proceedWithLinking,
-
-//     // Add the missing properties from WalletStore
-//     pendingConnection: store.pendingConnection,
-//     setPendingConnection: store.setPendingConnection,
-//     clearPendingConnection: store.clearPendingConnection,
-//     completeEvmWalletConnection: store.completeEvmWalletConnection,
-
-//     // Add wagmi-specific properties
-//     wagmiAddress: wagmiAuth.address,
-//     wagmiIsConnected: wagmiAuth.isConnected,
-//     wagmiChainId: wagmiAuth.chainId,
-//     isSigningPending: wagmiAuth.isSigningPending,
-//     isSwitchingChain: wagmiAuth.isSwitchingChain,
-//     connectEvmWallet: wagmiAuth.connectEvmWallet,
-//     disconnectEvmWallet: wagmiAuth.disconnectEvmWallet,
-//     switchToLayer: wagmiAuth.switchToLayer,
-//     linkAccountToCurrentLayer: wagmiAuth.linkAccountToCurrentLayer,
-//   };
-
-//   return (
-//     <WalletAuthContext.Provider value={value}>
-//       {children}
-//     </WalletAuthContext.Provider>
-//   );
-// };
-
-// export const useAuth = () => {
-//   const context = useContext(WalletAuthContext);
-//   if (!context) {
-//     throw new Error("useAuth must be used within a WalletAuthProvider");
-//   }
-//   return context;
-// };

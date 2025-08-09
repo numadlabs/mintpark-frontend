@@ -18,12 +18,13 @@ import { SearchNormal } from "iconsax-react";
 import AssetsSideBar from "../collections/my-assets-sidebar";
 import { useAssetsContext } from "@/lib/hooks/useAssetContext";
 import { useParams } from "next/navigation";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 export default function Assets({ detail = false }: { detail: boolean }) {
   const params = useParams();
   const userId = params?.id as string;
   const [active, setActive] = useState(false);
-
+  const { currentLayer, currentUserLayer } = useAuth();
   // Get shared state and data from context
   const {
     assetsData,
@@ -125,8 +126,6 @@ export default function Assets({ detail = false }: { detail: boolean }) {
   //     </div>
   //   );
   // }
-
-  
 
   // Get filtered collectibles using the simplified function
   const collectibles = getCollectibles();
@@ -251,7 +250,11 @@ export default function Assets({ detail = false }: { detail: boolean }) {
               >
                 {collectibles.map((item: CollectibleSchema) => (
                   <div key={item.id}>
-                    <AssetsCard data={item} />
+                    <AssetsCard
+                      data={item}
+                      currentLayer={currentLayer}
+                      currentUserLayer={currentUserLayer}
+                    />
                   </div>
                 ))}
               </div>
@@ -293,7 +296,7 @@ export default function Assets({ detail = false }: { detail: boolean }) {
                 <div className="flex flex-col w-full pt-4 gap-4">
                   {collectibles.map((item: CollectibleSchema) => (
                     <div key={item.id}>
-                      <AssetsCardList data={item} />
+                      <AssetsCardList data={item} currentLayer={currentLayer} />
                     </div>
                   ))}
                 </div>

@@ -56,26 +56,6 @@ export const getDecimalsForLayer = (layerType: string): number => {
   );
 };
 
-//todo: remove if it's unused
-// Function to convert layer-specific balance to USD
-export const getUsdValueForLayer = (
-  amount: number,
-  layerType: string,
-  currentLayer: any,
-): number => {
-  if (!amount || !currentLayer) return 0;
-
-  // Use the appropriate price based on layer type
-  let price = 0;
-
-  if (["BITCOIN", "CITREA"].includes(layerType)) {
-    price = currentLayer?.price || 97500; // BTC price with fallback
-  } else {
-    price = currentLayer?.price || 3000; // ETH price with fallback
-  }
-
-  return amount * price;
-};
 
 // Format BTC price (8 decimal places)
 export const formatPriceBtc = (value: number): string => {
@@ -110,36 +90,6 @@ export const isBitcoinBasedCurrency = (layerType: string): boolean => {
 export const getNetworkInfo = (layerType: string) => {
   const config = WALLET_CONFIGS[layerType];
   return config?.networks?.TESTNET || null;
-};
-//todo: remove all the unused functions
-// Helper function to get the block explorer URL for a transaction hash
-export const getBlockExplorerUrl = (
-  layerType: string,
-  txHash: string,
-): string => {
-  const config = WALLET_CONFIGS[layerType];
-
-  // If no config is found, return empty string
-  if (!config) return "";
-
-  // Get the block explorer URL from the config
-  const blockExplorerUrl = config.networks?.TESTNET?.blockExplorerUrls?.[0];
-
-  // If no block explorer URL is found, return empty string
-  if (!blockExplorerUrl) return "";
-
-  // Format the transaction URL based on layer type
-  if (layerType === "BITCOIN") {
-    return `${blockExplorerUrl}/tx/${txHash}`;
-  } else {
-    // For Ethereum-based chains like CITREA, SEPOLIA, HEMI, etc.
-    // Remove trailing slash if it exists to ensure consistent formatting
-    const baseUrl = blockExplorerUrl.endsWith("/")
-      ? blockExplorerUrl.slice(0, -1)
-      : blockExplorerUrl;
-
-    return `${baseUrl}/tx/${txHash}`;
-  }
 };
 
 // todo: what is layerType conditional return?

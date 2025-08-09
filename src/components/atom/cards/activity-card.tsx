@@ -1,107 +1,119 @@
 import React from "react";
 import Image from "next/image";
-import { TickCircle, ArrowRight } from "iconsax-react";
-import { ActivityType } from "@/lib/types";
-import { truncateAddress, formatPrice, getFormattedTime } from "@/lib/utils";
+import { formatPrice, s3ImageUrlBuilder } from "@/lib/utils";
+import Link from "next/link";
+import { useAuth } from "@/components/provider/auth-context-provider";
+import { CollectibleSchema } from "@/lib/validations/asset-validation";
 import {
-  getAddressExplorerUrl,
+  getCurrencyPrice,
   getCurrencySymbol,
 } from "@/lib/service/currencyHelper";
-import Link from "next/link";
 
 interface cardProps {
+  data: CollectibleSchema;
+  currentLayer: { layer: string } | null;
   imageUrl: string;
-  data: ActivityType;
-  currentLayer: string;
   currenAsset: string;
 }
 
-const ActivityCard: React.FC<cardProps> = ({
-  imageUrl,
-  data,
-  currentLayer,
-  currenAsset,
-}) => {
-  // Handle different activity types
-  const isMintedOrTransfer =
-    data?.activityType === "TRANSFER" || data?.activityType === "MINTED";
-  const showToAddress = data?.activityType === "SOLD" && data?.toAddress;
+const AssetsCardList: React.FC<cardProps> = ({ data, currentLayer }) => {
+  const TruncatedAddress = ({ address }: { address: string | null }) => {
+    if (!address) return <span>-</span>;
+    return (
+      <span title={address}>{`${address.slice(0, 4)}...${address.slice(
+        -4
+      )}`}</span>
+    );
+  };
 
-  // Safely convert price from string to number
-  const priceInEth = data?.price ? Number(data.price) / 10 ** 18 : 0;
-  const priceInUsd = priceInEth * 2404.37; // Assuming ETH price is 2489.56
+  const getDaysAgo = (createdAt: string) => {
+    const createdDate = new Date(createdAt);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - createdDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const daysAgo = getDaysAgo(data.createdAt);
 
   return (
     <>
-      <div className="flex items-center p-3 bg-gray50 rounded-2xl whitespace-nowrap hover:bg-neutral400 hover:bg-opacity-30">
-        <Link href={`/assets/${data.collectionId}`}>
-          <div className="flex items-center gap-3 shrink-0 w-[360px]">
-            <Image
-              src={imageUrl}
-              sizes="100%"
-              alt={currenAsset}
-              width={48}
-              height={48}
-              draggable="false"
-              className="rounded-lg"
-            />
-
-            <p className="text-md text-neutral50 font-medium">{currenAsset}</p>
-          </div>
-        </Link>
-
-        <div className="w-[220px] text-start shrink-0">
-          <div className="flex flex-row items-center gap-2 bg-white4 w-fit h-[34px] px-3 rounded-lg">
-            <TickCircle size={16} color="#D7D8D8" />
-            <p className="text-md text-neutral50 font-medium">
-              {data?.activityType}
+      <Link
+        className="flex min-w-[1216px] w-full justify-between items-center bg-neutral500 bg-opacity-50 hover:bg-neutral400 hover:bg-opacity-30 rounded-2xl p-4"
+        href={`/my-assets/${data.id}`}
+      >
+        <div className="flex min-w-[392px] w-full max-w-[640px] gap-5 items-center">
+          <Image
+            width={48}
+            draggable="false"
+            height={48}
+            src={
+              data.highResolutionImageUrl
+                ? data.highResolutionImageUrl
+                : s3ImageUrlBuilder(data.fileKey)
+            }
+            className="aspect-square rounded-lg h-12"
+            alt={`${data.name} image`}
+          />
+          <p className="text-neutral50 font-medium text-xl flex items-center">
+            {data.name}
+          </p>
+        </div>
+        <div className="flex justify-end items-center w-full text-start">
+          <div className="min-w-[200px] w-full max-w-[392px] grid gap-1">
+            <p className="font-medium text-lg text-neutral50 w-full">
+              {formatPrice(data.floor)}
+              <span className="ml-1">
+                {currentLayer && getCurrencySymbol(currentLayer.layer)}
+              </span>
+            </p>
+            <p className="font-medium text-sm text-neutral200 w-full">
+              <span className="mr-1">$</span>
+              {currentLayer &&
+                formatPrice(data.floor * getCurrencyPrice(currentLayer.layer))}
             </p>
           </div>
-        </div>
-        <div className="w-[195px] text-start shrink-0 flex flex-col gap-1">
-          <p className="text-md text-neutral50 font-medium">
-            {isMintedOrTransfer ? "-" : priceInEth}{" "}
-            {isMintedOrTransfer ? "" : getCurrencySymbol(currentLayer)}
-          </p>
-          <p className="text-sm text-neutral200 font-medium">
-            {isMintedOrTransfer ? "" : "$"}{" "}
-            {isMintedOrTransfer ? "" : formatPrice(priceInUsd)}
-          </p>
-        </div>
-        <div className="w-[260px] shrink-0 gap-2 flex items-center">
-          <Link
-            href={getAddressExplorerUrl(currentLayer, data?.fromAddress || "")}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-md text-neutral50 font-medium hover:text-brand transition-colors cursor-pointer"
+          <div className="min-w-[200px] w-full max-w-[392px]">
+            <p
+              className={`font-medium w-full text-lg ${
+                (data.floor ?? 0) >= 0 ? "text-success" : "text-errorMsg"
+              }`}
+            >
+              {/* {(data.floor ?? 0) >= 0 ? "+" : "-"} */}
+              {data.floor === 0 || data.floor === 1
+                ? "-"
+                : `${formatPrice(data.floor) ?? 0}%`}
+            </p>
+          </div>
+          <div className="min-w-[200px] w-full max-w-[392px]">
+            <p className="font-medium text-lg text-neutral50 w-full">
+              <TruncatedAddress address={data.id} />
+            </p>
+          </div>
+          <div
+            className={`min-w-[200px] w-full max-w-[392px] ${
+              (data?.price ?? 0) > 0 ? "group" : ""
+            } relative`}
           >
-            {truncateAddress(data?.fromAddress)}
-          </Link>
-          {showToAddress && (
-            <div className="gap-2 flex flex-row items-center">
-              <ArrowRight size={16} color="#88898A" />
-              <Link
-                href={getAddressExplorerUrl(
-                  currentLayer,
-                  data?.toAddress || ""
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-md text-neutral50 font-medium hover:text-brand transition-colors cursor-pointer"
+            <span className="font-medium text-lg w-full flex justify-start text-neutral50">
+              <span
+                className={
+                  (data.price ?? 0) > 0 ? "group-hover:hidden w-full" : ""
+                }
               >
-                {truncateAddress(data?.toAddress || "")}
-              </Link>
-            </div>
-          )}
+                {daysAgo} days ago
+              </span>
+              {(data.price ?? 0) > 0 && (
+                <span className="hidden group-hover:block lg:absolute lg:-top-5 text-neutral50 bg-white8 bg-opacity-[40%] pt-2 pb-2 pr-5 pl-5 rounded-lg cursor-pointer transition-all duration-300 ease-in-out">
+                  List
+                </span>
+              )}
+            </span>
+          </div>
         </div>
-        <div className="w-[152px] shrink-0 3xl:w-[130px] text-start">
-          <p className="text-md text-neutral50 font-medium">
-            {getFormattedTime(data?.timestamp)} ago 
-          </p>
-        </div>
-      </div>
+      </Link>
     </>
   );
 };
 
-export default ActivityCard;
+export default AssetsCardList;

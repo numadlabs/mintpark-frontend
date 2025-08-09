@@ -44,11 +44,12 @@ import UploadJsonFile from "@/components/section/upload-json-file";
 import { ethers } from "ethers";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 import CreateBanner from "@/components/section/create-banner";
+import { Layer } from "@/lib/types/wallet";
 // import { MerkleTree } from 'merkletreejs';
 
 const IPFS = () => {
   const router = useRouter();
-  const { authState, selectedLayerId } = useAuth();
+  const { currentUserLayer } = useAuth();
   const {
     imageFile,
     setImageFile,
@@ -161,11 +162,10 @@ const IPFS = () => {
       return updatedTypes;
     });
   };
-
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", selectedLayerId],
-    queryFn: () => getLayerById(selectedLayerId as string),
-    enabled: !!selectedLayerId,
+  const { data: currentLayer } = useQuery<Layer>({
+    queryKey: ["currentLayerData", currentUserLayer?.layerId],
+    queryFn: () => getLayerById(currentUserLayer!.layerId),
+    enabled: !!currentUserLayer?.layerId,
   });
 
   const calculateTimeUntilDate = (
@@ -210,7 +210,11 @@ const IPFS = () => {
       toast.error("Layer information not available");
       return;
     }
-    if (currentLayer.layerType === "EVM" && !window.ethereum) {
+    if (!currentUserLayer) {
+      toast.error("User layer not available");
+      return;
+    }
+    if (currentLayer.layerType === "EVM") {
       toast.error("Please install MetaMask extension to continue");
       return;
     }
@@ -222,8 +226,10 @@ const IPFS = () => {
         logo: imageFile[0],
         priceForLaunchpad: 0.001,
         type: "IPFS_FILE",
-        userLayerId: authState.userLayerId,
-        layerId: selectedLayerId,
+        // userLayerId: authState.userLayerId,
+        // layerId: selectedLayerId,
+        userLayerId: currentUserLayer!.id,
+        layerId: currentUserLayer!.layerId,
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
@@ -234,7 +240,7 @@ const IPFS = () => {
 
           toast.success("Create collection success.");
 
-          if (currentLayer.layerType === "EVM") {
+          if (currentLayer.layerType) {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
             await signedTx?.wait();
@@ -433,9 +439,13 @@ const IPFS = () => {
         fcfsEndsAt: fcfsEndsAt,
         fcfsMintPrice: FCFSMintPrice,
         fcfsMaxMintPerWallet: FCFSMaxMintPerWallet,
-        userLayerId: authState.userLayerId,
+        // userLayerId: authState.userLayerId,
+        userLayerId: currentUserLayer!.id,
       };
-      if (!selectedLayerId) {
+      // if (!selectedLayerId) {
+      //   return toast.error("layer not selected");
+      // }
+      if (!currentUserLayer?.layerId) {
         return toast.error("layer not selected");
       }
 
@@ -496,11 +506,13 @@ const IPFS = () => {
             maxSupply: WLMaxMintPerWallet * whitelistAddress.length, // Heden address bgag tus bur hed mint hiih bolomjtoigoor urjeed maxSupply ni garj irne
             maxPerWallet: WLMaxMintPerWallet,
             maxMintPerPhase: WLMaxMintPerWallet, // Unlimited mints for public phase
-            layerId: selectedLayerId,
-            userLayerId: authState.userLayerId,
+            // layerId: selectedLayerId,
+            // userLayerId: authState.userLayerId,
+            layerId: currentUserLayer!.layerId,
+            userLayerId: currentUserLayer!.id,
           });
 
-          if (currentLayer.layerType === "EVM") {
+          if (currentLayer!.layerType === "EVM") {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(
               whresponse.data.unsignedTx
@@ -520,12 +532,14 @@ const IPFS = () => {
             maxSupply: FCFSMaxMintPerWallet * fcfslistAddress.length, // Heden address bgag tus bur hed mint hiih bolomjtoigoor urjeed maxSupply ni garj irne
             maxPerWallet: FCFSMaxMintPerWallet,
             maxMintPerPhase: FCFSMaxMintPerWallet, // Unlimited mints for public phase
-            layerId: selectedLayerId,
-            userLayerId: authState.userLayerId,
+            // layerId: selectedLayerId,
+            // userLayerId: authState.userLayerId,
+            layerId: currentUserLayer!.layerId,
+            userLayerId: currentUserLayer!.id,
             merkleRoot: "",
           });
 
-          if (currentLayer.layerType === "EVM") {
+          if (currentLayer!.layerType === "EVM") {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(
               FCFSresponse.data.unsignedTx
@@ -546,11 +560,11 @@ const IPFS = () => {
             maxSupply: 0, // Unlimited supply for public phase
             maxPerWallet: POMaxMintPerWallet,
             maxMintPerPhase: 0, // Unlimited mints for public phase
-            layerId: selectedLayerId,
-            userLayerId: authState.userLayerId,
+            layerId: currentUserLayer!.layerId,
+            userLayerId: currentUserLayer!.id,
           });
 
-          if (currentLayer.layerType === "EVM") {
+          if (currentLayer!.layerType === "EVM") {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(
               publicPhaseResponse.data.unsignedTx
@@ -571,6 +585,10 @@ const IPFS = () => {
         //   merkleRoot: ethers.ZeroHash, // No merkle root needed for public phase
         //   layerId: selectedLayerId,
         //   userLayerId: authState.userLayerId,
+        // new auth chnages
+        // layerId: currentUserLayer!.layerId,
+        // userLayerId: currentUserLayer!.id,
+
         // });
 
         const launchCollectionId = launchResponse.data.launch.collectionId;
@@ -1231,7 +1249,8 @@ const IPFS = () => {
                         </div>
                         <div className="absolute right-4">
                           <p className="text-md text-neutral200 font-medium">
-                            {getCurrencySymbol(currentLayer.layer)}
+                            {/* {getCurrencySymbol(currentLayer.layer)} */}
+                            {currentLayer && getCurrencySymbol(currentLayer.layer)}
                           </p>
                         </div>
                       </div>

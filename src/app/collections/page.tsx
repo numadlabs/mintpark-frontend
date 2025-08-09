@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
-import CollectionSideBar from "../../components/section/collections/sideBar";
 import { useQuery } from "@tanstack/react-query";
 import { getListedCollections } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
@@ -22,6 +21,7 @@ import CollectionSkeleton from "@/components/atom/skeleton/collection-skeletion"
 import CollectionsBanner from "@/components/section/collections-banner";
 import CollectionCardList from "@/components/atom/cards/collection-card-list";
 import Layout from "@/components/layout/layout";
+import { useActiveLayer } from "@/lib/hooks/useActiveLayer";
 
 interface CollectionsProps {
   params: {};
@@ -43,8 +43,9 @@ const orderConfigs: Record<string, OrderConfig> = {
 export default function Collections({ searchParams }: CollectionsProps) {
   const detail = searchParams.detail === "true";
   const router = useRouter();
-  const { authState, selectedLayerId } = useAuth();
-  const id = selectedLayerId;
+  const { currentUserLayer, currentLayer } = useAuth();
+  const activeLayer = useActiveLayer();
+
   const intervals = ["1h", "24h", "7d", "30d", "All"];
   const [active, setActive] = useState(true);
   const [selectedInterval, setSelectedInterval] = useState("All");
@@ -56,19 +57,19 @@ export default function Collections({ searchParams }: CollectionsProps) {
   const { data: collection = [], isLoading } = useQuery({
     queryKey: [
       "collectionData",
-      id,
+      activeLayer,
       selectedInterval,
       orderConfig.orderBy,
       orderConfig.orderDirection,
     ],
     queryFn: () =>
       getListedCollections(
-        id as string,
+        activeLayer?.id!,
         selectedInterval.toLowerCase(),
         orderConfig.orderBy,
-        orderConfig.orderDirection
+        orderConfig.orderDirection,
       ),
-    enabled: !!id,
+    enabled: !!activeLayer,
   });
   const handleNavigation = (collectionData: CollectionDataType) => {
     router.push(`/collections/${collectionData.id}`);
@@ -149,7 +150,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                     {key
                       .split("-")
                       .map(
-                        (word) => word.charAt(0).toUpperCase() + word.slice(1)
+                        (word) => word.charAt(0).toUpperCase() + word.slice(1),
                       )
                       .join(" ")}
                   </SelectItem>
@@ -240,6 +241,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                               <CollectionCard
                                 data={item}
                                 handleNav={() => handleNavigation(item)}
+                                currentLayer={activeLayer}
                               />
                             </div>
                           ))}
@@ -265,6 +267,7 @@ export default function Collections({ searchParams }: CollectionsProps) {
                             <CollectionCardList
                               data={item}
                               handleNav={() => handleNavigation(item)}
+                              currentLayer={activeLayer}
                             />
                           </div>
                         ))}

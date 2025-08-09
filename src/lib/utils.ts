@@ -143,7 +143,14 @@ export const truncateAddress = (address: string) => {
   return `${address.slice(0, 4)}...${address.slice(-4)}`;
 };
 
-export const capitalizeFirstLetter = (string: string) => {
+// export const capitalizeFirstLetter = (string: string) => {
+//   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+// };
+export const capitalizeFirstLetter = (string: string | undefined | null) => {
+  // Add safety checks for undefined/null values
+  if (!string || typeof string !== 'string') {
+    return '';
+  }
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 };
 

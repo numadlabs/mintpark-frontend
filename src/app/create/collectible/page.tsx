@@ -1,3 +1,5 @@
+// auth changes
+
 "use client";
 
 import React, { useState } from "react";
@@ -24,7 +26,6 @@ import {
   createCollection,
   createMintCollectible,
 } from "@/lib/service/postRequest";
-import { getLayerById } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { getSigner } from "@/lib/utils";
 import { toast } from "sonner";
@@ -32,11 +33,13 @@ import InscribeOrderModal from "@/components/modal/insribe-order-modal";
 import { Button } from "@/components/ui/button";
 import { CurrentLayerSchema } from "@/lib/validations/layer-validation";
 import CreateBanner from "@/components/section/create-banner";
+import { chang } from "viem/chains";
 
 const stepperData = ["Upload", "Confirm"];
 
 const SingleCollectible = () => {
-  const { authState } = useAuth();
+  // Fix: Destructure the values directly from useAuth, not from authState
+  const { currentLayer, currentUserLayer, user } = useAuth();
   const router = useRouter();
 
   const {
@@ -69,13 +72,6 @@ const SingleCollectible = () => {
   const { mutateAsync: createCollectiblesMutation } = useMutation({
     mutationFn: createMintCollectible,
   });
-
-  const { data: currentLayer } = useQuery<CurrentLayerSchema>({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
-
   const toggleSubmitModal = () => {
     setIsLoading(true);
     setSubmitModal(!submitModal);
@@ -95,7 +91,7 @@ const SingleCollectible = () => {
       // Calculate file sizes and types
       const newFileSizes = Array.from(files).map((file) => file.size);
       const newFileTypeSizes = Array.from(files).map(
-        (file) => file.type.length
+        (file) => file.type.length,
       );
       const newFileTypes = new Set(Array.from(files).map((file) => file.type));
 
@@ -103,6 +99,7 @@ const SingleCollectible = () => {
       setFileTypeSizes((prevSizes) => [...prevSizes, ...newFileTypeSizes]);
     }
   };
+
   const handleBack = () => {
     reset(); // Reset form state
     setImageFiles([]); // Reset image files
@@ -111,6 +108,7 @@ const SingleCollectible = () => {
     setError(""); // Reset error message
     router.push("/"); // Navigate back
   };
+
   const handleNextStep = () => {
     setStep(1);
   };
@@ -118,10 +116,10 @@ const SingleCollectible = () => {
   const handleDelete = (indexToDelete: number) => {
     // Create new arrays without the deleted items
     const newImageFile = Array.from(imageFile).filter(
-      (_, index) => index !== indexToDelete
+      (_, index) => index !== indexToDelete,
     );
     const newImageFiles = imageFiles.filter(
-      (_, index) => index !== indexToDelete
+      (_, index) => index !== indexToDelete,
     );
 
     // Update state with the new arrays directly
@@ -142,6 +140,7 @@ const SingleCollectible = () => {
   };
 
   const handlePay = async () => {
+    // Fix: Use currentLayerData instead of currentLayer
     if (!currentLayer) {
       toast.error("Layer information not available");
       return;
@@ -154,8 +153,9 @@ const SingleCollectible = () => {
         name: name,
         priceForLaunchpad: 0.001,
         type: "INSCRIPTION",
-        userLayerId: authState.userLayerId,
-        layerId: authState.layerId,
+        // Fix: Use currentUserLayer?.id and currentLayer?.id
+        userLayerId: currentUserLayer?.id ?? null,
+        layerId: currentLayer?.id ?? null,
       };
       if (collectionParams) {
         let collectionTxid;
@@ -167,6 +167,7 @@ const SingleCollectible = () => {
           id = collectionResponse.data.collection.id;
           const { deployContractTxHex } = collectionResponse.data;
 
+          // Fix: Use currentLayerData instead of currentLayer
           if (currentLayer.layerType === "EVM") {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
@@ -183,6 +184,7 @@ const SingleCollectible = () => {
 
         const response = await createCollectiblesMutation({ data: params });
         if (response && response.success) {
+          // Fix: Use currentLayerData instead of currentLayer
           if (currentLayer.layerType === "EVM") {
             const { batchMintTxHex } = response.data;
             const { signer } = await getSigner();
@@ -190,10 +192,12 @@ const SingleCollectible = () => {
             await signedTx?.wait();
             if (signedTx?.hash) setHash(signedTx?.hash);
           } else if (currentLayer.layer === "FRACTAL") {
-            await window.unisat.sendBitcoin(
-              response.data.order.fundingAddress,
-              Math.ceil(response.data.order.fundingAmount)
-            );
+            if (window.unisat) {
+              await window.unisat.sendBitcoin(
+                response.data.order.fundingAddress,
+                Math.ceil(response.data.order.fundingAmount),
+              );
+            }
           }
           await new Promise((resolve) => setTimeout(resolve, 1000));
           setData(response.data.order.id);
@@ -265,7 +269,7 @@ const SingleCollectible = () => {
                     </div>
                     <div className="flex flex-col gap-3">
                       <p className="font-medium text-lg text-neutral50">
-                        Creater (optional)
+                        Creator (optional)
                       </p>
                       <Input
                         onReset={reset}
@@ -338,13 +342,9 @@ const SingleCollectible = () => {
                 <Button
                   type="button"
                   variant={"primary"}
-                  // isSelected={true}
-                  // isLoading={isLoading}
-
                   onClick={handlePay}
                   disabled={isLoading}
                   className="w-full"
-                  // className="flex w-full justify-center items-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold"
                 >
                   {isLoading ? (
                     <Loader2

@@ -17,6 +17,7 @@ import { AssetSchema, ActivitySchema } from "../validations/asset-validation";
 import { UserSchema } from "../validations/user-schema";
 import { boolean, number } from "zod";
 import { ActivityType } from "../types";
+import { Layer } from "../types/wallet";
 
 export async function getAllOrders(id: string): Promise<OrderSchema> {
   return axiosClient.get(`/api/v1/orders/user/${id}`).then((response) => {
@@ -39,7 +40,7 @@ export async function getOrderById(id: string) {
 
 export async function fetchLaunchs(
   layerId: string,
-  interval: string
+  interval: string,
 ): Promise<Launchschema[]> {
   return axiosClient
     .get(`/api/v1/launchpad?layerId=${layerId}&interval=${interval}`)
@@ -74,7 +75,7 @@ export async function getById(id: string) {
   });
 }
 
-export async function getAllLayers(): Promise<LayerSchema[]> {
+export async function getAllLayers(): Promise<Layer[]> {
   return axiosClient.get(`/api/v1/layers/`).then((response) => {
     if (response.data.success) {
       return response.data.data;
@@ -98,18 +99,18 @@ export async function getListedCollections(
   layerId: string,
   interval: string,
   orderBy: string,
-  orderDirection: string
+  orderDirection: string,
 ): Promise<Collection[]> {
   return axiosClient
     .get<CollectionApiResponse>(
-      `/api/v1/collections/listed?layerId=${layerId}&interval=${interval}&orderBy=${orderBy}&orderDirection=${orderDirection}`
+      `/api/v1/collections/listed?layerId=${layerId}&interval=${interval}&orderBy=${orderBy}&orderDirection=${orderDirection}`,
     )
     .then((response) => {
       if (response.data.success && response.data.data) {
         return response.data.data;
       } else {
         throw new Error(
-          response.data.message || "Failed to fetch listed collections"
+          response.data.message || "Failed to fetch listed collections",
         );
       }
     });
@@ -123,7 +124,7 @@ export async function getListedCollectionById(
   offset: number,
   query: string,
   isListed: boolean,
-  traitValuesByType: Record<string, string[]> | string // Update type to handle both
+  traitValuesByType: Record<string, string[]> | string, // Update type to handle both
 ): Promise<CollectionDetail | null> {
   const params = new URLSearchParams({
     orderBy,
@@ -146,7 +147,7 @@ export async function getListedCollectionById(
 
   return axiosClient
     .get<CollectionDetailApiResponse>(
-      `/api/v1/collectibles/${collectionId}/collection/listable?${params.toString()}&isListed=${isListed}`
+      `/api/v1/collectibles/${collectionId}/collection/listable?${params.toString()}&isListed=${isListed}`,
     )
     .then((response) => {
       if (response.data.success) {
@@ -157,10 +158,11 @@ export async function getListedCollectionById(
     });
 }
 
-export async function getCollectionById(
-  id: string
-): Promise<Collectible[] | null> {
+export async function getAssetById(
+  id: string,
+): Promise<Collectible | null> {
   return axiosClient.get(`/api/v1/collectibles/${id}`).then((response) => {
+    console.log(response.data.data);
     if (response.data.success) {
       return response.data.data;
     } else {
@@ -177,7 +179,7 @@ export async function getListableById(
   limit: number,
   offset: number,
   collectionIds: string[],
-  availability: string
+  availability: string,
 ): Promise<AssetSchema> {
   // Create base query parameters
   const params = new URLSearchParams({
@@ -271,7 +273,7 @@ export async function getCollectionActivity(
   id: string,
   limit: number = 20,
   offset: number = 0,
-  activityType?: string
+  activityType?: string,
 ): Promise<ActivitySchema[]> {
   const params = new URLSearchParams({
     limit: limit.toString(),
@@ -282,40 +284,34 @@ export async function getCollectionActivity(
   }
 
   const finalUrl = `/api/v1/collectibles/${id}/activity?${params.toString()}`;
-  console.log("Full API URL:", finalUrl);
-  console.log("Collection ID:", id); 
-  console.log("Activity Type:", activityType); 
-  console.log("API Call params:", params.toString()); 
 
-  return axiosClient
-    .get(finalUrl)
-    .then((response) => {
-      if (response.data.success) {
-        return response.data.data.activities.map((activity: any) => ({
-          activityType: activity.event,
-          tokenId: activity.item.tokenId,
-          contractAddress: activity.item.contractAddress,
-          collectibleId: activity.item.collectibleId,
-          fileKey: activity.item.fileKey,
-          name: activity.item.name,
-          fromAddress: activity.from || "Unknown",
-          toAddress: activity.to || undefined,
-          price: activity.price,
-          transactionHash: activity.transactionHash,
-          timestamp: activity.time,
-          blockNumber: 0,
-        }));
-      } else {
-        throw new Error(response.data.error);
-      }
-    });
+  return axiosClient.get(finalUrl).then((response) => {
+    if (response.data.success) {
+      return response.data.data.activities.map((activity: any) => ({
+        activityType: activity.event,
+        tokenId: activity.item.tokenId,
+        contractAddress: activity.item.contractAddress,
+        collectibleId: activity.item.collectibleId,
+        fileKey: activity.item.fileKey,
+        name: activity.item.name,
+        fromAddress: activity.from || "Unknown",
+        toAddress: activity.to || undefined,
+        price: activity.price,
+        transactionHash: activity.transactionHash,
+        timestamp: activity.time,
+        blockNumber: 0,
+      }));
+    } else {
+      throw new Error(response.data.error);
+    }
+  });
 }
 
 // getCollectibleActivity function with pagination
 export async function getCollectibleActivity(
   id: string,
   limit: number = 20,
-  offset: number = 0
+  offset: number = 0,
 ): Promise<ActivityType[]> {
   const params = new URLSearchParams({
     limit: limit.toString(),

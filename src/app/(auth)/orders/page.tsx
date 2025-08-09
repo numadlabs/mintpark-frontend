@@ -1,3 +1,4 @@
+// auth changes
 "use client";
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
@@ -22,17 +23,17 @@ interface Order {
 }
 
 const Orders = () => {
-  const { authState } = useAuth();
+  const { user } = useAuth(); 
   const [orderModal, setOrderModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [orderId, setOrderId] = useState<string>("");
-  const id = authState?.userId;
+  const userId = user?.id;
 
   const { data: ordersData = [], isLoading } = useQuery({
     queryKey: ["orderDataType"],
-    queryFn: () => getAllOrders(id as string),
-    enabled: !!id,
+    queryFn: () => getAllOrders(userId as string),
+    enabled: !!userId,
   });
 
   const orders = Array.isArray(ordersData) ? ordersData : [];

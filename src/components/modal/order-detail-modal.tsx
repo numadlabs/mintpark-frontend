@@ -4,8 +4,6 @@ import { X, Check } from "lucide-react";
 import { Timer } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
-import { useQuery } from "@tanstack/react-query";
-import { getLayerById } from "@/lib/service/queryHelper";
 import { useAuth } from "../provider/auth-context-provider";
 
 interface ModalProps {
@@ -29,12 +27,7 @@ const OrderDetailModal: React.FC<ModalProps> = ({
   serviceFee,
   fundingAmount,
 }) => {
-  const { authState } = useAuth();
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
+  const { currentLayer } = useAuth();
   const getInscribeStatus = (paymentStatus: string) => {
     switch (paymentStatus) {
       case "PENDING":
@@ -127,7 +120,10 @@ const OrderDetailModal: React.FC<ModalProps> = ({
           <p className="text-lg2 text-neutral100 font-medium">Total Amount</p>
           <p className="text-lg2 text-brand font-bold">
             {" "}
-            {formatPrice(fundingAmount)} {getCurrencySymbol(currentLayer.layer)}
+            {formatPrice(fundingAmount)}{" "}
+            {currentLayer?.layer
+              ? getCurrencySymbol(currentLayer.layer)
+              : ""}
           </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />

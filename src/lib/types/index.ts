@@ -1,3 +1,30 @@
+declare global {
+  interface Window {
+    unisat: {
+      requestAccounts(): Promise<string[]>;
+      getAccounts(): Promise<string[]>;
+      getNetwork(): Promise<string>;
+      switchNetwork(network: string): Promise<void>;
+      getPublicKey(): Promise<string>;
+      getBalance(): Promise<{
+        confirmed: number;
+        unconfirmed: number;
+        total: number;
+      }>;
+      sendBitcoin(
+        toAddress: string,
+        satoshis: number,
+        options?: any,
+      ): Promise<string>;
+      signMessage(message: string, type?: string): Promise<string>;
+      signPsbt(psbtHex: string, options?: any): Promise<string>;
+      pushPsbt(psbtHex: string): Promise<string>;
+      inscribeTransfer(ticker: string, amount: string): Promise<string>;
+      // Add other Unisat methods as needed
+    };
+  }
+}
+
 export interface ImageFile {
   file: File;
   preview: string;
@@ -93,35 +120,35 @@ export type LaunchDataType = {
 };
 
 export type ActivityType = {
-    activityType: string;
-    tokenId?: string | null;
-    contractAddress?: string; // Optional since it only appears for certain activity types
-    collectionId: string;
-    fromAddress: string;
-    fileKey: string; // Optional since it only appears for certain activity type
-    toAddress?: string; // Optional since it only appears for certain activity types
-    price: string; // Keep as string to handle large numbers properly
-    transactionHash: string;
-    timestamp: number;
-    name: string;
-    blockNumber: number;
-    seller?: string;
+  activityType: string;
+  tokenId?: string | null;
+  contractAddress?: string; // Optional since it only appears for certain activity types
+  collectionId: string;
+  fromAddress: string;
+  fileKey: string; // Optional since it only appears for certain activity type
+  toAddress?: string; // Optional since it only appears for certain activity types
+  price: string; // Keep as string to handle large numbers properly
+  transactionHash: string;
+  timestamp: number;
+  name: string;
+  blockNumber: number;
+  seller?: string;
 };
 
 export type CollectibleActivityType = {
-    activityType: string;
-    tokenId?: string | null;
-    contractAddress?: string; // Optional since it only appears for certain activity types
-    collectibleId: string;
-    fromAddress: string;
-    fileKey: string; // Optional since it only appears for certain activity type
-    toAddress?: string; // Optional since it only appears for certain activity types
-    price: string; // Keep as string to handle large numbers properly
-    transactionHash: string;
-    timestamp: number;
-    name: string;
-    blockNumber: number;
-    seller?: string;
+  activityType: string;
+  tokenId?: string | null;
+  contractAddress?: string; // Optional since it only appears for certain activity types
+  collectibleId: string;
+  fromAddress: string;
+  fileKey: string; // Optional since it only appears for certain activity type
+  toAddress?: string; // Optional since it only appears for certain activity types
+  price: string; // Keep as string to handle large numbers properly
+  transactionHash: string;
+  timestamp: number;
+  name: string;
+  blockNumber: number;
+  seller?: string;
 };
 
 export type InscriptionCollectible = {

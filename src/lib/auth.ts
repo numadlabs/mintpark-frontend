@@ -2,6 +2,7 @@
 import { TokenType } from "@/lib/types";
 import { STORAGE_KEYS } from "./constants";
 
+//todo: jwt tai hoblootoi buh yumig ene function s heregleh
 export function saveToken(tokenData: TokenType) {
   setAccessToken(tokenData.accessToken);
   setRefreshToken(tokenData.refreshToken);

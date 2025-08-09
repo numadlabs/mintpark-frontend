@@ -1,5 +1,4 @@
 "use client";
-
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import Layout from "@/components/layout/layout";
 import { Button } from "@/components/ui/button";
@@ -11,10 +10,9 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
+  getAssetById,
   getCollectibleActivity,
   getCollectibleTraits,
-  getCollectionById,
-  getLayerById,
   getListedCollectionById,
 } from "@/lib/service/queryHelper";
 import {
@@ -39,31 +37,32 @@ import { getAddressExplorerUrl } from "@/lib/service/currencyHelper";
 
 const ACTIVITY_PER_PAGE = 20;
 
+//todo: current layer iin orond getAssetById s irj bga data naas chainId ashiglah
+//todo: gomboo d helj array bish gants asset
 export default function AssetDetail() {
   const params = useParams();
   const router = useRouter();
-  const { authState } = useAuth();
+  const { isConnected, currentLayer } = useAuth();
   const id = params.detailId as string;
   const [isVisible, setIsVisible] = useState(false);
   const [activityPageSize] = useState(ACTIVITY_PER_PAGE);
   const [hasMoreActivity, setHasMoreActivity] = useState(true);
 
-  const { data: collectible, isLoading: isCollectionLoading } = useQuery<
-    Collectible[] | null
-  >({
+  const {
+    data: collectible,
+    isLoading: isCollectibleLoading,
+    error,
+  } = useQuery({
     queryKey: ["collectionData", id],
-    queryFn: () => getCollectionById(id),
+    queryFn: async () => {
+      const result = await getAssetById(id);
+      return result;
+    },
     enabled: !!id,
   });
 
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
-
-  const currentAsset = collectible?.[0];
-  const collectionId = currentAsset?.collectionId;
+  // const collectible = collectible;
+  // const collectionId = collectible?.collectionId;
 
   // Replace regular query with infinite query for activities
   const {
@@ -81,7 +80,7 @@ export default function AssetDetail() {
       const response = await getCollectibleActivity(
         id,
         activityPageSize,
-        pageParam * activityPageSize
+        pageParam * activityPageSize,
       );
 
       // Determine if we have more activities to load
@@ -118,13 +117,13 @@ export default function AssetDetail() {
         {
           rootMargin: "200px",
           threshold: 0.1,
-        }
+        },
       );
 
       observer.observe(node);
       return () => observer.disconnect();
     },
-    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity]
+    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity],
   );
 
   const { data: attribute = [] } = useQuery({
@@ -134,19 +133,19 @@ export default function AssetDetail() {
   });
 
   const { data: collection, isLoading: isQueryLoading } = useQuery({
-    queryKey: ["collectionData", collectionId, "recent", "desc"],
+    queryKey: ["collectionData", collectible?.collectionId, "recent", "desc"],
     queryFn: () =>
       getListedCollectionById(
-        collectionId as string,
+        collectible?.collectionId as string,
         "recent",
         "desc",
         10,
         0,
         "",
         false,
-        {}
+        {},
       ),
-    enabled: !!collectionId,
+    enabled: !!collectible?.collectionId,
     retry: 1,
     initialData: {
       collectibles: [],
@@ -156,15 +155,16 @@ export default function AssetDetail() {
   });
 
   const handlBackCollection = () => {
-    router.push(`/collections/${collectionId}`);
+    router.push(`/collections/${collectible?.collectionId}`);
   };
 
   const toggleModal = () => {
-    if (!authState.authenticated)
-      return toast.error("Please connect wallet first");
+    // Fix: Use isConnected instead of authState.authenticated
+    if (!isConnected) return toast.error("Please connect wallet first");
     setIsVisible(!isVisible);
   };
-  if (isCollectionLoading) {
+
+  if (isCollectibleLoading) {
     return (
       <Layout>
         <AssetDetailSkeleton />
@@ -172,7 +172,7 @@ export default function AssetDetail() {
     );
   }
 
-  if (!currentAsset) {
+  if (!collectible) {
     return (
       <Layout>
         <div className="flex justify-center items-center h-96">
@@ -193,24 +193,24 @@ export default function AssetDetail() {
                   width={560}
                   height={560}
                   src={
-                    currentAsset.highResolutionImageUrl
-                      ? currentAsset.highResolutionImageUrl
-                      : s3ImageUrlBuilder(currentAsset.fileKey)
+                    collectible.highResolutionImageUrl
+                      ? collectible.highResolutionImageUrl
+                      : s3ImageUrlBuilder(collectible.fileKey)
                   }
                   className="aspect-square rounded-xl relative z-20 md:h-[343px] 3xl:h-[560px] 3xl:w-[560px] w-[343px] h-auto md2:h-auto md2:w-full"
-                  alt={`${currentAsset.name} logo`}
+                  alt={`${collectible.name} logo`}
                 />
               </div>
               <Image
                 width={560}
                 height={560}
                 src={
-                  currentAsset.highResolutionImageUrl
-                    ? currentAsset.highResolutionImageUrl
-                    : s3ImageUrlBuilder(currentAsset.fileKey)
+                  collectible.highResolutionImageUrl
+                    ? collectible.highResolutionImageUrl
+                    : s3ImageUrlBuilder(collectible.fileKey)
                 }
                 className="aspect-square rounded-xl absolute z-20 w-[330px] h-auto md:h-[340px] md2:h-auto md2:w-full 2xl:w-[560px] 2xl:h-[560px] top-0"
-                alt={`${currentAsset.name} logo`}
+                alt={`${collectible.name} logo`}
               />
             </div>
             <div className="flex flex-col gap-8">
@@ -219,15 +219,15 @@ export default function AssetDetail() {
                   className="font-medium text-xl text-brand cursor-pointer"
                   onClick={handlBackCollection}
                 >
-                  {currentAsset.collectionName}
+                  {collectible.collectionName}
                 </p>
                 <span className="flex text-3xl font-bold text-neutral50">
-                  {currentAsset.name}
+                  {collectible.name}
                 </span>
               </div>
               <div className="w-full h-[1px] bg-neutral500" />
               <div className="flex flex-col justify-center gap-6">
-                {currentAsset.price > 0 ? (
+                {collectible.price > 0 ? (
                   <div className="flex flex-col gap-6">
                     <div className="flex justify-between items-center w-full">
                       <span className="font-medium pt-3 text-end text-lg text-neutral200">
@@ -235,16 +235,16 @@ export default function AssetDetail() {
                       </span>
                       <span className="font-bold text-neutral50 text-lg">
                         <h1>
-                          {currentAsset.price &&
-                            formatPrice(currentAsset.price)}{" "}
-                          {getCurrencySymbol(currentLayer.layer)}
+                          {collectible.price && formatPrice(collectible.price)}{" "}
+                          {/* Fix: Use currentLayer instead of currentLayerData.layer */}
+                          {getCurrencySymbol(currentLayer?.name ?? "Unknown")}
                         </h1>
                       </span>
                     </div>
                   </div>
                 ) : null}
                 <div className="flex gap-4">
-                  {currentAsset.price > 0 ? (
+                  {collectible.price > 0 ? (
                     <Button
                       variant="primary"
                       className="w-60 h-12 bg-brand500"
@@ -297,7 +297,7 @@ export default function AssetDetail() {
                       Detail
                     </AccordionTrigger>
                     <AccordionContent className="flex flex-col gap-6">
-                      {currentAsset.inscriptionId && (
+                      {collectible.inscriptionId && (
                         <div className="flex justify-between">
                           <h1 className="font-medium text-md text-neutral200">
                             Original Asset (Inscription ID)
@@ -305,10 +305,10 @@ export default function AssetDetail() {
                           <Link
                             target="_blank"
                             rel="noopener noreferrer"
-                            href={`https://testnet4.ordinals.com/${currentAsset.inscriptionId}`}
+                            href={`https://testnet4.ordinals.com/${collectible.inscriptionId}`}
                             className="font-medium cursor-pointer text-md hover:underline text-neutral50"
                           >
-                            {truncateAddress(currentAsset.inscriptionId)}
+                            {truncateAddress(collectible.inscriptionId)}
                           </Link>
                         </div>
                       )}
@@ -319,12 +319,10 @@ export default function AssetDetail() {
                         </h1>
                         <Link
                           href={
-                            collectible &&
-                            collectible[0] &&
-                            currentAsset.ownedBy
+                            collectible && collectible && collectible.ownedBy
                               ? getAddressExplorerUrl(
-                                  collectible[0].layer,
-                                  currentAsset.ownedBy
+                                  collectible.layer,
+                                  collectible.ownedBy,
                                 )
                               : "#"
                           }
@@ -332,22 +330,22 @@ export default function AssetDetail() {
                           rel="noopener noreferrer"
                           className="font-medium text-md text-neutral50 hover:text-brand transition-colors"
                         >
-                          {truncateAddress(currentAsset.ownedBy || "-")}
+                          {truncateAddress(collectible.ownedBy || "-")}
                         </Link>
                       </div>
 
-                      {currentAsset.price > 0 && (
+                      {collectible.price > 0 && (
                         <>
                           <div className="flex justify-between">
                             <h1 className="font-medium text-md text-neutral200">
                               Floor difference
                             </h1>
                             <p className="font-medium text-md text-success">
-                              {currentAsset.floorDifference === 0 ||
-                              currentAsset.floorDifference === 1
+                              {collectible.floorDifference === 0 ||
+                              collectible.floorDifference === 1
                                 ? "-"
                                 : `${Number(
-                                    currentAsset.floorDifference
+                                    collectible.floorDifference,
                                   ).toLocaleString("en-US", {
                                     minimumFractionDigits: 0,
                                     maximumFractionDigits: 1,
@@ -359,7 +357,7 @@ export default function AssetDetail() {
                               Listed time
                             </h1>
                             <p className="font-medium text-md text-neutral50">
-                              {formatDaysAgo(currentAsset.createdAt)}
+                              {formatDaysAgo(collectible.createdAt)}
                             </p>
                           </div>
                         </>
@@ -370,11 +368,11 @@ export default function AssetDetail() {
                 <div className="w-full h-[1px] bg-neutral500 my-4" />
                 <AccordionItem value="item-2">
                   <AccordionTrigger className="font-medium text-xl text-neutral50">
-                    About {currentAsset.collectionName}
+                    About {collectible.collectionName}
                   </AccordionTrigger>
                   <AccordionContent>
                     <p className="text-neutral200 font-medium text-md">
-                      {currentAsset.description}
+                      {collectible.description}
                     </p>
                   </AccordionContent>
                 </AccordionItem>
@@ -422,12 +420,12 @@ export default function AssetDetail() {
                             key={`${item.transactionHash}-${item.activityType}-${item.timestamp}`}
                             data={item}
                             imageUrl={
-                              currentAsset.highResolutionImageUrl
-                                ? currentAsset.highResolutionImageUrl
-                                : s3ImageUrlBuilder(currentAsset.fileKey)
+                              collectible.highResolutionImageUrl
+                                ? collectible.highResolutionImageUrl
+                                : s3ImageUrlBuilder(collectible.fileKey)
                             }
-                            currentLayer={currentLayer?.layer}
-                            currenAsset={currentAsset?.name}
+                            currentLayer={currentLayer}
+                            currenAsset={collectible?.name}
                           />
                         ))
                       ) : (
@@ -459,7 +457,7 @@ export default function AssetDetail() {
                 collection.collectibles.length > 0 ? (
                   <MoreCollection
                     collection={collection}
-                    currentAssetId={currentAsset.id}
+                    currentAssetId={collectible.id}
                   />
                 ) : (
                   <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
@@ -477,40 +475,39 @@ export default function AssetDetail() {
         open={isVisible}
         onClose={toggleModal}
         fileKey={
-          currentAsset.highResolutionImageUrl
-            ? currentAsset.highResolutionImageUrl
-            : s3ImageUrlBuilder(currentAsset.fileKey)
+          collectible.highResolutionImageUrl
+            ? collectible.highResolutionImageUrl
+            : s3ImageUrlBuilder(collectible.fileKey)
         }
-        uniqueIdx={currentAsset.uniqueIdx}
-        name={currentAsset.name}
-        collectionName={currentAsset.collectionName}
-        price={currentAsset.price}
-        listId={currentAsset.listId}
-        isOwnListing={currentAsset.isOwnListing}
+        uniqueIdx={collectible.uniqueIdx}
+        name={collectible.name}
+        collectionName={collectible.collectionName}
+        price={collectible.price}
+        listId={collectible.listId}
+        isOwnListing={collectible.isOwnListing}
       />
     </Layout>
   );
 }
-
-//   const currentAsset = collectionData?.[0];
-//  const collectionId = currentAsset?.collectionId;
+//   const collectible = collectionData?.[0];
+//  const collectionId = collectible?.collectionId;
 
 //   // Properly determine ownership by comparing ownedBy with user's wallet address
-//   const isOwned = currentAsset?.ownedBy === authState.userAddress;
+//   const isOwned = collectible?.ownedBy === authState.userAddress;
 
 //   // Helper functions to determine button visibility
 //   const shouldShowListButton = () => {
-//     return currentAsset?.listId === null && isOwned === true;
+//     return collectible?.listId === null && isOwned === true;
 //   };
 
 //   const shouldShowUnlistButton = () => {
-//     return currentAsset?.listId !== null && currentAsset?.isOwnListing === true;
+//     return collectible?.listId !== null && collectible?.isOwnListing === true;
 //   };
 
 //   const shouldShowBuyButton = () => {
-//     return currentAsset?.listId !== null && currentAsset?.isOwnListing === false;
+//     return collectible?.listId !== null && collectible?.isOwnListing === false;
 //   };
 
 //   const shouldShowNotListedMessage = () => {
-//     return currentAsset?.listId === null && isOwned === false;
+//     return collectible?.listId === null && isOwned === false;
 //   };

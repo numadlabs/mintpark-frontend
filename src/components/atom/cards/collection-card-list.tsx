@@ -2,23 +2,22 @@ import React from "react";
 import Image from "next/image";
 import { CollectionDataType } from "@/lib/types";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
-import { useAuth } from "@/components/provider/auth-context-provider";
-import { useQuery } from "@tanstack/react-query";
-import { getLayerById } from "@/lib/service/queryHelper";
-import { getCurrencyPrice, getCurrencySymbol } from "@/lib/service/currencyHelper";
+import {
+  getCurrencyPrice,
+  getCurrencySymbol,
+} from "@/lib/service/currencyHelper";
 
 interface CardProps {
   data: CollectionDataType;
   handleNav: () => void;
+  currentLayer: { layer: string } | null;
 }
 
-const CollectionCardList: React.FC<CardProps> = ({ data, handleNav }) => {
-  const { authState } = useAuth();
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
+const CollectionCardList: React.FC<CardProps> = ({
+  data,
+  currentLayer,
+  handleNav,
+}) => {
   // const citreaPrice = getPriceData();
 
   return (
@@ -48,11 +47,14 @@ const CollectionCardList: React.FC<CardProps> = ({ data, handleNav }) => {
           <p className="font-medium text-lg text-neutral50">
             {formatPrice(data.floor)}
             <span className="ml-1 text-lg">
-              {getCurrencySymbol(currentLayer.layer)}
+              {currentLayer?.layer ? getCurrencySymbol(currentLayer.layer) : ""}
             </span>
           </p>
           <span className="font-medium text-md text-neutral200">
-            ${formatPrice(data.floor *  getCurrencyPrice(currentLayer.layer))}
+            $
+            {currentLayer?.layer
+              ? formatPrice(data.floor * getCurrencyPrice(currentLayer.layer))
+              : "0"}
           </span>
         </div>
 
@@ -60,11 +62,14 @@ const CollectionCardList: React.FC<CardProps> = ({ data, handleNav }) => {
           <p className="font-medium text-lg text-neutral50">
             {formatPrice(data.volume)}
             <span className="ml-1 text-sm">
-              {getCurrencySymbol(currentLayer.layer)}
+              {currentLayer?.layer ? getCurrencySymbol(currentLayer.layer) : ""}
             </span>
           </p>
           <span className="font-medium text-md  text-neutral200">
-            ${formatPrice(data.volume *  getCurrencyPrice(currentLayer.layer))}
+            $
+            {currentLayer?.layer
+              ? formatPrice(data.volume * getCurrencyPrice(currentLayer.layer))
+              : "0"}
           </span>
         </div>
 
@@ -72,11 +77,16 @@ const CollectionCardList: React.FC<CardProps> = ({ data, handleNav }) => {
           <p className="font-medium text-lg text-neutral50">
             {formatPrice(data.marketCap)}
             <span className="ml-1 text-xs sm:text-sm">
-              {getCurrencySymbol(currentLayer.layer)}
+              {currentLayer?.layer ? getCurrencySymbol(currentLayer.layer) : ""}
             </span>
           </p>
           <span className="font-medium text-md text-neutral200">
-            ${formatPrice(data.marketCap *  getCurrencyPrice(currentLayer.layer))}
+            $
+            {currentLayer?.layer
+              ? formatPrice(
+                  data.marketCap * getCurrencyPrice(currentLayer.layer)
+                )
+              : "0"}
           </span>
         </div>
 

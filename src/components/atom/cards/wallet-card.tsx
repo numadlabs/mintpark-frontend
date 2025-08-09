@@ -14,7 +14,7 @@ export type ExtendedLayerType = {
 
 interface WalletCardProps {
   layer: ExtendedLayerType;
-  isWalletConnected: (id: string) => boolean;
+  // isWalletConnected: (id: string) => boolean;
   loading: boolean;
   onConnect: (layer: ExtendedLayerType) => void;
 }
@@ -29,8 +29,8 @@ const getWalletImage = (layer: string) => {
       return "/wallets/Metamask.png";
     case "HEMI":
       return "/wallets/Metamask.png";
-    // case "HEMITESTNET":
-    //   return "/wallets/Metamask.png";
+    case "CORE":
+      return "/wallets/Metamask.png";
     case "EDUCHAIN":
       return "/wallets/Metamask.png";
     default:
@@ -48,6 +48,8 @@ const getWalletName = (layer: string) => {
       return "MetaMask Wallet";
     case "HEMI":
       return "MetaMask Wallet";
+    case "CORE":
+      return "MetaMask Wallet";
     case "EDUCHAIN":
       return "MetaMask Wallet";
     default:
@@ -57,11 +59,11 @@ const getWalletName = (layer: string) => {
 
 export const WalletCard = ({
   layer,
-  isWalletConnected,
+  // isWalletConnected,
   loading,
   onConnect,
 }: WalletCardProps) => {
-  const connected = isWalletConnected(layer.id);
+  // const connected = isWalletConnected(layer.id);
 
   return (
     <button
@@ -85,11 +87,12 @@ export const WalletCard = ({
         <span className="text-xs bg-white8 px-2 py-1 rounded-full">Soon</span>
       ) : loading ? (
         <Loader2 className="h-4 w-4 animate-spin" />
-      ) : connected ? (
-        <span className="text-xs bg-success text-white px-2 py-1 rounded-full">
-          Connected
-        </span>
-      ) : null}
+      ) : // : connected ? (
+      //   <span className="text-xs bg-success text-white px-2 py-1 rounded-full">
+      //     Connected
+      //   </span>
+      // )
+      null}
     </button>
   );
 };

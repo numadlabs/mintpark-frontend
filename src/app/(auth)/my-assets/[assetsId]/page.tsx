@@ -16,16 +16,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import {
+  getAssetById,
   getCollectibleActivity,
-  getCollectionById,
-  getLayerById,
 } from "@/lib/service/queryHelper";
 import {
   getSigner,
   s3ImageUrlBuilder,
   formatPrice,
   formatTimeAgo,
-  truncateAddress,
 } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { useState, useCallback } from "react";
@@ -39,7 +37,6 @@ import { toast } from "sonner";
 import ActivityCard from "@/components/atom/cards/activity-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AssetDetailSkeleton from "@/components/atom/skeleton/asset-detail-skeleton";
-import { Collectible } from "@/lib/validations/collection-validation";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import CancelListModal from "@/components/modal/cancel-list-modal";
 import Link from "next/link";
@@ -53,7 +50,7 @@ const ACTIVITY_PER_PAGE = 20;
 export default function AssetsDetails() {
   const queryClient = useQueryClient();
   const params = useParams();
-  const { authState } = useAuth();
+  const { currentLayer, currentUserLayer } = useAuth();
 
   const id = params.assetsId as string;
   const [isVisible, setIsVisible] = useState(false);
@@ -75,14 +72,19 @@ export default function AssetsDetails() {
     },
   });
 
-  const { data: collectionData = [], isLoading: isCollectionLoading } =
-    useQuery<Collectible[] | null>({
-      queryKey: ["collectionData", id],
-      queryFn: () => getCollectionById(id),
-      enabled: !!id,
-    });
+  const {
+    data: collectible,
+    isLoading: isCollectibleLoading,
+    error,
+  } = useQuery({
+    queryKey: ["collectionData", id],
+    queryFn: async () => {
+      const result = await getAssetById(id);
+      return result;
+    },
+    enabled: !!id,
+  });
 
-  // Replace regular query with infinite query for activities
   const {
     data: activityData,
     fetchNextPage: fetchNextActivity,
@@ -92,76 +94,29 @@ export default function AssetsDetails() {
   } = useInfiniteQuery({
     queryKey: ["activityData", id, activityPageSize],
     queryFn: async ({ pageParam = 0 }) => {
-      if (!id) {
-        throw new Error("Asset ID is required");
-      }
       const response = await getCollectibleActivity(
         id,
         activityPageSize,
         pageParam * activityPageSize
       );
-
-      // Determine if we have more activities to load
-      const hasMore = response.length === activityPageSize;
-      setHasMoreActivity(hasMore);
-
+      setHasMoreActivity(response.length === activityPageSize);
       return response;
     },
     initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => {
-      return hasMoreActivity ? allPages.length : undefined;
-    },
-    enabled: Boolean(id),
+    getNextPageParam: (lastPage, allPages) =>
+      hasMoreActivity ? allPages.length : undefined,
+    enabled: !!id,
   });
 
-  // Memoize all activities from all pages
   const allActivities = activityData?.pages?.flat() ?? [];
 
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
+  // const collectible = collectionData?.[0];
 
-  // Activity infinite scroll observer
-  const loadMoreActivityRef = useCallback(
-    (node: HTMLDivElement | null) => {
-      if (!node) return;
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (
-            entries[0].isIntersecting &&
-            hasMoreActivity &&
-            !isFetchingNextActivity
-          ) {
-            fetchNextActivity();
-          }
-        },
-        {
-          rootMargin: "200px",
-          threshold: 0.1,
-        }
-      );
-
-      observer.observe(node);
-      return () => observer.disconnect();
-    },
-    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity]
-  );
-
-  const currentAsset = collectionData?.[0];
-
-  const toggleModal = () => {
-    setIsVisible(!isVisible);
-  };
-
-  const toggleCancelModal = () => {
-    setCancelModal(!cancelModal);
-  };
+  const toggleModal = () => setIsVisible(!isVisible);
+  const toggleCancelModal = () => setCancelModal(!cancelModal);
 
   const HandleList = async () => {
-    if (!currentAsset?.collectionId) {
+    if (!collectible?.collectionId) {
       toast.error("Collection ID not found");
       return;
     }
@@ -169,9 +124,8 @@ export default function AssetsDetails() {
     setIsLoading(true);
     try {
       const response = await createApprovalMutation({
-        collectionId: currentAsset.collectionId,
-        // tokenId: currentAsset.,
-        userLayerId: authState.userLayerId as string,
+        collectionId: collectible.collectionId,
+        userLayerId: currentUserLayer?.id as string,
       });
 
       if (response?.success) {
@@ -183,18 +137,16 @@ export default function AssetsDetails() {
           await signedTx?.wait();
           if (signedTx?.hash) setTxid(signedTx.hash);
         }
-        // else if (isApproved === true) {
-        const registerRes = await checkAndCreateRegisterMutation({
-          collectionId: currentAsset.collectionId,
-          userLayerId: authState.userLayerId as string,
 
-          tokenId: currentAsset.uniqueIdx.split("i")[1],
-          contractAddress: currentAsset.uniqueIdx.split("i")[0],
+        const registerRes = await checkAndCreateRegisterMutation({
+          collectionId: collectible.collectionId,
+          userLayerId: currentUserLayer?.id as string,
+          tokenId: collectible.uniqueIdx.split("i")[1],
+          contractAddress: collectible.uniqueIdx.split("i")[0],
         });
-        if (registerRes.success) {
-          if (!registerRes.data.isRegistered) {
-            toggleModal();
-          }
+
+        if (registerRes.success && !registerRes.data.isRegistered) {
+          toggleModal();
         }
       }
     } catch (error: any) {
@@ -204,7 +156,28 @@ export default function AssetsDetails() {
     }
   };
 
-  if (isCollectionLoading) {
+  const loadMoreActivityRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (!node) return;
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (
+            entries[0].isIntersecting &&
+            hasMoreActivity &&
+            !isFetchingNextActivity
+          ) {
+            fetchNextActivity();
+          }
+        },
+        { rootMargin: "200px", threshold: 0.1 }
+      );
+      observer.observe(node);
+      return () => observer.disconnect();
+    },
+    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity]
+  );
+
+  if (isCollectibleLoading) {
     return (
       <>
         <Header />
@@ -213,7 +186,7 @@ export default function AssetsDetails() {
     );
   }
 
-  if (!currentAsset) {
+  if (!collectible) {
     return (
       <>
         <Header />
@@ -237,12 +210,12 @@ export default function AssetsDetails() {
                   height={560}
                   draggable="false"
                   src={
-                    currentAsset.highResolutionImageUrl
-                      ? currentAsset.highResolutionImageUrl
-                      : s3ImageUrlBuilder(currentAsset.fileKey)
+                    collectible.highResolutionImageUrl
+                      ? collectible.highResolutionImageUrl
+                      : s3ImageUrlBuilder(collectible.fileKey)
                   }
                   className="aspect-square  opacity-60 inset-y-0 rounded-xl relative z-20 md:h-[343px] 3xl:h-[560px] 3xl:w-[560px] w-[343px] h-auto md2:h-auto md2:w-full"
-                  alt={`${currentAsset.name} logo`}
+                  alt={`${collectible.name} logo`}
                 />
               </div>
               <Image
@@ -250,26 +223,26 @@ export default function AssetsDetails() {
                 draggable="false"
                 height={560}
                 src={
-                  currentAsset.highResolutionImageUrl
-                    ? currentAsset.highResolutionImageUrl
-                    : s3ImageUrlBuilder(currentAsset.fileKey)
+                  collectible.highResolutionImageUrl
+                    ? collectible.highResolutionImageUrl
+                    : s3ImageUrlBuilder(collectible.fileKey)
                 }
                 className="aspect-square rounded-xl absolute z-20  w-[330px] h-auto md:h-[340px] md2:h-auto md2:w-full 2xl:w-[560px] 2xl:h-[560px] top-0"
-                alt={`${currentAsset.name} logo`}
+                alt={`${collectible.name} logo`}
               />
             </div>
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-2">
                 <p className="font-medium text-xl text-brand">
-                  {currentAsset.collectionName}
+                  {collectible.collectionName}
                 </p>
                 <span className="flex text-3xl font-bold text-neutral50">
-                  {currentAsset.name}
+                  {collectible.name}
                 </span>
               </div>
               <div className="w-full h-[1px] bg-neutral500" />
               <div className="flex flex-col justify-center gap-6">
-                {currentAsset.price === 0 ? (
+                {collectible.price === 0 ? (
                   "This asset is not listed"
                 ) : (
                   <div className="flex flex-col justify-center gap-6">
@@ -279,14 +252,14 @@ export default function AssetsDetails() {
                       </span>
                       <span className="font-bold text-neutral50 text-lg">
                         <h1>
-                          {formatPrice(currentAsset.price)}{" "}
-                          {getCurrencySymbol(currentLayer.layer)}
+                          {formatPrice(collectible.price)}{" "}
+                          {getCurrencySymbol(currentLayer?.layer ?? "Unknown")}
                         </h1>
                       </span>
                     </div>
                   </div>
                 )}
-                {currentAsset.price > 0 ? (
+                {collectible.price > 0 ? (
                   <div className="">
                     <Button
                       variant="secondary"
@@ -342,12 +315,12 @@ export default function AssetsDetails() {
                       </h1>
                       <Link
                         href={
-                          collectionData &&
-                          collectionData[0] &&
-                          currentAsset.ownedBy
+                          collectible &&
+                          // collectionData[0] &&
+                          collectible.ownedBy
                             ? getAddressExplorerUrl(
-                                collectionData[0].layer,
-                                currentAsset.ownedBy
+                                collectible.layer,
+                                collectible.ownedBy
                               )
                             : "#"
                         }
@@ -355,7 +328,7 @@ export default function AssetsDetails() {
                         rel="noopener noreferrer"
                         className="font-medium text-md text-neutral50 hover:text-brand transition-colors"
                       >
-                        {truncateAddress(currentAsset.ownedBy || "-")}
+                        {collectible.ownedBy}
                       </Link>
                     </div>
                     <div className="flex justify-between">
@@ -363,11 +336,11 @@ export default function AssetsDetails() {
                         Floor difference
                       </h1>
                       <p className="font-medium text-md text-success">
-                        {currentAsset.floorDifference === 0 ||
-                        currentAsset.floorDifference === 1
+                        {collectible.floorDifference === 0 ||
+                        collectible.floorDifference === 1
                           ? "-"
                           : `${Number(
-                              currentAsset.floorDifference
+                              collectible.floorDifference
                             ).toLocaleString("en-US", {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 4,
@@ -379,18 +352,18 @@ export default function AssetsDetails() {
                         Listed time
                       </h1>
                       <p className="font-medium text-md text-neutral50">
-                        {formatTimeAgo(currentAsset.createdAt)} ago
+                        {formatTimeAgo(collectible.createdAt)} ago
                       </p>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-2">
                   <AccordionTrigger className="font-medium text-xl text-neutral50">
-                    About {currentAsset.collectionName}
+                    About {collectible.collectionName}
                   </AccordionTrigger>
                   <AccordionContent>
                     <p className="text-neutral200 font-medium text-md">
-                      {currentAsset.description}
+                      {collectible.description}
                     </p>
                   </AccordionContent>
                 </AccordionItem>
@@ -438,12 +411,12 @@ export default function AssetsDetails() {
                             key={`${item.transactionHash}-${item.activityType}-${item.timestamp}`}
                             data={item}
                             imageUrl={
-                              currentAsset.highResolutionImageUrl
-                                ? currentAsset.highResolutionImageUrl
-                                : s3ImageUrlBuilder(currentAsset.fileKey)
+                              collectible.highResolutionImageUrl
+                                ? collectible.highResolutionImageUrl
+                                : s3ImageUrlBuilder(collectible.fileKey)
                             }
-                            currentLayer={currentLayer?.layer}
-                            currenAsset={currentAsset?.name}
+                            currentLayer={currentLayer}
+                            currenAsset={collectible?.name}
                           />
                         ))
                       ) : (
@@ -478,24 +451,23 @@ export default function AssetsDetails() {
         open={isVisible}
         onClose={toggleModal}
         imageUrl={
-          currentAsset.highResolutionImageUrl
-            ? currentAsset.highResolutionImageUrl
-            : s3ImageUrlBuilder(currentAsset.fileKey)
+          collectible.highResolutionImageUrl
+            ? collectible.highResolutionImageUrl
+            : s3ImageUrlBuilder(collectible.fileKey)
         }
-        uniqueIdx={currentAsset.uniqueIdx}
-        name={currentAsset.name}
-        collectionName={currentAsset.collectionName}
-        collectibleId={currentAsset.id}
+        uniqueIdx={collectible.uniqueIdx}
+        name={collectible.name}
+        collectionName={collectible.collectionName}
+        collectibleId={collectible.id}
         txid={txid}
         id={id}
-        isOwnListing={currentAsset.isOwnListing}
-        collectionId={currentAsset.collectionId} // add to this line
+        isOwnListing={collectible.isOwnListing}
       />
       <CancelListModal
         open={cancelModal}
         onClose={toggleCancelModal}
-        id={currentAsset.id}
-        listId={currentAsset.listId}
+        id={collectible.id}
+        listId={collectible.listId}
       />
     </>
   );

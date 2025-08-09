@@ -1,5 +1,6 @@
+// auth changes
+
 import React from "react";
-import moment from "moment";
 import { Progress } from "@/components/ui/progress";
 import { LaunchDataType } from "@/lib/types";
 import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
@@ -9,22 +10,14 @@ import { Unlimited } from "iconsax-react";
 import { useLaunchState } from "@/lib/hooks/useLaunchState";
 import { LAUNCH_STATE } from "@/lib/hooks/useLaunchState";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
-import { useQuery } from "@tanstack/react-query";
-import { getLayerById } from "@/lib/service/queryHelper";
-import { useAuth } from "@/components/provider/auth-context-provider";
 
 interface LaunchProps {
   data: LaunchDataType;
   id: string;
+  currentLayer: { layer: string } | null;
 }
 
-const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
-  const { authState } = useAuth();
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
+const LaunchpadCard: React.FC<LaunchProps> = ({ data, id, currentLayer }) => {
   const status = useLaunchState(data);
   const isActive =
     status === LAUNCH_STATE.LIVE || status === LAUNCH_STATE.INDEFINITE;
@@ -34,12 +27,12 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
     if (status === LAUNCH_STATE.INDEFINITE || status === LAUNCH_STATE.ENDED) {
       return 100;
     }
-    
+
     // Handle badge with null supply
     if (data.isBadge && data.badgeSupply === null) {
       return 0;
     }
-    
+
     // Calculate normal progress based on minted amount and supply
     return data?.supply > 0 ? (data?.mintedAmount / data?.supply) * 100 : 0;
   };
@@ -68,7 +61,6 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
     );
   };
 
-  //test
   const getMintPrice = (data: LaunchDataType): number => {
     const now = Math.floor(Date.now() / 1000);
 
@@ -123,7 +115,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
 
     // If all phases have ended, return the price of the last ended phase
     const endedPhases = phases.filter(
-      (phase) => phase.endsAt && now >= phase.endsAt,
+      (phase) => phase.endsAt && now >= phase.endsAt
     );
     if (endedPhases.length > 0) {
       // Sort by end time (latest first)
@@ -135,7 +127,6 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
     return data.poMintPrice || 0;
   };
 
-  //test
   return (
     <Link
       href={`/launchpad/${id}`}
@@ -163,7 +154,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id }) => {
           <p className="font-bold text-sm sm:text-md text-neutral50">
             {formatPrice(getMintPrice(data))}
             <span className="ml-1">
-              {getCurrencySymbol(currentLayer.layer)}
+              {getCurrencySymbol(currentLayer?.layer || "")}
             </span>
           </p>
         </div>

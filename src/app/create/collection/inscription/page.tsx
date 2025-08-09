@@ -1,3 +1,5 @@
+// auth changes
+
 "use client";
 
 import React, { useState } from "react";
@@ -36,18 +38,18 @@ import OrderPayModal from "@/components/modal/order-pay-modal";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
-import { getLayerById } from "@/lib/service/queryHelper";
-import { ethers } from "ethers";
 import { getSigner } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 import CreateBanner from "@/components/section/create-banner";
+import { Layer } from "@/lib/types/wallet";
 
 const Inscription = () => {
   const router = useRouter();
-  const { authState, selectedLayerId } = useAuth();
+  // const { authState, selectedLayerId } = useAuth();
+  const { currentUserLayer, currentLayer } = useAuth();
   const {
     imageFile,
     setImageFile,
@@ -131,11 +133,6 @@ const Inscription = () => {
     });
   };
 
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", selectedLayerId],
-    queryFn: () => getLayerById(selectedLayerId as string),
-    enabled: !!selectedLayerId,
-  });
 
   const calculateTimeUntilDate = (
     dateString: string,
@@ -179,7 +176,11 @@ const Inscription = () => {
       toast.error("Layer information not available");
       return;
     }
-    if (currentLayer.layer === "CITREA" && !window.ethereum) {
+    if (!currentUserLayer) {
+      toast.error("User layer not available");
+      return;
+    }
+    if (currentLayer.layerType === "EVM") {
       toast.error("Please install MetaMask extension to continue");
       return;
     }
@@ -191,8 +192,10 @@ const Inscription = () => {
         logo: imageFile[0],
         priceForLaunchpad: 0.001,
         type: "INSCRIPTION",
-        userLayerId: authState.userLayerId,
-        layerId: selectedLayerId,
+        // userLayerId: authState.userLayerId,
+        // layerId: selectedLayerId,
+        userLayerId: currentUserLayer.id,
+        layerId: currentUserLayer.layerId,
       };
       if (params) {
         const response = await createCollectionMutation({ data: params });
@@ -203,7 +206,7 @@ const Inscription = () => {
           setCollectionId(id);
           toast.success("Create collection success.");
 
-          if (currentLayer.layerType === "EVM") {
+          if (currentLayer.layerType) {
             const { signer } = await getSigner();
             const signedTx = await signer?.sendTransaction(deployContractTxHex);
             await signedTx?.wait();
@@ -312,7 +315,8 @@ const Inscription = () => {
         poEndsAt: poEndsAt,
         poMintPrice: POMintPrice,
         poMaxMintPerWallet: POMaxMintPerWallet,
-        userLayerId: authState.userLayerId,
+        // userLayerId: authState.userLayerId,
+        userLayerId: currentUserLayer!.id,
       };
 
       if (params && totalFileSize) {
@@ -393,12 +397,14 @@ const Inscription = () => {
     const batchSize = 10;
     const totalBatches = Math.ceil(files.length / batchSize);
     try {
-      if (collectionId && authState.userLayerId && totalFileSize) {
+      // if (collectionId && authState.userLayerId && totalFileSize)
+      if (collectionId && currentUserLayer!.id && totalFileSize) {
         const response = await createOrder({
           collectionId: collectionId,
           feeRate: 1,
           txid: txid,
-          userLayerId: authState.userLayerId,
+          // userLayerId: authState.userLayerId,
+          userLayerId: currentUserLayer!.id,
           totalFileSize: totalFileSize,
           totalCollectibleCount: files.length,
         });
@@ -709,7 +715,9 @@ const Inscription = () => {
                       </div>
                       <div className="absolute right-4">
                         <p className="text-md text-neutral200 font-medium">
-                          {getCurrencySymbol(currentLayer.layer)}
+                          {/* {getCurrencySymbol(currentLayer.layer)} */}
+                          {currentLayer &&
+                            getCurrencySymbol(currentLayer.layer)}
                         </p>
                       </div>
                     </div>

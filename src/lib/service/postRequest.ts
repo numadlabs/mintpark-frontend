@@ -15,6 +15,7 @@ import {
 } from "../types";
 import { collectibleFormData } from "./formHelper";
 import { toast } from "sonner";
+import { LinkAccountResponse, LoginResponse } from "../types/wallet";
 
 // Connect and Login sections
 export async function generateMessageHandler({ address }: { address: string }) {
@@ -44,13 +45,13 @@ export async function loginHandler({
   signedMessage: string;
   layerId: string;
   pubkey?: string;
-}) {
+}): Promise<LoginResponse> {
   try {
     // console.log("🚀 ~ loginHandler ~ walletData:", address);
     return axiosClient
       .post(
         `/api/v1/users/login`,
-        JSON.stringify({ address, signedMessage, layerId, pubkey }),
+        JSON.stringify({ address, signedMessage, layerId, pubkey })
       )
       .then((response) => {
         return response.data;
@@ -64,7 +65,7 @@ export async function loginHandler({
   }
 }
 
-export async function loginWalletLink({
+export async function linkAccount({
   address,
   signedMessage,
   layerId,
@@ -74,12 +75,12 @@ export async function loginWalletLink({
   signedMessage: string;
   layerId: string;
   pubkey?: string;
-}) {
+}): Promise<LinkAccountResponse> {
   try {
     return axiosClient
       .post(
         `/api/v1/users/link-account`,
-        JSON.stringify({ address, signedMessage, layerId, pubkey }),
+        JSON.stringify({ address, signedMessage, layerId, pubkey })
       )
       .then((response) => {
         return response.data;
@@ -108,7 +109,7 @@ export async function linkAccountToAnotherUser({
     return axiosClient
       .post(
         `/api/v1/users/link-account-to-another-user`,
-        JSON.stringify({ address, signedMessage, layerId, pubkey }),
+        JSON.stringify({ address, signedMessage, layerId, pubkey })
       )
       .then((response) => {
         return response.data;
@@ -160,7 +161,7 @@ export async function createMintCollectible({
     if (file instanceof File) {
       formData.append(`file`, file);
       toast.message(
-        `Appending file ${index}: ${file.name}, size: ${file.size}, type: ${file.type}`,
+        `Appending file ${index}: ${file.name}, size: ${file.size}, type: ${file.type}`
       );
     } else {
       console.error(`Invalid file at index ${index}:`, file);
@@ -220,7 +221,7 @@ export async function insriptionCollectible({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
     );
   });
 
@@ -270,7 +271,7 @@ export async function createLaunchItems({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
     );
   });
 
@@ -320,7 +321,7 @@ export async function createLaunchItemsIPFS({
   data.files.forEach((file, index) => {
     formData.append(`files`, file);
     console.log(
-      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+      `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
     );
   });
 
@@ -550,7 +551,7 @@ export async function createBadgeLaunch({
   if (badge instanceof File) {
     formData.append("badge", badge);
     console.log(
-      `Appending file: ${badge.name}, size: ${badge.size}, type: ${badge.type}`,
+      `Appending file: ${badge.name}, size: ${badge.size}, type: ${badge.type}`
     );
   } else if (badge) {
     console.error("Invalid file:", badge);
@@ -762,7 +763,7 @@ export async function launchItems({ data }: { data: LaunchItemType }) {
     data.files.forEach((file, index) => {
       formData.append("files", file);
       console.log(
-        `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`,
+        `Appending file: ${file.name}, size: ${file.size}, type: ${file.type}`
       );
     });
   }

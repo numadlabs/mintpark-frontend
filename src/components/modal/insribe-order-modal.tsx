@@ -1,3 +1,5 @@
+// auth changes
+
 import React, { useState } from "react";
 import {
   Dialog,
@@ -11,7 +13,6 @@ import { formatPrice } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import {
   checkOrderStatus,
-  getLayerById,
   getOrderById,
 } from "@/lib/service/queryHelper";
 import { useRouter } from "next/navigation"; // Note: from 'navigation' instead of 'router'
@@ -35,7 +36,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
   navigateToCreate,
   txid,
 }) => {
-  const { authState } = useAuth();
+  const { currentLayer } = useAuth();
   const [isPaid, setIsPaid] = useState(false);
   const { data: orders = [] } = useQuery({
     queryKey: ["orderData"],
@@ -51,11 +52,6 @@ const InscribeOrderModal: React.FC<modalProps> = ({
     refetchInterval: 5000,
   });
 
-  const { data: currentLayer = [] } = useQuery({
-    queryKey: ["currentLayerData", authState.layerId],
-    queryFn: () => getLayerById(authState.layerId as string),
-    enabled: !!authState.layerId,
-  });
 
   const totalFee = orders?.networkFee + orders?.serviceFee;
   const router = useRouter();
@@ -180,7 +176,7 @@ const InscribeOrderModal: React.FC<modalProps> = ({
         <div className="flex flex-row justify-between items-center -4 w-full bg-white4 rounded-2xl p-4">
           <p className="text-lg text-neutral100 font-medium">Total Amount</p>
           <p className="text-lg text-brand font-bold">
-            {formatPrice(totalFee)} {getCurrencySymbol(currentLayer.layer)}
+            {formatPrice(totalFee)} {currentLayer?.layer ? getCurrencySymbol(currentLayer.layer) : ''}
           </p>
         </div>
         <div className="h-[1px] w-full bg-white8" />
