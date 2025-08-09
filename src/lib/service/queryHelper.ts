@@ -37,6 +37,43 @@ import { Layer } from "../types/wallet";
 //       throw error;
 //     });
 // };
+//orderId api:
+
+export async function getOrderByCollectionIdBase(collectionId: string) {
+  console.log("Calling API for collection:", collectionId);
+  
+  return axiosClient
+    .get(`/api/v1/orders/${collectionId}/base`)
+    .then((response) => {
+      console.log("Raw API response:", response);
+      console.log("Response data:", response.data);
+      
+      if (response.data.success) {
+        // console.log("Success data:", response.data.data);
+        return response.data.data;
+      } else {
+        throw new Error(
+          response.data.error || response.data.message || "Failed to fetch order base data"
+        );
+      }
+    })
+    .catch((error) => {
+      console.error("Error in getOrderByCollectionIdBase:", error);
+      console.error("Error response:", error.response?.data);
+      
+      // If it's an axios error, extract the response error message
+      if (error.response?.data) {
+        const serverError = error.response.data.error || 
+          error.response.data.message || 
+          `Server error: ${error.response.status}`;
+        throw new Error(serverError);
+      }
+      
+      // Re-throw the error to maintain the original error message
+      throw error;
+    });
+}
+
 
 //inscription progress done
 
