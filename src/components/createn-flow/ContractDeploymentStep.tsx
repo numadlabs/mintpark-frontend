@@ -158,7 +158,7 @@ export function ContractDeploymentStep() {
       }
 
       console.log("Launch created successfully:", launchResponse.data);
-      toast.success("Collection and launch created successfully!");
+      // toast.success("Collection and launch created successfully!");
 
       // Move to next step only if both collection and launch are successful
       setCurrentStep(2);

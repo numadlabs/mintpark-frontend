@@ -183,8 +183,8 @@ export default function CreaterHeader() {
         layer.layer !== "BITCOIN" &&
         layer.name !== "Hemi Testnet" &&
         layer.name !== "EDU Chain Testnet" &&
-        layer.name !== "EDU Chain" &&
-        layer.name !== "CORE Testnet"
+        layer.name !== "EDU Chain"
+        // && layer.name !== "CORE Testnet"
     );
   }, [availableLayers]);
 

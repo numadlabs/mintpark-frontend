@@ -5,7 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
-import { formatDaysAgo, formatTimeRemaining, truncateAddress } from "@/lib/utils";
+import {
+  formatDaysAgo,
+  formatTimeRemaining,
+  truncateAddress,
+} from "@/lib/utils";
 import { getInscriptionProgress } from "@/lib/service/queryHelper";
 import CreaterLayout from "@/components/layout/createrLayout";
 import { useAuth } from "../provider/auth-context-provider";
@@ -205,7 +209,7 @@ export function InscriptionProgressPage() {
                     Estimated remaining time
                   </p>
                   <p className="text-white font-medium text-xl">
-                     {formatTimeRemaining(progressData.etaInMinutes)}
+                    {formatTimeRemaining(progressData.etaInMinutes)}
                   </p>
                 </div>
               </div>
@@ -235,7 +239,7 @@ export function InscriptionProgressPage() {
           )}
 
           {/* Discord Section */}
-          <div className="bg-darkSecondary border border-transLight4 rounded-xl p-6 mb-8">
+          {/* <div className="bg-darkSecondary border border-transLight4 rounded-xl p-6 mb-8">
             <h3 className="text-lg font-semibold text-white mb-2">
               Join Our Discord
             </h3>
@@ -263,7 +267,7 @@ export function InscriptionProgressPage() {
                 Invite me
               </Button>
             </div>
-          </div>
+          </div> */}
 
           {/* Actions */}
           <div className="flex justify-end gap-6">
