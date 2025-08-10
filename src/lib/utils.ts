@@ -471,8 +471,8 @@ export const DEFAULT_Z_INDEX_MAP: Record<string, number> = {
   aura: 10,
 
   // Pot NFT specific (based on your JSON)
-  pot: 2,
-  plant: 3,
+  plant: 2,
+  pot: 3,
   face: 4,
 
   // Other common types

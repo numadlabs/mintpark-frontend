@@ -67,17 +67,17 @@ export default function Header() {
   // Navigation routes - memoized to prevent re-creation
   const routes = useMemo<RouteItem[]>(
     () => [
-      {
-        title: "Create",
-        pageUrl: "/create",
-        requiresAuth: true,
-        disabled: true,
-        badge: "Soon",
-      },
+      // {
+      //   title: "Create",
+      //   pageUrl: "/create",
+      //   requiresAuth: true,
+      //   disabled: true,
+      //   badge: "Soon",
+      // },
+      { title: "Creater-tool", pageUrl: "/creater-tool" },
       { title: "Launchpad", pageUrl: "/launchpad" },
       { title: "Collections", pageUrl: "/collections" },
       // { title: "Verify", pageUrl: "/discord/verify" },
-      { title: "Creater-tool", pageUrl: "/creater-tool" },
     ],
     []
   );
@@ -189,8 +189,8 @@ export default function Header() {
         layer.layer !== "BITCOIN" &&
         layer.name !== "Hemi Testnet" &&
         layer.name !== "EDU Chain Testnet" &&
-        layer.name !== "EDU Chain" 
-        //&& layer.name !== "CORE Testnet"
+        layer.name !== "EDU Chain"
+      //&& layer.name !== "CORE Testnet"
     );
   }, [availableLayers]);
 

@@ -25,6 +25,17 @@ import {
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { sendTransaction } from "@wagmi/core";
+import { wagmiConfig } from "@/lib/wagmiConfig";
+
+// Phase type constants
+const PHASE_TYPES = {
+  WHITELIST: 0,
+  FCFS_WHITELIST: 1,
+  PUBLIC: 2,
+} as const;
+
+type PhaseType = (typeof PHASE_TYPES)[keyof typeof PHASE_TYPES];
 
 interface Duration {
   days: number;
@@ -34,7 +45,7 @@ interface Duration {
 interface Phase {
   id: number;
   name: string;
-  type: number; // 0: whitelist, 1: fcfs, 2: public
+  type: PhaseType; // Use the proper type
   mintPrice: number;
   maxMintPerWallet: number;
   duration: Duration;
@@ -45,7 +56,7 @@ interface Phase {
 }
 
 interface NewPhase {
-  type: number;
+  type: PhaseType; // Use the proper type
   mintPrice: string; // Changed to string to handle intermediate values
   maxMintPerWallet: string; // Changed to string
   duration: {
@@ -59,7 +70,7 @@ interface NewPhase {
 interface EditingPhaseData {
   id: number;
   name: string;
-  type: number;
+  type: PhaseType; // Use the proper type
   mintPrice: string;
   maxMintPerWallet: string;
   duration: {
@@ -106,7 +117,7 @@ const NFTLaunchInterface = () => {
     {
       id: 1,
       name: "Public Phase",
-      type: 2, // Public phase
+      type: PHASE_TYPES.PUBLIC, // Use constant instead of magic number
       mintPrice: 0,
       maxMintPerWallet: 1,
       duration: { days: 1, hours: 0 },
@@ -116,10 +127,12 @@ const NFTLaunchInterface = () => {
       addresses: [],
     },
   ]);
-  const [nextPhaseType, setNextPhaseType] = useState(0); // 0: whitelist, 1: fcfs
+  const [nextPhaseType, setNextPhaseType] = useState<PhaseType>(
+    PHASE_TYPES.WHITELIST
+  ); // Start with whitelist
 
   const [newPhase, setNewPhase] = useState<NewPhase>({
-    type: 0,
+    type: PHASE_TYPES.WHITELIST,
     mintPrice: "100", // Changed to string
     maxMintPerWallet: "1", // Changed to string
     duration: { days: "1", hours: "0" }, // Changed to strings
@@ -232,13 +245,13 @@ const NFTLaunchInterface = () => {
       .filter((addr) => addr.length > 0);
   };
 
-  const getPhaseTypeName = (type: number) => {
+  const getPhaseTypeName = (type: PhaseType) => {
     switch (type) {
-      case 0:
+      case PHASE_TYPES.WHITELIST:
         return "Whitelist Phase";
-      case 1:
+      case PHASE_TYPES.FCFS_WHITELIST:
         return "FCFS Phase";
-      case 2:
+      case PHASE_TYPES.PUBLIC:
         return "Public Phase";
       default:
         return "Unknown Phase";
@@ -267,15 +280,18 @@ const NFTLaunchInterface = () => {
     setPhases([...phases, phase]);
 
     // Update next phase type
-    if (nextPhaseType === 0) {
-      setNextPhaseType(1); // Next will be FCFS
-    } else if (nextPhaseType === 1) {
-      setNextPhaseType(2); // Will be disabled since public already exists
+    if (nextPhaseType === PHASE_TYPES.WHITELIST) {
+      setNextPhaseType(PHASE_TYPES.FCFS_WHITELIST); // Next will be FCFS
+    } else if (nextPhaseType === PHASE_TYPES.FCFS_WHITELIST) {
+      setNextPhaseType(PHASE_TYPES.PUBLIC); // Will be disabled since public already exists
     }
 
     // Reset form
     setNewPhase({
-      type: nextPhaseType === 0 ? 1 : 2,
+      type:
+        nextPhaseType === PHASE_TYPES.WHITELIST
+          ? PHASE_TYPES.FCFS_WHITELIST
+          : PHASE_TYPES.PUBLIC,
       mintPrice: "100",
       maxMintPerWallet: "1",
       duration: { days: "1", hours: "0" },
@@ -339,118 +355,23 @@ const NFTLaunchInterface = () => {
 
     // Reset next phase type based on remaining phases
     const remainingPhases = phases.filter((p) => p.id !== phaseId);
-    const hasWhitelist = remainingPhases.some((p) => p.type === 0);
-    const hasFcfs = remainingPhases.some((p) => p.type === 1);
+    const hasWhitelist = remainingPhases.some(
+      (p) => p.type === PHASE_TYPES.WHITELIST
+    );
+    const hasFcfs = remainingPhases.some(
+      (p) => p.type === PHASE_TYPES.FCFS_WHITELIST
+    );
 
     if (!hasWhitelist) {
-      setNextPhaseType(0);
+      setNextPhaseType(PHASE_TYPES.WHITELIST);
     } else if (!hasFcfs) {
-      setNextPhaseType(1);
+      setNextPhaseType(PHASE_TYPES.FCFS_WHITELIST);
     } else {
-      setNextPhaseType(2);
+      setNextPhaseType(PHASE_TYPES.PUBLIC);
     }
   };
 
-  // const handleSubmitForPreview = async () => {
-  //   if (!collection || !mintStartDate || !mintStartTime) {
-  //     toast.info("Please set mint start date and time");
-  //     return;
-  //   }
-
-  //   if (phases.length === 0) {
-  //     toast.info("Please add at least one phase");
-  //     return;
-  //   }
-
-  //   setIsSubmitting(true);
-
-  //   try {
-  //     const calculatedPhases = calculatePhaseTimes();
-  //     let launchId = "";
-
-  //     // Step 1: Add each phase
-  //     for (const phase of calculatedPhases) {
-  //       const phaseData = {
-  //         collectionId: collectionId,
-  //         phaseType: phase.type,
-  //         price: phase.mintPrice.toString(),
-  //         startTime: phase.startTime,
-  //         endTime: phase.endTime,
-  //         maxSupply: 0, // Set as string "0" as shown in Postman
-  //         maxPerWallet: phase.maxMintPerWallet,
-  //         maxMintPerPhase: 0, // Set as string "0" as shown in Postman
-  //         merkleRoot: "",
-  //         layerId: currentLayer?.id || "",
-  //         userLayerId: userLayerId,
-  //       };
-
-  //       const phaseResponse = await addPhase(phaseData);
-
-  //       // Store launch ID from first phase response (assuming it's returned)
-  //       if (!launchId && phaseResponse.launchId) {
-  //         launchId = phaseResponse.launchId;
-  //       }
-  //     }
-
-  //     // Step 2: Add whitelist addresses if whitelist phase exists
-  //     const whitelistPhase = calculatedPhases.find((p) => p.type === 0);
-  //     if (
-  //       whitelistPhase &&
-  //       whitelistPhase.addresses &&
-  //       whitelistPhase.addresses.length > 0 &&
-  //       launchId
-  //     ) {
-  //       // Process whitelist addresses in chunks of 50
-  //       const addressChunks = chunkArray(whitelistPhase.addresses, 50);
-
-  //       for (let i = 0; i < addressChunks.length; i++) {
-  //         const chunk = addressChunks[i];
-  //         console.log(
-  //           `Processing whitelist chunk ${i + 1}/${addressChunks.length} with ${
-  //             chunk.length
-  //           } addresses`
-  //         );
-
-  //         try {
-  //           await whitelistAddresses({
-  //             launchId: launchId,
-  //             addresses: chunk,
-  //             phase: "whitelist",
-  //           });
-
-  //           // Add a small delay between chunks to avoid overwhelming the server
-  //           if (i < addressChunks.length - 1) {
-  //             await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms delay
-  //           }
-  //         } catch (error) {
-  //           console.error(`Error processing whitelist chunk ${i + 1}:`, error);
-  //           // Continue with next chunk even if one fails
-  //         }
-  //       }
-
-  //       console.log(
-  //         `Successfully processed ${addressChunks.length} whitelist chunks`
-  //       );
-  //     }
-
-  //     // Step 3: Submit collection for review
-  //     await submitCollectionForReview({
-  //       collectionId: collectionId,
-  //       address: currentUserLayer?.address || "", // You might need to get this from user context
-  //     });
-
-  //     toast.success("Collection submitted for preview successfully!");
-
-  //     // Navigate to /creater-tool after success
-  //     router.push("/creater-tool");
-  //   } catch (error) {
-  //     console.error("Error submitting collection:", error);
-  //     toast.error("Failed to submit collection for preview. Please try again.");
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
-
+  // Modified handleSubmitForPreview function with sendTransaction
   const handleSubmitForPreview = async () => {
     if (!collection || !mintStartDate || !mintStartTime) {
       toast.info("Please set mint start date and time");
@@ -462,57 +383,91 @@ const NFTLaunchInterface = () => {
       return;
     }
 
+    if (!currentUserLayer?.address) {
+      toast.error("Wallet not connected");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       const calculatedPhases = calculatePhaseTimes();
-      let launchId = "";
+      let launchId = collection.launchId;
 
+      console.log("here is collection.launchID", launchId);
       console.log("Calculated phases:", calculatedPhases);
 
-      // Step 1: Add each phase
+      // Step 1: Add each phase with transaction sending
       for (const phase of calculatedPhases) {
-        const phaseData = {
-          collectionId: collectionId,
-          phaseType: phase.type,
-          price: phase.mintPrice.toString(),
-          startTime: phase.startTime,
-          endTime: phase.endTime,
-          maxSupply: 0,
-          maxPerWallet: phase.maxMintPerWallet,
-          maxMintPerPhase: 0,
-          merkleRoot: "",
-          layerId: currentLayer?.id || "",
-          userLayerId: userLayerId,
-        };
+        try {
+          console.log(`Processing phase: ${phase.name}`);
 
-        console.log("Adding phase:", phaseData);
-        const phaseResponse = await addPhase(phaseData);
-        console.log("Phase response:", phaseResponse);
+          // Prepare phase data
+          const phaseData = {
+            collectionId: collectionId,
+            phaseType: phase.type, // This should now use the correct constants
+            price: phase.mintPrice.toString(),
+            startTime: phase.startTime,
+            endTime: phase.endTime,
+            maxSupply: 0,
+            maxPerWallet: phase.maxMintPerWallet,
+            maxMintPerPhase: 0,
+            merkleRoot: "",
+            layerId: currentLayer?.id || "",
+            userLayerId: userLayerId,
+          };
 
-        // Store launch ID from first phase response
-        if (!launchId && phaseResponse?.launchId) {
-          launchId = phaseResponse.launchId;
-          console.log("Launch ID found:", launchId);
-        }
+          console.log("Adding phase:", phaseData);
+          const phaseResponse = await addPhase(phaseData);
+          console.log("Phase response:", phaseResponse);
 
-        // Alternative: If launchId is not in the response, check other properties
-        if (!launchId && phaseResponse?.data?.launchId) {
-          launchId = phaseResponse.data.launchId;
-          console.log("Launch ID found in data:", launchId);
-        }
+          // Send transaction if there's transaction data
+          if (phaseResponse?.data?.unsignedTx) {
+            console.log(`Sending transaction for phase: ${phase.name}`);
+            const txHash = await sendTransaction(wagmiConfig, {
+              to: phaseResponse.data.unsignedTx.to,
+              data: phaseResponse.data.unsignedTx.data,
+              value: phaseResponse.data.unsignedTx.value || "0x0",
+              gas: phaseResponse.data.unsignedTx.gas,
+              gasPrice: phaseResponse.data.unsignedTx.gasPrice,
+            });
+            console.log(`Transaction hash for ${phase.name}:`, txHash);
+          }
 
-        // Another alternative: If it's returned as 'id'
-        if (!launchId && phaseResponse?.id) {
-          launchId = phaseResponse.id;
-          console.log("Launch ID found as id:", launchId);
+          // Store launch ID from first phase response
+          if (!launchId && phaseResponse?.launchId) {
+            launchId = phaseResponse.launchId;
+            console.log("Launch ID found:", launchId);
+          }
+
+          // Alternative: If launchId is not in the response, check other properties
+          if (!launchId && phaseResponse?.data?.launchId) {
+            launchId = phaseResponse.data.launchId;
+            console.log("Launch ID found in data:", launchId);
+          }
+
+          // Another alternative: If it's returned as 'id'
+          if (!launchId && phaseResponse?.id) {
+            launchId = phaseResponse.id;
+            console.log("Launch ID found as id:", launchId);
+          }
+
+          // Add a small delay between phase additions to avoid overwhelming the server
+          if (calculatedPhases.indexOf(phase) < calculatedPhases.length - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second delay
+          }
+        } catch (phaseError) {
+          console.error(`Error adding phase ${phase.name}:`, phaseError);
+          throw new Error(`Failed to add phase: ${phase.name}`);
         }
       }
 
       console.log("Final launch ID:", launchId);
 
-      // Step 2: Add whitelist addresses if whitelist phase exists
-      const whitelistPhase = calculatedPhases.find((p) => p.type === 0);
+      // Step 2: Handle whitelist addresses for whitelist phase only
+      const whitelistPhase = calculatedPhases.find(
+        (p) => p.type === PHASE_TYPES.WHITELIST
+      );
       console.log("Whitelist phase found:", whitelistPhase);
 
       if (whitelistPhase) {
@@ -543,7 +498,7 @@ const NFTLaunchInterface = () => {
             const whitelistResponse = await whitelistAddresses({
               launchId: launchId,
               addresses: chunk,
-              phase: "whitelist",
+              phase: "WHITELIST", // Make sure this matches your backend expectation
             });
             console.log(
               `Whitelist chunk ${i + 1} response:`,
@@ -574,7 +529,40 @@ const NFTLaunchInterface = () => {
         console.log("- Has launch ID:", !!launchId);
       }
 
-      // Step 3: Submit collection for review
+      // Step 3: Handle FCFS addresses if there's an FCFS phase
+      const fcfsPhase = calculatedPhases.find(
+        (p) => p.type === PHASE_TYPES.FCFS_WHITELIST
+      );
+
+      if (
+        fcfsPhase &&
+        fcfsPhase.addresses &&
+        fcfsPhase.addresses.length > 0 &&
+        launchId
+      ) {
+        console.log("Processing FCFS addresses...");
+
+        const addressChunks = chunkArray(fcfsPhase.addresses, 50);
+
+        for (let i = 0; i < addressChunks.length; i++) {
+          const chunk = addressChunks[i];
+          try {
+            await whitelistAddresses({
+              launchId: launchId,
+              addresses: chunk,
+              phase: "FCFS_WHITELIST", // Make sure this matches your backend expectation
+            });
+
+            if (i < addressChunks.length - 1) {
+              await new Promise((resolve) => setTimeout(resolve, 500));
+            }
+          } catch (error) {
+            console.error(`Error processing FCFS chunk ${i + 1}:`, error);
+          }
+        }
+      }
+
+      // Step 4: Submit collection for review
       console.log("Submitting collection for review...");
       await submitCollectionForReview({
         collectionId: collectionId,
@@ -653,7 +641,6 @@ const NFTLaunchInterface = () => {
     <div className="min-h-screen bg-gradient-to-br from-neutral600 via-darkPrimary to-neutral600">
       <div className="max-w-4xl mx-auto px-6 py-12 text-white">
         {/* Header */}
-
         <div className="flex items-center gap-4 mb-6">
           <Button
             onClick={() => router.push("/creater-tool")}
@@ -714,7 +701,7 @@ const NFTLaunchInterface = () => {
                   <div className="bg-white rounded-sm"></div>
                 </div>
                 <span className="font-medium">
-                  {collection.inscriptionCount || 0} inscriptions
+                  {collection.supply || 0} inscriptions
                 </span>
               </span>
             </div>
@@ -758,7 +745,7 @@ const NFTLaunchInterface = () => {
           <h3 className="text-xl font-bold mb-6">Launch Phases</h3>
 
           {/* Only show add buttons for whitelist and FCFS if they don't exist yet */}
-          {nextPhaseType < 2 && (
+          {nextPhaseType < PHASE_TYPES.PUBLIC && (
             <button
               onClick={() => {
                 setNewPhase({
@@ -831,7 +818,7 @@ const NFTLaunchInterface = () => {
                 )}
 
                 {/* Only show remove button for non-public phases or if there are multiple phases */}
-                {(phase.type !== 2 || phases.length > 1) && (
+                {(phase.type !== PHASE_TYPES.PUBLIC || phases.length > 1) && (
                   <div className="flex justify-end">
                     <button
                       onClick={() => handleRemovePhase(phase.id)}
@@ -965,8 +952,9 @@ const NFTLaunchInterface = () => {
             </div>
           </div>
 
-          {/* Allowlist - Only show for whitelist phase */}
-          {newPhase.type === 0 && (
+          {/* Allowlist - Only show for whitelist and FCFS phases */}
+          {(newPhase.type === PHASE_TYPES.WHITELIST ||
+            newPhase.type === PHASE_TYPES.FCFS_WHITELIST) && (
             <div>
               <label className="block text-sm font-semibold mb-3 text-neutral200">
                 Allowlist
@@ -1128,8 +1116,9 @@ const NFTLaunchInterface = () => {
               </div>
             </div>
 
-            {/* Allowlist - Only show for whitelist phase */}
-            {editingPhase.type === 0 && (
+            {/* Allowlist - Only show for whitelist and FCFS phases */}
+            {(editingPhase.type === PHASE_TYPES.WHITELIST ||
+              editingPhase.type === PHASE_TYPES.FCFS_WHITELIST) && (
               <div>
                 <label className="block text-sm font-semibold mb-3 text-neutral200">
                   Allowlist

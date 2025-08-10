@@ -72,10 +72,12 @@ export const collectibleSchema = z.object({
 // NEW: Creator Collection Schema
 export const creatorCollectionSchema = z.object({
   collectionId: z.string(),
+  launchId:z.string(),
   name: z.string(),
   logoKey: z.string().nullable(),
   layer: z.string(),
   network: z.string(),
+  supply:z.number(),
   paymentInitialized: z.boolean(),
   paymentCompleted: z.boolean(),
   queued: z.boolean(),
@@ -88,7 +90,6 @@ export const creatorCollectionSchema = z.object({
   launchRejected: z.boolean(),
   launchConfirmed: z.boolean(),
   progressState: z.string(),
-  inscriptionCount:z.number(),
 });
 
 // NEW: Launch Creator Tool Data Schema
