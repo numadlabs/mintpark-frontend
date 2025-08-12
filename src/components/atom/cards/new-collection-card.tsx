@@ -4,10 +4,21 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "iconsax-react";
 import { CreatorCollection } from "@/lib/validations/collection-validation";
 import { s3ImageUrlBuilder } from "@/lib/utils";
-import { Info, Clock, Pause, CheckCircle, Copy, Check, Hourglass } from "lucide-react";
+import {
+  Info,
+  Clock,
+  Pause,
+  CheckCircle,
+  Copy,
+  Check,
+  Hourglass,
+} from "lucide-react";
 import { getInscriptionProgress } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { getCurrencyImage } from "@/lib/service/currencyHelper";
+import ClaimFeePopup from "@/components/popup/claim";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface NewCollectionCardProps {
   collection: CreatorCollection;
@@ -41,13 +52,14 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
   const [progressData, setProgressData] = useState<ProgressData | null>(null);
   const [isLoadingProgress, setIsLoadingProgress] = useState(false);
   const [copiedOrderId, setCopiedOrderId] = useState(false);
+  const [showClaimPopup, setShowClaimPopup] = useState(false);
+  const router = useRouter();
 
   // Fetch progress data for collections that are inscribing
   useEffect(() => {
     const shouldFetchProgress =
       collection.progressState === "QUEUED" ||
       collection.progressState === "RAN_OUT_OF_FUNDS";
-
     if (shouldFetchProgress) {
       fetchProgressData();
       // Set up interval for real-time updates
@@ -63,11 +75,6 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
         collectionId: collection.collectionId,
         userLayerId: currentUserLayer?.id,
       });
-
-      // Debug: Log the actual data structure to see what fields are available
-      // console.log("Collection progress data received:", data);
-      // console.log("Available fields:", Object.keys(data));
-
       setProgressData(data);
     } catch (error) {
       console.error("Failed to fetch progress data:", error);
@@ -102,14 +109,20 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
     }
   };
 
+  const handleClaimSuccess = (walletAddress: string) => {
+    // console.log(`Claim successful for address: ${walletAddress}`);
+    if (onClaim) {
+      onClaim();
+    }
+    setShowClaimPopup(false);
+    // window.location.reload();
+    collection.leftoverClaimed = true;
+  };
   const getProgressText = () => {
     if (!progressData) {
-      // Fallback to existing data - using retopAmount for both done and total as fallback
-      return `Progress: ${collection.retopAmount || 0} / ${
-        collection.retopAmount || 0
-      }`;
+      return `${collection.retopAmount || 0} / ${collection.retopAmount || 0}`;
     }
-    return `Progress: ${progressData.done} / ${progressData.total}`;
+    return `${progressData.done} / ${progressData.total}`;
   };
 
   const getStatusConfig = () => {
@@ -134,7 +147,7 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
         return {
           showBottomCard: true,
           bottomType: "info",
-          bottomTitle: "Inscribing",
+          bottomTitle: "Progress",
           bottomMessage: getProgressText(),
           BottomIconComponent: Clock,
           bottomIconBg: "bg-transLight4",
@@ -185,12 +198,27 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
           showBottomCard: true,
           bottomType: "info",
           bottomTitle: "Reviewing your launch details",
-          bottomMessage: "Review in progress. Your minter will be visible when approved.",
+          bottomMessage:
+            "Review in progress. Your minter will be visible when approved.",
           BottomIconComponent: Hourglass,
           bottomIconBg: "bg-transLight4",
           primaryButton: {
             text: "Launch Details",
             action: onLaunchDetails,
+          },
+          showSecondaryButton: false,
+        };
+      case "LAUNCH_CONFIRMED":
+        return {
+          showBottomCard: true,
+          bottomType: "success",
+          bottomTitle: "Launch Confirmed",
+          bottomMessage: "Your collection is now live and ready for minting!",
+          BottomIconComponent: CheckCircle,
+          bottomIconBg: "bg-succesQuaternary",
+          primaryButton: {
+            text: "Go to Launchpad",
+            action: () => (window.location.href = "/launchpad"),
           },
           showSecondaryButton: false,
         };
@@ -209,7 +237,7 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
             showSecondaryButton: true,
             secondaryButton: {
               text: `Claim ${collection.leftoverAmount / 1e8} BTC`,
-              action: onClaim,
+              action: () => setShowClaimPopup(true), // Зөвхөн popup нээх
             },
           };
         }
@@ -382,15 +410,6 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
                   )}
                 </div>
               )}
-
-              {/* Show loading indicator when fetching progress */}
-              {/* {isLoadingProgress &&
-                (collection.progressState === "QUEUED" ||
-                  collection.progressState === "RAN_OUT_OF_FUNDS") && (
-                  <p className="text-lightTertiary text-xs mt-2">
-                    Updating progress...
-                  </p>
-                )} */}
             </div>
           </div>
 
@@ -404,6 +423,13 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
           )}
         </div>
       )}
+      <ClaimFeePopup
+        isOpen={showClaimPopup}
+        onClose={() => setShowClaimPopup(false)}
+        amountToClaim={collection.leftoverAmount}
+        collectionId={collection.collectionId}
+        onClaim={handleClaimSuccess}
+      />
     </div>
   );
 };

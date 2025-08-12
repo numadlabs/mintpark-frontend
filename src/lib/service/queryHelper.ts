@@ -16,67 +16,42 @@ import { AssetSchema, ActivitySchema } from "../validations/asset-validation";
 import { ActivityType } from "../types";
 import { Layer } from "../types/wallet";
 
-// export const checkPaymentStatus = async (
-//   orderId: string
-// ): Promise<CheckPaymentProcess> => {
-//   return axiosClient
-//     .get(`/api/v1/orders/${orderId}/check-paid`)
-//     .then((response) => {
-//       if (response.data.success) {
-//         return response.data;
-//       } else {
-//         throw new Error(
-//           response.data.error ||
-//             response.data.message ||
-//             "Failed to check payment status"
-//         );
-//       }
-//     })
-//     .catch((error) => {
-//       console.error("Error checking payment status:", error);
-//       throw error;
-//     });
-// };
-//orderId api:
 
 export async function getOrderByCollectionIdBase(collectionId: string) {
-  console.log("Calling API for collection:", collectionId);
-  
+  // console.log("Calling API for collection:", collectionId);
+
   return axiosClient
     .get(`/api/v1/orders/${collectionId}/base`)
     .then((response) => {
-      console.log("Raw API response:", response);
-      console.log("Response data:", response.data);
-      
       if (response.data.success) {
-        // console.log("Success data:", response.data.data);
         return response.data.data;
       } else {
         throw new Error(
-          response.data.error || response.data.message || "Failed to fetch order base data"
+          response.data.error ||
+            response.data.message ||
+            "Failed to fetch order base data"
         );
       }
     })
     .catch((error) => {
       console.error("Error in getOrderByCollectionIdBase:", error);
       console.error("Error response:", error.response?.data);
-      
+
       // If it's an axios error, extract the response error message
       if (error.response?.data) {
-        const serverError = error.response.data.error || 
-          error.response.data.message || 
+        const serverError =
+          error.response.data.error ||
+          error.response.data.message ||
           `Server error: ${error.response.status}`;
         throw new Error(serverError);
       }
-      
+
       // Re-throw the error to maintain the original error message
       throw error;
     });
 }
 
-
 //inscription progress done
-
 export const checkPaymentStatus = async (
   orderId: string
 ): Promise<CheckPaymentProcess> => {
@@ -86,23 +61,25 @@ export const checkPaymentStatus = async (
       if (response.data.success) {
         return response.data;
       } else {
-        const errorMessage = response.data.error || 
-                           response.data.message || 
-                           "Failed to check payment status";
+        const errorMessage =
+          response.data.error ||
+          response.data.message ||
+          "Failed to check payment status";
         throw new Error(errorMessage);
       }
     })
     .catch((error) => {
       console.error("Error checking payment status:", error);
-      
+
       // If it's an axios error, extract the response error message
       if (error.response?.data) {
-        const serverError = error.response.data.error || 
-                           error.response.data.message || 
-                           `Server error: ${error.response.status}`;
+        const serverError =
+          error.response.data.error ||
+          error.response.data.message ||
+          `Server error: ${error.response.status}`;
         throw new Error(serverError);
       }
-      
+
       // Re-throw the error to maintain the original error message
       throw error;
     });

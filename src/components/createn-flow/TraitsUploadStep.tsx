@@ -25,7 +25,6 @@ function estimateRecursiveInscriptionVBytes(numItems: number) {
   const opCodeOverheadVBytes = Math.ceil(inscriptionSize / 520) * 3;
   const revealVBytes =
     Math.ceil(inscriptionSize / 4) + opCodeOverheadVBytes + 200; // Transaction overhead included
-
   return {
     totalVBytes: commitVBytes + revealVBytes,
   };

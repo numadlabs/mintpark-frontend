@@ -1,15 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  X,
-  Calendar,
-  Clock,
-  Edit2,
-  Trash2,
-  Plus,
-  HelpCircle,
-} from "lucide-react";
+import { X, Calendar, Clock, Edit2, Trash2, Plus } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { CreatorCollection } from "@/lib/validations/collection-validation";
@@ -27,13 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { sendTransaction } from "@wagmi/core";
 import { wagmiConfig } from "@/lib/wagmiConfig";
-
-// Phase type constants
-const PHASE_TYPES = {
-  WHITELIST: 0,
-  FCFS_WHITELIST: 1,
-  PUBLIC: 2,
-} as const;
+import { PHASE_TYPES } from "@/lib/constants";
 
 type PhaseType = (typeof PHASE_TYPES)[keyof typeof PHASE_TYPES];
 
@@ -45,38 +31,31 @@ interface Duration {
 interface Phase {
   id: number;
   name: string;
-  type: PhaseType; // Use the proper type
+  type: PhaseType;
   mintPrice: number;
   maxMintPerWallet: number;
   duration: Duration;
-  startTime: number; // Unix timestamp
-  endTime: number; // Unix timestamp
+  startTime: number; // unix seconds
+  endTime: number; // unix seconds
   allowlist?: string;
-  addresses?: string[]; // Parsed addresses from allowlist
+  addresses?: string[];
 }
 
 interface NewPhase {
-  type: PhaseType; // Use the proper type
-  mintPrice: string; // Changed to string to handle intermediate values
-  maxMintPerWallet: string; // Changed to string
-  duration: {
-    days: string; // Changed to string
-    hours: string; // Changed to string
-  };
+  type: PhaseType;
+  mintPrice: string;
+  maxMintPerWallet: string;
+  duration: { days: string; hours: string };
   allowlist: string;
 }
 
-// New interface for editing phase with string values
 interface EditingPhaseData {
   id: number;
   name: string;
-  type: PhaseType; // Use the proper type
+  type: PhaseType;
   mintPrice: string;
   maxMintPerWallet: string;
-  duration: {
-    days: string;
-    hours: string;
-  };
+  duration: { days: string; hours: string };
   startTime: number;
   endTime: number;
   allowlist: string;
@@ -95,29 +74,32 @@ const NFTLaunchInterface = () => {
   const router = useRouter();
   const { currentUserLayer, currentLayer } = useAuth();
   const collectionId = params.collectionId as string;
-  const [showMintHelpModal, setShowMintHelpModal] = useState(false);
 
-  // State for collection data
+  // Collection
   const [collection, setCollection] = useState<CreatorCollection | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Submit
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Launch start time state
+  // Global start
   const [mintStartDate, setMintStartDate] = useState("");
   const [mintStartTime, setMintStartTime] = useState("");
 
-  // Existing state
+  // Modals / edit
   const [showAddPhaseModal, setShowAddPhaseModal] = useState(false);
   const [showEditPhaseModal, setShowEditPhaseModal] = useState(false);
   const [editingPhase, setEditingPhase] = useState<EditingPhaseData | null>(
     null
   );
+
+  // Phases local state (public exists by default)
   const [phases, setPhases] = useState<Phase[]>([
     {
       id: 1,
-      name: "Public Phase",
-      type: PHASE_TYPES.PUBLIC, // Use constant instead of magic number
+      name: "Public",
+      type: PHASE_TYPES.PUBLIC,
       mintPrice: 0,
       maxMintPerWallet: 1,
       duration: { days: 1, hours: 0 },
@@ -127,47 +109,102 @@ const NFTLaunchInterface = () => {
       addresses: [],
     },
   ]);
+
   const [nextPhaseType, setNextPhaseType] = useState<PhaseType>(
     PHASE_TYPES.WHITELIST
-  ); // Start with whitelist
+  );
 
   const [newPhase, setNewPhase] = useState<NewPhase>({
     type: PHASE_TYPES.WHITELIST,
-    mintPrice: "100", // Changed to string
-    maxMintPerWallet: "1", // Changed to string
-    duration: { days: "1", hours: "0" }, // Changed to strings
+    mintPrice: "0.0003",
+    maxMintPerWallet: "1",
+    duration: { days: "0", hours: "3" },
     allowlist: "",
   });
 
   const userLayerId = currentUserLayer?.id || "";
 
-  // Helper function to safely convert string to number
-  const safeParseNumber = (value: string, fallback: number = 0): number => {
+  const safeParseNumber = (value: string, fallback = 0): number => {
     if (value === "" || value === ".") return fallback;
-    const parsed = parseFloat(value);
-    return isNaN(parsed) ? fallback : parsed;
+    const n = parseFloat(value);
+    return Number.isNaN(n) ? fallback : n;
   };
-
-  // Helper function to safely convert string to integer
-  const safeParseInt = (value: string, fallback: number = 0): number => {
+  const safeParseInt = (value: string, fallback = 0): number => {
     if (value === "") return fallback;
-    const parsed = parseInt(value);
-    return isNaN(parsed) ? fallback : parsed;
+    const n = parseInt(value);
+    return Number.isNaN(n) ? fallback : n;
   };
 
-  // Helper function to chunk array into smaller arrays
-  const chunkArray = <T,>(array: T[], chunkSize: number): T[][] => {
-    const chunks: T[][] = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
-      chunks.push(array.slice(i, i + chunkSize));
+  const chunkArray = <T,>(arr: T[], size: number) => {
+    const out: T[][] = [];
+    for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
+    return out;
+  };
+
+  const dateTimeToUnix = (date: string, time: string) => {
+    const d = new Date(`${date}T${time}`);
+    return Math.floor(d.getTime() / 1000);
+  };
+
+  const parseAllowlistAddresses = (s: string): string[] =>
+    s
+      .split(/[\n,]/)
+      .map((x) => x.trim())
+      .filter(Boolean);
+
+  const getPhaseTypeName = (type: PhaseType) => {
+    switch (type) {
+      case PHASE_TYPES.WHITELIST:
+        return "Whitelist";
+      case PHASE_TYPES.FCFS_WHITELIST:
+        return "FCFS Whitelist";
+      case PHASE_TYPES.PUBLIC:
+        return "Public";
+      default:
+        return "Phase";
     }
-    return chunks;
   };
 
-  // Fetch collection data
+  const PHASE_ORDER: Record<PhaseType, number> = {
+    [PHASE_TYPES.WHITELIST]: 0,
+    [PHASE_TYPES.FCFS_WHITELIST]: 1,
+    [PHASE_TYPES.PUBLIC]: 2,
+  };
+
+  const sortPhasesByType = (list: Phase[]) =>
+    [...list].sort((a, b) => PHASE_ORDER[a.type] - PHASE_ORDER[b.type]);
+
+  const computePhaseTimes = (
+    baseDate: string,
+    baseTime: string,
+    sorted: Phase[]
+  ) => {
+    if (!baseDate || !baseTime)
+      return sorted.map((p) => ({ ...p, startTime: 0, endTime: 0 }));
+    const start = dateTimeToUnix(baseDate, baseTime);
+    let cursor = start;
+    return sorted.map((p) => {
+      const secs = p.duration.days * 24 * 3600 + p.duration.hours * 3600;
+      const end = cursor + secs;
+      const out = { ...p, startTime: cursor, endTime: end };
+      cursor = end;
+      return out;
+    });
+  };
+
+  const formatUnix = (unix: number) => {
+    if (!unix) return "-";
+    const d = new Date(unix * 1000);
+    return d.toLocaleString(undefined, {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  };
   useEffect(() => {
     fetchCollectionData();
-    // Set default mint start date to tomorrow
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     setMintStartDate(tomorrow.toISOString().split("T")[0]);
@@ -176,91 +213,34 @@ const NFTLaunchInterface = () => {
 
   const fetchCollectionData = async () => {
     if (!collectionId || !userLayerId) return;
-
     try {
       setLoading(true);
-      // Fetch all collections and find the specific one
-      const collections = await createrCollection(userLayerId, 1, 100);
-      const targetCollection = collections.find(
-        (col: CreatorCollection) => col.collectionId === collectionId
+      const list = await createrCollection(userLayerId, 1, 100);
+      const target = list.find(
+        (c: CreatorCollection) => c.collectionId === collectionId
       );
-
-      if (targetCollection) {
-        setCollection(targetCollection);
-        setError(null);
-      } else {
+      if (!target) {
         setError("Collection not found");
+      } else {
+        setCollection(target);
+        setError(null);
       }
-    } catch (error) {
-      console.error("Failed to fetch collection data:", error);
+    } catch (e) {
+      console.error(e);
       setError("Failed to load collection data");
     } finally {
       setLoading(false);
     }
   };
 
-  // Convert date and time to Unix timestamp
-  const dateTimeToUnix = (date: string, time: string) => {
-    const dateTime = new Date(`${date}T${time}`);
-    return Math.floor(dateTime.getTime() / 1000);
-  };
-
-  // Get current time as Unix timestamp
-  const getCurrentUnixTime = () => {
-    return Math.floor(Date.now() / 1000);
-  };
-
-  // Calculate phase times based on mint start time and durations
-  const calculatePhaseTimes = () => {
-    if (!mintStartDate || !mintStartTime) return [];
-
-    const startUnixTime = dateTimeToUnix(mintStartDate, mintStartTime);
-    const calculatedPhases: Phase[] = [];
-    let currentStartTime = startUnixTime;
-
-    phases.forEach((phase, index) => {
-      const durationInSeconds =
-        phase.duration.days * 24 * 60 * 60 + phase.duration.hours * 60 * 60;
-      const endTime = currentStartTime + durationInSeconds;
-
-      calculatedPhases.push({
-        ...phase,
-        startTime: currentStartTime,
-        endTime: endTime,
-      });
-
-      currentStartTime = endTime; // Next phase starts when current phase ends
-    });
-
-    return calculatedPhases;
-  };
-
-  // Parse allowlist addresses
-  const parseAllowlistAddresses = (allowlist: string): string[] => {
-    if (!allowlist.trim()) return [];
-
-    return allowlist
-      .split(/[\n,]/)
-      .map((addr) => addr.trim())
-      .filter((addr) => addr.length > 0);
-  };
-
-  const getPhaseTypeName = (type: PhaseType) => {
-    switch (type) {
-      case PHASE_TYPES.WHITELIST:
-        return "Whitelist Phase";
-      case PHASE_TYPES.FCFS_WHITELIST:
-        return "FCFS Phase";
-      case PHASE_TYPES.PUBLIC:
-        return "Public Phase";
-      default:
-        return "Unknown Phase";
-    }
-  };
+  // Derived: ordered + times
+  const sortedPhases = React.useMemo(() => sortPhasesByType(phases), [phases]);
+  const computedPhases = React.useMemo(
+    () => computePhaseTimes(mintStartDate, mintStartTime, sortedPhases),
+    [mintStartDate, mintStartTime, sortedPhases]
+  );
 
   const handleAddPhase = () => {
-    const addresses = parseAllowlistAddresses(newPhase.allowlist);
-
     const phase: Phase = {
       id: phases.length + 1,
       name: getPhaseTypeName(nextPhaseType),
@@ -271,22 +251,19 @@ const NFTLaunchInterface = () => {
         days: safeParseInt(newPhase.duration.days, 1),
         hours: safeParseInt(newPhase.duration.hours, 0),
       },
-      startTime: 0, // Will be calculated later
-      endTime: 0, // Will be calculated later
+      startTime: 0,
+      endTime: 0,
       allowlist: newPhase.allowlist,
-      addresses: addresses,
+      addresses: parseAllowlistAddresses(newPhase.allowlist),
     };
 
-    setPhases([...phases, phase]);
+    setPhases((p) => [...p, phase]);
 
-    // Update next phase type
-    if (nextPhaseType === PHASE_TYPES.WHITELIST) {
-      setNextPhaseType(PHASE_TYPES.FCFS_WHITELIST); // Next will be FCFS
-    } else if (nextPhaseType === PHASE_TYPES.FCFS_WHITELIST) {
-      setNextPhaseType(PHASE_TYPES.PUBLIC); // Will be disabled since public already exists
-    }
+    if (nextPhaseType === PHASE_TYPES.WHITELIST)
+      setNextPhaseType(PHASE_TYPES.FCFS_WHITELIST);
+    else if (nextPhaseType === PHASE_TYPES.FCFS_WHITELIST)
+      setNextPhaseType(PHASE_TYPES.PUBLIC);
 
-    // Reset form
     setNewPhase({
       type:
         nextPhaseType === PHASE_TYPES.WHITELIST
@@ -302,8 +279,7 @@ const NFTLaunchInterface = () => {
   };
 
   const handleEditPhase = (phase: Phase) => {
-    // Convert Phase to EditingPhaseData with string values
-    const editingData: EditingPhaseData = {
+    setEditingPhase({
       id: phase.id,
       name: phase.name,
       type: phase.type,
@@ -317,95 +293,76 @@ const NFTLaunchInterface = () => {
       endTime: phase.endTime,
       allowlist: phase.allowlist || "",
       addresses: phase.addresses,
-    };
-
-    setEditingPhase(editingData);
+    });
     setShowEditPhaseModal(true);
   };
 
   const handleSaveEdit = () => {
-    if (editingPhase) {
-      const addresses = parseAllowlistAddresses(editingPhase.allowlist || "");
-      const updatedPhase: Phase = {
-        id: editingPhase.id,
-        name: editingPhase.name,
-        type: editingPhase.type,
-        mintPrice: safeParseNumber(editingPhase.mintPrice),
-        maxMintPerWallet: safeParseInt(editingPhase.maxMintPerWallet, 1),
-        duration: {
-          days: safeParseInt(editingPhase.duration.days, 1),
-          hours: safeParseInt(editingPhase.duration.hours, 0),
-        },
-        startTime: editingPhase.startTime,
-        endTime: editingPhase.endTime,
-        allowlist: editingPhase.allowlist,
-        addresses: addresses,
-      };
-
-      setPhases(
-        phases.map((p) => (p.id === editingPhase.id ? updatedPhase : p))
-      );
-    }
+    if (!editingPhase) return;
+    const updated: Phase = {
+      id: editingPhase.id,
+      name: editingPhase.name,
+      type: editingPhase.type,
+      mintPrice: safeParseNumber(editingPhase.mintPrice),
+      maxMintPerWallet: safeParseInt(editingPhase.maxMintPerWallet, 1),
+      duration: {
+        days: safeParseInt(editingPhase.duration.days, 1),
+        hours: safeParseInt(editingPhase.duration.hours, 0),
+      },
+      startTime: editingPhase.startTime,
+      endTime: editingPhase.endTime,
+      allowlist: editingPhase.allowlist,
+      addresses: parseAllowlistAddresses(editingPhase.allowlist || ""),
+    };
+    setPhases((list) => list.map((p) => (p.id === updated.id ? updated : p)));
     setShowEditPhaseModal(false);
     setEditingPhase(null);
   };
 
   const handleRemovePhase = (phaseId: number) => {
-    setPhases(phases.filter((p) => p.id !== phaseId));
+    const remaining = phases.filter((p) => p.id !== phaseId);
+    setPhases(remaining);
 
-    // Reset next phase type based on remaining phases
-    const remainingPhases = phases.filter((p) => p.id !== phaseId);
-    const hasWhitelist = remainingPhases.some(
+    const hasWhitelist = remaining.some(
       (p) => p.type === PHASE_TYPES.WHITELIST
     );
-    const hasFcfs = remainingPhases.some(
+    const hasFcfs = remaining.some(
       (p) => p.type === PHASE_TYPES.FCFS_WHITELIST
     );
 
-    if (!hasWhitelist) {
-      setNextPhaseType(PHASE_TYPES.WHITELIST);
-    } else if (!hasFcfs) {
-      setNextPhaseType(PHASE_TYPES.FCFS_WHITELIST);
-    } else {
-      setNextPhaseType(PHASE_TYPES.PUBLIC);
-    }
+    if (!hasWhitelist) setNextPhaseType(PHASE_TYPES.WHITELIST);
+    else if (!hasFcfs) setNextPhaseType(PHASE_TYPES.FCFS_WHITELIST);
+    else setNextPhaseType(PHASE_TYPES.PUBLIC);
   };
 
-  // Modified handleSubmitForPreview function with sendTransaction
+  // Submit flow with overlap-skip + allowlist gating
   const handleSubmitForPreview = async () => {
     if (!collection || !mintStartDate || !mintStartTime) {
       toast.info("Please set mint start date and time");
       return;
     }
-
-    if (phases.length === 0) {
+    if (computedPhases.length === 0) {
       toast.info("Please add at least one phase");
       return;
     }
-
     if (!currentUserLayer?.address) {
       toast.error("Wallet not connected");
       return;
     }
 
     setIsSubmitting(true);
+    const createdPhaseTypes = new Set<PhaseType>();
 
     try {
-      const calculatedPhases = calculatePhaseTimes();
+      const calculatedPhases = computedPhases;
       let launchId = collection.launchId;
 
-      console.log("here is collection.launchID", launchId);
-      console.log("Calculated phases:", calculatedPhases);
-
-      // Step 1: Add each phase with transaction sending
+      // Step 1: Add phases
       for (const phase of calculatedPhases) {
         try {
-          console.log(`Processing phase: ${phase.name}`);
-
-          // Prepare phase data
-          const phaseData = {
-            collectionId: collectionId,
-            phaseType: phase.type, // This should now use the correct constants
+          const req = {
+            collectionId,
+            phaseType: phase.type,
             price: phase.mintPrice.toString(),
             startTime: phase.startTime,
             endTime: phase.endTime,
@@ -414,203 +371,121 @@ const NFTLaunchInterface = () => {
             maxMintPerPhase: 0,
             merkleRoot: "",
             layerId: currentLayer?.id || "",
-            userLayerId: userLayerId,
+            userLayerId,
           };
 
-          console.log("Adding phase:", phaseData);
-          const phaseResponse = await addPhase(phaseData);
-          console.log("Phase response:", phaseResponse);
+          const res = await addPhase(req);
 
-          // Send transaction if there's transaction data
-          if (phaseResponse?.data?.unsignedTx) {
-            console.log(`Sending transaction for phase: ${phase.name}`);
-            const txHash = await sendTransaction(wagmiConfig, {
-              to: phaseResponse.data.unsignedTx.to,
-              data: phaseResponse.data.unsignedTx.data,
-              value: phaseResponse.data.unsignedTx.value || "0x0",
-              gas: phaseResponse.data.unsignedTx.gas,
-              gasPrice: phaseResponse.data.unsignedTx.gasPrice,
+          if (res?.data?.unsignedTx) {
+            await sendTransaction(wagmiConfig, {
+              to: res.data.unsignedTx.to,
+              data: res.data.unsignedTx.data,
+              value: res.data.unsignedTx.value || "0x0",
+              gas: res.data.unsignedTx.gas,
+              gasPrice: res.data.unsignedTx.gasPrice,
             });
-            console.log(`Transaction hash for ${phase.name}:`, txHash);
           }
 
-          // Store launch ID from first phase response
-          if (!launchId && phaseResponse?.launchId) {
-            launchId = phaseResponse.launchId;
-            console.log("Launch ID found:", launchId);
-          }
+          createdPhaseTypes.add(phase.type);
 
-          // Alternative: If launchId is not in the response, check other properties
-          if (!launchId && phaseResponse?.data?.launchId) {
-            launchId = phaseResponse.data.launchId;
-            console.log("Launch ID found in data:", launchId);
-          }
+          if (!launchId && res?.launchId) launchId = res.launchId;
+          if (!launchId && res?.data?.launchId) launchId = res.data.launchId;
+          if (!launchId && res?.id) launchId = res.id;
 
-          // Another alternative: If it's returned as 'id'
-          if (!launchId && phaseResponse?.id) {
-            launchId = phaseResponse.id;
-            console.log("Launch ID found as id:", launchId);
-          }
-
-          // Add a small delay between phase additions to avoid overwhelming the server
           if (calculatedPhases.indexOf(phase) < calculatedPhases.length - 1) {
-            await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second delay
+            await new Promise((r) => setTimeout(r, 1000));
           }
-        } catch (phaseError) {
-          console.error(`Error adding phase ${phase.name}:`, phaseError);
-          throw new Error(`Failed to add phase: ${phase.name}`);
+        } catch (err: any) {
+          const msg =
+            err?.error ||
+            err?.response?.data?.error ||
+            err?.message ||
+            String(err);
+          console.error(`Add phase failed (${phase.name}):`, err);
+
+          if (msg.toLowerCase().includes("overlap")) {
+            toast.error(
+              `Skipping ${phase.name}: overlaps an existing phase on server.`
+            );
+          } else {
+            toast.error(`Failed to add ${phase.name}.`);
+          }
+          // do not mark created; continue to next phase
+          continue;
         }
       }
 
-      console.log("Final launch ID:", launchId);
-
-      // Step 2: Handle whitelist addresses for whitelist phase only
+      // Step 2: Whitelist allowlist (only if WL actually created)
       const whitelistPhase = calculatedPhases.find(
         (p) => p.type === PHASE_TYPES.WHITELIST
       );
-      console.log("Whitelist phase found:", whitelistPhase);
-
-      if (whitelistPhase) {
-        console.log("Whitelist phase addresses:", whitelistPhase.addresses);
-        console.log("Addresses length:", whitelistPhase.addresses?.length);
-      }
-
       if (
         whitelistPhase &&
-        whitelistPhase.addresses &&
-        whitelistPhase.addresses.length > 0 &&
+        createdPhaseTypes.has(PHASE_TYPES.WHITELIST) &&
+        whitelistPhase.addresses?.length &&
         launchId
       ) {
-        console.log("Processing whitelist addresses...");
-
-        // Process whitelist addresses in chunks of 50
-        const addressChunks = chunkArray(whitelistPhase.addresses, 50);
-
-        for (let i = 0; i < addressChunks.length; i++) {
-          const chunk = addressChunks[i];
-          console.log(
-            `Processing whitelist chunk ${i + 1}/${addressChunks.length} with ${
-              chunk.length
-            } addresses`
-          );
-
+        const chunks = chunkArray(whitelistPhase.addresses, 50);
+        for (let i = 0; i < chunks.length; i++) {
           try {
-            const whitelistResponse = await whitelistAddresses({
-              launchId: launchId,
-              addresses: chunk,
-              phase: "WHITELIST", // Make sure this matches your backend expectation
+            await whitelistAddresses({
+              launchId,
+              addresses: chunks[i],
+              phase: "WHITELIST",
             });
-            console.log(
-              `Whitelist chunk ${i + 1} response:`,
-              whitelistResponse
-            );
-
-            // Add a small delay between chunks to avoid overwhelming the server
-            if (i < addressChunks.length - 1) {
-              await new Promise((resolve) => setTimeout(resolve, 500)); // 500ms delay
-            }
-          } catch (error) {
-            console.error(`Error processing whitelist chunk ${i + 1}:`, error);
-            // Continue with next chunk even if one fails
+            if (i < chunks.length - 1)
+              await new Promise((r) => setTimeout(r, 500));
+          } catch (e) {
+            console.error(`Whitelist chunk error ${i + 1}`, e);
           }
         }
-
-        console.log(
-          `Successfully processed ${addressChunks.length} whitelist chunks`
-        );
-      } else {
-        console.log("Skipping whitelist addresses because:");
-        console.log("- Has whitelist phase:", !!whitelistPhase);
-        console.log("- Has addresses:", !!whitelistPhase?.addresses);
-        console.log(
-          "- Addresses length:",
-          whitelistPhase?.addresses?.length || 0
-        );
-        console.log("- Has launch ID:", !!launchId);
       }
 
-      // Step 3: Handle FCFS addresses if there's an FCFS phase
+      // Step 3: FCFS allowlist (only if FCFS actually created)
       const fcfsPhase = calculatedPhases.find(
         (p) => p.type === PHASE_TYPES.FCFS_WHITELIST
       );
-
       if (
         fcfsPhase &&
-        fcfsPhase.addresses &&
-        fcfsPhase.addresses.length > 0 &&
+        createdPhaseTypes.has(PHASE_TYPES.FCFS_WHITELIST) &&
+        fcfsPhase.addresses?.length &&
         launchId
       ) {
-        console.log("Processing FCFS addresses...");
-
-        const addressChunks = chunkArray(fcfsPhase.addresses, 50);
-
-        for (let i = 0; i < addressChunks.length; i++) {
-          const chunk = addressChunks[i];
+        const chunks = chunkArray(fcfsPhase.addresses, 50);
+        for (let i = 0; i < chunks.length; i++) {
           try {
             await whitelistAddresses({
-              launchId: launchId,
-              addresses: chunk,
-              phase: "FCFS_WHITELIST", // Make sure this matches your backend expectation
+              launchId,
+              addresses: chunks[i],
+              phase: "FCFS_WHITELIST",
             });
-
-            if (i < addressChunks.length - 1) {
-              await new Promise((resolve) => setTimeout(resolve, 500));
-            }
-          } catch (error) {
-            console.error(`Error processing FCFS chunk ${i + 1}:`, error);
+            if (i < chunks.length - 1)
+              await new Promise((r) => setTimeout(r, 500));
+          } catch (e) {
+            console.error(`FCFS chunk error ${i + 1}`, e);
           }
         }
       }
 
-      // Step 4: Submit collection for review
-      console.log("Submitting collection for review...");
+      // Step 4: submit for review
       await submitCollectionForReview({
-        collectionId: collectionId,
+        collectionId,
         address: currentUserLayer?.address || "",
       });
 
       toast.success("Collection submitted for preview successfully!");
-
-      // Navigate to /creater-tool after success
       router.push("/creater-tool");
-    } catch (error) {
-      console.error("Error submitting collection:", error);
+    } catch (e) {
+      console.error("Submit error", e);
       toast.error("Failed to submit collection for preview. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const Modal: React.FC<ModalProps> = ({
-    isOpen,
-    onClose,
-    children,
-    title,
-  }) => {
-    if (!isOpen) return null;
-
-    return (
-      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div className="bg-neutral600 rounded-2xl p-8 max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-neutral500">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-semibold text-white">{title}</h2>
-            <button
-              onClick={onClose}
-              className="text-neutral200 hover:text-white p-2 rounded-lg hover:bg-neutral500 transition-all"
-            >
-              <X size={24} />
-            </button>
-          </div>
-          {children}
-        </div>
-      </div>
-    );
-  };
-
-  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-neutral600 via-darkPrimary to-neutral600">
+      <div className="min-h-screen bg-gradient-to-br flex justify-center items-center from-neutral600 via-darkPrimary to-neutral600">
         <div className="max-w-4xl mx-auto px-6 py-12 text-white">
           <div className="text-center">
             <div className="text-lg text-neutral200">
@@ -622,7 +497,6 @@ const NFTLaunchInterface = () => {
     );
   }
 
-  // Error state
   if (error || !collection) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-neutral600 via-darkPrimary to-neutral600">
@@ -650,7 +524,7 @@ const NFTLaunchInterface = () => {
           >
             <X size={20} />
           </Button>
-          <div className="text-center mb-12">
+          <div className="text-start mb-12">
             <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-white to-neutral100 bg-clip-text text-transparent">
               Launch your NFT Collection
             </h1>
@@ -662,7 +536,7 @@ const NFTLaunchInterface = () => {
           </div>
         </div>
 
-        {/* NFT Collection Card */}
+        {/* Collection Card */}
         <div className="flex items-center gap-6 mb-12 p-6 bg-gradient-to-r from-neutral500/50 to-neutral600/30 rounded-2xl border border-neutral400 backdrop-blur-sm">
           <div className="w-20 h-20 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
             {collection.logoKey ? (
@@ -674,7 +548,7 @@ const NFTLaunchInterface = () => {
                 className="w-full h-full object-cover rounded-lg"
               />
             ) : (
-              <div className="w-14 h-14 bg-white/20 rounded-lg border-2 border-white/30 backdrop-blur-sm"></div>
+              <div className="w-14 h-14 bg-white/20 rounded-lg border-2 border-white/30 backdrop-blur-sm" />
             )}
           </div>
           <div>
@@ -695,10 +569,10 @@ const NFTLaunchInterface = () => {
               </span>
               <span className="flex items-center gap-4 px-2 py-1 border border-transLight4 rounded-lg bg-darkTertiary">
                 <div className="w-5 h-5 rounded grid grid-cols-2 gap-0.5 p-0.5">
-                  <div className="bg-white rounded-sm"></div>
-                  <div className="bg-white rounded-sm"></div>
-                  <div className="bg-white rounded-sm"></div>
-                  <div className="bg-white rounded-sm"></div>
+                  <div className="bg-white rounded-sm" />
+                  <div className="bg-white rounded-sm" />
+                  <div className="bg-white rounded-sm" />
+                  <div className="bg-white rounded-sm" />
                 </div>
                 <span className="font-medium">
                   {collection.supply || 0} inscriptions
@@ -708,12 +582,11 @@ const NFTLaunchInterface = () => {
           </div>
         </div>
 
-        {/* Mint Start Date & Time */}
+        {/* Mint Start */}
         <div className="mb-12">
           <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
             Mint Start Date & Time
           </h3>
-
           <div className="grid grid-cols-2 gap-6">
             <div className="bg-neutral500/50 rounded-xl p-4 border border-neutral400 backdrop-blur-sm">
               <div className="flex items-center gap-4">
@@ -740,21 +613,17 @@ const NFTLaunchInterface = () => {
           </div>
         </div>
 
-        {/* Launch Phases */}
+        {/* Phases */}
         <div className="mb-8">
           <h3 className="text-xl font-bold mb-6">Launch Phases</h3>
 
-          {/* Only show add buttons for whitelist and FCFS if they don't exist yet */}
           {nextPhaseType < PHASE_TYPES.PUBLIC && (
             <button
               onClick={() => {
-                setNewPhase({
-                  ...newPhase,
-                  type: nextPhaseType,
-                });
+                setNewPhase({ ...newPhase, type: nextPhaseType });
                 setShowAddPhaseModal(true);
               }}
-              className="w-full p-6 border-2  border-neutral300 rounded-2xl text-neutral200 hover:border-brand hover:text-brand hover:bg-brand/5 transition-all duration-300 mb-6 flex items-center justify-center gap-3 group"
+              className="w-full p-6 border-2 border-neutral300 rounded-2xl text-neutral200 hover:border-brand hover:text-brand hover:bg-brand/5 transition-all duration-300 mb-6 flex items-center justify-center gap-3 group"
             >
               <Plus
                 size={24}
@@ -766,9 +635,8 @@ const NFTLaunchInterface = () => {
             </button>
           )}
 
-          {/* Phases List */}
           <div className="space-y-6">
-            {phases.map((phase) => (
+            {computedPhases.map((phase) => (
               <div
                 key={phase.id}
                 className="bg-neutral500 rounded-xl p-6 border border-neutral400"
@@ -788,7 +656,7 @@ const NFTLaunchInterface = () => {
 
                 <div className="grid grid-cols-3 gap-6 mb-8">
                   <div className="bg-darkSecondary rounded-lg p-4">
-                    <div className="text-white  text-sm mb-2">Mint price</div>
+                    <div className="text-white text-sm mb-2">Mint price</div>
                     <div className="text-xl font-semibold text-white">
                       {phase.mintPrice === 0 ? "Free" : `${phase.mintPrice}`}
                     </div>
@@ -802,22 +670,37 @@ const NFTLaunchInterface = () => {
                     </div>
                   </div>
                   <div className="bg-neutral600 rounded-lg p-4">
-                    <div className="text-white  text-sm mb-2">Duration</div>
+                    <div className="text-white text-sm mb-2">Duration</div>
                     <div className="text-xl font-semibold text-white">
                       {phase.duration.days}d {phase.duration.hours}h
                     </div>
                   </div>
                 </div>
 
+                {/* Starts / Ends */}
+                <div className="mt-6 grid grid-cols-2 gap-6 border-t border-neutral400/60 pt-6">
+                  <div className="bg-neutral600 rounded-lg p-4">
+                    <div className="text-white text-sm mb-1">Starts:</div>
+                    <div className="text-lg font-semibold text-white">
+                      {formatUnix(phase.startTime)}
+                    </div>
+                  </div>
+                  <div className="bg-neutral600 rounded-lg p-4">
+                    <div className="text-white text-sm mb-1">Ends:</div>
+                    <div className="text-lg font-semibold text-white">
+                      {formatUnix(phase.endTime)}
+                    </div>
+                  </div>
+                </div>
+
                 {phase.addresses && phase.addresses.length > 0 && (
-                  <div className="mb-4">
+                  <div className="mt-6">
                     <div className="text-white text-sm mb-2">
                       Allowlisted addresses: {phase.addresses.length}
                     </div>
                   </div>
                 )}
 
-                {/* Only show remove button for non-public phases or if there are multiple phases */}
                 {(phase.type !== PHASE_TYPES.PUBLIC || phases.length > 1) && (
                   <div className="flex justify-end">
                     <button
@@ -834,12 +717,12 @@ const NFTLaunchInterface = () => {
           </div>
         </div>
 
-        {/* Launch Button */}
+        {/* Submit */}
         <div className="flex justify-center w-full pt-8">
           <Button
             onClick={handleSubmitForPreview}
             disabled={isSubmitting || phases.length === 0}
-            className="px-12 py-4 bg-whit w-full text-black bg-white font-bold text-lg rounded-xl hover:shadow-lg hover:shadow-brand/30 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="px-12 py-4 w-full text-black bg-white font-bold text-lg rounded-xl hover:shadow-lg hover:shadow-brand/30 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {isSubmitting ? "Submitting..." : "Submit for preview"}
           </Button>
@@ -854,7 +737,6 @@ const NFTLaunchInterface = () => {
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           <div className="space-y-6">
-            {/* Mint Price */}
             <div>
               <label className="block text-sm font-semibold mb-3 text-neutral200">
                 Mint price
@@ -865,10 +747,7 @@ const NFTLaunchInterface = () => {
                   step="0.01"
                   value={newPhase.mintPrice}
                   onChange={(e) =>
-                    setNewPhase({
-                      ...newPhase,
-                      mintPrice: e.target.value,
-                    })
+                    setNewPhase({ ...newPhase, mintPrice: e.target.value })
                   }
                   className="w-full bg-neutral600 border border-neutral400 rounded-lg px-3 py-3 pr-16 text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
                   autoComplete="off"
@@ -879,7 +758,6 @@ const NFTLaunchInterface = () => {
               </div>
             </div>
 
-            {/* Max Mint Per Wallet */}
             <div>
               <label className="block text-sm font-semibold mb-3 text-neutral200">
                 Max mint per wallet
@@ -889,17 +767,13 @@ const NFTLaunchInterface = () => {
                 min="1"
                 value={newPhase.maxMintPerWallet}
                 onChange={(e) =>
-                  setNewPhase({
-                    ...newPhase,
-                    maxMintPerWallet: e.target.value,
-                  })
+                  setNewPhase({ ...newPhase, maxMintPerWallet: e.target.value })
                 }
                 className="w-full bg-neutral600 border border-neutral400 rounded-lg px-3 py-3 text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
                 autoComplete="off"
               />
             </div>
 
-            {/* Duration */}
             <div>
               <label className="block text-sm font-semibold mb-3 text-neutral200">
                 Duration
@@ -952,7 +826,6 @@ const NFTLaunchInterface = () => {
             </div>
           </div>
 
-          {/* Allowlist - Only show for whitelist and FCFS phases */}
           {(newPhase.type === PHASE_TYPES.WHITELIST ||
             newPhase.type === PHASE_TYPES.FCFS_WHITELIST) && (
             <div>
@@ -971,12 +844,9 @@ const NFTLaunchInterface = () => {
                     const target = e.target as HTMLTextAreaElement;
                     const start = target.selectionStart;
                     const end = target.selectionEnd;
-                    const value = target.value;
-                    const newValue =
-                      value.substring(0, start) + "\n" + value.substring(end);
-                    setNewPhase({ ...newPhase, allowlist: newValue });
-
-                    // Set cursor position after the new line
+                    const v = target.value;
+                    const nv = v.substring(0, start) + "\n" + v.substring(end);
+                    setNewPhase({ ...newPhase, allowlist: nv });
                     setTimeout(() => {
                       target.selectionStart = target.selectionEnd = start + 1;
                     }, 0);
@@ -993,7 +863,6 @@ const NFTLaunchInterface = () => {
           )}
         </div>
 
-        {/* Modal Actions */}
         <div className="flex justify-end gap-4 mt-10 pt-6 border-t border-neutral400">
           <Button
             onClick={() => setShowAddPhaseModal(false)}
@@ -1019,7 +888,6 @@ const NFTLaunchInterface = () => {
       >
         {editingPhase && (
           <div className="space-y-8 max-w-2xl mx-auto">
-            {/* Mint Price */}
             <div>
               <label className="block text-sm font-semibold mb-3 text-neutral200">
                 Mint price
@@ -1029,12 +897,12 @@ const NFTLaunchInterface = () => {
                   type="number"
                   step="0.01"
                   value={editingPhase.mintPrice}
-                  onChange={(e) => {
+                  onChange={(e) =>
                     setEditingPhase({
                       ...editingPhase,
                       mintPrice: e.target.value,
-                    });
-                  }}
+                    })
+                  }
                   className="w-full bg-neutral600 border border-neutral400 rounded-lg px-3 py-3 pr-16 text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
                   autoComplete="off"
                 />
@@ -1044,7 +912,6 @@ const NFTLaunchInterface = () => {
               </div>
             </div>
 
-            {/* Max Mint Per Wallet */}
             <div>
               <label className="block text-sm font-semibold mb-3 text-neutral200">
                 Max mint per wallet
@@ -1053,18 +920,17 @@ const NFTLaunchInterface = () => {
                 type="number"
                 min="1"
                 value={editingPhase.maxMintPerWallet}
-                onChange={(e) => {
+                onChange={(e) =>
                   setEditingPhase({
                     ...editingPhase,
                     maxMintPerWallet: e.target.value,
-                  });
-                }}
+                  })
+                }
                 className="w-full bg-neutral600 border border-neutral400 rounded-lg px-3 py-3 text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
                 autoComplete="off"
               />
             </div>
 
-            {/* Duration */}
             <div>
               <label className="block text-sm font-semibold mb-3 text-neutral200">
                 Duration
@@ -1075,15 +941,15 @@ const NFTLaunchInterface = () => {
                     type="number"
                     min="0"
                     value={editingPhase.duration.days}
-                    onChange={(e) => {
+                    onChange={(e) =>
                       setEditingPhase({
                         ...editingPhase,
                         duration: {
                           ...editingPhase.duration,
                           days: e.target.value,
                         },
-                      });
-                    }}
+                      })
+                    }
                     className="w-full bg-neutral600 border border-neutral400 rounded-lg px-3 py-3 pr-16 text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
                     autoComplete="off"
                   />
@@ -1097,15 +963,15 @@ const NFTLaunchInterface = () => {
                     min="0"
                     max="23"
                     value={editingPhase.duration.hours}
-                    onChange={(e) => {
+                    onChange={(e) =>
                       setEditingPhase({
                         ...editingPhase,
                         duration: {
                           ...editingPhase.duration,
                           hours: e.target.value,
                         },
-                      });
-                    }}
+                      })
+                    }
                     className="w-full bg-neutral600 border border-neutral400 rounded-lg px-3 py-3 pr-16 text-white focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all"
                     autoComplete="off"
                   />
@@ -1116,7 +982,6 @@ const NFTLaunchInterface = () => {
               </div>
             </div>
 
-            {/* Allowlist - Only show for whitelist and FCFS phases */}
             {(editingPhase.type === PHASE_TYPES.WHITELIST ||
               editingPhase.type === PHASE_TYPES.FCFS_WHITELIST) && (
               <div>
@@ -1126,29 +991,24 @@ const NFTLaunchInterface = () => {
                 <textarea
                   placeholder="Enter allowlisted wallets separated by new lines or commas"
                   value={editingPhase.allowlist}
-                  onChange={(e) => {
+                  onChange={(e) =>
                     setEditingPhase({
                       ...editingPhase,
                       allowlist: e.target.value,
-                    });
-                  }}
+                    })
+                  }
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
-                      const target = e.target as HTMLTextAreaElement;
-                      const start = target.selectionStart;
-                      const end = target.selectionEnd;
-                      const value = target.value;
-                      const newValue =
-                        value.substring(0, start) + "\n" + value.substring(end);
-                      setEditingPhase({
-                        ...editingPhase,
-                        allowlist: newValue,
-                      });
-
-                      // Set cursor position after the new line
+                      const t = e.target as HTMLTextAreaElement;
+                      const start = t.selectionStart;
+                      const end = t.selectionEnd;
+                      const v = t.value;
+                      const nv =
+                        v.substring(0, start) + "\n" + v.substring(end);
+                      setEditingPhase({ ...editingPhase, allowlist: nv });
                       setTimeout(() => {
-                        target.selectionStart = target.selectionEnd = start + 1;
+                        t.selectionStart = t.selectionEnd = start + 1;
                       }, 0);
                     }
                   }}
@@ -1159,7 +1019,6 @@ const NFTLaunchInterface = () => {
               </div>
             )}
 
-            {/* Modal Actions */}
             <div className="flex justify-center pt-6 border-t border-neutral400">
               <button
                 onClick={handleSaveEdit}
@@ -1176,3 +1035,23 @@ const NFTLaunchInterface = () => {
 };
 
 export default NFTLaunchInterface;
+
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-neutral600 rounded-2xl p-8 max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-neutral500">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-2xl font-semibold text-white">{title}</h2>
+          <button
+            onClick={onClose}
+            className="text-neutral200 hover:text-white p-2 rounded-lg hover:bg-neutral500 transition-all"
+          >
+            <X size={24} />
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+};

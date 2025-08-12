@@ -37,43 +37,10 @@ export function ChainSelectionModal({
         layer.layer !== "BITCOIN" &&
         layer.name !== "Hemi Testnet" &&
         layer.name !== "EDU Chain Testnet" &&
-        layer.name !== "EDU Chain"
-      //  &&  layer.name !== "CORE Testnet"
+        layer.name !== "EDU Chain" 
+        // && layer.name !== "CORE Testnet"
     );
   }, [availableLayers]);
-
-  console.log("availableLayers in modal", availableLayers);
-
-  // const handleChainSelect = async (layerId: string) => {
-  //   const selected = availableLayers.find((l) => l.id === layerId);
-  //   if (!selected) return;
-
-  //   if (layerId === selectedLayerId) {
-  //     toast.info("Already on this chain.");
-  //     return;
-  //   }
-
-  //   setSelectedLayerId(layerId); // update UI selection immediately
-  //   updateCollectionData({ layerId }); // update creation flow
-  //   setCurrentStep(1);
-  //   onClose();
-
-  //   try {
-  //     if (isConnected && user) {
-  //       console.log("Switching layer from modal:", selected.name);
-  //       await switchLayer(selected);
-  //       toast.success(`Switched to ${selected.name}`);
-  //     } else {
-  //       localStorage.setItem("selectedLayer", selected.layer);
-  //       localStorage.setItem("selectedNetwork", selected.network);
-  //       toast.success(`Selected ${selected.name} for future connection`);
-  //     }
-  //   } catch (err) {
-  //     console.error("Layer switch failed", err);
-  //     toast.error("Failed to switch layer");
-  //     setSelectedLayerId(currentLayer?.id || null); // revert on error
-  //   }
-  // };
 
   const handleChainSelect = async (layerId: string) => {
     const selected = availableLayers.find((l) => l.id === layerId);
@@ -146,7 +113,7 @@ export function ChainSelectionModal({
                 </h3>
               </div>
 
-              {/* {layer.name === "Citrea Testnet" ? (
+              {layer.name === "Citrea Testnet" ? (
                 <Button
                   disabled
                   className="w-full bg-transLight12 text-white cursor-not-allowed"
@@ -160,13 +127,13 @@ export function ChainSelectionModal({
                 >
                   Choose
                 </Button>
-              )} */}
-              <Button
+              )}
+              {/* <Button
                 onClick={() => handleChainSelect(layer.id)}
                 className="w-full bg-white cursor-pointer text-black hover:bg-gray-200"
               >
                 Choose
-              </Button>
+              </Button> */}
             </div>
           ))}
         </div>

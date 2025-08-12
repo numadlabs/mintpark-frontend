@@ -67,6 +67,10 @@ export async function loginHandler({
   }
 }
 
+
+
+
+
 export async function linkAccount({
   address,
   signedMessage,
@@ -368,21 +372,6 @@ export async function createOneOfOneEditions({
 }
 // invoke order mint
 
-// export async function postInvokeMint(
-//   orderId: string
-// ): Promise<InvokeMintResponse> {
-//   try {
-//     const response = await axios.post(`/api/v1/orders/${orderId}/invoke-mint`);
-//     return response.data as InvokeMintResponse;
-//   } catch (error: any) {
-//     console.error("POST /invoke-mint failed", error);
-//     return {
-//       success: false,
-//       error: error?.response?.data?.error || error.message || "Unknown error",
-//     };
-//   }
-// }
-
 export async function postInvokeMint(
   orderId: string
 ): Promise<InvokeMintResponse> {
@@ -399,6 +388,31 @@ export async function postInvokeMint(
       success: false,
       error: error?.response?.data?.error || error.message || "Unknown error",
     };
+  }
+}
+
+
+//retop-funding
+
+export async function retopFundingPromise({
+  collectionId,
+}: {
+  collectionId: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/orders/${collectionId}/retop-funding`)
+      .then((response) => {
+        console.log("Retop funding successful:", response.data);
+        return response.data;
+      });
+  } catch (error) {
+    console.error("Error in retopFunding:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
   }
 }
 
@@ -1265,6 +1279,44 @@ export async function submitCollectionForReview({
   }
 }
 
+// Withdraw left over funds from collection
+export async function withdrawFromCollection({
+  collectionId,
+  address,
+}: {
+  collectionId: string;
+  address: string;
+}) {
+  try {
+    const response = await axiosClient.post(
+      `/api/v1/collections/${collectionId}/withdraw`,
+      { address }
+    );
+    
+    console.log("Withdrawal API response:", response.data);
+    
+    // Check if the response indicates failure
+    if (response.data.success === false) {
+      throw new Error(response.data.error || "Withdrawal failed");
+    }
+    
+    return response.data;
+    
+  } catch (error) {
+    console.error("Error withdrawing from collection:", error);
+    
+    if (axios.isAxiosError(error) && error.response) {
+      const responseData = error.response.data;
+      // If the server returned an error response, throw it
+      if (responseData?.error) {
+        throw new Error(responseData.error);
+      }
+      throw responseData;
+    } else {
+      throw error;
+    }
+  }
+}
 
 
 

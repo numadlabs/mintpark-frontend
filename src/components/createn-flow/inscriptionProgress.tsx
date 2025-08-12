@@ -162,7 +162,7 @@ export function InscriptionProgressPage() {
 
           {/* Progress Section */}
           {!progressData ? (
-            <div className="bg-darkSecondary border border-transLight4 rounded-xl p-6 mb-8">
+            <div className="bg-darkSecondary border border-transLight4 h-[350px] rounded-xl p-6 mb-8">
               <p className="text-lightSecondary text-center">
                 Loading progress...
               </p>

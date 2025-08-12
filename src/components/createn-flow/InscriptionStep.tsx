@@ -83,27 +83,6 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
     }
   }, [inscriptionData]);
 
-  // useEffect(() => {
-  //   const fetchProgress = async () => {
-  //     if (currentView !== "progress") return;
-  //     if (!collectionId) return;
-
-  //     try {
-  //       const res = await getInscriptionProgress({
-  //         collectionId,
-  //         userLayerId: currentUserLayer?.id || "",
-  //       });
-  //       setProgressData(res);
-  //     } catch (err) {
-  //       console.error("Failed to fetch inscription progress:", err);
-  //     }
-  //   };
-
-  //   fetchProgress();
-  //   const interval = setInterval(fetchProgress, 8000);
-  //   return () => clearInterval(interval);
-  // }, [currentView, collectionId, inscriptionData?.walletAddress]);
-
   // Function to extract trait groups from uploaded files
   useEffect(() => {
     const fetchProgress = async () => {
@@ -380,12 +359,6 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
         current: totalSteps,
         currentStep: "Upload completed!",
       }));
-
-      // setTimeout(() => {
-      //   setCurrentView("progress");
-      //   onComplete?.();
-      // }, 2000);
-
       setCurrentView("progress");
       toast.success("All files uploaded successfully!");
 
@@ -400,215 +373,119 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
     }
   };
 
-  // const handleCheckPayment = async () => {
-  //   if (!inscriptionData?.orderId || !collectionId) {
-  //     toast.error("Order ID or Collection ID missing");
-  //     return;
-  //   }
+  const handleCheckPayment = async () => {
+    if (!inscriptionData?.orderId || !collectionId) {
+      toast.error("Order ID or Collection ID missing");
+      return;
+    }
 
-  //   setIsCheckingPayment(true);
+    setIsCheckingPayment(true);
 
-  //   try {
-  //     const result = await checkPaymentStatus(inscriptionData.orderId);
+    try {
+      const result = await checkPaymentStatus(inscriptionData.orderId);
 
-  //     if (result.success && result.data?.isPaid === true) {
-  //       toast.success("Payment confirmed! Starting upload process...");
+      if (result.success && result.data?.isPaid === true) {
+        toast.success("Payment confirmed! Starting upload process...");
 
-  //       try {
-  //         // Get the calculated values from localStorage or recalculate
-  //         const storedData = localStorage.getItem("calculatedUploadData");
-  //         let calculatedValues;
+        try {
+          // Get the calculated values from localStorage or recalculate
+          const storedData = localStorage.getItem("calculatedUploadData");
+          let calculatedValues;
 
-  //         if (storedData) {
-  //           calculatedValues = JSON.parse(storedData);
-  //           console.log("Using stored calculated values:", calculatedValues);
-  //         } else {
-  //           // Recalculate if not stored (fallback)
-  //           console.log("Recalculating upload parameters...");
-  //           const isOneOfOneEnabled = !!traitData.oneOfOneEditions;
-  //           calculatedValues = await calculateUploadParameters(
-  //             traitData,
-  //             isOneOfOneEnabled
-  //           );
-  //           console.log("Recalculated values:", calculatedValues);
-  //         }
+          if (storedData) {
+            calculatedValues = JSON.parse(storedData);
+            console.log("Using stored calculated values:", calculatedValues);
+          } else {
+            // Recalculate if not stored (fallback)
+            console.log("Recalculating upload parameters...");
+            const isOneOfOneEnabled = !!traitData.oneOfOneEditions;
+            calculatedValues = await calculateUploadParameters(
+              traitData,
+              isOneOfOneEnabled
+            );
+            console.log("Recalculated values:", calculatedValues);
+          }
 
-  //         // Validate that we have meaningful values
-  //         if (
-  //           calculatedValues.expectedTraitTypes === 0 &&
-  //           calculatedValues.expectedTraitValues === 0
-  //         ) {
-  //           console.warn("No trait data found! Check file upload structure.");
-  //           toast.error("No trait data found. Please check your file uploads.");
-  //           return;
-  //         }
+          // Validate that we have meaningful values
+          if (
+            calculatedValues.expectedTraitTypes === 0 &&
+            calculatedValues.expectedTraitValues === 0
+          ) {
+            console.warn("No trait data found! Check file upload structure.");
+            toast.error("No trait data found. Please check your file uploads.");
+            return;
+          }
 
-  //         console.log(
-  //           "Final values being sent to upload session:",
-  //           calculatedValues
-  //         );
-
-  //         // Initiate upload session with correct values
-  //         const uploadResponse = await initiateUploadSession({
-  //           collectionId,
-  //           expectedTraitTypes: calculatedValues.expectedTraitTypes,
-  //           expectedTraitValues: calculatedValues.expectedTraitValues,
-  //           expectedRecursive: calculatedValues.expectedRecursive,
-  //           expectedOOOEditions: calculatedValues.expectedOOOEditions,
-  //         });
-
-  //         console.log("Upload session response:", uploadResponse);
-
-  //         const {
-  //           expectedTraitTypes: t,
-  //           expectedTraitValues: v,
-  //           expectedRecursive: r,
-  //           expectedOOOEditions: ooo,
-  //           startedAt,
-  //         } = uploadResponse.data;
-
-  //         updateInscriptionData({
-  //           progress: {
-  //             current: 0,
-  //             total: t + v + r + (ooo || 0),
-  //             estimatedTime: new Date(startedAt).toLocaleTimeString(),
-  //           },
-  //         });
-
-  //         // Clean up stored data
-  //         localStorage.removeItem("calculatedUploadData");
-
-  //         // Start the actual upload process
-  //         await handleUploadProcess();
-  //       } catch (uploadError) {
-  //         console.error("Upload session failed:", uploadError);
-  //         toast.error(
-  //           "Failed to initiate upload session: " +
-  //             (uploadError as Error).message
-  //         );
-  //         return;
-  //       }
-  //     } else {
-  //       toast.error(result?.error || "Payment not yet confirmed");
-  //     }
-  //   } catch (error: unknown) {
-  //     console.error("Payment check error:", error);
-  //     toast.error("Failed to check payment status",);
-  //   } finally {
-  //     setIsCheckingPayment(false);
-  //   }
-  // };
-
-const handleCheckPayment = async () => {
-  if (!inscriptionData?.orderId || !collectionId) {
-    toast.error("Order ID or Collection ID missing");
-    return;
-  }
-
-  setIsCheckingPayment(true);
-
-  try {
-    const result = await checkPaymentStatus(inscriptionData.orderId);
-
-    if (result.success && result.data?.isPaid === true) {
-      toast.success("Payment confirmed! Starting upload process...");
-
-      try {
-        // Get the calculated values from localStorage or recalculate
-        const storedData = localStorage.getItem("calculatedUploadData");
-        let calculatedValues;
-
-        if (storedData) {
-          calculatedValues = JSON.parse(storedData);
-          console.log("Using stored calculated values:", calculatedValues);
-        } else {
-          // Recalculate if not stored (fallback)
-          console.log("Recalculating upload parameters...");
-          const isOneOfOneEnabled = !!traitData.oneOfOneEditions;
-          calculatedValues = await calculateUploadParameters(
-            traitData,
-            isOneOfOneEnabled
+          console.log(
+            "Final values being sent to upload session:",
+            calculatedValues
           );
-          console.log("Recalculated values:", calculatedValues);
-        }
 
-        // Validate that we have meaningful values
-        if (
-          calculatedValues.expectedTraitTypes === 0 &&
-          calculatedValues.expectedTraitValues === 0
-        ) {
-          console.warn("No trait data found! Check file upload structure.");
-          toast.error("No trait data found. Please check your file uploads.");
+          // Initiate upload session with correct values
+          const uploadResponse = await initiateUploadSession({
+            collectionId,
+            expectedTraitTypes: calculatedValues.expectedTraitTypes,
+            expectedTraitValues: calculatedValues.expectedTraitValues,
+            expectedRecursive: calculatedValues.expectedRecursive,
+            expectedOOOEditions: calculatedValues.expectedOOOEditions,
+          });
+
+          console.log("Upload session response:", uploadResponse);
+
+          const {
+            expectedTraitTypes: t,
+            expectedTraitValues: v,
+            expectedRecursive: r,
+            expectedOOOEditions: ooo,
+            startedAt,
+          } = uploadResponse.data;
+
+          updateInscriptionData({
+            progress: {
+              current: 0,
+              total: t + v + r + (ooo || 0),
+              estimatedTime: new Date(startedAt).toLocaleTimeString(),
+            },
+          });
+
+          // Clean up stored data
+          localStorage.removeItem("calculatedUploadData");
+
+          // Start the actual upload process
+          await handleUploadProcess();
+        } catch (uploadError) {
+          console.error("Upload session failed:", uploadError);
+          const uploadErrorMessage =
+            uploadError instanceof Error
+              ? uploadError.message
+              : "Unknown upload error";
+          toast.error(
+            `Failed to initiate upload session: ${uploadErrorMessage}`
+          );
           return;
         }
-
-        console.log(
-          "Final values being sent to upload session:",
-          calculatedValues
-        );
-
-        // Initiate upload session with correct values
-        const uploadResponse = await initiateUploadSession({
-          collectionId,
-          expectedTraitTypes: calculatedValues.expectedTraitTypes,
-          expectedTraitValues: calculatedValues.expectedTraitValues,
-          expectedRecursive: calculatedValues.expectedRecursive,
-          expectedOOOEditions: calculatedValues.expectedOOOEditions,
-        });
-
-        console.log("Upload session response:", uploadResponse);
-
-        const {
-          expectedTraitTypes: t,
-          expectedTraitValues: v,
-          expectedRecursive: r,
-          expectedOOOEditions: ooo,
-          startedAt,
-        } = uploadResponse.data;
-
-        updateInscriptionData({
-          progress: {
-            current: 0,
-            total: t + v + r + (ooo || 0),
-            estimatedTime: new Date(startedAt).toLocaleTimeString(),
-          },
-        });
-
-        // Clean up stored data
-        localStorage.removeItem("calculatedUploadData");
-
-        // Start the actual upload process
-        await handleUploadProcess();
-      } catch (uploadError) {
-        console.error("Upload session failed:", uploadError);
-        const uploadErrorMessage = uploadError instanceof Error 
-          ? uploadError.message 
-          : "Unknown upload error";
-        toast.error(`Failed to initiate upload session: ${uploadErrorMessage}`);
-        return;
+      } else {
+        toast.error(result?.error || "Payment not yet confirmed");
       }
-    } else {
-      toast.error(result?.error || "Payment not yet confirmed");
+    } catch (error: unknown) {
+      console.error("Payment check error:", error);
+
+      // Extract the actual error message
+      let errorMessage = "Failed to check payment status";
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      } else if (error && typeof error === "object" && "message" in error) {
+        errorMessage = String(error.message);
+      }
+
+      toast.error(errorMessage);
+    } finally {
+      setIsCheckingPayment(false);
     }
-  } catch (error: unknown) {
-    console.error("Payment check error:", error);
-    
-    // Extract the actual error message
-    let errorMessage = "Failed to check payment status";
-    
-    if (error instanceof Error) {
-      errorMessage = error.message;
-    } else if (typeof error === 'string') {
-      errorMessage = error;
-    } else if (error && typeof error === 'object' && 'message' in error) {
-      errorMessage = String(error.message);
-    }
-    
-    toast.error(errorMessage);
-  } finally {
-    setIsCheckingPayment(false);
-  }
-};
+  };
 
   const handleGoToCollections = () => router.push("/creater-tool");
   const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
@@ -695,9 +572,9 @@ const handleCheckPayment = async () => {
                   <span className="text-white font-medium">
                     {inscriptionFeeBTC.toFixed(6)} BTC
                   </span>
-                  <span className="text-lightSecondary text-sm ml-2">
+                  {/* <span className="text-lightSecondary text-sm ml-2">
                     ~${btcToUsd(inscriptionFeeBTC)}
-                  </span>
+                  </span> */}
                 </div>
               </div>
               <div className="flex justify-between items-center">
@@ -706,9 +583,9 @@ const handleCheckPayment = async () => {
                   <span className="text-white font-medium">
                     {serviceFeeBTC.toFixed(6)} BTC
                   </span>
-                  <span className="text-lightSecondary text-sm ml-2">
+                  {/* <span className="text-lightSecondary text-sm ml-2">
                     ~${btcToUsd(serviceFeeBTC)}
-                  </span>
+                  </span> */}
                 </div>
               </div>
 
@@ -719,9 +596,9 @@ const handleCheckPayment = async () => {
                     <span className="text-white font-semibold">
                       {totalBTC.toFixed(6)} BTC
                     </span>
-                    <span className="text-lightSecondary text-sm ml-2">
+                    {/* <span className="text-lightSecondary text-sm ml-2">
                       ~${btcToUsd(totalBTC)}
-                    </span>
+                    </span> */}
                   </div>
                 </div>
               </div>
@@ -845,7 +722,7 @@ const handleCheckPayment = async () => {
         </div>
 
         {!progressData ? (
-          <p className="text-lightSecondary">Loading progress...</p>
+          <p className="text-lightSecondary h-[300px]">Loading progress...</p>
         ) : (
           <div className="bg-darkSecondary border border-transLight4 rounded-xl p-6 mb-8">
             <div className="flex items-center gap-3 mb-4">

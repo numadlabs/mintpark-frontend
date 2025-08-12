@@ -33,6 +33,34 @@ export interface InscriptionData {
   };
 }
 
+// export interface Order {
+//   id: string;
+//   feeRate: number;
+//   fundingAddress: string;
+//   fundingAmount: number;
+//   fundingTxId: string | null;
+//   createdAt: string;
+//   mintedAt: string | null;
+//   orderType: string;
+//   orderStatus: string;
+//   userId: string;
+//   userLayerId: string;
+//   collectionId: string;
+//   launchItemId: string | null;
+//   purchaseId: string | null;
+//   orderSplitCount: number;
+//   serviceFeeInSats: number;
+//   hasTransferredServiceFee: boolean;
+//   networkFeeInSats: number;
+//   isBase: boolean;
+//   // add more fields as needed
+// }
+
+// export interface InscriptionData {
+//   order: Order;
+//   walletQrString: string;
+// }
+
 // New interface for calculated upload data
 export interface CalculatedUploadData {
   expectedTraitTypes: number;
@@ -46,7 +74,7 @@ interface CreationFlowState {
   collectionData: NewCollectionData;
   traitData: TraitData;
   inscriptionData: InscriptionData | null;
-  calculatedUploadData: CalculatedUploadData | null; 
+  calculatedUploadData: CalculatedUploadData | null;
   isLoading: boolean;
   collectionId: string | null;
 }
@@ -56,9 +84,9 @@ interface CreationFlowContextType extends CreationFlowState {
   updateCollectionData: (data: Partial<NewCollectionData>) => void;
   updateTraitData: (data: Partial<TraitData>) => void;
   updateInscriptionData: (data: Partial<InscriptionData>) => void;
-  updateCalculatedUploadData: (data: CalculatedUploadData) => void; 
+  updateCalculatedUploadData: (data: CalculatedUploadData) => void;
   setIsLoading: (loading: boolean) => void;
-  setCollectionId: (id: string) => void;
+  setCollectionId: (id: string | null) => void;
   resetFlow: () => void;
 }
 
@@ -79,7 +107,7 @@ const initialState: CreationFlowState = {
     metadataJson: null,
   },
   inscriptionData: null,
-  calculatedUploadData: null, 
+  calculatedUploadData: null,
   isLoading: false,
   collectionId: null,
 };
@@ -130,9 +158,13 @@ export function CreationFlowProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, isLoading: loading }));
   };
 
-  const setCollectionId = (id: string) => {
-    setState((prev) => ({ ...prev, collectionId: id }));
-  };
+  // const setCollectionId = (id: string) => {
+  //   setState((prev) => ({ ...prev, collectionId: id }));
+  // };
+
+  const setCollectionId = (id: string | null) => {
+  setState((prev) => ({ ...prev, collectionId: id }));
+};
 
   const resetFlow = () => {
     setState(initialState);

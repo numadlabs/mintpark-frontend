@@ -19,6 +19,12 @@ export const ETH_PRICE = 1937.96;
 export const CITREA_PRICE = 102500;
 export const CORE_PRICE = 0.5177;
 
+export const PHASE_TYPES = {
+  WHITELIST: 0,
+  FCFS_WHITELIST: 1,
+  PUBLIC: 2,
+} as const;
+
 export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
   BITCOIN: {
     type: "unisat",
