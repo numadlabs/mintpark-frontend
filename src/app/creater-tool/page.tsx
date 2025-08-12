@@ -10,7 +10,7 @@ import { CreatorCollection } from "@/lib/validations/collection-validation";
 import {
   createrCollection,
   getInscriptionProgress,
-  getOrderByCollectionIdBase, // Import your existing function
+  getOrderByCollectionIdBase, 
 } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import CreateInfoCard from "@/components/atom/cards/create-info-card";
@@ -65,11 +65,19 @@ const CreatorTool = () => {
   const [copiedAddress, setCopiedAddress] = useState(false);
   const [isCheckingPayment, setIsCheckingPayment] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState("");
-  const userLayerId = currentUserLayer?.id || "";
+
+  // Get userLayerId safely
+  const userLayerId = currentUserLayer?.id;
 
   useEffect(() => {
-    fetchCreatorCollections();
-  }, []);
+    // Only fetch if we have a valid userLayerId
+    if (userLayerId) {
+      fetchCreatorCollections();
+    } else {
+      // If no userLayerId, set loading to false
+      setLoading(false);
+    }
+  }, [userLayerId]);
 
   // Effect to fetch progress data when showing inscription progress
   useEffect(() => {
@@ -82,7 +90,15 @@ const CreatorTool = () => {
     }
   }, [showInscriptionProgress, selectedCollectionId]);
 
+  // FIXED: Updated fetchCreatorCollections with guard
   const fetchCreatorCollections = async () => {
+    // Guard against empty userLayerId
+    if (!userLayerId) {
+      console.log("No userLayerId available, skipping fetch");
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       const data = await createrCollection(userLayerId, 1, 10);
@@ -141,6 +157,7 @@ const CreatorTool = () => {
       setIsLoadingOrder(false);
     }
   };
+
   const formatTimeRemaining = (minutes: number) => {
     minutes = Math.floor(minutes);
     if (minutes < 60) {
@@ -271,7 +288,7 @@ const CreatorTool = () => {
             <Button
               onClick={() => setShowPaymentModal(false)}
               variant="outline"
-              size="sm"
+              size="lg"
               className="p-2"
             >
               <X size={20} />
@@ -356,7 +373,7 @@ const CreatorTool = () => {
               <Button
                 onClick={handleGoToCollections}
                 variant="outline"
-                size="sm"
+                size="lg"
                 className="p-2"
               >
                 <X size={20} />
@@ -539,6 +556,24 @@ const CreatorTool = () => {
       return (
         <div className="flex flex-col items-center bg-darkSecondary justify-center min-h-[400px] text-center border border-transLight4 rounded-xl">
           <div className="text-lightSecondary">Loading collections...</div>
+        </div>
+      );
+    }
+
+    // FIXED: Handle case when no user is logged in
+    if (!userLayerId) {
+      return (
+        <div className="flex flex-col items-center bg-darkSecondary justify-center min-h-[400px] text-center border border-transLight4 rounded-xl">
+          <div
+            className="w-20 h-20 rounded-2xl flex items-center justify-center mb-8"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.08)" }}
+          >
+            <Grid size={32} color="#FFFFFF" strokeWidth={1.5} />
+          </div>
+          <p className="text-xl mb-4 max-w-md text-lightPrimary">
+            Please log in to view your collections.
+          </p>
+          {error && <p className="text-errorPrimary text-sm mb-4">{error}</p>}
         </div>
       );
     }

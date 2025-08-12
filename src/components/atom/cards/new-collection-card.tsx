@@ -17,7 +17,6 @@ import { getInscriptionProgress } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { getCurrencyImage } from "@/lib/service/currencyHelper";
 import ClaimFeePopup from "@/components/popup/claim";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 interface NewCollectionCardProps {
@@ -203,7 +202,7 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
           BottomIconComponent: Hourglass,
           bottomIconBg: "bg-transLight4",
           primaryButton: {
-            text: "Launch Details",
+            text: "Review in progress...",
             action: onLaunchDetails,
           },
           showSecondaryButton: false,
@@ -329,10 +328,16 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
             }
           >
             <span>{config.primaryButton.text}</span>
-            <ArrowRight
+            {/* <ArrowRight
               size={20}
               className="transition-transform duration-300 group-hover:translate-x-1"
-            />
+            /> */}
+            {collection.progressState !== "LAUNCH_IN_REVIEW" && (
+              <ArrowRight
+                size={20}
+                className="transition-transform duration-300 group-hover:translate-x-1"
+              />
+            )}
           </Button>
         </div>
       </div>

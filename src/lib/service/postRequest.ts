@@ -403,7 +403,7 @@ export async function retopFundingPromise({
     return axiosClient
       .post(`/api/v1/orders/${collectionId}/retop-funding`)
       .then((response) => {
-        console.log("Retop funding successful:", response.data);
+        // console.log("Retop funding successful:", response.data);
         return response.data;
       });
   } catch (error) {

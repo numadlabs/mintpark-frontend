@@ -77,6 +77,7 @@ interface CreationFlowState {
   calculatedUploadData: CalculatedUploadData | null;
   isLoading: boolean;
   collectionId: string | null;
+  // launchId: string | null;
 }
 
 interface CreationFlowContextType extends CreationFlowState {
@@ -87,6 +88,7 @@ interface CreationFlowContextType extends CreationFlowState {
   updateCalculatedUploadData: (data: CalculatedUploadData) => void;
   setIsLoading: (loading: boolean) => void;
   setCollectionId: (id: string | null) => void;
+  // setLaunchId: (id: string | null) => void;
   resetFlow: () => void;
 }
 
@@ -110,6 +112,7 @@ const initialState: CreationFlowState = {
   calculatedUploadData: null,
   isLoading: false,
   collectionId: null,
+  // launchId: null,
 };
 
 const CreationFlowContext = createContext<CreationFlowContextType | undefined>(
@@ -158,13 +161,13 @@ export function CreationFlowProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, isLoading: loading }));
   };
 
-  // const setCollectionId = (id: string) => {
-  //   setState((prev) => ({ ...prev, collectionId: id }));
+  // const setLaunchId = (id: string | null) => {
+  //   setState((prev) => ({ ...prev, launchId: id }));
   // };
 
   const setCollectionId = (id: string | null) => {
-  setState((prev) => ({ ...prev, collectionId: id }));
-};
+    setState((prev) => ({ ...prev, collectionId: id }));
+  };
 
   const resetFlow = () => {
     setState(initialState);
@@ -181,6 +184,7 @@ export function CreationFlowProvider({ children }: { children: ReactNode }) {
         updateCalculatedUploadData,
         setIsLoading,
         setCollectionId,
+        // setLaunchId,
         resetFlow,
       }}
     >

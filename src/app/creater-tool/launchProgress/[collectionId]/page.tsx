@@ -515,17 +515,17 @@ const NFTLaunchInterface = () => {
     <div className="min-h-screen bg-gradient-to-br from-neutral600 via-darkPrimary to-neutral600">
       <div className="max-w-4xl mx-auto px-6 py-12 text-white">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-start gap-3">
           <Button
             onClick={() => router.push("/creater-tool")}
             variant="outline"
-            size="sm"
-            className="p-2"
+            size="lg"
+            className="p-2 border-hidden"
           >
             <X size={20} />
           </Button>
-          <div className="text-start mb-12">
-            <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-white to-neutral100 bg-clip-text text-transparent">
+          <div className="text-start mb-12 grid gap-3">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-white to-neutral100 bg-clip-text text-transparent">
               Launch your NFT Collection
             </h1>
             <p className="text-neutral200 text-lg max-w-2xl mx-auto leading-relaxed">
@@ -537,7 +537,7 @@ const NFTLaunchInterface = () => {
         </div>
 
         {/* Collection Card */}
-        <div className="flex items-center gap-6 mb-12 p-6 bg-gradient-to-r from-neutral500/50 to-neutral600/30 rounded-2xl border border-neutral400 backdrop-blur-sm">
+        <div className="flex items-center gap-6 mb-12 p-6 bg-darkSecondary rounded-xl border border-transLight4">
           <div className="w-20 h-20 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
             {collection.logoKey ? (
               <Image
@@ -548,12 +548,12 @@ const NFTLaunchInterface = () => {
                 className="w-full h-full object-cover rounded-lg"
               />
             ) : (
-              <div className="w-14 h-14 bg-white/20 rounded-lg border-2 border-white/30 backdrop-blur-sm" />
+              <div className="w-14 h-14 text-lightPrimary  bg-white/20 rounded-lg border-2 border-white/30 backdrop-blur-sm" />
             )}
           </div>
           <div>
             <h2 className="text-2xl font-bold mb-2">{collection.name}</h2>
-            <div className="flex items-center gap-6 text-neutral200">
+            <div className="flex items-center gap-6 text-lightPrimary">
               <span className="flex items-center gap-4 px-2 py-1 border border-transLight4 rounded-lg bg-darkTertiary">
                 <div className="w-[16px] h-[16px]">
                   <Image
@@ -565,14 +565,16 @@ const NFTLaunchInterface = () => {
                     className="w-4 h-4 object-cover"
                   />
                 </div>
-                <span className="font-medium">{collection.layer}</span>
+                <span className="font-medium text-lightPrimary">
+                  {collection.layer}
+                </span>
               </span>
               <span className="flex items-center gap-4 px-2 py-1 border border-transLight4 rounded-lg bg-darkTertiary">
                 <div className="w-5 h-5 rounded grid grid-cols-2 gap-0.5 p-0.5">
-                  <div className="bg-white rounded-sm" />
-                  <div className="bg-white rounded-sm" />
-                  <div className="bg-white rounded-sm" />
-                  <div className="bg-white rounded-sm" />
+                  <div className="border border-white rounded-sm" />
+                  <div className="border border-white rounded-sm" />
+                  <div className="border border-white rounded-sm" />
+                  <div className="border border-white rounded-sm" />
                 </div>
                 <span className="font-medium">
                   {collection.supply || 0} inscriptions
@@ -587,21 +589,23 @@ const NFTLaunchInterface = () => {
           <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
             Mint Start Date & Time
           </h3>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="bg-neutral500/50 rounded-xl p-4 border border-neutral400 backdrop-blur-sm">
-              <div className="flex items-center gap-4">
-                <Calendar className="text-brand w-6 h-6" />
+          <div className="grid grid-cols-2 h-12 gap-6">
+            <div className="bg-transLight2 h-12 rounded-xl flex items-center p-4 border border-transLight4">
+              <div className="flex items-center h-12 gap-4">
+                <Calendar className="text-transLight64 w-5 h-5" />
                 <Input
                   type="date"
                   value={mintStartDate}
                   onChange={(e) => setMintStartDate(e.target.value)}
-                  className="bg-transparent text-lg font-medium text-white border-hidden focus:outline-none"
+                  className="bg-transparent text-lg font-medium text-white border-hidden focus:outline-none 
+                  [&::-webkit-calendar-picker-indicator]:hidden 
+                  [&::-webkit-inner-spin-button]:hidden"
                 />
               </div>
             </div>
-            <div className="bg-neutral500/50 rounded-xl p-4 border border-neutral400 backdrop-blur-sm">
-              <div className="flex items-center gap-4">
-                <Clock className="text-brand w-6 h-6" />
+            <div className="bg-transLight2 rounded-xl h-12 flex items-center p-4 border border-transLight4">
+              <div className="flex items-center h-12 gap-4">
+                <Clock className="text-transLight64 w-5 h-5" />
                 <Input
                   type="time"
                   value={mintStartTime}
@@ -615,78 +619,84 @@ const NFTLaunchInterface = () => {
 
         {/* Phases */}
         <div className="mb-8">
-          <h3 className="text-xl font-bold mb-6">Launch Phases</h3>
-
+          <h3 className="text-2xl font-medium mb-6">Launch Phases</h3>
           {nextPhaseType < PHASE_TYPES.PUBLIC && (
-            <button
+            <Button
               onClick={() => {
                 setNewPhase({ ...newPhase, type: nextPhaseType });
                 setShowAddPhaseModal(true);
               }}
-              className="w-full p-6 border-2 border-neutral300 rounded-2xl text-neutral200 hover:border-brand hover:text-brand hover:bg-brand/5 transition-all duration-300 mb-6 flex items-center justify-center gap-3 group"
+              className="w-full p-6 border-2 h-12 bg-transparent hover:bg-hidden border-transLight8 rounded-lg cursor-pointer text-neutral200 mb-6 flex items-center justify-center gap-3 group"
             >
               <Plus
                 size={24}
                 className="group-hover:scale-110 transition-transform"
               />
-              <span className="text-lg font-medium">
+              <span className="text-lg text-lightPrimary font-medium">
                 Add {getPhaseTypeName(nextPhaseType)}
               </span>
-            </button>
+            </Button>
           )}
 
           <div className="space-y-6">
             {computedPhases.map((phase) => (
               <div
                 key={phase.id}
-                className="bg-neutral500 rounded-xl p-6 border border-neutral400"
+                className="bg-transparent rounded-xl border border-transLight4"
               >
-                <div className="flex justify-between items-center mb-8">
+                <div className="flex justify-between bg-darkSecondary items-center p-4">
                   <h4 className="text-xl font-semibold text-white">
                     {phase.name}
                   </h4>
                   <button
                     onClick={() => handleEditPhase(phase)}
-                    className="flex items-center gap-2 px-4 py-2 bg-neutral400 hover:bg-neutral300 rounded-lg text-neutral200 hover:text-white transition-all"
+                    className="flex items-center gap-2 px-4 py-2 bg-transLight4 border border-transLight4 rounded-lg text-white hover:text-white transition-all"
                   >
                     <Edit2 size={16} />
                     Edit
                   </button>
                 </div>
-
-                <div className="grid grid-cols-3 gap-6 mb-8">
-                  <div className="bg-darkSecondary rounded-lg p-4">
-                    <div className="text-white text-sm mb-2">Mint price</div>
-                    <div className="text-xl font-semibold text-white">
+                <div className="grid grid-cols-3">
+                  <div className="bg-transparent py-4 px-5 border border-transLight4">
+                    <div className="font-medium text-md text-transLight48 mb-2">
+                      Mint price
+                    </div>
+                    <div className="text-lg  font-medium text-lightPrimary">
                       {phase.mintPrice === 0 ? "Free" : `${phase.mintPrice}`}
                     </div>
                   </div>
-                  <div className="bg-neutral600 rounded-lg p-4">
-                    <div className="text-white text-sm mb-2">
+                  <div className="bg-transparent py-4 px-5 border border-transLight4">
+                    <div className="font-medium text-md text-transLight48 mb-2">
                       Max mint per wallet
                     </div>
-                    <div className="text-xl font-semibold text-white">
+                    <div className="text-lg font-medium text-lightPrimary">
                       {phase.maxMintPerWallet}
                     </div>
                   </div>
-                  <div className="bg-neutral600 rounded-lg p-4">
-                    <div className="text-white text-sm mb-2">Duration</div>
-                    <div className="text-xl font-semibold text-white">
+                  <div className="bg-transparent py-4 px-5 border border-transLight4">
+                    <div className="font-medium text-md text-transLight48 mb-2">
+                      Duration
+                    </div>
+                    <div className="text-lg font-medium text-lightPrimary">
                       {phase.duration.days}d {phase.duration.hours}h
                     </div>
                   </div>
                 </div>
 
                 {/* Starts / Ends */}
-                <div className="mt-6 grid grid-cols-2 gap-6 border-t border-neutral400/60 pt-6">
-                  <div className="bg-neutral600 rounded-lg p-4">
-                    <div className="text-white text-sm mb-1">Starts:</div>
+                <div className="grid grid-cols-2  w-full p-3 gap-6">
+                  <div className="bg-transparent flex gap-2 items-center justify-start p-4 w-full">
+                    <div className="text-lightSecondary font-medium text-md">
+                      Starts:
+                    </div>
                     <div className="text-lg font-semibold text-white">
                       {formatUnix(phase.startTime)}
                     </div>
                   </div>
-                  <div className="bg-neutral600 rounded-lg p-4">
-                    <div className="text-white text-sm mb-1">Ends:</div>
+                  <div className="bg-transparent flex gap-2 items-center justify-end p-4 w-full">
+                    <div className="text-lightSecondary font-medium text-md">
+                      Ends:
+                    </div>
                     <div className="text-lg font-semibold text-white">
                       {formatUnix(phase.endTime)}
                     </div>
@@ -694,8 +704,8 @@ const NFTLaunchInterface = () => {
                 </div>
 
                 {phase.addresses && phase.addresses.length > 0 && (
-                  <div className="mt-6">
-                    <div className="text-white text-sm mb-2">
+                  <div className="">
+                    <div className="text-white text-sm pl-4">
                       Allowlisted addresses: {phase.addresses.length}
                     </div>
                   </div>
@@ -705,7 +715,7 @@ const NFTLaunchInterface = () => {
                   <div className="flex justify-end">
                     <button
                       onClick={() => handleRemovePhase(phase.id)}
-                      className="text-red-400 hover:text-red-300 text-sm px-3 py-1 rounded transition-all"
+                      className="text-red-400 hover:text-red-300 text-sm px-3 relative bottom-4 rounded transition-all"
                     >
                       <Trash2 size={14} className="inline mr-1" />
                       Remove Phase
@@ -887,7 +897,7 @@ const NFTLaunchInterface = () => {
         title="Edit Phase Details"
       >
         {editingPhase && (
-          <div className="space-y-8 max-w-2xl mx-auto">
+          <div className="space-y-8 max-w-xl mx-auto">
             <div>
               <label className="block text-sm font-semibold mb-3 text-neutral200">
                 Mint price

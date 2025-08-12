@@ -57,6 +57,7 @@ export function TraitsUploadStep() {
     updateTraitData,
   } = useCreationFlow();
 
+
   // useTraitsStore-г зөвхөн validation-д ашиглах
   const { validationErrors, isValidating, validateJsonFile } = useTraitsStore();
 
