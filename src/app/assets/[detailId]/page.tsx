@@ -27,7 +27,6 @@ import BuyAssetModal from "@/components/modal/buy-asset-modal";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ActivityCard from "@/components/atom/cards/activity-card";
 import AssetDetailSkeleton from "@/components/atom/skeleton/asset-detail-skeleton";
-import { Collectible } from "@/lib/validations/collection-validation";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { toast } from "sonner";
 import Link from "next/link";

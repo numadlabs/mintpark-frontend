@@ -1,5 +1,3 @@
-// auth changes
-
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "../provider/auth-context-provider";
@@ -11,11 +9,16 @@ import {
   getCurrencySymbol,
   getCurrencyImage,
 } from "@/lib/service/currencyHelper";
+import { useBalance, useAccount } from 'wagmi';
+import { formatEther } from 'viem';
+
 declare global {
   interface Window {
     ethereum?: any;
+    // unisat?: any;
   }
 }
+
 interface Balance {
   amount: number;
   usdAmount: number;
@@ -23,6 +26,8 @@ interface Balance {
 
 const ProfileBanner: React.FC = () => {
   const { currentUserLayer, currentLayer } = useAuth();
+  const { address, isConnected } = useAccount();
+  
   const [balance, setBalance] = useState<Balance>({
     amount: 0,
     usdAmount: 0,
@@ -30,6 +35,7 @@ const ProfileBanner: React.FC = () => {
   const [copySuccess, setCopySuccess] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  
   // Get assets data from context
   const { assetsData } = useAssetsContext();
 
@@ -39,61 +45,129 @@ const ProfileBanner: React.FC = () => {
     enabled: !!currentUserLayer?.layerId,
   });
 
-  const getBalance = async (): Promise<void> => {
-    if (!currentUserLayer || !currentUserLayerData) return;
+  // Wagmi useBalance hook for EVM chains
+  const { 
+    data: wagmiBalance, 
+    isError: isBalanceError, 
+    isLoading: isBalanceLoading,
+    refetch: refetchBalance 
+  } = useBalance({
+    address: (address || currentUserLayer?.address) as `0x${string}`,
+    query: {
+      // Enable if we have address, regardless of currentUserLayerData
+      enabled: !!(address || currentUserLayer?.address),
+      refetchInterval: 10000, // Refetch every 10 seconds
+    }
+  });
+
+  // Fallback manual balance fetch
+  const getManualBalance = async (): Promise<void> => {
+    const targetAddress = address || currentUserLayer?.address;
+    if (!targetAddress || !window.ethereum) return;
 
     setIsLoading(true);
     try {
-      if (currentUserLayerData.type === "EVM") {
-        if (!window.ethereum) throw new Error("MetaMask not installed");
+      const balance = await window.ethereum.request({
+        method: "eth_getBalance",
+        params: [targetAddress, "latest"],
+      });
 
-        const balance = await window.ethereum.request({
-          method: "eth_getBalance",
-          params: [currentUserLayerData.address, "latest"],
-        });
+      const ethAmount = Number(BigInt(balance)) / 1e18;
+      const usdAmount = ethAmount * (currentUserLayerData?.price || 0);
 
-        const ethAmount = Number(BigInt(balance)) / 1e18;
-        const usdAmount = ethAmount * (currentUserLayerData?.price || 0);
+      console.log('Manual balance result:', { balance, ethAmount, usdAmount });
 
-        setBalance({
-          amount: ethAmount,
-          usdAmount: usdAmount,
-        });
-      } else if (currentUserLayerData.type === "BITCOIN") {
-        if (!window.unisat) throw new Error("Unisat not installed");
-
-        const res = await window.unisat.getBalance();
-        if (!res || typeof res.total !== "number") {
-          throw new Error("Invalid balance format received");
-        }
-
-        const btcAmount = Number(res.total) / 1e8; // Convert satoshis to BTC
-        const usdAmount = btcAmount * 97500; // Using example BTC price
-
-        setBalance({
-          amount: btcAmount,
-          usdAmount: usdAmount,
-        });
-      }
+      setBalance({
+        amount: ethAmount,
+        usdAmount: usdAmount,
+      });
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to fetch balance");
-      console.error("Balance fetch error:", e);
+      console.error("Manual balance fetch error:", e);
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (currentUserLayer) {
-      getBalance();
+  // Bitcoin balance fetching function
+  const getBitcoinBalance = async (): Promise<void> => {
+    if (!currentUserLayerData || currentUserLayerData.type !== "BITCOIN") return;
+
+    setIsLoading(true);
+    try {
+      if (!window.unisat) throw new Error("Unisat not installed");
+
+      const res = await window.unisat.getBalance();
+      if (!res || typeof res.total !== "number") {
+        throw new Error("Invalid balance format received");
+      }
+
+      const btcAmount = Number(res.total) / 1e8; // Convert satoshis to BTC
+      const usdAmount = btcAmount * (currentUserLayerData?.price || 97500);
+
+      setBalance({
+        amount: btcAmount,
+        usdAmount: usdAmount,
+      });
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to fetch Bitcoin balance");
+      console.error("Bitcoin balance fetch error:", e);
+    } finally {
+      setIsLoading(false);
     }
-  }, [currentUserLayer, currentUserLayerData?.price]);
+  };
+
+  // Update balance when wagmi balance changes or fallback to manual
+  useEffect(() => {
+    console.log('Balance update effect triggered:', {
+      layerType: currentUserLayerData?.type,
+      wagmiBalance: wagmiBalance?.formatted,
+      wagmiBalanceValue: wagmiBalance?.value,
+      isConnected,
+      hasAddress: !!(address || currentUserLayer?.address)
+    });
+
+    // Try wagmi first
+    if (wagmiBalance && wagmiBalance.value) {
+      const ethAmount = parseFloat(formatEther(wagmiBalance.value));
+      const usdAmount = ethAmount * (currentUserLayerData?.price || 0);
+
+      console.log('Setting balance from wagmi:', { ethAmount, usdAmount });
+
+      setBalance({
+        amount: ethAmount,
+        usdAmount: usdAmount,
+      });
+      setError(null);
+    } 
+    // Fallback to manual for EVM or if wagmi fails
+    else if ((address || currentUserLayer?.address) && !isBalanceLoading && !wagmiBalance) {
+      console.log('Falling back to manual balance fetch');
+      getManualBalance();
+    }
+    // Bitcoin handling
+    else if (currentUserLayerData?.type === "BITCOIN") {
+      getBitcoinBalance();
+    } else {
+      console.log('No balance conditions met');
+    }
+  }, [wagmiBalance, currentUserLayerData, isConnected, address, currentUserLayer?.address, isBalanceLoading]);
+
+  // Handle wagmi balance errors
+  useEffect(() => {
+    if (isBalanceError && currentUserLayerData?.type === "EVM") {
+      setError("Failed to fetch EVM balance");
+    }
+  }, [isBalanceError, currentUserLayerData?.type]);
 
   const handleCopyAddress = async (): Promise<void> => {
-    if (!currentUserLayer?.address) return;
+    const addressToCopy = address || currentUserLayer?.address;
+    if (!addressToCopy) return;
+    
     try {
-      await navigator.clipboard.writeText(currentUserLayer.address);
+      await navigator.clipboard.writeText(addressToCopy);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
     } catch (err) {
@@ -111,6 +185,9 @@ const ProfileBanner: React.FC = () => {
   // Get totalCount and listCount from assetsData
   const totalCount = assetsData?.data?.totalCount || 0;
   const listCount = assetsData?.data?.listCount || 0;
+
+  // Show loading state
+  const showLoading = isLoading || isBalanceLoading;
 
   return (
     <section className="mt-[43.5px] w-full">
@@ -154,8 +231,7 @@ const ProfileBanner: React.FC = () => {
               {/* Wallet Address and Copy Button */}
               <div className="flex gap-4 items-center justify-center md:justify-start">
                 <span className="font-bold text-xl sm:text-profileTitle">
-                  {currentUserLayer &&
-                    formatWalletAddress(currentUserLayer.address)}
+                  {formatWalletAddress(address || currentUserLayer?.address)}
                 </span>
                 <div className="relative">
                   <Image
@@ -178,7 +254,7 @@ const ProfileBanner: React.FC = () => {
               {/* Balance and Items Info */}
               <div className="flex flex-col md:flex-row gap-4 justify-between w-full">
                 {/* Wallet Balance Section */}
-                {currentUserLayer && (
+                {(isConnected || currentUserLayer?.address) && (
                   <div className="rounded-2xl bg-white4 p-3 sm:p-4 flex gap-4 items-center w-full md:w-fit justify-center md:justify-start">
                     <div className="flex flex-row items-center gap-2 md:gap-3">
                       <Image
@@ -194,15 +270,25 @@ const ProfileBanner: React.FC = () => {
                         className="h-5 w-5 sm:h-6 sm:w-6 rounded-lg"
                       />
                       <p className="flex items-center font-bold text-lg md:text-xl text-white">
-                        {formatPriceBtc(balance.amount)}{" "}
-                        {currentLayer?.layer
-                          ? getCurrencySymbol(currentLayer.layer)
-                          : ""}
+                        {showLoading ? (
+                          <span className="animate-pulse">Loading...</span>
+                        ) : (
+                          <>
+                            {formatPriceBtc(balance.amount)}{" "}
+                            {currentLayer?.layer
+                              ? getCurrencySymbol(currentLayer.layer)
+                              : ""}
+                          </>
+                        )}
                       </p>
                     </div>
                     <div className="h-6 w-[1px] bg-white16" />
                     <p className="h-5 text-neutral100 text-md flex items-center">
-                      ${formatPriceUsd(balance.usdAmount)}
+                      {showLoading ? (
+                        <span className="animate-pulse">Loading...</span>
+                      ) : (
+                        `${formatPriceUsd(balance.usdAmount)}`
+                      )}
                     </p>
                   </div>
                 )}
