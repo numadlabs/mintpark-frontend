@@ -10,7 +10,7 @@ import { CreatorCollection } from "@/lib/validations/collection-validation";
 import {
   createrCollection,
   getInscriptionProgress,
-  getOrderByCollectionIdBase, 
+  getOrderByCollectionIdBase,
 } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import CreateInfoCard from "@/components/atom/cards/create-info-card";
@@ -374,11 +374,11 @@ const CreatorTool = () => {
                 onClick={handleGoToCollections}
                 variant="outline"
                 size="lg"
-                className="p-2"
+                className="p-2 border-hidden"
               >
                 <X size={20} />
               </Button>
-              <h1 className="text-4xl md:text-5xl font-bold text-white">
+              <h1 className="text-3xl font-bold text-white">
                 Inscription Progress
               </h1>
             </div>
@@ -422,19 +422,19 @@ const CreatorTool = () => {
                     {/* Order ID */}
                     {orderData?.id && (
                       <div className="border-t border-transLight4 pt-4 pb-4">
-                        <p className="text-lightSecondary text-sm mb-2">
+                        <p className="text-lightSecondary text-lg mb-2">
                           Order ID
                         </p>
                         <div className="flex items-center justify-between bg-darkPrimary border border-transLight4 rounded-lg p-3">
-                          <p className="text-white font-mono text-sm break-all flex-1">
+                          <p className="text-white font-mono text-lg break-all flex-1">
                             {orderData.id}
                           </p>
                           <Button
                             onClick={() => handleCopyAddress(orderData.id)}
-                            className="ml-2 p-1.5 bg-transLight4 hover:bg-transLight3 text-white"
+                            className="ml-2 bg-transLight4 hover:bg-transLight3 text-white"
                             size="sm"
                           >
-                            <Copy size={12} />
+                            <Copy size={24} />
                           </Button>
                         </div>
                       </div>

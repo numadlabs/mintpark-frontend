@@ -710,8 +710,58 @@ const NFTLaunchInterface = () => {
                     </div>
                   </div>
                 )}
+                {/* old */}
+                {/* {(phase.type !== PHASE_TYPES.PUBLIC || phases.length > 1) && (
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => handleRemovePhase(phase.id)}
+                      className="text-red-400 hover:text-red-300 text-sm px-3 relative bottom-4 rounded transition-all"
+                    >
+                      <Trash2 size={14} className="inline mr-1" />
+                      Remove Phase
+                    </button>
+                  </div>
+                )} */}
 
-                {(phase.type !== PHASE_TYPES.PUBLIC || phases.length > 1) && (
+                {/* only public hidden to remove phase button */}
+                {/* {(phase.type === PHASE_TYPES.WHITELIST ||
+                  phase.type === PHASE_TYPES.FCFS_WHITELIST) && (
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => handleRemovePhase(phase.id)}
+                      className="text-red-400 hover:text-red-300 text-sm px-3 relative bottom-4 rounded transition-all"
+                    >
+                      <Trash2 size={14} className="inline mr-1" />
+                      Remove Phase
+                    </button>
+                  </div>
+                )} */}
+
+                {/* {(() => {
+                  const hasFcfsWhitelist = phases.some(
+                    (p) => p.type === PHASE_TYPES.FCFS_WHITELIST
+                  );
+                  if (phase.type === PHASE_TYPES.WHITELIST) {
+                    return !hasFcfsWhitelist;
+                  }
+                  if (phase.type === PHASE_TYPES.FCFS_WHITELIST) {
+                    return true;
+                  }
+                  return false;
+                })() && (
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => handleRemovePhase(phase.id)}
+                      className="text-red-400 hover:text-red-300 text-sm px-3 relative bottom-4 rounded transition-all"
+                    >
+                      <Trash2 size={14} className="inline mr-1" />
+                      Remove Phase
+                    </button>
+                  </div>
+                )} */}
+                {((phase.type === PHASE_TYPES.WHITELIST &&
+                  !phases.some((p) => p.type === PHASE_TYPES.FCFS_WHITELIST)) ||
+                  phase.type === PHASE_TYPES.FCFS_WHITELIST) && (
                   <div className="flex justify-end">
                     <button
                       onClick={() => handleRemovePhase(phase.id)}

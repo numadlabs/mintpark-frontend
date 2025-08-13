@@ -105,7 +105,8 @@ export function ContractDeploymentStep() {
 
       console.log("Collection created successfully:", {
         deployContractTxHex: collectionResponse.data.deployContractTxHex,
-      });
+      }
+    );
 
       // Store the collectionId in the context
       const collectionId = collectionResponse.data.l2Collection.id;
@@ -306,12 +307,12 @@ export function ContractDeploymentStep() {
           <Button
             onClick={handleCreateCollection}
             disabled={!isFormValid || isLoading}
-            className="w-full bg-white text-black hover:bg-gray-200 disabled:bg-transLight8 disabled:text-lightTertiary"
+            className="w-full bg-white text-black hover:bg-gray-200 disabled:bg-transLight8 disabled:text-white"
           >
             {isLoading ? (
               <Loader2
                 className="animate-spin w-full"
-                color="#111315"
+                color="#ffffff"
                 size={24}
               />
             ) : (

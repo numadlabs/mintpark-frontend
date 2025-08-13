@@ -122,8 +122,8 @@ export function InscriptionProgressPage() {
             <div className="bg-darkSecondary border border-transLight4 rounded-xl p-4 mb-8">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-lightSecondary text-sm mb-1">Order ID</p>
-                  <p className="text-white font-medium">
+                  <p className="text-lightSecondary text-lg mb-1">Order ID</p>
+                  <p className="text-white text-lg font-medium">
                     {progressData.order.id}
                   </p>
                 </div>
@@ -131,7 +131,7 @@ export function InscriptionProgressPage() {
                   onClick={() => copyToClipboard(progressData.order!.id)}
                   className="p-2 text-lightSecondary hover:text-white transition-colors"
                 >
-                  <Copy size={16} />
+                  <Copy size={24} />
                 </button>
               </div>
 

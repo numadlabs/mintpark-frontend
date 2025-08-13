@@ -236,7 +236,7 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
             showSecondaryButton: true,
             secondaryButton: {
               text: `Claim ${collection.leftoverAmount / 1e8} BTC`,
-              action: () => setShowClaimPopup(true), // Зөвхөн popup нээх
+              action: () => setShowClaimPopup(true),
             },
           };
         }
