@@ -34,7 +34,7 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import moment from "moment";
 import SuccessModal from "@/components/modal/success-modal";
 import { getLayerById } from "@/lib/service/queryHelper";
-import { formatFileSize, getSigner } from "@/lib/utils";
+import { formatFileSize } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,19 @@ import { ethers } from "ethers";
 import { getCurrencySymbol } from "@/lib/service/currencyHelper";
 import CreateBanner from "@/components/section/create-banner";
 import { Layer } from "@/lib/types/wallet";
-// import { MerkleTree } from 'merkletreejs';
+// Wagmi imports
+import { useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
+
+// Type definitions for transaction data
+interface TransactionData {
+  to?: string;
+  data?: string;
+  value?: string | number;
+  gas?: string | number;
+  gasPrice?: string | number;
+  maxFeePerGas?: string | number;
+  maxPriorityFeePerGas?: string | number;
+}
 
 const IPFS = () => {
   const router = useRouter();
@@ -100,16 +112,33 @@ const IPFS = () => {
     setTxid,
     reset,
   } = useCreateFormState();
+
   const queryClient = useQueryClient();
   const [step, setStep] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [collectionId, setCollectionId] = useState<string>("");
+  const [pendingTxHash, setPendingTxHash] = useState<string>("");
 
+  // Wagmi hooks
+  const {
+    sendTransaction,
+    isPending: isSendingTransaction,
+    error: sendTransactionError,
+  } = useSendTransaction();
+
+  const { isLoading: isWaitingForTransaction, isSuccess: transactionSuccess } =
+    useWaitForTransactionReceipt({
+      hash: pendingTxHash as `0x${string}`,
+      query: {
+        enabled: !!pendingTxHash,
+      },
+    });
+
+  // Other state variables...
   const [payModal, setPayModal] = useState(false);
   const [fileTypes, setFileTypes] = useState<Set<string>>(new Set());
   const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [fileSizes, setFileSizes] = useState<number[]>([]);
-
   const [jsonFile, setJsonFile] = useState<File | null>(null);
   const [fcfsjsonFile, setFcfsJsonFile] = useState<File | null>();
   const stepperData = ["Details", "Upload", "Launch", "Confirm"];
@@ -122,6 +151,100 @@ const IPFS = () => {
   const [whitelistAddress, setWhitelistAddress] = useState<string[]>([]);
   const [fcfslistAddress, setfcfslistAddress] = useState<string[]>([]);
 
+  // Helper function to check if collection is ready
+  const checkCollectionStatus = async (
+    collectionId: string
+  ): Promise<boolean> => {
+    try {
+      // You might need to implement this endpoint in your API
+      // For now, we'll add a simple delay and assume it's ready
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      return true;
+    } catch (error) {
+      console.error("Error checking collection status:", error);
+      return false;
+    }
+  };
+
+  // Helper function to send transaction using Wagmi
+  const sendTransactionWithWagmi = async (
+    txData: TransactionData | string
+  ): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      // Validate transaction data
+      if (!txData) {
+        reject(new Error("Transaction data is missing"));
+        return;
+      }
+
+      // Handle different possible formats of transaction data
+      let transactionRequest;
+
+      if (typeof txData === "string") {
+        // If it's a raw hex string, we need more info to construct the transaction
+        if (!txData.startsWith("0x")) {
+          reject(new Error("Invalid transaction hex format"));
+          return;
+        }
+        transactionRequest = {
+          data: txData as `0x${string}`,
+        };
+      } else if (typeof txData === "object" && txData !== null) {
+        // If it's an object with transaction properties
+        transactionRequest = {
+          to: txData.to as `0x${string}` | undefined,
+          data: txData.data as `0x${string}` | undefined,
+          value: txData.value ? BigInt(txData.value) : undefined,
+          gas: txData.gas ? BigInt(txData.gas) : undefined,
+          gasPrice: txData.gasPrice ? BigInt(txData.gasPrice) : undefined,
+          maxFeePerGas: txData.maxFeePerGas
+            ? BigInt(txData.maxFeePerGas)
+            : undefined,
+          maxPriorityFeePerGas: txData.maxPriorityFeePerGas
+            ? BigInt(txData.maxPriorityFeePerGas)
+            : undefined,
+        };
+
+        // Validate required fields for object format
+        if (!transactionRequest.to && !transactionRequest.data) {
+          reject(
+            new Error('Transaction must have either "to" address or "data"')
+          );
+          return;
+        }
+      } else {
+        reject(new Error("Invalid transaction data format"));
+        return;
+      }
+
+      console.log("Sending transaction with data:", transactionRequest);
+
+      sendTransaction(transactionRequest, {
+        onSuccess: (hash) => {
+          console.log("Transaction sent successfully:", hash);
+          setPendingTxHash(hash);
+          setTxid(hash);
+          resolve(hash);
+        },
+        onError: (error) => {
+          console.error("Transaction failed:", error);
+
+          // Handle specific error types
+          if (error.message.toLowerCase().includes("unsigned")) {
+            toast.error("Transaction data is not properly formatted");
+          } else if (error.message.toLowerCase().includes("user rejected")) {
+            toast.error("Transaction was rejected by user");
+          } else {
+            toast.error("Transaction failed: " + error.message);
+          }
+
+          reject(error);
+        },
+      });
+    });
+  };
+
+  // Mutations...
   const { mutateAsync: createCollectionMutation } = useMutation({
     mutationFn: createCollection,
   });
@@ -162,6 +285,7 @@ const IPFS = () => {
       return updatedTypes;
     });
   };
+
   const { data: currentLayer } = useQuery<Layer>({
     queryKey: ["currentLayerData", currentUserLayer?.layerId],
     queryFn: () => getLayerById(currentUserLayer!.layerId),
@@ -173,30 +297,22 @@ const IPFS = () => {
     timeString: string
   ): number => {
     try {
-      // Input validation
       if (!dateString || !timeString) {
         console.error("Missing date or time input");
         toast.error("Missing date or time input");
         return 0;
       }
 
-      // Normalize the time string to ensure proper format (HH:mm)
       const normalizedTime = timeString.replace(" ", ":");
-
-      // Combine date and time
       const dateTimeString = `${dateString} ${normalizedTime}`;
-
-      // Parse using moment with explicit format
       const momentDate = moment(dateTimeString, "YYYY-MM-DD HH:mm");
 
-      // Validate the parsed date
       if (!momentDate.isValid()) {
         console.error("Invalid date/time combination:", dateTimeString);
         toast.error("Invalid date and time combination.");
         return 0;
       }
 
-      // Get Unix timestamp in seconds
       return momentDate.unix();
     } catch (error) {
       console.error("Error calculating timestamp:", error);
@@ -214,10 +330,11 @@ const IPFS = () => {
       toast.error("User layer not available");
       return;
     }
-    if (currentLayer.layerType === "EVM") {
-      toast.error("Please install MetaMask extension to continue");
+    if (currentLayer.layerType !== "EVM") {
+      toast.error("This feature requires an EVM-compatible layer");
       return;
     }
+
     setIsLoading(true);
     try {
       const params: CollectionData = {
@@ -226,11 +343,10 @@ const IPFS = () => {
         logo: imageFile[0],
         priceForLaunchpad: 0.001,
         type: "IPFS_FILE",
-        // userLayerId: authState.userLayerId,
-        // layerId: selectedLayerId,
         userLayerId: currentUserLayer!.id,
         layerId: currentUserLayer!.layerId,
       };
+
       if (params) {
         const response = await createCollectionMutation({ data: params });
         if (response && response.success) {
@@ -238,21 +354,52 @@ const IPFS = () => {
           const { deployContractTxHex } = response.data;
           setCollectionId(id);
 
-          toast.success("Create collection success.");
+          toast.success("Collection created successfully.");
 
-          if (currentLayer.layerType) {
-            const { signer } = await getSigner();
-            const signedTx = await signer?.sendTransaction(deployContractTxHex);
-            await signedTx?.wait();
-            if (signedTx?.hash) setTxid(signedTx?.hash);
+          if (currentLayer.layerType === "EVM" && deployContractTxHex) {
+            try {
+              // Debug: Log the transaction data structure
+              console.log("deployContractTxHex:", deployContractTxHex);
+              console.log(
+                "Type of deployContractTxHex:",
+                typeof deployContractTxHex
+              );
+
+              // Use Wagmi to send transaction
+              await sendTransactionWithWagmi(deployContractTxHex);
+              toast.success("Transaction sent successfully.");
+            } catch (txError) {
+              console.error("Transaction error:", txError);
+              toast.error("Transaction failed. Please try again.");
+              return; // Don't proceed to next step if transaction fails
+            }
           }
 
+          // Add a small delay to ensure backend processing is complete
+          await new Promise((resolve) => setTimeout(resolve, 2000));
           setStep(1);
+        } else {
+          toast.error("Failed to create collection. Please try again.");
         }
       }
-    } catch (error) {
-      toast.error("Error creating collection.");
+    } catch (error: any) {
       console.error("Error creating collection:", error);
+      // Check if it's a specific error about collection processing
+      if (
+        error?.response?.data?.error?.includes(
+          "Collection processing has not been completed"
+        )
+      ) {
+        toast.error(
+          "Collection is still processing. Please wait a moment and try again."
+        );
+      } else if (error?.message?.toLowerCase().includes("unsigned")) {
+        toast.error(
+          "Transaction data is not ready. Please wait and try again."
+        );
+      } else {
+        toast.error("Error creating collection. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -270,7 +417,7 @@ const IPFS = () => {
     const files = event.target.files;
 
     if (files) {
-      const filteredFiles = Array.from(files).filter((file) => file.size > 0); // Only process non-empty files
+      const filteredFiles = Array.from(files).filter((file) => file.size > 0);
 
       const newImageFiles: ImageFile[] = filteredFiles.map((file) => ({
         file,
@@ -279,7 +426,6 @@ const IPFS = () => {
 
       setImageFiles((prevFiles) => [...prevFiles, ...newImageFiles]);
 
-      // Calculate sizes only for valid files
       const newSizes = filteredFiles.map((file) => file.size);
       setFileSizes((prevSizes) => [...prevSizes, ...newSizes]);
 
@@ -301,12 +447,10 @@ const IPFS = () => {
     const file = event.target.files?.[0];
     if (file && file.type === "application/json") {
       setJsonFile(file);
-      // Read and parse the JSON file
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
           const jsonData = JSON.parse(e.target?.result as string);
-          // Assuming the JSON file contains an array of addresses
           if (Array.isArray(jsonData.addresses)) {
             setWhitelistAddress(jsonData.addresses);
           } else {
@@ -325,12 +469,10 @@ const IPFS = () => {
     const file = event.target.files?.[0];
     if (file && file.type === "application/json") {
       setFcfsJsonFile(file);
-      // Read and parse the JSON file
       const reader = new FileReader();
       reader.onload = (e) => {
         try {
           const jsonData = JSON.parse(e.target?.result as string);
-          // Assuming the JSON file contains an array of addresses
           if (Array.isArray(jsonData.addresses)) {
             setfcfslistAddress(jsonData.addresses);
           } else {
@@ -347,12 +489,10 @@ const IPFS = () => {
 
   const togglePayModal = () => {
     setPayModal(!payModal);
-    // reset();
   };
 
   const handleDeleteLogo = () => {
-    setImageFile([]); // Clear the imageFile array
-    // setImageLogo(null);
+    setImageFile([]);
   };
 
   const handleDeleteJson = () => {
@@ -366,7 +506,7 @@ const IPFS = () => {
   const handleBack = () => {
     if (step > 0 || step > 3) {
       setStep(step - 1);
-      reset(); // Reset form data when going back
+      reset();
     } else {
       router.push("/create");
       reset();
@@ -385,6 +525,7 @@ const IPFS = () => {
   const toggleWhiteList = () => {
     setIsChecked(!isChecked);
   };
+
   const toggleSecondWhiteList = () => {
     setIsSecondChecked(!isSecondChecked);
   };
@@ -395,24 +536,12 @@ const IPFS = () => {
 
   const files = imageFiles.map((image) => image.file);
 
-  // Add helper function for merkle root generation
-  function generateMerkleRoot(addresses: string[]): string {
-    const leaves = addresses.map((addr) =>
-      // ethers.keccak256(ethers.encodePacked(["address"], [addr]))
-      ethers.solidityPacked(["address"], [addr])
-    );
-    // const tree = new MerkleTree(leaves, ethers.keccak256, { sortPairs: true });
-    return "";
-    // return tree.getHexRoot();
-  }
-
   const handleCreateLaunch = async () => {
     setIsLoading(true);
     const poStartsAt = calculateTimeUntilDate(POStartsAtDate, POStartsAtTime);
     const poEndsAt = calculateTimeUntilDate(POEndsAtDate, POEndsAtTime);
     const wlStartsAt = calculateTimeUntilDate(WLStartsAtDate, WLStartsAtTime);
     const wlEndsAt = calculateTimeUntilDate(WLEndsAtDate, WLEndsAtTime);
-    // fcfs
     const fcfsStartsAt = calculateTimeUntilDate(
       FCFSStartsAtDate,
       FCFSStartsAtTime
@@ -434,17 +563,13 @@ const IPFS = () => {
         wlEndsAt: wlEndsAt,
         wlMintPrice: WLMintPrice,
         wlMaxMintPerWallet: WLMaxMintPerWallet,
-        // FCFS
         fcfsStartsAt: fcfsStartsAt,
         fcfsEndsAt: fcfsEndsAt,
         fcfsMintPrice: FCFSMintPrice,
         fcfsMaxMintPerWallet: FCFSMaxMintPerWallet,
-        // userLayerId: authState.userLayerId,
         userLayerId: currentUserLayer!.id,
       };
-      // if (!selectedLayerId) {
-      //   return toast.error("layer not selected");
-      // }
+
       if (!currentUserLayer?.layerId) {
         return toast.error("layer not selected");
       }
@@ -458,174 +583,184 @@ const IPFS = () => {
           feeRate: 1,
         });
 
+        console.log(launchResponse?.data, "helloo");
         if (!launchResponse?.data?.launch?.collectionId) {
           throw new Error("Launch response missing collection ID");
         }
 
-        // if (isChecked) {
-        //   const wlStartsAt = calculateTimeUntilDate(
-        //     WLStartsAtDate,
-        //     WLStartsAtTime
-        //   );
-        //   const wlEndsAt = calculateTimeUntilDate(WLEndsAtDate, WLEndsAtTime);
+        const launchCollectionId = launchResponse.data.launch.collectionId;
+        const launchId = launchResponse.data.launch.id;
 
-        //   // Add whitelist phase
-        //   const whitelistPhaseResponse = await addPhaseMutation({
-        //     collectionId,
-        //     phaseType: 1, // PhaseType.WHITELIST
-        //     price: WLMintPrice.toString(),
-        //     startTime: wlStartsAt,
-        //     endTime: wlEndsAt,
-        //     maxSupply: whitelistAddress.length, // Set max supply to whitelist size
-        //     maxPerWallet: WLMaxMintPerWallet,
-        //     maxMintPerPhase: whitelistAddress.length,
-        //     merkleRoot: generateMerkleRoot(whitelistAddress),
-        //     layerId: selectedLayerId,
-        //     userLayerId: authState.userLayerId,
-        //   });
-
-        //   if (currentLayer.layerType === "EVM") {
-        //     const { signer } = await getSigner();
-        //     const signedTx = await signer?.sendTransaction(
-        //       whitelistPhaseResponse.data.unsignedTx
-        //     );
-        //     await signedTx?.wait();
-        //   }
-        // }
-
-        // Add public phase
-
+        // Handle whitelist phase
         if (isChecked) {
-          // Add white list
           const whresponse = await addPhaseMutation({
             collectionId,
-            phaseType: 0, // PhaseType.whiteList
+            phaseType: 0,
             price: WLMintPrice.toString(),
             startTime: wlStartsAt,
             endTime: wlEndsAt,
-            maxSupply: WLMaxMintPerWallet * whitelistAddress.length, // Heden address bgag tus bur hed mint hiih bolomjtoigoor urjeed maxSupply ni garj irne
+            maxSupply: WLMaxMintPerWallet * whitelistAddress.length,
             maxPerWallet: WLMaxMintPerWallet,
-            maxMintPerPhase: WLMaxMintPerWallet, // Unlimited mints for public phase
-            // layerId: selectedLayerId,
-            // userLayerId: authState.userLayerId,
+            maxMintPerPhase: WLMaxMintPerWallet,
             layerId: currentUserLayer!.layerId,
             userLayerId: currentUserLayer!.id,
           });
 
+          console.log("Whitelist phase response:", whresponse);
+
           if (currentLayer!.layerType === "EVM") {
-            const { signer } = await getSigner();
-            const signedTx = await signer?.sendTransaction(
-              whresponse.data.unsignedTx
-            );
-            await signedTx?.wait();
+            if (whresponse?.data?.unsignedTx) {
+              try {
+                await sendTransactionWithWagmi(whresponse.data.unsignedTx);
+                toast.success("Whitelist phase transaction sent successfully.");
+              } catch (txError) {
+                console.error("Whitelist transaction error:", txError);
+                toast.error("Whitelist phase transaction failed.");
+                // Continue with the process even if transaction fails
+              }
+            } else {
+              console.error(
+                "No unsigned transaction data received for whitelist phase"
+              );
+              toast.warning(
+                "Whitelist phase created but no transaction data received."
+              );
+            }
           }
         }
 
+        // Handle FCFS phase
         if (isSecondChecked) {
-          // Add FCFS
           const FCFSresponse = await addPhaseMutation({
             collectionId,
-            phaseType: 1, // PhaseType.FSFS
+            phaseType: 1,
             price: FCFSMintPrice.toString(),
             startTime: fcfsStartsAt,
             endTime: fcfsEndsAt,
-            maxSupply: FCFSMaxMintPerWallet * fcfslistAddress.length, // Heden address bgag tus bur hed mint hiih bolomjtoigoor urjeed maxSupply ni garj irne
+            maxSupply: FCFSMaxMintPerWallet * fcfslistAddress.length,
             maxPerWallet: FCFSMaxMintPerWallet,
-            maxMintPerPhase: FCFSMaxMintPerWallet, // Unlimited mints for public phase
-            // layerId: selectedLayerId,
-            // userLayerId: authState.userLayerId,
-            layerId: currentUserLayer!.layerId,
+            maxMintPerPhase: FCFSMaxMintPerWallet,
+            layerId: currentLayer!.id,
             userLayerId: currentUserLayer!.id,
             merkleRoot: "",
           });
 
+          console.log("FCFS phase response:", FCFSresponse);
+
           if (currentLayer!.layerType === "EVM") {
-            const { signer } = await getSigner();
-            const signedTx = await signer?.sendTransaction(
-              FCFSresponse.data.unsignedTx
-            );
-            await signedTx?.wait();
+            if (FCFSresponse?.data?.unsignedTx) {
+              try {
+                await sendTransactionWithWagmi(FCFSresponse.data.unsignedTx);
+                toast.success("FCFS phase transaction sent successfully.");
+              } catch (txError) {
+                console.error("FCFS transaction error:", txError);
+                toast.error("FCFS phase transaction failed.");
+                // Continue with the process even if transaction fails
+              }
+            } else {
+              console.error(
+                "No unsigned transaction data received for FCFS phase"
+              );
+              toast.warning(
+                "FCFS phase created but no transaction data received."
+              );
+            }
           }
         }
 
-        // Add public phase
+        // Handle public phase
         if (isPubChecked) {
-          // Add public phase
           const publicPhaseResponse = await addPhaseMutation({
             collectionId,
-            phaseType: 2, // PhaseType.PUBLIC
+            phaseType: 2,
             price: POMintPrice.toString(),
             startTime: poStartsAt,
             endTime: poEndsAt,
-            maxSupply: 0, // Unlimited supply for public phase
+            maxSupply: 0,
             maxPerWallet: POMaxMintPerWallet,
-            maxMintPerPhase: 0, // Unlimited mints for public phase
-            layerId: currentUserLayer!.layerId,
+            maxMintPerPhase: 0,
+            layerId: currentLayer!.id,
             userLayerId: currentUserLayer!.id,
           });
 
+          console.log("Public phase response:", publicPhaseResponse);
+
           if (currentLayer!.layerType === "EVM") {
-            const { signer } = await getSigner();
-            const signedTx = await signer?.sendTransaction(
-              publicPhaseResponse.data.unsignedTx
-            );
-            await signedTx?.wait();
+            if (publicPhaseResponse?.data?.unsignedTx) {
+              try {
+                await sendTransactionWithWagmi(
+                  publicPhaseResponse.data.unsignedTx
+                );
+                toast.success("Public phase transaction sent successfully.");
+              } catch (txError) {
+                console.error("Public transaction error:", txError);
+                toast.error("Public phase transaction failed.");
+                // Continue with the process even if transaction fails
+              }
+            } else {
+              console.error(
+                "No unsigned transaction data received for public phase"
+              );
+              toast.warning(
+                "Public phase created but no transaction data received."
+              );
+            }
           }
         }
-
-        // const publicPhaseResponse = await addPhaseMutation({
-        //   collectionId,
-        //   phaseType: 2, // PhaseType.PUBLIC
-        //   price: POMintPrice.toString(),
-        //   startTime: poStartsAt,
-        //   endTime: poEndsAt,
-        //   maxSupply: 0, // Unlimited supply for public phase
-        //   maxPerWallet: POMaxMintPerWallet,
-        //   maxMintPerPhase: 0, // Unlimited mints for public phase
-        //   merkleRoot: ethers.ZeroHash, // No merkle root needed for public phase
-        //   layerId: selectedLayerId,
-        //   userLayerId: authState.userLayerId,
-        // new auth chnages
-        // layerId: currentUserLayer!.layerId,
-        // userLayerId: currentUserLayer!.id,
-
-        // });
-
-        const launchCollectionId = launchResponse.data.launch.collectionId;
-        const launchId = launchResponse.data.launch.id;
 
         // Process files in batches
-        for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
-          const start = batchIndex * batchSize;
-          const end = Math.min(start + batchSize, files.length);
-          const currentBatchFiles = files.slice(start, end);
+        try {
+          for (let batchIndex = 0; batchIndex < totalBatches; batchIndex++) {
+            const start = batchIndex * batchSize;
+            const end = Math.min(start + batchSize, files.length);
+            const currentBatchFiles = files.slice(start, end);
 
-          const names = currentBatchFiles.map(
-            (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
-          );
+            const names = currentBatchFiles.map(
+              (_, index) => `${name.replace(/\s+/g, "")}-${start + index + 1}`
+            );
 
-          const launchItemsData: CreateLaunchParams = {
-            files: currentBatchFiles,
-            names: names,
-            collectionId: launchCollectionId,
-            isLastBatch: batchIndex === totalBatches - 1,
-          };
+            const launchItemsData: CreateLaunchParams = {
+              files: currentBatchFiles,
+              names: names,
+              collectionId: launchCollectionId,
+              isLastBatch: batchIndex === totalBatches - 1,
+            };
 
-          const response = await launchItemsMutation({ data: launchItemsData });
+            console.log(
+              `Processing batch ${batchIndex + 1}/${totalBatches}:`,
+              launchItemsData
+            );
 
-          if (!response?.success) {
-            throw new Error(`Failed to process batch ${batchIndex + 1}`);
+            const response = await launchItemsMutation({
+              data: launchItemsData,
+            });
+
+            if (!response?.success) {
+              throw new Error(
+                `Failed to process batch ${batchIndex + 1}: ${
+                  response?.error || "Unknown error"
+                }`
+              );
+            }
+
+            console.log(`Batch ${batchIndex + 1} processed successfully`);
+
+            if (batchIndex < totalBatches - 1) {
+              await new Promise((resolve) => setTimeout(resolve, 1000));
+            }
           }
 
-          // Add delay between batches except for the last one
-          if (batchIndex < totalBatches - 1) {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-          }
+          console.log("All file batches processed successfully");
+        } catch (batchError) {
+          console.error("Error processing file batches:", batchError);
+          toast.error(`Error uploading files: ${batchError}`);
+          // Don't throw here, continue with the rest of the process
         }
+
+        // Process whitelist addresses
         if (isChecked) {
           try {
             let whResponse;
-            // Process whitelist addresses in batches of 50
             for (let i = 0; i < Math.ceil(whitelistAddress.length / 50); i++) {
               const batch = whitelistAddress.slice(i * 50, (i + 1) * 50);
               whResponse = await whitelistAddressesMutation({
@@ -644,11 +779,11 @@ const IPFS = () => {
         } else {
           toggleSuccessModal();
         }
-        // Process fcfs if enabled
+
+        // Process FCFS addresses
         if (isSecondChecked) {
           try {
             let whResponse;
-            // Process whitelist addresses in batches of 50
             for (let i = 0; i < Math.ceil(fcfslistAddress.length / 50); i++) {
               const batch = fcfslistAddress.slice(i * 50, (i + 1) * 50);
               whResponse = await whitelistAddressesMutation({
@@ -688,6 +823,9 @@ const IPFS = () => {
     reset();
   };
 
+  // Check if any transaction is pending
+  const isTransactionLoading = isSendingTransaction || isWaitingForTransaction;
+
   return (
     <Layout>
       <div className="flex flex-col w-full h-max bg-background pb-[148px]">
@@ -698,6 +836,8 @@ const IPFS = () => {
             setStep={step}
             stepperData={stepperData}
           />
+
+          {/* Step 0 - Details */}
           {step == 0 && (
             <div className="w-[592px] items-start flex flex-col gap-16">
               <div className="flex flex-col w-full gap-6">
@@ -717,11 +857,11 @@ const IPFS = () => {
                   </div>
                   <div className="grid gap-3">
                     <p className="font-medium text-lg text-neutral50">
-                      Creater (optional)
+                      Creator (optional)
                     </p>
                     <Input
                       onReset={reset}
-                      name="Creater optional"
+                      name="Creator optional"
                       title="Description"
                       placeholder="Collection creator name"
                       value={creator}
@@ -730,7 +870,6 @@ const IPFS = () => {
                   </div>
 
                   <TextArea
-                    // onReset={reset}
                     title="Description"
                     text="Description"
                     value={description}
@@ -760,11 +899,10 @@ const IPFS = () => {
                   type="submit"
                   title="Continue"
                   onClick={handleCreateCollection}
-                  disabled={isLoading}
+                  disabled={isLoading || isTransactionLoading}
                   className="w-full"
-                  // isLoading={isLoading}
                 >
-                  {isLoading ? (
+                  {isLoading || isTransactionLoading ? (
                     <Loader2
                       className="animate-spin w-full"
                       color="#111315"
@@ -777,6 +915,8 @@ const IPFS = () => {
               </div>
             </div>
           )}
+
+          {/* Step 1 - Upload */}
           {step == 1 && (
             <div className="w-[592px] items-start flex flex-col gap-16">
               <div className="flex flex-col w-full gap-8">
@@ -807,12 +947,10 @@ const IPFS = () => {
                 <ButtonOutline title="Back" onClick={handleBack} />
                 <Button
                   className="flex w-full border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold items-center justify-center"
-                  // type="submit"
                   onClick={() => setStep(2)}
-                  // isLoading={isLoading}
-                  disabled={isLoading}
+                  disabled={isLoading || isTransactionLoading}
                 >
-                  {isLoading ? (
+                  {isLoading || isTransactionLoading ? (
                     <Loader2
                       className="animate-spin w-full"
                       color="#111315"
@@ -825,6 +963,8 @@ const IPFS = () => {
               </div>
             </div>
           )}
+
+          {/* Step 2 - Launch Settings */}
           {step == 2 && (
             <div className="w-[592px] items-start flex flex-col gap-16">
               <div className="flex flex-col w-full gap-4">
@@ -1249,8 +1389,8 @@ const IPFS = () => {
                         </div>
                         <div className="absolute right-4">
                           <p className="text-md text-neutral200 font-medium">
-                            {/* {getCurrencySymbol(currentLayer.layer)} */}
-                            {currentLayer && getCurrencySymbol(currentLayer.layer)}
+                            {currentLayer &&
+                              getCurrencySymbol(currentLayer.layer)}
                           </p>
                         </div>
                       </div>
@@ -1279,11 +1419,10 @@ const IPFS = () => {
                 <ButtonOutline title="Back" onClick={handleBack} />
                 <Button
                   onClick={() => setStep(3)}
-                  // isLoading={isLoading}
-                  disabled={isLoading}
-                  className="flex items-center   border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold  w-full justify-center"
+                  disabled={isLoading || isTransactionLoading}
+                  className="flex items-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold w-full justify-center"
                 >
-                  {isLoading ? (
+                  {isLoading || isTransactionLoading ? (
                     <Loader2
                       className="animate-spin"
                       color="#111315"
@@ -1296,6 +1435,8 @@ const IPFS = () => {
               </div>
             </div>
           )}
+
+          {/* Step 3 - Confirmation */}
           {step == 3 && (
             <div className="w-[800px] flex flex-col gap-16">
               <div className="flex flex-row items-center justify-start w-full gap-8">
@@ -1358,7 +1499,7 @@ const IPFS = () => {
                       </div>
                       <div className="flex flex-row justify-between items-center">
                         <p className="text-neutral200 text-lg">
-                          Public mint price
+                          Whitelist mint price
                         </p>
                         <p className="text-neutral50 text-lg font-bold">
                           {WLMintPrice}
@@ -1390,12 +1531,12 @@ const IPFS = () => {
                       <div className="flex flex-row justify-between items-center">
                         <p className="text-neutral200 text-lg">End date</p>
                         <p className="text-neutral50 text-lg font-bold">
-                          {FCFSStartsAtDate},{FCFSStartsAtDate}
+                          {FCFSEndsAtDate},{FCFSEndsAtTime}
                         </p>
                       </div>
                       <div className="flex flex-row justify-between items-center">
                         <p className="text-neutral200 text-lg">
-                          Public mint price
+                          FCFS mint price
                         </p>
                         <p className="text-neutral50 text-lg font-bold">
                           {FCFSMintPrice}
@@ -1454,18 +1595,16 @@ const IPFS = () => {
                 <ButtonOutline title="Back" onClick={handleBack} />
                 <Button
                   onClick={handleCreateLaunch}
-                  // isLoading={isLoading}
-                  disabled={isLoading}
-                  className="flex justify-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold  w-full items-center"
+                  disabled={isLoading || isTransactionLoading}
+                  className="flex justify-center border border-neutral400 rounded-xl text-neutral600 bg-brand font-bold w-full items-center"
                 >
-                  {isLoading ? (
+                  {isLoading || isTransactionLoading ? (
                     <Loader2
                       className="animate-spin w-full"
                       color="#111315"
                       size={24}
                     />
                   ) : (
-                    // "Loading"
                     "Confirm"
                   )}
                 </Button>
@@ -1474,6 +1613,20 @@ const IPFS = () => {
           )}
         </div>
       </div>
+
+      {/* Show transaction status */}
+      {sendTransactionError && (
+        <div className="fixed bottom-4 right-4 bg-red-500 text-white p-4 rounded z-50">
+          Transaction Error: {sendTransactionError.message}
+        </div>
+      )}
+
+      {transactionSuccess && (
+        <div className="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded z-50">
+          Transaction Successful!
+        </div>
+      )}
+
       <OrderPayModal
         open={payModal}
         onClose={togglePayModal}
