@@ -56,30 +56,6 @@ export const getDecimalsForLayer = (layerType: string): number => {
   );
 };
 
-
-// new currency helper function
-export const getInscriptionExplorerUrl = (
-  layerType: string,
-  inscriptionId: string,
-  networkType: "TESTNET" | "MAINNET" = "TESTNET"
-): string => {
-  // For Bitcoin-based layers, use ordinals explorer
-  if (layerType === "BITCOIN") {
-    const isTestnet = networkType === "TESTNET";
-    const baseUrl = isTestnet 
-      ? "https://testnet4.ordinals.com" 
-      : "https://ordinals.com";
-    return `${baseUrl}/${inscriptionId}`;
-  }
-  
-  // For other layers, use their block explorer
-  const baseUrl = getBlockExplorerBaseUrl(layerType, networkType);
-  if (!baseUrl) return "";
-  
-  // Different explorers might have different patterns for inscriptions
-  return `${baseUrl}/inscription/${inscriptionId}`;
-};
-
 // Format BTC price (8 decimal places)
 export const formatPriceBtc = (value: number): string => {
   if (!value && value !== 0) return "0.000000";
