@@ -33,7 +33,6 @@ import Link from "next/link";
 import MoreCollection from "@/components/section/more-collection";
 import {
   getCurrencySymbol,
-  getInscriptionExplorerUrl,
 } from "@/lib/service/currencyHelper";
 import { getAddressExplorerUrl } from "@/lib/service/currencyHelper";
 
@@ -304,23 +303,10 @@ export default function AssetDetail() {
                           <h1 className="font-medium text-md text-neutral200">
                             Original Asset (Inscription ID)
                           </h1>
-                          {/* <Link
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            href={`https://scan.coredao.org/${collectible.inscriptionId}`}
-                            className="font-medium cursor-pointer text-md hover:underline text-neutral50"
-                          >
-                            {truncateAddress(collectible.inscriptionId)}
-                          </Link> */}
-
                           <Link
                             target="_blank"
                             rel="noopener noreferrer"
-                            href={getInscriptionExplorerUrl(
-                              collectible.layer,
-                              collectible.inscriptionId,
-                              "TESTNET"
-                            )}
+                            href={`https://ordinals-testnet4.unisat.io/content/${collectible.inscriptionId}`}
                             className="font-medium cursor-pointer text-md hover:underline text-neutral50"
                           >
                             {truncateAddress(collectible.inscriptionId)}
