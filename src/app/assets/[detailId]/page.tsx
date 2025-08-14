@@ -31,7 +31,10 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import { toast } from "sonner";
 import Link from "next/link";
 import MoreCollection from "@/components/section/more-collection";
-import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import {
+  getCurrencySymbol,
+  getInscriptionExplorerUrl,
+} from "@/lib/service/currencyHelper";
 import { getAddressExplorerUrl } from "@/lib/service/currencyHelper";
 
 const ACTIVITY_PER_PAGE = 20;
@@ -79,7 +82,7 @@ export default function AssetDetail() {
       const response = await getCollectibleActivity(
         id,
         activityPageSize,
-        pageParam * activityPageSize,
+        pageParam * activityPageSize
       );
 
       // Determine if we have more activities to load
@@ -116,13 +119,13 @@ export default function AssetDetail() {
         {
           rootMargin: "200px",
           threshold: 0.1,
-        },
+        }
       );
 
       observer.observe(node);
       return () => observer.disconnect();
     },
-    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity],
+    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity]
   );
 
   const { data: attribute = [] } = useQuery({
@@ -142,7 +145,7 @@ export default function AssetDetail() {
         0,
         "",
         false,
-        {},
+        {}
       ),
     enabled: !!collectible?.collectionId,
     retry: 1,
@@ -301,10 +304,23 @@ export default function AssetDetail() {
                           <h1 className="font-medium text-md text-neutral200">
                             Original Asset (Inscription ID)
                           </h1>
+                          {/* <Link
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href={`https://scan.coredao.org/${collectible.inscriptionId}`}
+                            className="font-medium cursor-pointer text-md hover:underline text-neutral50"
+                          >
+                            {truncateAddress(collectible.inscriptionId)}
+                          </Link> */}
+
                           <Link
                             target="_blank"
                             rel="noopener noreferrer"
-                            href={`https://testnet4.ordinals.com/${collectible.inscriptionId}`}
+                            href={getInscriptionExplorerUrl(
+                              collectible.layer,
+                              collectible.inscriptionId,
+                              "TESTNET"
+                            )}
                             className="font-medium cursor-pointer text-md hover:underline text-neutral50"
                           >
                             {truncateAddress(collectible.inscriptionId)}
@@ -321,7 +337,7 @@ export default function AssetDetail() {
                             collectible && collectible && collectible.ownedBy
                               ? getAddressExplorerUrl(
                                   collectible.layer,
-                                  collectible.ownedBy,
+                                  collectible.ownedBy
                                 )
                               : "#"
                           }
@@ -344,7 +360,7 @@ export default function AssetDetail() {
                               collectible.floorDifference === 1
                                 ? "-"
                                 : `${Number(
-                                    collectible.floorDifference,
+                                    collectible.floorDifference
                                   ).toLocaleString("en-US", {
                                     minimumFractionDigits: 0,
                                     maximumFractionDigits: 1,
