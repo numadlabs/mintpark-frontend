@@ -295,7 +295,7 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
                   width={20}
                   height={20}
                   draggable="false"
-                  className="w-[20px] h-[20px] object-cover"
+                  className="w-[20px] h-[20px] object-cover rounded-xl"
                 />
                 <p className="text-md font-medium text-lightPrimary">
                   {collection.layer}

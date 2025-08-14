@@ -562,7 +562,7 @@ const NFTLaunchInterface = () => {
                     width={16}
                     height={16}
                     draggable="false"
-                    className="w-4 h-4 object-cover"
+                    className="w-4 h-4 object-cover rounded-xl"
                   />
                 </div>
                 <span className="font-medium text-lightPrimary">
