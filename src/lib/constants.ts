@@ -19,6 +19,12 @@ export const ETH_PRICE = 1937.96;
 export const CITREA_PRICE = 102500;
 export const CORE_PRICE = 0.5177;
 
+export const PHASE_TYPES = {
+  WHITELIST: 0,
+  FCFS_WHITELIST: 1,
+  PUBLIC: 2,
+} as const;
+
 export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
   BITCOIN: {
     type: "unisat",
@@ -210,6 +216,31 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
     },
   },
 };
+
+
+
+  export const layerFeatureMap: Record<string, string[]> = {
+    "Hemi Mainnet": [
+      "NFTs bridging Bitcoin and Ethereum",
+      "Secure with Bitcoin's PoP consensus.",
+      "Handles high transaction volumes",
+      "Developer-friendly with hVM and tools.",
+    ],
+    "Core Mainnet": [
+      "Low fees for minting and trading.",
+      "High scalability for large projects.",
+      "Large user base for visibility.",
+      "EVM-compatible for easy development.",
+    ],
+    Citrea: [
+      "ZK rollups boost Bitcoin scalability",
+      "Inherits Bitcoin's robust security",
+      "Lowers fees with off-chain processing",
+      "EVM compatibility eases development",
+    ],
+  };
+
+
 
 export const serviceData = [
   {

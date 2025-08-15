@@ -13,9 +13,11 @@ import {
   CreateLaunchParams,
   AddPhaseRequest,
 } from "../types";
-import { collectibleFormData } from "./formHelper";
+import { collectibleFormData, newCollectibleFormData } from "./formHelper";
 import { toast } from "sonner";
 import { LinkAccountResponse, LoginResponse } from "../types/wallet";
+import { NewCollectionData } from "@/components/createn-flow/CreationFlowProvider";
+import { InvokeMintResponse } from "../validations/collection-validation";
 
 // Connect and Login sections
 export async function generateMessageHandler({ address }: { address: string }) {
@@ -135,6 +137,310 @@ export async function createCollection({ data }: { data: CollectionData }) {
 
   const response = await axiosClient.request(config);
   return response.data;
+}
+
+// new Create Collection
+export async function newCreateCollection({
+  data,
+}: {
+  data: NewCollectionData;
+}) {
+  const formData = newCollectibleFormData(data);
+  const config: AxiosRequestConfig = {
+    method: "post",
+    url: `/api/v1/collections`,
+
+    data: formData,
+  };
+
+  const response = await axiosClient.request(config);
+  return response.data;
+}
+
+//new Create launch
+export async function newCreateLaunch({
+  collectionId,
+  poStartsAt,
+  poEndsAt,
+  poMintPrice,
+  poMaxMintPerWallet,
+  userLayerId,
+  txid,
+}: {
+  collectionId: string;
+  poStartsAt: number;
+  poEndsAt: number;
+  poMintPrice: number;
+  poMaxMintPerWallet: number;
+  userLayerId: string;
+  txid: string;
+}) {
+  try {
+    const launchData = {
+      collectionId,
+      poStartsAt,
+      poEndsAt,
+      poMintPrice,
+      poMaxMintPerWallet,
+      userLayerId,
+    };
+
+    return axiosClient
+      .post(`/api/v1/launchpad`, {
+        data: JSON.stringify(launchData),
+        txid: txid,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
+}
+
+//initiate Upload session
+export async function initiateUploadSession({
+  collectionId,
+  expectedTraitTypes,
+  expectedTraitValues,
+  expectedRecursive,
+  expectedOOOEditions,
+}: {
+  collectionId: string;
+  expectedTraitTypes: number;
+  expectedTraitValues: number;
+  expectedRecursive: number;
+  expectedOOOEditions?: number;
+}) {
+  try {
+    const response = await axiosClient.post(
+      `/api/v1/collections/${collectionId}/initiate-upload-session`,
+      {
+        expectedTraitTypes,
+        expectedTraitValues,
+        expectedRecursive,
+        expectedOOOEditions: expectedOOOEditions ?? 0,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error in initiateUploadSession:", error);
+    throw error;
+  }
+}
+
+// trait types api
+export async function createTraitTypes({
+  collectionId,
+  data,
+}: {
+  collectionId: string;
+  data: { name: string; zIndex: number }[];
+}) {
+  try {
+    const response = await axiosClient.post(`/api/v1/trait-types`, {
+      collectionId,
+      data,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error in createTraitTypes:", error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
+}
+
+//trait values api
+export async function createTraitValues({
+  traitTypeId,
+  files,
+}: {
+  traitTypeId: string;
+  files: File[];
+}) {
+  const formData = new FormData();
+  formData.append("traitTypeId", traitTypeId);
+
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
+
+  try {
+    const response = await axiosClient.post(`/api/v1/trait-values`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading trait values:", error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
+}
+
+//new create launch items recurisive
+export async function createRecursiveInscription({
+  collectionId,
+  data,
+}: {
+  collectionId: string;
+  data: { traitValueId: string }[][];
+}) {
+  try {
+    const response = await axiosClient.post(
+      `/api/v1/launchpad/recursive-inscription`,
+      {
+        collectionId,
+        data,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error in createRecursiveInscription:", error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
+}
+
+//new 1 of 1 edtions
+
+export async function createOneOfOneEditions({
+  collectionId,
+  files,
+}: {
+  collectionId: string;
+  files: File[];
+}) {
+  const formData = new FormData();
+
+  formData.append("collectionId", collectionId);
+  files.forEach((file) => {
+    formData.append("files", file);
+  });
+
+  try {
+    const response = await axiosClient.post(
+      `/api/v1/launchpad/1-of-1-edition`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading 1-of-1 editions:", error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
+}
+// invoke order mint
+
+export async function postInvokeMint(
+  orderId: string
+): Promise<InvokeMintResponse> {
+  try {
+    // Use axiosClient instead of direct axios to ensure proper base URL and headers
+    const response = await axiosClient.post(
+      `/api/v1/orders/${orderId}/invoke-mint`
+    );
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: any) {
+    console.error("POST /invoke-mint failed", error);
+    return {
+      success: false,
+      error: error?.response?.data?.error || error.message || "Unknown error",
+    };
+  }
+}
+
+//retop-funding
+
+export async function retopFundingPromise({
+  collectionId,
+}: {
+  collectionId: string;
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/orders/${collectionId}/retop-funding`)
+      .then((response) => {
+        // console.log("Retop funding successful:", response.data);
+        return response.data;
+      });
+  } catch (error) {
+    console.error("Error in retopFunding:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
+}
+
+//new Create order
+export async function createNewOrder({
+  collectionId,
+  totalDustValue,
+  estimatedTxSizeInVBytes,
+  userLayerId,
+}: {
+  collectionId: string;
+  totalDustValue: number;
+  estimatedTxSizeInVBytes: number;
+  userLayerId: string;
+}) {
+  try {
+    const orderData = {
+      collectionId,
+      totalDustValue,
+      estimatedTxSizeInVBytes,
+      userLayerId,
+    };
+
+    console.log("Creating order with data:", orderData);
+
+    return axiosClient.post(`/api/v1/orders`, orderData).then((response) => {
+      console.log("Order created successfully:", response.data);
+      return response.data;
+    });
+  } catch (error) {
+    console.error("Error creating order:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
 }
 
 export async function createBadgeCollection({ data }: { data: BadgeType }) {
@@ -876,31 +1182,9 @@ export async function mintFeeOfCitrea({
   }
 }
 
-export async function whitelistAddresses({
-  launchId,
-  addresses,
-  phase,
-}: {
-  phase: string;
-  launchId: string;
-  addresses: string[];
-}) {
-  try {
-    return axiosClient
-      .post(`/api/v1/launchpad/whitelist-addresses`, {
-        phase,
-        launchId,
-        addresses,
-      })
-      .then((response) => {
-        return response.data;
-      });
-  } catch (error) {
-    console.log("Error:", error);
-  }
-}
-
 // Frontend: service/postRequest.ts
+
+// Add launch phase
 export async function addPhase({
   collectionId,
   phaseType,
@@ -933,6 +1217,93 @@ export async function addPhase({
   };
   const response = await axiosClient.request(config);
   return response.data;
+}
+
+//Add whitelist addresses
+export async function whitelistAddresses({
+  launchId,
+  addresses,
+  phase,
+}: {
+  phase: string;
+  launchId: string;
+  addresses: string[];
+}) {
+  try {
+    return axiosClient
+      .post(`/api/v1/launchpad/whitelist-addresses`, {
+        phase,
+        launchId,
+        addresses,
+      })
+      .then((response) => {
+        return response.data;
+      });
+  } catch (error) {
+    console.log("Error:", error);
+  }
+}
+
+//Submit Lunch For Review
+export async function submitCollectionForReview({
+  collectionId,
+  address,
+}: {
+  collectionId: string;
+  address: string;
+}) {
+  try {
+    const response = await axiosClient.post(
+      `/api/v1/collections/${collectionId}/submit-for-review`,
+      { address }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error submitting collection for review:", error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw error.response.data;
+    } else {
+      throw error;
+    }
+  }
+}
+
+// Withdraw left over funds from collection
+export async function withdrawFromCollection({
+  collectionId,
+  address,
+}: {
+  collectionId: string;
+  address: string;
+}) {
+  try {
+    const response = await axiosClient.post(
+      `/api/v1/collections/${collectionId}/withdraw`,
+      { address }
+    );
+
+    console.log("Withdrawal API response:", response.data);
+
+    // Check if the response indicates failure
+    if (response.data.success === false) {
+      throw new Error(response.data.error || "Withdrawal failed");
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Error withdrawing from collection:", error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      const responseData = error.response.data;
+      // If the server returned an error response, throw it
+      if (responseData?.error) {
+        throw new Error(responseData.error);
+      }
+      throw responseData;
+    } else {
+      throw error;
+    }
+  }
 }
 
 export async function ifpsLaunchItem({
