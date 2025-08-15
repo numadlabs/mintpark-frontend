@@ -21,7 +21,7 @@ const HeaderItem: React.FC<itemProps> = ({ title, handleNav }) => {
       >
         <p
           className={`${
-            title === "Create" ? "text-neutral200" : "text-neutral00"
+            title === "Create" ? "text-neutral00" : "text-neutral00"
           } ${title === "Create" ? "" : "hover:text-brand"} text-md`}
         >
           {title}

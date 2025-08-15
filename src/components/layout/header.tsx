@@ -74,7 +74,7 @@ export default function Header() {
       //   disabled: true,
       //   badge: "Soon",
       // },
-      { title: "Creater-tool", pageUrl: "/creater-tool" },
+      { title: "Create", pageUrl: "/creater-tool" },
       { title: "Launchpad", pageUrl: "/launchpad" },
       { title: "Collections", pageUrl: "/collections" },
       // { title: "Verify", pageUrl: "/discord/verify" },
@@ -189,8 +189,8 @@ export default function Header() {
         layer.layer !== "BITCOIN" &&
         layer.name !== "Hemi Testnet" &&
         layer.name !== "EDU Chain Testnet" &&
-        layer.name !== "EDU Chain"
-      //&& layer.name !== "CORE Testnet"
+        layer.name !== "EDU Chain" &&
+        layer.name !== "CORE Testnet"
     );
   }, [availableLayers]);
 
