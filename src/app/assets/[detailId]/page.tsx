@@ -31,7 +31,9 @@ import { useAuth } from "@/components/provider/auth-context-provider";
 import { toast } from "sonner";
 import Link from "next/link";
 import MoreCollection from "@/components/section/more-collection";
-import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import {
+  getCurrencySymbol,
+} from "@/lib/service/currencyHelper";
 import { getAddressExplorerUrl } from "@/lib/service/currencyHelper";
 
 const ACTIVITY_PER_PAGE = 20;

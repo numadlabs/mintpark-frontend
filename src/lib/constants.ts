@@ -182,7 +182,7 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
     },
   },
 
-   // Add Core Network configuration
+  // Add Core Network configuration
   CORE: {
     type: "metamask",
     chainId: "0x45c", // 1116 in hex
@@ -206,7 +206,7 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
         chainId: "0x45a", // 1114 in hex
         chainName: "Core Testnet",
         rpcUrls: ["https://rpc.test.btcs.network"],
-        blockExplorerUrls: ["https://scan.test.btcs.network"],
+        blockExplorerUrls: ["https://scan.coredao.org/"],
         nativeCurrency: {
           name: "CORE",
           symbol: "CORE",
@@ -216,6 +216,7 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
     },
   },
 };
+
 
 
   export const layerFeatureMap: Record<string, string[]> = {
@@ -238,6 +239,7 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
       "EVM compatibility eases development",
     ],
   };
+
 
 
 export const serviceData = [

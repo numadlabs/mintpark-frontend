@@ -56,7 +56,6 @@ export const getDecimalsForLayer = (layerType: string): number => {
   );
 };
 
-
 // Format BTC price (8 decimal places)
 export const formatPriceBtc = (value: number): string => {
   if (!value && value !== 0) return "0.000000";
