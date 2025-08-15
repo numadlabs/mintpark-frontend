@@ -784,7 +784,7 @@ const NFTLaunchInterface = () => {
             disabled={isSubmitting || phases.length === 0}
             className="px-12 py-4 w-full text-black bg-white font-bold text-lg rounded-xl hover:shadow-lg hover:shadow-brand/30 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
-            {isSubmitting ? "Submitting..." : "Submit for preview"}
+            {isSubmitting ? "Submitting..." : "Submit for review"}
           </Button>
         </div>
       </div>

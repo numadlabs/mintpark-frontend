@@ -37,8 +37,8 @@ export function ChainSelectionModal({
         layer.layer !== "BITCOIN" &&
         layer.name !== "Hemi Testnet" &&
         layer.name !== "EDU Chain Testnet" &&
-        layer.name !== "EDU Chain" 
-        // && layer.name !== "CORE Testnet"
+        layer.name !== "EDU Chain" &&
+      layer.name !== "CORE Testnet"
     );
   }, [availableLayers]);
 
@@ -112,8 +112,8 @@ export function ChainSelectionModal({
                   {layer.name}
                 </h3>
               </div>
-
-              {/* {layer.name === "Citrea Testnet" ? (
+              {layer.name === "Citrea Testnet" ||
+              layer.name === "Hemi Network" ? (
                 <Button
                   disabled
                   className="w-full bg-transLight12 text-white cursor-not-allowed"
@@ -127,13 +127,14 @@ export function ChainSelectionModal({
                 >
                   Choose
                 </Button>
-              )} */}
-              <Button
+              )}
+
+              {/* <Button
                 onClick={() => handleChainSelect(layer.id)}
                 className="w-full bg-white cursor-pointer text-black hover:bg-gray-200"
               >
                 Choose
-              </Button>
+              </Button> */}
             </div>
           ))}
         </div>
