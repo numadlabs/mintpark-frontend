@@ -32,6 +32,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import MoreCollection from "@/components/section/more-collection";
 import {
+  findLayerByLayerId,
   getCurrencySymbol,
 } from "@/lib/service/currencyHelper";
 import { getAddressExplorerUrl } from "@/lib/service/currencyHelper";
@@ -43,7 +44,11 @@ const ACTIVITY_PER_PAGE = 20;
 export default function AssetDetail() {
   const params = useParams();
   const router = useRouter();
-  const { isConnected, currentLayer } = useAuth();
+  const {
+    isConnected,
+    availableLayers,
+    // assetLayer
+  } = useAuth();
   const id = params.detailId as string;
   const [isVisible, setIsVisible] = useState(false);
   const [activityPageSize] = useState(ACTIVITY_PER_PAGE);
@@ -81,7 +86,7 @@ export default function AssetDetail() {
       const response = await getCollectibleActivity(
         id,
         activityPageSize,
-        pageParam * activityPageSize
+        pageParam * activityPageSize,
       );
 
       // Determine if we have more activities to load
@@ -118,13 +123,13 @@ export default function AssetDetail() {
         {
           rootMargin: "200px",
           threshold: 0.1,
-        }
+        },
       );
 
       observer.observe(node);
       return () => observer.disconnect();
     },
-    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity]
+    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity],
   );
 
   const { data: attribute = [] } = useQuery({
@@ -144,7 +149,7 @@ export default function AssetDetail() {
         0,
         "",
         false,
-        {}
+        {},
       ),
     enabled: !!collectible?.collectionId,
     retry: 1,
@@ -182,6 +187,11 @@ export default function AssetDetail() {
       </Layout>
     );
   }
+
+  const assetLayer = findLayerByLayerId({
+    layerId: collectible?.layerId,
+    layers: availableLayers,
+  });
 
   return (
     <Layout>
@@ -237,8 +247,8 @@ export default function AssetDetail() {
                       <span className="font-bold text-neutral50 text-lg">
                         <h1>
                           {collectible.price && formatPrice(collectible.price)}{" "}
-                          {/* Fix: Use currentLayer instead of currentLayerData.layer */}
-                          {getCurrencySymbol(currentLayer?.name ?? "Unknown")}
+                          {/* Fix: Use assetLayer instead of assetLayerData.layer */}
+                          {getCurrencySymbol(assetLayer?.name ?? "Unknown")}
                         </h1>
                       </span>
                     </div>
@@ -323,7 +333,7 @@ export default function AssetDetail() {
                             collectible && collectible && collectible.ownedBy
                               ? getAddressExplorerUrl(
                                   collectible.layer,
-                                  collectible.ownedBy
+                                  collectible.ownedBy,
                                 )
                               : "#"
                           }
@@ -346,7 +356,7 @@ export default function AssetDetail() {
                               collectible.floorDifference === 1
                                 ? "-"
                                 : `${Number(
-                                    collectible.floorDifference
+                                    collectible.floorDifference,
                                   ).toLocaleString("en-US", {
                                     minimumFractionDigits: 0,
                                     maximumFractionDigits: 1,
@@ -415,7 +425,9 @@ export default function AssetDetail() {
                       </div>
                     </div>
                     <div className="flex flex-col gap-3 pt-3">
-                      {allActivities && allActivities.length > 0 ? (
+                      {assetLayer &&
+                      allActivities &&
+                      allActivities.length > 0 ? (
                         allActivities.map((item: any) => (
                           <ActivityCard
                             key={`${item.transactionHash}-${item.activityType}-${item.timestamp}`}
@@ -425,7 +437,7 @@ export default function AssetDetail() {
                                 ? collectible.highResolutionImageUrl
                                 : s3ImageUrlBuilder(collectible.fileKey)
                             }
-                            currentLayer={currentLayer}
+                            currentLayer={assetLayer}
                             currenAsset={collectible?.name}
                           />
                         ))

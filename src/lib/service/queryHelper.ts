@@ -5,19 +5,131 @@ import {
   CollectionDetail,
   CollectionDetailApiResponse,
   Collectible,
-  CollectibleApiResponse,
+  CreatorCollection,
+  CheckPaymentProcess,
+  InscriptionProgress,
+  LaunchCreaterToolData,
 } from "../validations/collection-validation";
 import { Launchschema } from "../validations/launchpad-validation";
-import {
-  LayerSchema,
-  CurrentLayerSchema,
-} from "../validations/layer-validation";
 import { OrderSchema } from "../validations/asset-validation";
 import { AssetSchema, ActivitySchema } from "../validations/asset-validation";
-import { UserSchema } from "../validations/user-schema";
-import { boolean, number } from "zod";
 import { ActivityType } from "../types";
 import { Layer } from "../types/wallet";
+
+
+export async function getOrderByCollectionIdBase(collectionId: string) {
+  // console.log("Calling API for collection:", collectionId);
+
+  return axiosClient
+    .get(`/api/v1/orders/${collectionId}/base`)
+    .then((response) => {
+      if (response.data.success) {
+        return response.data.data;
+      } else {
+        throw new Error(
+          response.data.error ||
+            response.data.message ||
+            "Failed to fetch order base data"
+        );
+      }
+    })
+    .catch((error) => {
+      console.error("Error in getOrderByCollectionIdBase:", error);
+      console.error("Error response:", error.response?.data);
+
+      // If it's an axios error, extract the response error message
+      if (error.response?.data) {
+        const serverError =
+          error.response.data.error ||
+          error.response.data.message ||
+          `Server error: ${error.response.status}`;
+        throw new Error(serverError);
+      }
+
+      // Re-throw the error to maintain the original error message
+      throw error;
+    });
+}
+
+//inscription progress done
+export const checkPaymentStatus = async (
+  orderId: string
+): Promise<CheckPaymentProcess> => {
+  return axiosClient
+    .get(`/api/v1/orders/${orderId}/check-paid`)
+    .then((response) => {
+      if (response.data.success) {
+        return response.data;
+      } else {
+        const errorMessage =
+          response.data.error ||
+          response.data.message ||
+          "Failed to check payment status";
+        throw new Error(errorMessage);
+      }
+    })
+    .catch((error) => {
+      console.error("Error checking payment status:", error);
+
+      // If it's an axios error, extract the response error message
+      if (error.response?.data) {
+        const serverError =
+          error.response.data.error ||
+          error.response.data.message ||
+          `Server error: ${error.response.status}`;
+        throw new Error(serverError);
+      }
+
+      // Re-throw the error to maintain the original error message
+      throw error;
+    });
+};
+
+export async function getInscriptionProgress({
+  collectionId,
+  userLayerId,
+}: {
+  collectionId: string;
+  userLayerId?: string;
+}): Promise<InscriptionProgress> {
+  const url = `/api/v1/collections/${collectionId}/inscription-progress?userLayerId=${userLayerId}`;
+
+  return axiosClient.get(url).then((response) => {
+    if (response.data.success) {
+      return response.data.data as InscriptionProgress;
+    } else {
+      throw new Error(
+        response.data.message || "Failed to fetch inscription progress"
+      );
+    }
+  });
+}
+
+// new creater tool api
+
+export async function createrCollection(
+  userLayerId: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<CreatorCollection[]> {
+  const params = new URLSearchParams({
+    userLayerId,
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  return axiosClient
+    .get(`/api/v1/collections/creator-owned?${params.toString()}`)
+    .then((response) => {
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      } else {
+        throw new Error(
+          response.data.message || "Failed to fetch creator collections"
+        );
+      }
+    });
+}
 
 export async function getAllOrders(id: string): Promise<OrderSchema> {
   return axiosClient.get(`/api/v1/orders/user/${id}`).then((response) => {
@@ -40,7 +152,7 @@ export async function getOrderById(id: string) {
 
 export async function fetchLaunchs(
   layerId: string,
-  interval: string,
+  interval: string
 ): Promise<Launchschema[]> {
   return axiosClient
     .get(`/api/v1/launchpad?layerId=${layerId}&interval=${interval}`)
@@ -62,6 +174,25 @@ export async function getLaunchByCollectionId(id: string) {
       } else {
         throw new Error(response.data.error);
       }
+    });
+}
+
+//call to launch details api
+export async function getLaunchByDetailCreaterTool(
+  id: string
+): Promise<LaunchCreaterToolData | null> {
+  return axiosClient
+    .get(`/api/v1/launchpad/${id}/collection`)
+    .then((response) => {
+      if (response.data.success && response.data.data) {
+        return response.data.data;
+      } else {
+        return null;
+      }
+    })
+    .catch((error) => {
+      console.error("Failed to fetch launch data:", error);
+      return null;
     });
 }
 
@@ -99,18 +230,18 @@ export async function getListedCollections(
   layerId: string,
   interval: string,
   orderBy: string,
-  orderDirection: string,
+  orderDirection: string
 ): Promise<Collection[]> {
   return axiosClient
     .get<CollectionApiResponse>(
-      `/api/v1/collections/listed?layerId=${layerId}&interval=${interval}&orderBy=${orderBy}&orderDirection=${orderDirection}`,
+      `/api/v1/collections/listed?layerId=${layerId}&interval=${interval}&orderBy=${orderBy}&orderDirection=${orderDirection}`
     )
     .then((response) => {
       if (response.data.success && response.data.data) {
         return response.data.data;
       } else {
         throw new Error(
-          response.data.message || "Failed to fetch listed collections",
+          response.data.message || "Failed to fetch listed collections"
         );
       }
     });
@@ -124,7 +255,7 @@ export async function getListedCollectionById(
   offset: number,
   query: string,
   isListed: boolean,
-  traitValuesByType: Record<string, string[]> | string, // Update type to handle both
+  traitValuesByType: Record<string, string[]> | string // Update type to handle both
 ): Promise<CollectionDetail | null> {
   const params = new URLSearchParams({
     orderBy,
@@ -147,7 +278,7 @@ export async function getListedCollectionById(
 
   return axiosClient
     .get<CollectionDetailApiResponse>(
-      `/api/v1/collectibles/${collectionId}/collection/listable?${params.toString()}&isListed=${isListed}`,
+      `/api/v1/collectibles/${collectionId}/collection/listable?${params.toString()}&isListed=${isListed}`
     )
     .then((response) => {
       if (response.data.success) {
@@ -158,9 +289,7 @@ export async function getListedCollectionById(
     });
 }
 
-export async function getAssetById(
-  id: string,
-): Promise<Collectible | null> {
+export async function getAssetById(id: string): Promise<Collectible | null> {
   return axiosClient.get(`/api/v1/collectibles/${id}`).then((response) => {
     console.log(response.data.data);
     if (response.data.success) {
@@ -179,7 +308,7 @@ export async function getListableById(
   limit: number,
   offset: number,
   collectionIds: string[],
-  availability: string,
+  availability: string
 ): Promise<AssetSchema> {
   // Create base query parameters
   const params = new URLSearchParams({
@@ -273,7 +402,7 @@ export async function getCollectionActivity(
   id: string,
   limit: number = 20,
   offset: number = 0,
-  activityType?: string,
+  activityType?: string
 ): Promise<ActivitySchema[]> {
   const params = new URLSearchParams({
     limit: limit.toString(),
@@ -311,7 +440,7 @@ export async function getCollectionActivity(
 export async function getCollectibleActivity(
   id: string,
   limit: number = 20,
-  offset: number = 0,
+  offset: number = 0
 ): Promise<ActivityType[]> {
   const params = new URLSearchParams({
     limit: limit.toString(),
