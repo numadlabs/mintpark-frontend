@@ -51,6 +51,17 @@ export const useWalletStore = create<WalletStore>()(
         setSelectedLayerId(layerId) {
           set((state) => {
             state.selectedLayerId = layerId;
+            if (layerId && state.availableLayers.length > 0) {
+              const layer = state.availableLayers.find(
+                (layer) => layer.id === layerId,
+              );
+              if (layer) {
+                state.currentLayer = layer;
+              }
+            } else if (!layerId) {
+              // If layerId is null, clear the current layer
+              state.currentLayer = null;
+            }
           });
         },
 
@@ -132,7 +143,7 @@ export const useWalletStore = create<WalletStore>()(
         disconnect: () =>
           set((state) => {
             state.isConnected = false;
-            state.currentLayer = null;
+            // state.currentLayer = null;
             state.currentUserLayer = null;
             state.user = null;
             state.isLoading = false;
@@ -161,7 +172,7 @@ export const useWalletStore = create<WalletStore>()(
           return (
             state.isConnected &&
             state.user !== null &&
-            state.currentLayer !== null &&
+            // state.currentLayer !== null &&
             Boolean(hasTokens)
           );
         },
