@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import {
   Folder,
@@ -8,7 +9,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useCreationFlow } from "./CreationFlowProvider";
-import { getDefaultZIndex } from "@/lib/utils";
 
 // Extend HTMLInputElement to include webkitdirectory
 declare module "react" {
@@ -51,6 +51,174 @@ const NFTTraitsUpload: React.FC = () => {
   // Get CreationFlow context
   const { traitData, updateTraitData } = useCreationFlow();
 
+  // Function to normalize trait names for better matching
+  const normalizeTraitName = (traitName: string): string => {
+    return traitName
+      .toLowerCase()
+      .replace(/s$/, "") // Remove trailing 's' (backgrounds -> background)
+      .replace(/[^a-z0-9]/g, ""); // Remove special characters
+  };
+
+  // Function to get dynamic z-index based on metadata - fully dynamic, no getDefaultZIndex
+  const getDynamicZIndex = (
+    traitType: string,
+    traitOrderMap: { [key: string]: number }
+  ): number => {
+    const normalizedFolderName = normalizeTraitName(traitType);
+
+    console.log(
+      `Matching trait: ${traitType} (normalized: ${normalizedFolderName})`
+    );
+    console.log("Available traits in metadata:", Object.keys(traitOrderMap));
+
+    // Check for normalized matches
+    for (const [metadataTraitType, index] of Object.entries(traitOrderMap)) {
+      const normalizedMetadataName = normalizeTraitName(metadataTraitType);
+
+      console.log(
+        `Comparing ${normalizedFolderName} with ${normalizedMetadataName} (index: ${index})`
+      );
+
+      if (normalizedFolderName === normalizedMetadataName) {
+        console.log(`✓ Match found: ${traitType} -> index ${index}`);
+        return index;
+      }
+    }
+
+    // Check for partial matches (contains)
+    for (const [metadataTraitType, index] of Object.entries(traitOrderMap)) {
+      const normalizedMetadataName = normalizeTraitName(metadataTraitType);
+
+      if (
+        normalizedFolderName.includes(normalizedMetadataName) ||
+        normalizedMetadataName.includes(normalizedFolderName)
+      ) {
+        console.log(`✓ Partial match found: ${traitType} -> index ${index}`);
+        return index;
+      }
+    }
+
+    // If no metadata match found, assign next available index
+    if (Object.keys(traitOrderMap).length > 0) {
+      const maxIndex = Math.max(...Object.values(traitOrderMap));
+      const newIndex = maxIndex + 1;
+      console.log(
+        `⚠ No match found for ${traitType}, assigning next index: ${newIndex}`
+      );
+      return newIndex;
+    }
+
+    // Complete fallback - return 0
+    console.log(`⚠ No metadata available, assigning index 0 to ${traitType}`);
+    return 0;
+  };
+
+  // Function to parse metadata and extract trait order with better name normalization
+  const parseMetadataForTraitOrder = async (
+    jsonFile: File
+  ): Promise<{ [key: string]: number }> => {
+    try {
+      const jsonText = await jsonFile.text();
+      const metadata = JSON.parse(jsonText);
+      const traitOrderMap: { [key: string]: number } = {};
+
+      console.log("Parsing metadata for trait order...");
+
+      // Check if it's a collection metadata with items array
+      if (metadata.collection && Array.isArray(metadata.collection)) {
+        // Use the first item to determine trait order
+        const firstItem = metadata.collection[0];
+        if (
+          firstItem &&
+          firstItem.attributes &&
+          Array.isArray(firstItem.attributes)
+        ) {
+          firstItem.attributes.forEach((attr: any, index: number) => {
+            if (attr.trait_type) {
+              const normalizedName = normalizeTraitName(attr.trait_type);
+              traitOrderMap[attr.trait_type] = index; // Store original name as key
+              console.log(
+                `Found trait: ${attr.trait_type} (normalized: ${normalizedName}) -> index ${index}`
+              );
+            }
+          });
+        }
+      }
+      // Check if it's a direct items array
+      else if (Array.isArray(metadata)) {
+        const firstItem = metadata[0];
+        if (
+          firstItem &&
+          firstItem.attributes &&
+          Array.isArray(firstItem.attributes)
+        ) {
+          firstItem.attributes.forEach((attr: any, index: number) => {
+            if (attr.trait_type) {
+              const normalizedName = normalizeTraitName(attr.trait_type);
+              traitOrderMap[attr.trait_type] = index;
+              console.log(
+                `Found trait: ${attr.trait_type} (normalized: ${normalizedName}) -> index ${index}`
+              );
+            }
+          });
+        }
+      }
+      // Check for items property
+      else if (metadata.items && Array.isArray(metadata.items)) {
+        const firstItem = metadata.items[0];
+        if (
+          firstItem &&
+          firstItem.attributes &&
+          Array.isArray(firstItem.attributes)
+        ) {
+          firstItem.attributes.forEach((attr: any, index: number) => {
+            if (attr.trait_type) {
+              const normalizedName = normalizeTraitName(attr.trait_type);
+              traitOrderMap[attr.trait_type] = index;
+              console.log(
+                `Found trait: ${attr.trait_type} (normalized: ${normalizedName}) -> index ${index}`
+              );
+            }
+          });
+        }
+      }
+
+      console.log("Final trait order map:", traitOrderMap);
+      return traitOrderMap;
+    } catch (error) {
+      console.error("Error parsing metadata for trait order:", error);
+      return {};
+    }
+  };
+
+  // Dynamic function to replace getDefaultZIndex - gets z-index from metadata or defaults to 0
+  const getZIndexForTrait = async (
+    traitType: string,
+    traitOrderMap?: { [key: string]: number }
+  ): Promise<number> => {
+    // If traitOrderMap is provided, use it directly
+    if (traitOrderMap && Object.keys(traitOrderMap).length > 0) {
+      return getDynamicZIndex(traitType, traitOrderMap);
+    }
+
+    // If no traitOrderMap provided, try to get from metadata
+    if (traitData.metadataJson && traitData.metadataJson instanceof File) {
+      try {
+        const orderMap = await parseMetadataForTraitOrder(
+          traitData.metadataJson
+        );
+        if (Object.keys(orderMap).length > 0) {
+          return getDynamicZIndex(traitType, orderMap);
+        }
+      } catch (error) {
+        console.error("Error parsing metadata for z-index:", error);
+      }
+    }
+
+    // Default fallback - return 0 instead of calling getDefaultZIndex
+    return 0;
+  };
+
   // Function to create a virtual File object for the folder with all files
   const createVirtualFolderFile = (
     files: FileList,
@@ -62,11 +230,17 @@ const NFTTraitsUpload: React.FC = () => {
     return virtualFile;
   };
 
-  // Handle folder upload with proper error handling
-  const handleFolderUpload = (files: FileList | null) => {
+  // Handle folder upload with proper error handling and dynamic z-index
+  const handleFolderUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
     console.log("Processing", files.length, "files");
+
+    // Get trait order from metadata if available
+    let traitOrderMap: { [key: string]: number } = {};
+    if (traitData.metadataJson && traitData.metadataJson instanceof File) {
+      traitOrderMap = await parseMetadataForTraitOrder(traitData.metadataJson);
+    }
 
     // Merge with existing traits instead of replacing
     setTraits((prevTraits) => {
@@ -97,9 +271,15 @@ const NFTTraitsUpload: React.FC = () => {
           const fileName = pathParts[pathParts.length - 1];
 
           if (!traitsData[traitType]) {
+            // Use fully dynamic z-index based on metadata - no getDefaultZIndex
+            const dynamicZIndex =
+              Object.keys(traitOrderMap).length > 0
+                ? getDynamicZIndex(traitType, traitOrderMap)
+                : 0; // Start from 0 if no metadata
+
             traitsData[traitType] = {
               name: traitType,
-              zIndex: getDefaultZIndex(traitType),
+              zIndex: dynamicZIndex,
               images: [],
             };
           }
@@ -119,7 +299,7 @@ const NFTTraitsUpload: React.FC = () => {
         }
       });
 
-      console.log("Final traits data:", traitsData);
+      console.log("Final traits data with dynamic z-index:", traitsData);
       console.log("Trait types found:", Object.keys(traitsData));
 
       // Update CreationFlow context with the file data
@@ -133,6 +313,42 @@ const NFTTraitsUpload: React.FC = () => {
 
     setUploadStatus("");
   };
+
+  // Re-process traits when metadata JSON is updated
+  useEffect(() => {
+    const reprocessTraitsWithMetadata = async () => {
+      if (
+        traitData.metadataJson &&
+        traitData.metadataJson instanceof File &&
+        Object.keys(traits).length > 0
+      ) {
+        console.log("Reprocessing traits with updated metadata...");
+
+        const traitOrderMap = await parseMetadataForTraitOrder(
+          traitData.metadataJson
+        );
+
+        if (Object.keys(traitOrderMap).length > 0) {
+          setTraits((prevTraits) => {
+            const updatedTraits = { ...prevTraits };
+
+            Object.keys(updatedTraits).forEach((traitType) => {
+              const newZIndex = getDynamicZIndex(traitType, traitOrderMap);
+              updatedTraits[traitType] = {
+                ...updatedTraits[traitType],
+                zIndex: newZIndex,
+              };
+            });
+
+            console.log("Updated traits with metadata z-index:", updatedTraits);
+            return updatedTraits;
+          });
+        }
+      }
+    };
+
+    reprocessTraitsWithMetadata();
+  }, [traitData.metadataJson]);
 
   // Update CreationFlow context when traits change (for z-index updates)
   useEffect(() => {
@@ -182,7 +398,7 @@ const NFTTraitsUpload: React.FC = () => {
       ...prev,
       [traitType]: {
         ...prev[traitType],
-        zIndex: parseInt(zIndex) || 1,
+        zIndex: parseInt(zIndex) || 0,
       },
     }));
   };
@@ -305,21 +521,6 @@ const NFTTraitsUpload: React.FC = () => {
                       {traitType} ({traitData.images.length} images)
                     </h3>
                     <div className="flex items-center space-x-3">
-                      <div className="flex items-center space-x-2">
-                        <label className="text-sm font-medium text-gray-300">
-                          Z-Index:
-                        </label>
-                        <input
-                          type="number"
-                          value={traitData.zIndex}
-                          onChange={(e) =>
-                            updateTraitZIndex(traitType, e.target.value)
-                          }
-                          className="w-16 px-2 py-1 border border-gray-600 bg-gray-700 text-white rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          min="1"
-                          max="100"
-                        />
-                      </div>
                       <button
                         onClick={() => removeTrait(traitType)}
                         className="text-red-400 hover:text-red-300 text-sm font-medium flex items-center gap-1"
@@ -359,29 +560,6 @@ const NFTTraitsUpload: React.FC = () => {
         </div>
       )}
 
-      {/* Summary Card */}
-      {/* {Object.keys(traits).length > 0 && (
-        <div className="bg-transLight4 border border-transLight24 rounded-lg p-4 mb-6">
-          <h3 className="font-medium text-lightPrimary mb-2">Upload Summary:</h3>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-lightSecondary">Trait Types:</span>
-              <span className="text-white font-medium ml-2">{Object.keys(traits).length}</span>
-            </div>
-            <div>
-              <span className="text-lightSecondary">Total Images:</span>
-              <span className="text-white font-medium ml-2">{getTotalImagesCount()}</span>
-            </div>
-          </div>
-          <div className="mt-3 text-xs text-lightTertiary">
-            <p>Z-Index Order: {Object.entries(traits)
-              .sort(([, a], [, b]) => a.zIndex - b.zIndex)
-              .map(([type, data]) => `${type}(${data.zIndex})`)
-              .join(" → ")}</p>
-          </div>
-        </div>
-      )} */}
-
       {/* Instructions */}
       <div className="mt-8 bg-transLight4 border border-transLight24 rounded-lg p-4">
         <h3 className="font-medium text-lightPrimary mb-2 flex items-center gap-2">
@@ -397,9 +575,10 @@ const NFTTraitsUpload: React.FC = () => {
           </li>
           <li>• Supported formats: PNG, JPG, JPEG, GIF, SVG</li>
           <li>
-            • Adjust z-index values to control layering order (1 = back, higher
-            = front)
+            • Z-index values are automatically set from metadata JSON (0 = back,
+            higher = front)
           </li>
+          <li>• Upload metadata JSON first for automatic z-index assignment</li>
           <li>
             • Example structure: traits/background/, traits/hair/,
             traits/accessories/
@@ -422,6 +601,7 @@ const NFTTraitsUpload: React.FC = () => {
                   Common categories: background, body, clothing, accessories,
                   eyes, hair
                 </li>
+                <li>Upload metadata JSON for automatic z-index ordering</li>
               </ul>
             </div>
             <button

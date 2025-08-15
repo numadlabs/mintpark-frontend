@@ -17,7 +17,6 @@ import {
   getInscriptionProgress,
 } from "@/lib/service/queryHelper";
 import {
-  initiateUploadSession,
   createTraitTypes,
   createTraitValues,
   createRecursiveInscription,
@@ -234,7 +233,6 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
 
         for (const files of fileBatches) {
           const res = await createTraitValues({
-            value: group.type, // Using group type as value
             traitTypeId: traitTypeIdMap[group.type],
             files,
           });
@@ -421,29 +419,26 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
             calculatedValues
           );
 
-          // Initiate upload session with correct values
-          const uploadResponse = await initiateUploadSession({
-            collectionId,
-            expectedTraitTypes: calculatedValues.expectedTraitTypes,
-            expectedTraitValues: calculatedValues.expectedTraitValues,
-            expectedRecursive: calculatedValues.expectedRecursive,
-            expectedOOOEditions: calculatedValues.expectedOOOEditions,
-          });
+          // // Initiate upload session with correct values
+          // const uploadResponse = await initiateUploadSession({
+          //   collectionId,
+          //   expectedTraitTypes: calculatedValues.expectedTraitTypes,
+          //   expectedTraitValues: calculatedValues.expectedTraitValues,
+          //   expectedRecursive: calculatedValues.expectedRecursive,
+          //   expectedOOOEditions: calculatedValues.expectedOOOEditions,
+          // });
 
-          console.log("Upload session response:", uploadResponse);
+          // console.log("Upload session response:", uploadResponse);
 
-          const {
-            expectedTraitTypes: t,
-            expectedTraitValues: v,
-            expectedRecursive: r,
-            expectedOOOEditions: ooo,
-            startedAt,
-          } = uploadResponse.data;
-
+          const startedAt = new Date();
           updateInscriptionData({
             progress: {
               current: 0,
-              total: t + v + r + (ooo || 0),
+              total:
+                calculatedValues.expectedTraitTypes +
+                calculatedValues.expectedTraitValues +
+                calculatedValues.expectedRecursive +
+                (calculatedValues.expectedOOOEditions || 0),
               estimatedTime: new Date(startedAt).toLocaleTimeString(),
             },
           });

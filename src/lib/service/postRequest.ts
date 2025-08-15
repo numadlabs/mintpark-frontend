@@ -67,10 +67,6 @@ export async function loginHandler({
   }
 }
 
-
-
-
-
 export async function linkAccount({
   address,
   signedMessage,
@@ -265,11 +261,9 @@ export async function createTraitTypes({
 
 //trait values api
 export async function createTraitValues({
-  value,
   traitTypeId,
   files,
 }: {
-  value: string;
   traitTypeId: string;
   files: File[];
 }) {
@@ -281,15 +275,11 @@ export async function createTraitValues({
   });
 
   try {
-    const response = await axiosClient.post(
-      `/api/v1/trait-values?${encodeURIComponent(value)}=${traitTypeId}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
+    const response = await axiosClient.post(`/api/v1/trait-values`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
     return response.data;
   } catch (error) {
@@ -377,7 +367,9 @@ export async function postInvokeMint(
 ): Promise<InvokeMintResponse> {
   try {
     // Use axiosClient instead of direct axios to ensure proper base URL and headers
-    const response = await axiosClient.post(`/api/v1/orders/${orderId}/invoke-mint`);
+    const response = await axiosClient.post(
+      `/api/v1/orders/${orderId}/invoke-mint`
+    );
     return {
       success: true,
       data: response.data,
@@ -390,7 +382,6 @@ export async function postInvokeMint(
     };
   }
 }
-
 
 //retop-funding
 
@@ -1191,8 +1182,6 @@ export async function mintFeeOfCitrea({
   }
 }
 
-
-
 // Frontend: service/postRequest.ts
 
 // Add launch phase
@@ -1292,19 +1281,18 @@ export async function withdrawFromCollection({
       `/api/v1/collections/${collectionId}/withdraw`,
       { address }
     );
-    
+
     console.log("Withdrawal API response:", response.data);
-    
+
     // Check if the response indicates failure
     if (response.data.success === false) {
       throw new Error(response.data.error || "Withdrawal failed");
     }
-    
+
     return response.data;
-    
   } catch (error) {
     console.error("Error withdrawing from collection:", error);
-    
+
     if (axios.isAxiosError(error) && error.response) {
       const responseData = error.response.data;
       // If the server returned an error response, throw it
@@ -1317,8 +1305,6 @@ export async function withdrawFromCollection({
     }
   }
 }
-
-
 
 export async function ifpsLaunchItem({
   collectionId,
@@ -1340,7 +1326,3 @@ export async function ifpsLaunchItem({
     console.log("Error:", error);
   }
 }
-
-
-
-

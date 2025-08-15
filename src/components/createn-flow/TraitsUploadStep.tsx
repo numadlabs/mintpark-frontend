@@ -7,7 +7,10 @@ import Toggle from "@/components/ui/toggle";
 import { useTraitsStore } from "@/lib/store/traitsStore";
 import NFTTraitsUpload from "./NftTraitsUpload";
 import { toast } from "sonner";
-import { createNewOrder } from "@/lib/service/postRequest";
+import {
+  createNewOrder,
+  initiateUploadSession,
+} from "@/lib/service/postRequest";
 import { useAuth } from "../provider/auth-context-provider";
 import { calculateUploadParameters } from "@/lib/utils";
 
@@ -57,8 +60,6 @@ export function TraitsUploadStep() {
     updateTraitData,
   } = useCreationFlow();
 
-
-  // useTraitsStore-г зөвхөн validation-д ашиглах
   const { validationErrors, isValidating, validateJsonFile } = useTraitsStore();
 
   const [isOneOfOneEnabled, setIsOneOfOneEnabled] = useState(false);
@@ -72,15 +73,13 @@ export function TraitsUploadStep() {
       if (files && files.length > 0) {
         if (type === "metadataJson") {
           const file = files[0];
-          // CreationFlow-д хадгалах
           updateTraitData({ [type]: file });
-          // Validation хийх
           await validateJsonFile(file);
         } else {
           const folderName = files[0].webkitRelativePath.split("/")[0];
           const virtualFile = new File([], folderName, { type: "folder" });
           (virtualFile as any).fileList = files;
-          // CreationFlow-д хадгалах
+
           updateTraitData({ [type]: virtualFile });
         }
       }
@@ -99,58 +98,21 @@ export function TraitsUploadStep() {
   ) => {
     updateTraitData({ [type]: null });
   };
-
   // Calculate total dust value based on new formula
-  const calculateTotalDustValue = () => {
+  const calculateTotalDustValue = (totalItems: number) => {
     const DUST_VALUE_PER_ITEM = 546; // sats per item
-    let totalItems = 0;
-
-    // Count trait types
-    if (traitData.traitAssets) {
-      const files = (traitData.traitAssets as any).fileList as FileList;
-      if (files) {
-        // Get unique trait types from folder structure
-        const traitTypes = new Set<string>();
-        for (let i = 0; i < files.length; i++) {
-          const file = files[i];
-          const pathParts = file.webkitRelativePath?.split("/") || [];
-          if (pathParts.length >= 2) {
-            let traitType: string;
-            if (pathParts.length === 2) {
-              traitType = pathParts[0];
-            } else if (pathParts[0] === "traits") {
-              traitType = pathParts[1];
-            } else {
-              traitType = pathParts[pathParts.length - 2];
-            }
-            traitTypes.add(traitType);
-          }
-        }
-        totalItems += traitTypes.size;
-      }
-    }
-
-    // Count recursive collectibles (assuming 1 for the main collection)
-    totalItems += 1;
-
-    // Count one of one editions
-    if (isOneOfOneEnabled && traitData.oneOfOneEditions) {
-      const files = (traitData.oneOfOneEditions as any).fileList as FileList;
-      if (files) {
-        totalItems += files.length;
-      }
-    }
 
     return totalItems * DUST_VALUE_PER_ITEM;
   };
 
   // Calculate total vBytes based on uploaded data (keeping for display purposes)
-  const calculateTotalVBytes = () => {
+  const calculateTotalVBytes = (recursiveItemCount: number) => {
     let totalVBytes = 0;
 
     if (traitData.metadataJson) {
-      const jsonEstimate = estimateRecursiveInscriptionVBytes(1);
-      totalVBytes += jsonEstimate.totalVBytes;
+      const averageRecursiveItem = estimateRecursiveInscriptionVBytes(6);
+
+      totalVBytes += averageRecursiveItem.totalVBytes * recursiveItemCount;
     }
 
     if (isOneOfOneEnabled && traitData.oneOfOneEditions) {
@@ -202,12 +164,29 @@ export function TraitsUploadStep() {
         traitData,
         isOneOfOneEnabled
       );
-
       console.log("Calculated values:", calculatedData);
+      // Initiate upload session with correct values
+      const uploadResponse = await initiateUploadSession({
+        collectionId,
+        expectedTraitTypes: calculatedData.expectedTraitTypes,
+        expectedTraitValues: calculatedData.expectedTraitValues,
+        expectedRecursive: calculatedData.expectedRecursive,
+        expectedOOOEditions: calculatedData.expectedOOOEditions,
+      });
+
+      console.log("Upload session response:", uploadResponse);
 
       // Calculate fees (existing logic)
-      const totalDustValue = calculateTotalDustValue();
-      const estimatedTxSizeInVBytes = calculateTotalVBytes();
+      const totalItems =
+        calculatedData.expectedTraitTypes +
+        calculatedData.expectedTraitValues +
+        calculatedData.expectedRecursive +
+        calculatedData.expectedOOOEditions;
+      const totalDustValue = calculateTotalDustValue(totalItems);
+      //async bolgood await hereglesen
+      const estimatedTxSizeInVBytes = await calculateTotalVBytes(
+        calculatedData.expectedRecursive
+      );
 
       console.log("Total dust value:", totalDustValue);
       console.log("Estimated tx size in vBytes:", estimatedTxSizeInVBytes);

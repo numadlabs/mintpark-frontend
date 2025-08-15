@@ -239,7 +239,7 @@ const CreatorTool = () => {
   };
 
   const handleInscriptionProgress = (collectionId: string) => {
-    console.log("View inscription progress for collection:", collectionId);
+    // console.log("View inscription progress for collection:", collectionId);
 
     // Find the collection to check its state
     const collection = collections.find((c) => c.collectionId === collectionId);

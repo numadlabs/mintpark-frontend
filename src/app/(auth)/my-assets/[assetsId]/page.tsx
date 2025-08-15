@@ -24,6 +24,7 @@ import {
   s3ImageUrlBuilder,
   formatPrice,
   formatTimeAgo,
+  truncateAddress,
 } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { useState, useCallback } from "react";
@@ -309,6 +310,21 @@ export default function AssetsDetails() {
                     Detail
                   </AccordionTrigger>
                   <AccordionContent className="flex flex-col gap-6">
+                    {collectible.inscriptionId && (
+                      <div className="flex justify-between">
+                        <h1 className="font-medium text-md text-neutral200">
+                          Original Asset (Inscription ID)
+                        </h1>
+                        <Link
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          href={`https://ordinals-testnet4.unisat.io/content/${collectible.inscriptionId}`}
+                          className="font-medium cursor-pointer text-md hover:underline text-neutral50"
+                        >
+                          {truncateAddress(collectible.inscriptionId)}
+                        </Link>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <h1 className="font-medium text-md text-neutral200">
                         Owned by

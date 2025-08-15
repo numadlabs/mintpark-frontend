@@ -113,7 +113,7 @@ export function ChainSelectionModal({
                 </h3>
               </div>
 
-              {layer.name === "Citrea Testnet" ? (
+              {/* {layer.name === "Citrea Testnet" ? (
                 <Button
                   disabled
                   className="w-full bg-transLight12 text-white cursor-not-allowed"
@@ -127,13 +127,13 @@ export function ChainSelectionModal({
                 >
                   Choose
                 </Button>
-              )}
-              {/* <Button
+              )} */}
+              <Button
                 onClick={() => handleChainSelect(layer.id)}
                 className="w-full bg-white cursor-pointer text-black hover:bg-gray-200"
               >
                 Choose
-              </Button> */}
+              </Button>
             </div>
           ))}
         </div>
