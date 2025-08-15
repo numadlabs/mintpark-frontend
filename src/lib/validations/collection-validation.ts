@@ -67,17 +67,18 @@ export const collectibleSchema = z.object({
   listId: z.string().nullable(),
   inscriptionId: z.string(),
   isOwnListing: z.boolean(),
+  layerId: z.string(),
 });
 
 // NEW: Creator Collection Schema
 export const creatorCollectionSchema = z.object({
   collectionId: z.string(),
-  launchId:z.string(),
+  launchId: z.string(),
   name: z.string(),
   logoKey: z.string().nullable(),
   layer: z.string(),
   network: z.string(),
-  supply:z.number(),
+  supply: z.number(),
   paymentInitialized: z.boolean(),
   paymentCompleted: z.boolean(),
   queued: z.boolean(),
@@ -112,9 +113,9 @@ export const launchCreaterToolDataSchema = z.object({
   reservedCount: z.number(),
   updatedAt: z.string(),
   //add types
-    logoKey: z.string().nullable(),
+  logoKey: z.string().nullable(),
   layer: z.string(),
-  supply: z.number()
+  supply: z.number(),
 });
 
 //inscription progress

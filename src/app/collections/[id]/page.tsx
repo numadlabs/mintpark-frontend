@@ -31,6 +31,7 @@ import { s3ImageUrlBuilder, formatPrice } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import CollectionSideBar from "@/components/section/collections/sideBar";
 import {
+  findLayerByLayerId,
   getCollectibleExplorerUrl,
   getCurrencyIcon,
   getCurrencySymbol,
@@ -55,7 +56,11 @@ const CollectionDetailPageWrapper = () => {
 //todo: collection id endpoint s irj bga layerid g ashiglaj symbol haruulah
 const CollectionDetailPage = () => {
   // Fix: Use the correct properties from your WalletAuthContextType
-  const { currentLayer, isConnected } = useAuth();
+  const {
+    // collectionLayer,
+    isConnected,
+    availableLayers,
+  } = useAuth();
   const activeLayer = useActiveLayer();
 
   const params = useParams();
@@ -120,7 +125,7 @@ const CollectionDetailPage = () => {
         offset,
         debouncedSearchFilter, // Pass debounced search filter to API
         isListed,
-        JSON.stringify(traitValuesByType)
+        JSON.stringify(traitValuesByType),
       );
       return {
         collectibles: response?.collectibles ?? [],
@@ -150,7 +155,7 @@ const CollectionDetailPage = () => {
         id,
         activityPageSize,
         pageParam * activityPageSize,
-        activityType
+        activityType,
       );
 
       const hasMore = response.length === activityPageSize;
@@ -217,13 +222,13 @@ const CollectionDetailPage = () => {
         {
           rootMargin: "200px",
           threshold: 0.1,
-        }
+        },
       );
 
       observer.observe(node);
       return () => observer.disconnect();
     },
-    [hasNextPage, isFetchingNextPage, fetchNextPage]
+    [hasNextPage, isFetchingNextPage, fetchNextPage],
   );
 
   // Activity infinite scroll observer
@@ -244,13 +249,13 @@ const CollectionDetailPage = () => {
         {
           rootMargin: "200px",
           threshold: 0.1,
-        }
+        },
       );
 
       observer.observe(node);
       return () => observer.disconnect();
     },
-    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity]
+    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity],
   );
 
   const links = [
@@ -333,6 +338,11 @@ const CollectionDetailPage = () => {
     );
   }
 
+  const collectionLayer = findLayerByLayerId({
+    layerId: collection?.layerId,
+    layers: availableLayers,
+  });
+
   return (
     <>
       <section>
@@ -401,9 +411,9 @@ const CollectionDetailPage = () => {
                   <div className="">
                     <Link
                       href={getCollectibleExplorerUrl(
-                        // Fix: Use currentLayer instead of currentLayerData
-                        currentLayer?.layer || "unknown",
-                        collection?.contractAddress
+                        // Fix: Use collectionLayer instead of collectionLayerData
+                        collectionLayer?.layer || "unknown",
+                        collection?.contractAddress,
                       )}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -431,9 +441,9 @@ const CollectionDetailPage = () => {
                         width={24}
                         height={20}
                         draggable="false"
-                          src={
-                          currentLayer?.layer
-                            ? getCurrencyIcon(currentLayer.layer)
+                        src={
+                          collectionLayer?.layer
+                            ? getCurrencyIcon(collectionLayer.layer)
                             : ""
                         }
                         alt="bitcoin"
@@ -445,8 +455,8 @@ const CollectionDetailPage = () => {
                             ? formatPrice(collection.floor)
                             : "-"}
                         </span>{" "}
-                       {currentLayer?.layer
-                          ? getCurrencySymbol(currentLayer.layer)
+                        {collectionLayer?.layer
+                          ? getCurrencySymbol(collectionLayer.layer)
                           : ""}
                       </p>
                     </div>
@@ -462,8 +472,8 @@ const CollectionDetailPage = () => {
                         draggable="false"
                         height={20}
                         src={
-                          currentLayer?.layer
-                            ? getCurrencyIcon(currentLayer.layer)
+                          collectionLayer?.layer
+                            ? getCurrencyIcon(collectionLayer.layer)
                             : ""
                         }
                         alt="bitcoin"
@@ -475,8 +485,8 @@ const CollectionDetailPage = () => {
                             ? formatPrice(collection?.volume)
                             : "-"}
                         </span>{" "}
-                        {currentLayer?.layer
-                          ? getCurrencySymbol(currentLayer.layer)
+                        {collectionLayer?.layer
+                          ? getCurrencySymbol(collectionLayer.layer)
                           : ""}
                       </p>
                     </div>
@@ -524,11 +534,11 @@ const CollectionDetailPage = () => {
                     width={24}
                     draggable="false"
                     height={20}
-                      src={
-                          currentLayer?.layer
-                            ? getCurrencyIcon(currentLayer.layer)
-                            : ""
-                        }
+                    src={
+                      collectionLayer?.layer
+                        ? getCurrencyIcon(collectionLayer.layer)
+                        : ""
+                    }
                     alt="bitcoin"
                     className="aspect-square"
                   />
@@ -536,9 +546,9 @@ const CollectionDetailPage = () => {
                     <span>
                       {collection?.floor ? formatPrice(collection.floor) : "-"}
                     </span>{" "}
-                     {currentLayer?.layer
-                          ? getCurrencySymbol(currentLayer.layer)
-                          : ""}
+                    {collectionLayer?.layer
+                      ? getCurrencySymbol(collectionLayer.layer)
+                      : ""}
                   </p>
                 </div>
               </div>
@@ -552,11 +562,11 @@ const CollectionDetailPage = () => {
                     width={24}
                     height={20}
                     draggable="false"
-                      src={
-                          currentLayer?.layer
-                            ? getCurrencyIcon(currentLayer.layer)
-                            : ""
-                        }
+                    src={
+                      collectionLayer?.layer
+                        ? getCurrencyIcon(collectionLayer.layer)
+                        : ""
+                    }
                     alt="bitcoin"
                     className="aspect-square"
                   />
@@ -566,9 +576,9 @@ const CollectionDetailPage = () => {
                         ? formatPrice(collection?.volume)
                         : "-"}
                     </span>{" "}
-                   {currentLayer?.layer
-                          ? getCurrencySymbol(currentLayer.layer)
-                          : ""}
+                    {collectionLayer?.layer
+                      ? getCurrencySymbol(collectionLayer.layer)
+                      : ""}
                   </p>
                 </div>
               </div>
@@ -764,14 +774,15 @@ const CollectionDetailPage = () => {
                             : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 3xl:grid-cols-6"
                         }`}
                       >
-                        {filteredCollectibles.map((item) => (
-                          <div key={item.id}>
-                            <CollectibleCard
-                              data={item}
-                              currentLayer={currentLayer}
-                            />
-                          </div>
-                        ))}
+                        {collectionLayer &&
+                          filteredCollectibles.map((item) => (
+                            <div key={item.id}>
+                              <CollectibleCard
+                                data={item}
+                                currentLayer={collectionLayer}
+                              />
+                            </div>
+                          ))}
                       </div>
                     </div>
 
@@ -829,15 +840,16 @@ const CollectionDetailPage = () => {
 
                       <div className="h-[754px]  w-full min-w-[1216px] border-t-2 border-neutral500">
                         <div className="flex flex-col pt-4 gap-4">
-                          {filteredCollectibles.map((item) => (
-                            <div key={item.id}>
-                              <CollectibleCardList
-                                data={item}
-                                isConnected={isConnected}
-                                currentLayer={currentLayer}
-                              />
-                            </div>
-                          ))}
+                          {collectionLayer &&
+                            filteredCollectibles.map((item) => (
+                              <div key={item.id}>
+                                <CollectibleCardList
+                                  data={item}
+                                  isConnected={isConnected}
+                                  currentLayer={collectionLayer}
+                                />
+                              </div>
+                            ))}
 
                           {isFetchingNextPage && (
                             <div className="w-full flex justify-center py-4">
@@ -876,12 +888,14 @@ const CollectionDetailPage = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-3 pt-3 w-full">
-                {allActivities && allActivities.length > 0 ? (
+                {collectionLayer &&
+                allActivities &&
+                allActivities.length > 0 ? (
                   allActivities.map((item: any) => (
                     <CollectionActivityCard
                       key={`${item.transactionHash}-${item.activityType}-${item.timestamp}`}
                       data={item}
-                      currentLayer={currentLayer}
+                      currentLayer={collectionLayer}
                     />
                   ))
                 ) : (

@@ -26,11 +26,12 @@ import SuccessModal from "@/components/modal/success-modal";
 import ErrorModal from "@/components/modal/error-modal";
 import PendingModal from "@/components/modal/pending-modal";
 import DiscordIcon from "@/components/icon/hoverIcon";
+import { findLayerByLayerId } from "@/lib/service/currencyHelper";
 
 const Page = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { currentUserLayer, currentLayer } = useAuth();
+  const { currentUserLayer, currentLayer, availableLayers } = useAuth();
   const params = useParams();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -608,6 +609,7 @@ const Page = () => {
                           mintedAmount={launchData.mintedAmount}
                           isBadge={launchData.isBadge}
                           badgeSupply={launchData.badgeSupply}
+                          layerId={launchData.layerId}
                         />
                       )}
 
@@ -624,6 +626,7 @@ const Page = () => {
                           mintedAmount={launchData.mintedAmount}
                           isBadge={launchData.isBadge}
                           badgeSupply={launchData.badgeSupply}
+                          layerId={launchData.layerId}
                         />
                       )}
 
@@ -641,6 +644,7 @@ const Page = () => {
                             mintedAmount={launchData.mintedAmount}
                             isBadge={launchData.isBadge}
                             badgeSupply={launchData.badgeSupply}
+                            layerId={launchData.layerId}
                           />
                         )}
                     </div>

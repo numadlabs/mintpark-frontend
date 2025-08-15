@@ -1,4 +1,10 @@
-import { CITREA_PRICE, ETH_IMAGE, ETH_PRICE, WALLET_CONFIGS } from "../../lib/constants";
+import {
+  CITREA_PRICE,
+  ETH_IMAGE,
+  ETH_PRICE,
+  WALLET_CONFIGS,
+} from "../../lib/constants";
+import { Layer } from "../types/wallet";
 
 //todo: change network to dynamic
 // Helper function to get currency symbol based on layer type
@@ -174,4 +180,21 @@ export const getBlockExplorerBaseUrl = (
   return blockExplorerUrl.endsWith("/")
     ? blockExplorerUrl.slice(0, -1)
     : blockExplorerUrl;
+};
+
+export const findLayerByLayerId = ({
+  layerId,
+  layers,
+}: {
+  layerId: string;
+  layers: Layer[];
+}) => {
+  if (layerId && layers.length > 0) {
+    const layer = layers.find((layer) => layer.id === layerId);
+    if (layer) {
+      return layer;
+    }
+  } else if (!layerId) {
+    return null;
+  }
 };
