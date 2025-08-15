@@ -65,10 +65,10 @@ const NFTTraitsUpload: React.FC = () => {
   ): number => {
     const normalizedFolderName = normalizeTraitName(traitType);
 
-    console.log(
-      `Matching trait: ${traitType} (normalized: ${normalizedFolderName})`
-    );
-    console.log("Available traits in metadata:", Object.keys(traitOrderMap));
+    // console.log(
+    //   `Matching trait: ${traitType} (normalized: ${normalizedFolderName})`
+    // );
+    // console.log("Available traits in metadata:", Object.keys(traitOrderMap));
 
     // Check for exact matches first
     for (const [metadataTraitType, index] of Object.entries(traitOrderMap)) {
@@ -103,9 +103,9 @@ const NFTTraitsUpload: React.FC = () => {
     const maxMetadataIndex = existingIndices.length > 0 ? Math.max(...existingIndices) : -1;
     const newIndex = maxMetadataIndex + 1;
     
-    console.log(
-      `⚠ No match found for ${traitType}, assigning next available index: ${newIndex}`
-    );
+    // console.log(
+    //   `⚠ No match found for ${traitType}, assigning next available index: ${newIndex}`
+    // );
     return newIndex;
   };
 
@@ -235,7 +235,7 @@ const NFTTraitsUpload: React.FC = () => {
               ? getDynamicZIndex(traitType, traitOrderMap)
               : processedTraitTypes.size; // Use processed count as fallback
 
-            console.log(`Assigning z-index ${dynamicZIndex} to trait type: ${traitType}`);
+            // console.log(`Assigning z-index ${dynamicZIndex} to trait type: ${traitType}`);
 
             newTraits[traitType] = {
               name: traitType,
@@ -261,8 +261,8 @@ const NFTTraitsUpload: React.FC = () => {
         }
       });
 
-      console.log("Final traits data with dynamic z-index:", newTraits);
-      console.log("Trait types found:", Object.keys(newTraits).map(key => `${newTraits[key].zIndex}: "${key}"`));
+      // console.log("Final traits data with dynamic z-index:", newTraits);
+      // console.log("Trait types found:", Object.keys(newTraits).map(key => `${newTraits[key].zIndex}: "${key}"`));
 
       // Update state with new traits
       setTraits(newTraits);
@@ -292,7 +292,7 @@ const NFTTraitsUpload: React.FC = () => {
         traitData.metadataJson instanceof File &&
         Object.keys(traits).length > 0
       ) {
-        console.log("Reprocessing traits with updated metadata...");
+        // console.log("Reprocessing traits with updated metadata...");
 
         try {
           const traitOrderMap = await parseMetadataForTraitOrder(
@@ -312,8 +312,8 @@ const NFTTraitsUpload: React.FC = () => {
                 };
               });
 
-              console.log("Updated traits with metadata z-index:", updatedTraits);
-              console.log("Updated trait types:", Object.keys(updatedTraits).map(key => `${updatedTraits[key].zIndex}: "${key}"`));
+              // console.log("Updated traits with metadata z-index:", updatedTraits);
+              // console.log("Updated trait types:", Object.keys(updatedTraits).map(key => `${updatedTraits[key].zIndex}: "${key}"`));
               return updatedTraits;
             });
           }
@@ -542,12 +542,12 @@ const NFTTraitsUpload: React.FC = () => {
                       <h3 className="text-lg font-medium text-white capitalize">
                         {traitType} ({traitData.images.length} images)
                       </h3>
-                      <span className="text-xs bg-transLight8 text-lightTertiary px-2 py-1 rounded-full">
+                      {/* <span className="text-xs bg-transLight8 text-lightTertiary px-2 py-1 rounded-full">
                         z-index: {traitData.zIndex}
-                      </span>
+                      </span> */}
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="flex items-center gap-2">
+                      {/* <div className="flex items-center gap-2">
                         <label className="text-xs text-gray-400">Z-Index:</label>
                         <input
                           type="number"
@@ -556,7 +556,7 @@ const NFTTraitsUpload: React.FC = () => {
                           className="w-16 px-2 py-1 text-xs bg-transLight8 border border-transLight16 rounded text-white"
                           min="0"
                         />
-                      </div>
+                      </div> */}
                       <button
                         onClick={() => removeTrait(traitType)}
                         className="text-red-400 hover:text-red-300 text-sm font-medium flex items-center gap-1 transition-colors"
