@@ -4,9 +4,11 @@ import { Lock1, Unlimited } from "iconsax-react";
 import Countdown, { CountdownRenderProps } from "react-countdown";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import {
+  findLayerByLayerId,
   getCurrencyIcon,
   getCurrencySymbol,
 } from "@/lib/service/currencyHelper";
+import { Layer } from "@/lib/types/wallet";
 
 interface PhaseCardProps {
   maxMintPerWallet: number | string;
@@ -22,6 +24,7 @@ interface PhaseCardProps {
   phaseType: "guaranteed" | "FCFS" | "public";
   isWhitelisted?: boolean;
   hasFCFS?: boolean;
+  layerId: string;
 }
 
 // Renderer for the countdown component with proper TypeScript types
@@ -61,8 +64,13 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   badgeSupply,
   isWhitelisted = false,
   hasFCFS = false,
+  layerId,
 }) => {
-  const { currentLayer } = useAuth();
+  const { availableLayers } = useAuth();
+  const launchItemLayer = findLayerByLayerId({
+    layerId: layerId,
+    layers: availableLayers,
+  });
 
   const [status, setStatus] = useState("");
   const [isClickable, setIsClickable] = useState(false);
@@ -72,7 +80,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
   function determinePhaseState(
     phase: string,
     startsAt: number,
-    endsAt: number | null
+    endsAt: number | null,
   ) {
     const now = Math.floor(Date.now() / 1000);
     const isInfiniteSupplyBadge = isBadge && badgeSupply === null;
@@ -220,8 +228,8 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
             {phaseType === "guaranteed"
               ? "Guaranteed"
               : phaseType === "FCFS"
-              ? "FCFS"
-              : "Public"}
+                ? "FCFS"
+                : "Public"}
           </p>
           {!isClickable && <Lock1 size={16} color="#D7D8D8" />}
         </div>
@@ -255,7 +263,9 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
               height={20}
               draggable="false"
               src={
-                currentLayer?.layer ? getCurrencyIcon(currentLayer.layer) : ""
+                launchItemLayer?.layer
+                  ? getCurrencyIcon(launchItemLayer.layer)
+                  : ""
               }
               alt="Icon"
               className="aspect-square h-5 w-5"
@@ -263,8 +273,8 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
             {mintPrice !== undefined && (
               <p className="text-neutral50">
                 <span className="mr-1">{mintPrice}</span>
-                {currentLayer?.layer
-                  ? getCurrencySymbol(currentLayer.layer)
+                {launchItemLayer?.layer
+                  ? getCurrencySymbol(launchItemLayer.layer)
                   : ""}
               </p>
             )}
