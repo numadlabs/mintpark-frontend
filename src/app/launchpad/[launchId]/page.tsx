@@ -27,11 +27,21 @@ import ErrorModal from "@/components/modal/error-modal";
 import PendingModal from "@/components/modal/pending-modal";
 import DiscordIcon from "@/components/icon/hoverIcon";
 import { findLayerByLayerId } from "@/lib/service/currencyHelper";
+import { useChainId } from "wagmi";
 
 const Page = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { currentUserLayer, currentLayer, availableLayers } = useAuth();
+  const {
+    currentUserLayer,
+    currentLayer,
+    availableLayers,
+    setSelectedLayerId,
+    switchLayer,
+    isConnected,
+    user,
+  } = useAuth();
+  const chainId = useChainId();
   const params = useParams();
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -111,6 +121,33 @@ const Page = () => {
     setShowPendingModal(true);
     setError(null);
 
+    let launchLayerRelatedUserLayerId: string;
+
+    // if(launchData.layerId)
+    const launchLayerObj = availableLayers.find(
+      (l) => l.id === launchData.layerId,
+    );
+    if (!launchLayerObj || !launchLayerObj.chainId) {
+      setError("Layer information not available");
+      setShowErrorModal(true); // Show error modal instead of toast
+      return;
+    }
+
+    if (parseInt(launchLayerObj.chainId) !== chainId) {
+      // Update selected layer immediately for UI responsiveness
+      setSelectedLayerId(launchData.layerId);
+
+      // User is already connected - switch layer without signing
+      console.log(
+        "Switching layer from header (no signing required):",
+        launchLayerObj.name,
+      );
+      launchLayerRelatedUserLayerId = await switchLayer(launchLayerObj);
+      toast.success(`Switched to ${launchLayerObj.name}`);
+    } else {
+      launchLayerRelatedUserLayerId = currentUserLayer.id;
+    }
+
     try {
       let txid;
       let launchItemId;
@@ -118,7 +155,7 @@ const Page = () => {
       const response = await createBuyLaunchMutation({
         id: launchData.launchId,
         // userLayerId: authState.userLayerId,
-        userLayerId: currentUserLayer!.id,
+        userLayerId: launchLayerRelatedUserLayerId,
         feeRate: 1,
       });
       if (!response?.success) {
@@ -153,7 +190,7 @@ const Page = () => {
           txid,
           launchItemId,
           // userLayerId: authState.userLayerId,
-          userLayerId: currentUserLayer!.id,
+          userLayerId: launchLayerRelatedUserLayerId,
           feeRate: 1,
         });
 

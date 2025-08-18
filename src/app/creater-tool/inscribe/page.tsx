@@ -14,6 +14,7 @@ import {
 } from "@/components/createn-flow/CreationFlowProvider";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 
 function CreateFlowContent() {
   const { currentStep, resetFlow } = useCreationFlow();
@@ -48,12 +49,14 @@ function CreateFlowContent() {
           <div className="mx-auto py-4">
             <div className="flex h-[72px] justify-between items-center">
               <div>
-                <Image
-                  src="/textLogo.png"
-                  alt="Mintpark logo"
-                  width={146}
-                  height={24}
-                />
+                <Link href="/creater-tool">
+                  <Image
+                    src="/textLogo.png"
+                    alt="Mintpark logo"
+                    width={146}
+                    height={24}
+                  />
+                </Link>
               </div>
               <div className="flex items-center justify-center gap-8">
                 {currentStep > 0 && <ProgressSteps currentStep={currentStep} />}

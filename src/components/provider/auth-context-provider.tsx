@@ -1,5 +1,4 @@
-
-'use client';
+"use client";
 
 import React, { createContext, useContext, useEffect } from "react";
 import { useWallet } from "@/lib/hooks/useWallet";
@@ -23,7 +22,7 @@ interface WalletAuthContextType {
   setSelectedLayerId: (layerId: string | null) => void;
   connectWallet: (targetLayerId?: string) => Promise<void>;
   authenticateWithWallet: (targetLayerId?: string) => Promise<void>;
-  switchLayer: (targetLayer: Layer) => Promise<void>;
+  switchLayer: (targetLayer: Layer) => Promise<string>;
   setDefaultLayer: (data: { layer: Layer; userLayer?: UserLayer }) => void;
   disconnectWallet: () => void;
   getUserLayerFromCache: (layerId: string) => any;
@@ -45,18 +44,18 @@ export const WalletAuthProvider: React.FC<{ children: React.ReactNode }> = ({
     // State from useWallet
     isConnected: wallet.isConnected,
     currentLayer: wallet.currentLayer,
-    currentUserLayer: wallet.currentUserLayer,  
-    user: wallet.user, 
+    currentUserLayer: wallet.currentUserLayer,
+    user: wallet.user,
     isLoading: wallet.isLoading,
     error: wallet.error,
     availableLayers: wallet.availableLayers,
     selectedLayerId: wallet.selectedLayerId,
-    defaultLayer:wallet.currentLayer,
+    defaultLayer: wallet.currentLayer,
 
     // Actions from useWallet
     setSelectedLayerId: wallet.setSelectedLayerId,
-    connectWallet:wallet.connectWallet,
-    setDefaultLayer:wallet.setLayer,
+    connectWallet: wallet.connectWallet,
+    setDefaultLayer: wallet.setLayer,
     authenticateWithWallet: wallet.authenticateWithWallet,
     switchLayer: wallet.switchLayer,
     disconnectWallet: wallet.disconnectWallet,
@@ -77,6 +76,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-
-
