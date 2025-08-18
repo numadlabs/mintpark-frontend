@@ -58,18 +58,11 @@ const NFTTraitsUpload: React.FC = () => {
       .replace(/[^a-z0-9]/g, ""); // Remove special characters
   };
 
-  // FIXED: Improved getDynamicZIndex function
   const getDynamicZIndex = (
     traitType: string,
     traitOrderMap: { [key: string]: number }
   ): number => {
     const normalizedFolderName = normalizeTraitName(traitType);
-
-    // console.log(
-    //   `Matching trait: ${traitType} (normalized: ${normalizedFolderName})`
-    // );
-    // console.log("Available traits in metadata:", Object.keys(traitOrderMap));
-
     // Check for exact matches first
     for (const [metadataTraitType, index] of Object.entries(traitOrderMap)) {
       const normalizedMetadataName = normalizeTraitName(metadataTraitType);
@@ -100,12 +93,9 @@ const NFTTraitsUpload: React.FC = () => {
     // If no metadata match found, assign based on existing traits count
     // This ensures new traits get higher z-index values
     const existingIndices = Object.values(traitOrderMap);
-    const maxMetadataIndex = existingIndices.length > 0 ? Math.max(...existingIndices) : -1;
+    const maxMetadataIndex =
+      existingIndices.length > 0 ? Math.max(...existingIndices) : -1;
     const newIndex = maxMetadataIndex + 1;
-    
-    // console.log(
-    //   `⚠ No match found for ${traitType}, assigning next available index: ${newIndex}`
-    // );
     return newIndex;
   };
 
@@ -115,7 +105,7 @@ const NFTTraitsUpload: React.FC = () => {
   ): Promise<{ [key: string]: number }> => {
     try {
       const jsonText = await jsonFile.text();
-      
+
       if (!jsonText.trim()) {
         console.warn("Empty JSON file");
         return {};
@@ -131,13 +121,21 @@ const NFTTraitsUpload: React.FC = () => {
       let attributesSource: any[] | null = null;
 
       // Check different metadata structures
-      if (metadata.collection && Array.isArray(metadata.collection) && metadata.collection[0]?.attributes) {
+      if (
+        metadata.collection &&
+        Array.isArray(metadata.collection) &&
+        metadata.collection[0]?.attributes
+      ) {
         attributesSource = metadata.collection[0].attributes;
         console.log("Found attributes in metadata.collection[0]");
       } else if (Array.isArray(metadata) && metadata[0]?.attributes) {
         attributesSource = metadata[0].attributes;
         console.log("Found attributes in metadata[0]");
-      } else if (metadata.items && Array.isArray(metadata.items) && metadata.items[0]?.attributes) {
+      } else if (
+        metadata.items &&
+        Array.isArray(metadata.items) &&
+        metadata.items[0]?.attributes
+      ) {
         attributesSource = metadata.items[0].attributes;
         console.log("Found attributes in metadata.items[0]");
       } else if (metadata.attributes && Array.isArray(metadata.attributes)) {
@@ -148,7 +146,7 @@ const NFTTraitsUpload: React.FC = () => {
       if (attributesSource && Array.isArray(attributesSource)) {
         console.log("Processing attributes:", attributesSource);
         attributesSource.forEach((attr: any, index: number) => {
-          if (attr.trait_type && typeof attr.trait_type === 'string') {
+          if (attr.trait_type && typeof attr.trait_type === "string") {
             traitOrderMap[attr.trait_type] = index;
             console.log(`Found trait: ${attr.trait_type} -> index ${index}`);
           }
@@ -191,10 +189,15 @@ const NFTTraitsUpload: React.FC = () => {
       if (traitData.metadataJson && traitData.metadataJson instanceof File) {
         try {
           setUploadStatus("Parsing metadata...");
-          traitOrderMap = await parseMetadataForTraitOrder(traitData.metadataJson);
+          traitOrderMap = await parseMetadataForTraitOrder(
+            traitData.metadataJson
+          );
           console.log("Parsed trait order map:", traitOrderMap);
         } catch (error) {
-          console.error("Error parsing metadata, continuing without it:", error);
+          console.error(
+            "Error parsing metadata, continuing without it:",
+            error
+          );
           // Continue without metadata
         }
       }
@@ -231,9 +234,10 @@ const NFTTraitsUpload: React.FC = () => {
 
           // Initialize trait type if not exists
           if (!newTraits[traitType]) {
-            const dynamicZIndex = Object.keys(traitOrderMap).length > 0
-              ? getDynamicZIndex(traitType, traitOrderMap)
-              : processedTraitTypes.size; // Use processed count as fallback
+            const dynamicZIndex =
+              Object.keys(traitOrderMap).length > 0
+                ? getDynamicZIndex(traitType, traitOrderMap)
+                : processedTraitTypes.size; // Use processed count as fallback
 
             // console.log(`Assigning z-index ${dynamicZIndex} to trait type: ${traitType}`);
 
@@ -242,7 +246,7 @@ const NFTTraitsUpload: React.FC = () => {
               zIndex: dynamicZIndex,
               images: [],
             };
-            
+
             processedTraitTypes.add(traitType);
           }
 
@@ -260,21 +264,17 @@ const NFTTraitsUpload: React.FC = () => {
           }
         }
       });
-
-      // console.log("Final traits data with dynamic z-index:", newTraits);
-      // console.log("Trait types found:", Object.keys(newTraits).map(key => `${newTraits[key].zIndex}: "${key}"`));
-
       // Update state with new traits
       setTraits(newTraits);
 
       // Update CreationFlow context with the file data
-      const folderName = fileArray[0]?.webkitRelativePath.split("/")[0] || "traits";
+      const folderName =
+        fileArray[0]?.webkitRelativePath.split("/")[0] || "traits";
       const virtualFile = createVirtualFolderFile(files, folderName);
       updateTraitData({ traitAssets: virtualFile });
 
       setUploadStatus("Upload completed successfully!");
       setTimeout(() => setUploadStatus(""), 3000);
-
     } catch (error) {
       console.error("Error during file upload:", error);
       setUploadStatus("Error processing files");
@@ -305,15 +305,14 @@ const NFTTraitsUpload: React.FC = () => {
 
               Object.keys(updatedTraits).forEach((traitType) => {
                 const newZIndex = getDynamicZIndex(traitType, traitOrderMap);
-                console.log(`Updating ${traitType} z-index from ${updatedTraits[traitType].zIndex} to ${newZIndex}`);
+                console.log(
+                  `Updating ${traitType} z-index from ${updatedTraits[traitType].zIndex} to ${newZIndex}`
+                );
                 updatedTraits[traitType] = {
                   ...updatedTraits[traitType],
                   zIndex: newZIndex,
                 };
               });
-
-              // console.log("Updated traits with metadata z-index:", updatedTraits);
-              // console.log("Updated trait types:", Object.keys(updatedTraits).map(key => `${updatedTraits[key].zIndex}: "${key}"`));
               return updatedTraits;
             });
           }
@@ -400,7 +399,7 @@ const NFTTraitsUpload: React.FC = () => {
   const removeTrait = (traitType: string): void => {
     setTraits((prev) => {
       const newTraits = { ...prev };
-      
+
       // Clean up object URLs to prevent memory leaks
       if (newTraits[traitType]?.images) {
         newTraits[traitType].images.forEach((image) => {
@@ -409,7 +408,7 @@ const NFTTraitsUpload: React.FC = () => {
           }
         });
       }
-      
+
       delete newTraits[traitType];
       return newTraits;
     });
@@ -496,11 +495,13 @@ const NFTTraitsUpload: React.FC = () => {
 
       {/* Upload Status */}
       {uploadStatus && !uploading && (
-        <div className={`mb-4 p-3 rounded-lg ${
-          uploadStatus.includes("Error") || uploadStatus.includes("⚠")
-            ? "bg-red-900/20 border border-red-500/30 text-red-300"
-            : "bg-green-900/20 border border-green-500/30 text-green-300"
-        }`}>
+        <div
+          className={`mb-4 p-3 rounded-lg ${
+            uploadStatus.includes("Error") || uploadStatus.includes("⚠")
+              ? "bg-red-900/20 border border-red-500/30 text-red-300"
+              : "bg-green-900/20 border border-green-500/30 text-green-300"
+          }`}
+        >
           <p className="text-sm">{uploadStatus}</p>
         </div>
       )}
@@ -619,7 +620,9 @@ const NFTTraitsUpload: React.FC = () => {
             • Example structure: traits/background/, traits/hair/,
             traits/accessories/
           </li>
-          <li>• You can manually adjust z-index values using the input fields</li>
+          <li>
+            • You can manually adjust z-index values using the input fields
+          </li>
         </ul>
       </div>
 
@@ -639,7 +642,9 @@ const NFTTraitsUpload: React.FC = () => {
                   eyes, hair
                 </li>
                 <li>Upload metadata JSON for automatic z-index ordering</li>
-                <li>Z-index determines layering order (0=back, higher=front)</li>
+                <li>
+                  Z-index determines layering order (0=back, higher=front)
+                </li>
               </ul>
             </div>
             <button
@@ -648,7 +653,7 @@ const NFTTraitsUpload: React.FC = () => {
             >
               Got it
             </button>
-            </div>
+          </div>
         </div>
       )}
     </div>
