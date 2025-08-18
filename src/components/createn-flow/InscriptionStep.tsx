@@ -101,7 +101,7 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
     return () => clearInterval(interval);
   }, [currentView, collectionId, inscriptionData?.walletAddress]);
 
-  const extractTraitGroups = (): TraitGroup[] => {
+  const extractTraitGroups = async (): Promise<TraitGroup[]> => {
     if (!traitData.traitAssets) return [];
 
     const fileList = (traitData.traitAssets as any).fileList as FileList;
@@ -109,8 +109,45 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
 
     const traitGroups: Record<string, TraitGroup> = {};
 
-    // Get z-index data from the NFTTraitsUpload component if available
-    const traitsData = (traitData.traitAssets as any).traitsData || {};
+    // Parse metadata to get trait order map
+    let traitOrderMap: { [key: string]: number } = {};
+
+    if (traitData.metadataJson) {
+      try {
+        const jsonText = await traitData.metadataJson.text();
+        const metadata = JSON.parse(jsonText);
+
+        // Get the first item's attributes to determine order
+        let attributesSource: any[] | null = null;
+
+        if (
+          metadata.collection &&
+          Array.isArray(metadata.collection) &&
+          metadata.collection[0]?.attributes
+        ) {
+          attributesSource = metadata.collection[0].attributes;
+        } else if (Array.isArray(metadata) && metadata[0]?.attributes) {
+          attributesSource = metadata[0].attributes;
+        }
+
+        if (attributesSource && Array.isArray(attributesSource)) {
+          attributesSource.forEach((attr: any, index: number) => {
+            if (attr.trait_type && typeof attr.trait_type === "string") {
+              traitOrderMap[attr.trait_type.toLowerCase()] = index;
+            }
+          });
+        }
+
+        console.log("Trait order map from metadata:", traitOrderMap);
+      } catch (error) {
+        console.error("Error parsing metadata for trait order:", error);
+      }
+    }
+
+    // Get the stored traits data with z-index values from NFTTraitsUpload
+    const storedTraitsData = (traitData.traitAssets as any).traitsData || {};
+
+    console.log("Stored traits data from NFTTraitsUpload:", storedTraitsData);
 
     for (let i = 0; i < fileList.length; i++) {
       const file = fileList[i];
@@ -128,7 +165,41 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
         }
 
         if (!traitGroups[traitType]) {
-          const zIndex = traitsData[traitType]?.zIndex || 5;
+          // First try to get z-index from metadata order
+          let zIndex = 5; // default fallback
+
+          if (Object.keys(traitOrderMap).length > 0) {
+            // Normalize trait type name for matching
+            const normalizedTraitType = traitType.toLowerCase();
+
+            // Try exact match first
+            if (traitOrderMap.hasOwnProperty(normalizedTraitType)) {
+              zIndex = traitOrderMap[normalizedTraitType];
+            } else {
+              // Try partial matching
+              for (const [metadataTraitType, index] of Object.entries(
+                traitOrderMap
+              )) {
+                const normalizedMetadataName = metadataTraitType.toLowerCase();
+
+                if (
+                  normalizedTraitType.includes(normalizedMetadataName) ||
+                  normalizedMetadataName.includes(normalizedTraitType)
+                ) {
+                  zIndex = index;
+                  break;
+                }
+              }
+            }
+          } else if (storedTraitsData[traitType]?.zIndex !== undefined) {
+            // Fallback to stored traits data if no metadata available
+            zIndex = storedTraitsData[traitType].zIndex;
+          }
+
+          console.log(
+            `Setting trait type "${traitType}" with z-index: ${zIndex}`
+          );
+
           traitGroups[traitType] = {
             type: traitType,
             zIndex: zIndex,
@@ -140,10 +211,21 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
       }
     }
 
-    return Object.values(traitGroups);
+    const result = Object.values(traitGroups);
+    console.log(
+      "Final trait groups with z-index:",
+      result.map((g) => ({ name: g.type, zIndex: g.zIndex }))
+    );
+
+    return result;
   };
 
   // Main upload process function
+  function formatTrait(value: string) {
+    return value.replace(/\s+/g, "_").toLowerCase();
+  }
+
+  // Main upload process function - FIXED VERSION
   const handleUploadProcess = async () => {
     if (!collectionId) {
       toast.error("Collection ID is required");
@@ -160,7 +242,9 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
 
     try {
       // Extract trait groups and metadata
-      const traitGroups = extractTraitGroups();
+      const traitGroups = await extractTraitGroups();
+      console.log("Extracted trait groups:", traitGroups);
+
       let metadata: any[] = [];
 
       if (traitData.metadataJson) {
@@ -204,41 +288,78 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
         ...prev,
         currentStep: "Creating trait types...",
       }));
+
       const traitTypeBatches = chunkArray(traitGroups, 10);
       let traitTypeIdMap: Record<string, string> = {};
 
       for (const batch of traitTypeBatches) {
+        console.log(
+          "Creating trait types batch:",
+          batch.map((g) => ({ name: g.type, zIndex: g.zIndex }))
+        );
+
         const res = await createTraitTypes({
           collectionId,
           data: batch.map((g) => ({ name: g.type, zIndex: g.zIndex })),
         });
 
+        console.log("Trait types created:", res.data.traitTypes);
+
         for (const tt of res.data.traitTypes) {
-          traitTypeIdMap[tt.name] = tt.id;
+          const formattedTraitTypeName = formatTrait(tt.name);
+          traitTypeIdMap[formattedTraitTypeName] = tt.id;
         }
 
         currentStep++;
         setUploadProgress((prev) => ({ ...prev, current: currentStep }));
       }
 
+      console.log("Final traitTypeIdMap:", traitTypeIdMap);
+
       // Step 2: Upload trait values for each trait type
       setUploadProgress((prev) => ({
         ...prev,
         currentStep: "Uploading trait values...",
       }));
+
       let traitValueIdMap: Record<string, string> = {};
 
       for (const group of traitGroups) {
+        console.log(`Processing trait group: ${group.type}`);
+        console.log(`Looking for traitTypeId with key: "${group.type}"`);
+        console.log(
+          `Available keys in traitTypeIdMap:`,
+          Object.keys(traitTypeIdMap)
+        );
+
+        const formattedTraitTypeName = formatTrait(group.type);
+        const traitTypeId = traitTypeIdMap[formattedTraitTypeName];
+
+        if (!traitTypeId) {
+          console.error(
+            `traitTypeId not found for group.type: "${group.type}"`
+          );
+          console.error(`Available trait type IDs:`, traitTypeIdMap);
+          throw new Error(`Trait type ID not found for: ${group.type}`);
+        }
+
         const fileBatches = chunkArray(group.files, 10);
 
         for (const files of fileBatches) {
+          console.log(
+            `Uploading ${files.length} files for trait type: ${group.type}`
+          );
+
           const res = await createTraitValues({
-            traitTypeId: traitTypeIdMap[group.type],
+            traitTypeId: traitTypeId, // Use the found ID
             files,
           });
 
           for (const tv of res.data.traitValues) {
-            traitValueIdMap[`${group.type}:${tv.value}`] = tv.id;
+            const formattedTraitValueName = formatTrait(tv.value);
+            traitValueIdMap[
+              `${formattedTraitTypeName}:${formattedTraitValueName}`
+            ] = tv.id;
           }
 
           currentStep++;
@@ -260,11 +381,25 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
               throw new Error(`Item ${idx} missing attributes array`);
 
             return item.attributes.map((attr: any) => {
-              const type = attr.trait_type.replace(/\s+/g, "_").toLowerCase();
-              const value = attr.value.replace(/\s+/g, "_").toLowerCase();
+              // FIXED: Use the same normalization as in trait groups
+              const type = formatTrait(attr.trait_type);
+              const value = formatTrait(attr.value);
               const key = `${type}:${value}`;
               const id = traitValueIdMap[key];
-              if (!id) throw new Error(`No traitValueId for ${key}`);
+
+              console.log(
+                `Looking for trait value: ${key} -> ${
+                  id ? "FOUND" : "NOT FOUND"
+                }`
+              );
+
+              if (!id) {
+                console.error(
+                  `Available trait value IDs:`,
+                  Object.keys(traitValueIdMap)
+                );
+                throw new Error(`No traitValueId for ${key}`);
+              }
               return id;
             });
           });
@@ -324,10 +459,8 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
             console.log("Mint invoked successfully:", mintResult.data);
             toast.success("Mint invoked successfully!");
 
-            // Optionally update inscription data with mint result
             if (mintResult.data?.order) {
               updateInscriptionData({
-                // You can add any additional data from the mint response here
                 progress: {
                   ...inscriptionData.progress,
                   estimatedTime: "Mint process initiated",
@@ -343,7 +476,6 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
           }
         } catch (err: any) {
           console.error("Failed to invoke mint:", err);
-          // Don't fail the entire process for mint invoke error
           const errorMessage =
             err?.response?.data?.error || err?.message || "Unknown error";
           toast.warning(
@@ -358,8 +490,6 @@ export function InscriptionStep({ onComplete }: { onComplete?: () => void }) {
         currentStep: "Upload completed!",
       }));
       setCurrentView("progress");
-      toast.success("All files uploaded successfully!");
-
       toast.success("All files uploaded successfully!");
     } catch (error: any) {
       console.error("Upload process failed:", error);
