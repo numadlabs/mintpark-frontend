@@ -9,7 +9,13 @@ import Link from "next/link";
 import { Unlimited } from "iconsax-react";
 import { useLaunchState } from "@/lib/hooks/useLaunchState";
 import { LAUNCH_STATE } from "@/lib/hooks/useLaunchState";
-import { getCurrencySymbol } from "@/lib/service/currencyHelper";
+import {
+  findLayerByLayerId,
+  getCurrencyIcon,
+  getCurrencyImage,
+  getCurrencySymbol,
+} from "@/lib/service/currencyHelper";
+import { useAuth } from "@/components/provider/auth-context-provider";
 
 interface LaunchProps {
   data: LaunchDataType;
@@ -21,6 +27,8 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id, currentLayer }) => {
   const status = useLaunchState(data);
   const isActive =
     status === LAUNCH_STATE.LIVE || status === LAUNCH_STATE.INDEFINITE;
+
+  const { availableLayers } = useAuth();
 
   const calculateProgress = () => {
     // If the phase is ended or indefinite, return 100% progress
@@ -60,6 +68,11 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id, currentLayer }) => {
       </span>
     );
   };
+
+  const LaunchLayer = findLayerByLayerId({
+    layerId: data?.layerId,
+    layers: availableLayers,
+  });
 
   const getMintPrice = (data: LaunchDataType): number => {
     const now = Math.floor(Date.now() / 1000);
@@ -154,7 +167,8 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id, currentLayer }) => {
           <p className="font-bold text-sm sm:text-md text-neutral50">
             {formatPrice(getMintPrice(data))}
             <span className="ml-1">
-              {getCurrencySymbol(currentLayer?.layer || "")}
+              {/* {getCurrencySymbol(currentLayer?.layer || "")} */}
+              {getCurrencySymbol(LaunchLayer?.layer || "")}
             </span>
           </p>
         </div>
@@ -166,13 +180,29 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id, currentLayer }) => {
         </p>
       </div>
 
-      <div className="absolute top-6 left-6 flex flex-row gap-2 items-center justify-around w-fit h-[30px] sm:h-[34px] border border-transparent rounded-lg px-3 py-2 bg-neutral500 bg-opacity-[50%] text-sm sm:text-md text-neutral50 font-medium">
-        {isActive && (
-          <div className="bg-success20 h-3 w-3 sm:h-4 sm:w-4 rounded-full flex justify-center items-center">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-success rounded-full" />
-          </div>
-        )}
-        <p>{status}</p>
+      <div className="flex justify-between">
+        <div className="absolute top-6 left-6 flex flex-row gap-2 items-center justify-around w-fit h-[30px] sm:h-[34px] border border-transparent rounded-lg px-3 py-2 bg-neutral500 bg-opacity-[50%] text-sm sm:text-md text-neutral50 font-medium">
+          {isActive && (
+            <div className="bg-success20 h-3 w-3 sm:h-4 sm:w-4 rounded-full flex justify-center items-center">
+              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-success rounded-full" />
+            </div>
+          )}
+          <p>{status}</p>
+        </div>
+        <div className="absolute top-6 right-6 flex flex-row gap-2 items-center justify-around rounded-xl w-fit h-[30px] sm:h-[40px] border border-transparent px-3 py-2  text-sm sm:text-md text-neutral50 font-medium">
+          <Image
+            width={28}
+            height={28}
+            draggable="false"
+            src={
+              LaunchLayer?.layer
+                ? getCurrencyImage(LaunchLayer.layer)
+                : ""
+            }
+            alt="Icon"
+            className="aspect-square h-7 w-7 rounded-full"
+          />
+        </div>
       </div>
     </Link>
   );
