@@ -613,6 +613,7 @@ export const useWallet = () => {
       queryClient.invalidateQueries({ queryKey: ["chainSpecific"] });
 
       console.log("Layer switched successfully:", targetLayer.name);
+      return userLayer.id;
     } catch (error) {
       console.error("Layer switch error:", error);
       setError(error instanceof Error ? error.message : "Layer switch failed");
@@ -638,7 +639,8 @@ export const useWallet = () => {
       // requiresSigning,
     );
 
-    await handleLayerSwitch(targetLayer);
+    const userLayerId = await handleLayerSwitch(targetLayer);
+    return userLayerId;
   };
 
   const disconnectWallet = () => {
