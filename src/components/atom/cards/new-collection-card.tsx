@@ -256,7 +256,7 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
       default:
         return {
           showBottomCard: false,
-          primaryButton: { text: "Launch", action: onLaunch },
+          primaryButton: { text: "Coming soon...", action: onUploadTraits },
           showSecondaryButton: false,
         };
     }
