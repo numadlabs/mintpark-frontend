@@ -53,7 +53,6 @@ const CollectionDetailPageWrapper = () => {
     </QueryClientProvider>
   );
 };
-//todo: collection id endpoint s irj bga layerid g ashiglaj symbol haruulah
 const CollectionDetailPage = () => {
   // Fix: Use the correct properties from your WalletAuthContextType
   const {

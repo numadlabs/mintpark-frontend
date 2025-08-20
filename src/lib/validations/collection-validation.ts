@@ -1,6 +1,5 @@
 import * as z from "zod";
 import { apiResponseSchema } from "../utils";
-import { error } from "console";
 
 export const collectionSchema = z.object({
   id: z.string(),

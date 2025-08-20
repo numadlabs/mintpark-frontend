@@ -39,8 +39,6 @@ import { getAddressExplorerUrl } from "@/lib/service/currencyHelper";
 
 const ACTIVITY_PER_PAGE = 20;
 
-//todo: current layer iin orond getAssetById s irj bga data naas chainId ashiglah
-//todo: gomboo d helj array bish gants asset
 export default function AssetDetail() {
   const params = useParams();
   const router = useRouter();

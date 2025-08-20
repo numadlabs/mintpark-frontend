@@ -2,7 +2,7 @@ import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../provider/auth-context-provider";
-import { getCurrencyImage } from "@/lib/service/currencyHelper";
+import { getCurrencyImage, getWalletImage, getWalletName } from "@/lib/service/currencyHelper";
 import { useAccount, useSwitchChain } from "wagmi";
 import { getWagmiChainByLayerConfig } from "@/lib/wagmiConfig";
 import {
@@ -121,8 +121,6 @@ export function WalletConnectionModal({
     },
     [switchChain]
   );
-
-  //todo: switch chain ene component dotroos avj hayh
 
   // Handle wallet connection step
   const handleWalletConnect = useCallback(
@@ -262,44 +260,7 @@ export function WalletConnectionModal({
     }
   };
 
-  //todo:refactor hiigeed gazraas helper function uud duudah
-  const getWalletImage = (layer: string) => {
-    switch (layer) {
-      case "BITCOIN":
-        return "/wallets/Unisat.png";
-      case "CITREA":
-        return "/wallets/Metamask.png";
-      case "SEPOLIA":
-        return "/wallets/Metamask.png";
-      case "HEMI":
-        return "/wallets/Metamask.png";
-      case "EDUCHAIN":
-        return "/wallets/Metamask.png";
-      case "CORE":
-        return "/wallets/Metamask.png";
-      default:
-        return "/wallets/Unisat.png";
-    }
-  };
 
-  const getWalletName = (layer: string) => {
-    switch (layer) {
-      case "BITCOIN":
-        return "Unisat Wallet";
-      case "CITREA":
-        return "MetaMask Wallet";
-      case "SEPOLIA":
-        return "MetaMask Wallet";
-      case "HEMI":
-        return "MetaMask Wallet";
-      case "EDUCHAIN":
-        return "MetaMask Wallet";
-      case "CORE":
-        return "MetaMask Wallet";
-      default:
-        return "Wallet";
-    }
-  };
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

@@ -1,7 +1,7 @@
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { useMemo } from "react";
 
-//todo: eniig hook iig buh gazar heregleh eseh bodoh
+
 export function useActiveLayer() {
   const { currentLayer, availableLayers, selectedLayerId } = useAuth();
 
