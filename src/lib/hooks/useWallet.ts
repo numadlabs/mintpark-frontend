@@ -14,16 +14,11 @@ import {
   useLogin,
   useLinkAccount,
 } from "./useWalletQueries";
-import {
-  getChainIdAsNumber,
-  isEVMLayer,
-  getNetworkConfigForLayer,
-} from "@/lib/utils/wallet";
+import { getChainIdAsNumber, isEVMLayer } from "@/lib/utils/wallet";
 import { getWagmiChainByLayerConfig } from "../wagmiConfig";
 import { useEffect, useRef } from "react";
 import { Layer } from "../types/wallet";
 
-//todo: switch hiih uyd event sonsdog bolon darahd ajilladag zereg trigger hiij bgag boliulah
 export const useWallet = () => {
   const queryClient = useQueryClient();
   const isInitialized = useRef(false);
@@ -31,7 +26,6 @@ export const useWallet = () => {
   // const hasSignedOnce = useRef(false);
   const restorationAttempted = useRef(false); // Track if we've attempted restoration
 
-  //todo: listen metamask disconnect
   // Zustand store
   const {
     isConnected: storeIsConnected,
@@ -76,7 +70,6 @@ export const useWallet = () => {
   }, [layers, availableLayers.length]);
 
   // Handle wagmi disconnect - bput only after wagmi has had time to reconnect
-  //todo: key g string avj bgag boliulah
   useEffect(() => {
     // Don't clean up immediately on page load - give wagmi time to reconnect
     if (!isInitialized.current) return;
@@ -86,7 +79,8 @@ export const useWallet = () => {
       // Add a small delay to ensure this isn't just a momentary disconnect during page load
       const cleanup = setTimeout(() => {
         // Double-check wagmi is still disconnected after the delay
-        if (!wagmiConnected && !isConnecting.current) {
+        // if (!wagmiConnected && !isConnecting.current) {
+        if (!wagmiConnected && !isConnecting.current && storeIsConnected) {
           console.log("Wagmi disconnected, cleaning up store");
           storeDisconnect();
           queryClient.clear();
@@ -102,7 +96,8 @@ export const useWallet = () => {
 
       return () => clearTimeout(cleanup);
     }
-  }, [wagmiConnected, storeIsConnected, isInitialized.current]);
+    // }, [wagmiConnected, storeIsConnected, isInitialized.current]);
+  }, [wagmiConnected, storeIsConnected]);
 
   // Auto-authenticate when wagmi connects and we have stored auth state
   useEffect(() => {
@@ -184,7 +179,7 @@ export const useWallet = () => {
       if (matchingLayer && matchingLayer.id !== currentLayer?.id) {
         console.log(
           "External chain change detected, switching to matching layer:",
-          matchingLayer.name,
+          matchingLayer.name
         );
         handleLayerSwitch(matchingLayer).catch(console.error);
       }
@@ -226,7 +221,7 @@ export const useWallet = () => {
         targetLayer = availableLayers.find(
           (layer) =>
             layer.layer === savedLayer &&
-            (savedNetwork ? layer.network === savedNetwork : true),
+            (savedNetwork ? layer.network === savedNetwork : true)
         );
       }
 
@@ -262,7 +257,7 @@ export const useWallet = () => {
               console.log("Switching to cached layer chain:", layerChainId);
               const wagmiChain = getWagmiChainByLayerConfig(
                 currentLayer.layer,
-                currentLayer.network,
+                currentLayer.network
               );
               if (wagmiChain) {
                 await switchChain({ chainId: wagmiChain.id });
@@ -284,7 +279,7 @@ export const useWallet = () => {
     } catch (error) {
       console.error("Session restoration error:", error);
       setError(
-        error instanceof Error ? error.message : "Session restoration failed",
+        error instanceof Error ? error.message : "Session restoration failed"
       );
       throw error;
     } finally {
@@ -321,7 +316,7 @@ export const useWallet = () => {
         const matchingLayer = layers.find(
           (layer) =>
             layer.layer === savedLayer &&
-            (savedNetwork ? layer.network === savedNetwork : true),
+            (savedNetwork ? layer.network === savedNetwork : true)
         );
         if (matchingLayer) {
           targetLayerId = matchingLayer.id;
@@ -359,7 +354,7 @@ export const useWallet = () => {
 
       if (targetLayerId) {
         targetLayer = availableLayers.find(
-          (layer) => layer.id === targetLayerId,
+          (layer) => layer.id === targetLayerId
         );
       } else {
         // Find layer based on current chain ID if EVM
@@ -390,7 +385,7 @@ export const useWallet = () => {
         console.log("Switching to target chain with wagmi:", targetChainId);
         const wagmiChain = getWagmiChainByLayerConfig(
           targetLayer.layer,
-          targetLayer.network,
+          targetLayer.network
         );
         if (wagmiChain) {
           await switchChain({ chainId: wagmiChain.id });
@@ -443,7 +438,7 @@ export const useWallet = () => {
     } catch (error) {
       console.error("Authentication error:", error);
       setError(
-        error instanceof Error ? error.message : "Authentication failed",
+        error instanceof Error ? error.message : "Authentication failed"
       );
       throw error;
     } finally {
@@ -475,7 +470,7 @@ export const useWallet = () => {
       let targetLayer: Layer | undefined;
       if (targetLayerId) {
         targetLayer = availableLayers.find(
-          (layer) => layer.id === targetLayerId,
+          (layer) => layer.id === targetLayerId
         );
       } else {
         targetLayer = availableLayers.find((layer) => isEVMLayer(layer));
@@ -495,7 +490,7 @@ export const useWallet = () => {
         connectors.find(
           (conn) =>
             conn.name.toLowerCase().includes("metamask") ||
-            conn.name.toLowerCase().includes("injected"),
+            conn.name.toLowerCase().includes("injected")
         ) || connectors[0];
 
       if (!targetConnector) {
@@ -507,7 +502,7 @@ export const useWallet = () => {
       // Get wagmi chain for connection
       const wagmiChain = getWagmiChainByLayerConfig(
         targetLayer.layer,
-        targetLayer.network,
+        targetLayer.network
       );
       const connectChainId = wagmiChain ? wagmiChain.id : targetChainId;
 
@@ -528,7 +523,7 @@ export const useWallet = () => {
 
   // Internal function to handle layer switching logic
   const handleLayerSwitch = async (
-    targetLayer: Layer,
+    targetLayer: Layer
     // requiresSigning = true,
   ) => {
     if (!address) {
@@ -547,13 +542,13 @@ export const useWallet = () => {
           console.log("Switching chain with wagmi:", targetChainId);
           const wagmiChain = getWagmiChainByLayerConfig(
             targetLayer.layer,
-            targetLayer.network,
+            targetLayer.network
           );
           if (wagmiChain) {
             await switchChain({ chainId: wagmiChain.id });
           } else {
             throw new Error(
-              `Wagmi chain configuration not found for ${targetLayer.name}`,
+              `Wagmi chain configuration not found for ${targetLayer.name}`
             );
           }
         }
@@ -566,7 +561,7 @@ export const useWallet = () => {
         // For authenticated users, we can link without signing again
         if (user) {
           console.log(
-            "Linking account without signing (user already authenticated)",
+            "Linking account without signing (user already authenticated)"
           );
 
           const result = await linkAccount.mutateAsync({
@@ -634,7 +629,7 @@ export const useWallet = () => {
 
     console.log(
       "Switching layer from UI:",
-      targetLayer.name,
+      targetLayer.name
       // "requires signing:",
       // requiresSigning,
     );

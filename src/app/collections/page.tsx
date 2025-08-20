@@ -12,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { getListedCollections } from "@/lib/service/queryHelper";
-import { useAuth } from "@/components/provider/auth-context-provider";
 import CollectionCard from "@/components/atom/cards/collection-card";
 import { CollectionDataType } from "@/lib/types";
 import { useRouter } from "next/navigation";
@@ -43,7 +42,6 @@ const orderConfigs: Record<string, OrderConfig> = {
 export default function Collections({ searchParams }: CollectionsProps) {
   const detail = searchParams.detail === "true";
   const router = useRouter();
-  const { currentUserLayer, currentLayer } = useAuth();
   const activeLayer = useActiveLayer();
 
   const intervals = ["1h", "24h", "7d", "30d", "All"];

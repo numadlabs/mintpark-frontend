@@ -1,11 +1,5 @@
 "use client";
-import React, {
-  useEffect,
-  useState,
-  useRef,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -81,30 +75,7 @@ export default function Header() {
     ],
     []
   );
-
-  //todo: no more mobile menu. Instead just render one responsive menu. Remove all the logic related to mobile menu
-  // Handle mobile menu - prevent scroll when open
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-      return () => {
-        document.body.style.overflow = "";
-      };
-    }
-  }, [mobileMenuOpen]);
-
-  // Handle window resize - close mobile menu on desktop
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024 && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [mobileMenuOpen]);
-
+  //modalOpenHandle...
   // Handle layer selection from header dropdown
   const handleLayerSelect = useCallback(
     async (layerId: string): Promise<void> => {

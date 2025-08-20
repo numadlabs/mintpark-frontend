@@ -6,7 +6,6 @@ import {
 } from "../../lib/constants";
 import { Layer } from "../types/wallet";
 
-//todo: change network to dynamic
 // Helper function to get currency symbol based on layer type
 export const getCurrencySymbol = (layerType: string): string => {
   const config = WALLET_CONFIGS[layerType];
@@ -42,7 +41,6 @@ export const getCurrencyPrice = (layerType: string): number => {
   return layerType === "BITCOIN" ? CITREA_PRICE : ETH_PRICE;
 };
 
-// todo: evm checking logic is faulty
 // Function to format balance based on layer type
 export const formatBalanceForLayer = (
   amount: number,
@@ -90,14 +88,12 @@ export const isBitcoinBasedCurrency = (layerType: string): boolean => {
   return ["BITCOIN", "CITREA"].includes(layerType);
 };
 
-//todo: layer is HEMI, CITREA. layerType is supposed to be EVM or BTC
 // Get network information for a given layer
 export const getNetworkInfo = (layerType: string) => {
   const config = WALLET_CONFIGS[layerType];
   return config?.networks?.TESTNET || null;
 };
 
-// todo: what is layerType conditional return?
 // Helper function to get block explorer URL for an address
 export const getAddressExplorerUrl = (
   layerType: string,
@@ -198,3 +194,43 @@ export const findLayerByLayerId = ({
     return null;
   }
 };
+
+
+type WalletConfig = {
+  image: string;
+  name: string;
+};
+
+const walletMap: Record<string, WalletConfig> = {
+  BITCOIN: {
+    image: "/wallets/Unisat.png",
+    name: "Unisat Wallet",
+  },
+  CITREA: {
+    image: "/wallets/Metamask.png",
+    name: "MetaMask Wallet",
+  },
+  SEPOLIA: {
+    image: "/wallets/Metamask.png",
+    name: "MetaMask Wallet",
+  },
+  HEMI: {
+    image: "/wallets/Metamask.png",
+    name: "MetaMask Wallet",
+  },
+  EDUCHAIN: {
+    image: "/wallets/Metamask.png",
+    name: "MetaMask Wallet",
+  },
+  CORE: {
+    image: "/wallets/Metamask.png",
+    name: "MetaMask Wallet",
+  },
+};
+
+export const getWalletImage = (layer: string) =>
+  walletMap[layer]?.image || "/wallets/Unisat.png";
+
+export const getWalletName = (layer: string) =>
+  walletMap[layer]?.name || "Wallet";
+

@@ -21,12 +21,10 @@ import ThreadIcon from "@/components/icon/thread";
 import moment from "moment";
 import ImageLoaderComponent from "@/components/atom/image-loader";
 import { Global, Unlimited } from "iconsax-react";
-
 import SuccessModal from "@/components/modal/success-modal";
 import ErrorModal from "@/components/modal/error-modal";
 import PendingModal from "@/components/modal/pending-modal";
 import DiscordIcon from "@/components/icon/hoverIcon";
-import { findLayerByLayerId } from "@/lib/service/currencyHelper";
 import { useChainId } from "wagmi";
 
 const Page = () => {
@@ -103,7 +101,7 @@ const Page = () => {
     enabled: !!id,
   });
 
-  //todo: zov chain id luu ehleed connect hiilgeh
+
   const handleConfirm = async () => {
     if (!currentUserLayer) {
       setError("Please connect wallet first");
@@ -125,7 +123,7 @@ const Page = () => {
 
     // if(launchData.layerId)
     const launchLayerObj = availableLayers.find(
-      (l) => l.id === launchData.layerId,
+      (l) => l.id === launchData.layerId
     );
     if (!launchLayerObj || !launchLayerObj.chainId) {
       setError("Layer information not available");
@@ -140,7 +138,7 @@ const Page = () => {
       // User is already connected - switch layer without signing
       console.log(
         "Switching layer from header (no signing required):",
-        launchLayerObj.name,
+        launchLayerObj.name
       );
       launchLayerRelatedUserLayerId = await switchLayer(launchLayerObj);
       toast.success(`Switched to ${launchLayerObj.name}`);
@@ -169,7 +167,7 @@ const Page = () => {
         setSteps(2);
         const { signer } = await getSigner();
         const signedTx = await signer?.sendTransaction(
-          response.data.singleMintTxHex,
+          response.data.singleMintTxHex
         );
         const tx = await signedTx?.wait();
         if (tx) {
@@ -178,7 +176,7 @@ const Page = () => {
       } else {
         await window.unisat.sendBitcoin(
           response.data.order.fundingAddress,
-          Math.ceil(response.data.order.fundingAmount),
+          Math.ceil(response.data.order.fundingAmount)
         );
         await new Promise((resolve) => setTimeout(resolve, 10000));
       }
@@ -521,7 +519,7 @@ const Page = () => {
         className="min-h-screen bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${s3ImageUrlBuilder(
-            launchData?.logoKey || "",
+            launchData?.logoKey || ""
           )})`,
         }}
       >

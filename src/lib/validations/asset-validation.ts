@@ -1,8 +1,6 @@
 import * as z from "zod";
 import { apiResponseSchema } from "../utils";
-import { FileKey } from "lucide-react";
 
-//todo: declare schema for all of endpoint and use the inferred type
 export const orderSchema = z.object({
   id: z.string(),
   userId: z.string(),
