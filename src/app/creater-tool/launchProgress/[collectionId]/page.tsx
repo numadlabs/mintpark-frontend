@@ -473,7 +473,7 @@ const NFTLaunchInterface = () => {
         address: currentUserLayer?.address || "",
       });
 
-      toast.success("Collection submitted for preview successfully!");
+      toast.success("Collection submitted for review successfully!");
       router.push("/creater-tool");
     } catch (e) {
       console.error("Submit error", e);
