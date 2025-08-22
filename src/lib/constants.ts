@@ -47,7 +47,7 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
     chainId: "0x13FB", // 5115 in hex
     name: "Citrea",
     icon: "/wallets/Citrea.png",
-    currencyIcon: "/wallets/Citrea.png",
+    currencyIcon: "/currencyLogo/cBTC.png",
     currencyPrice: CITREA_PRICE,
     networks: {
       TESTNET: {
