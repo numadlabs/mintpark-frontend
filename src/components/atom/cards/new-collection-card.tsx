@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { getInscriptionProgress } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
-import { getCurrencyImage } from "@/lib/service/currencyHelper";
+import { getChainIcon } from "@/lib/service/currencyHelper";
 import ClaimFeePopup from "@/components/popup/claim";
 import { useRouter } from "next/navigation";
 
@@ -290,7 +290,7 @@ const NewCollectionCard: React.FC<NewCollectionCardProps> = ({
             <div className="flex gap-2 items-center">
               <div className="flex border border-transLight4 rounded-lg px-2 py-1 items-center gap-2">
                 <Image
-                  src={getCurrencyImage(collection.layer)}
+                  src={getChainIcon(collection.layer)}
                   alt="layer"
                   width={20}
                   height={20}

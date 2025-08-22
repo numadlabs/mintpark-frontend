@@ -8,7 +8,7 @@ import { CreatorCollection } from "@/lib/validations/collection-validation";
 import { createrCollection } from "@/lib/service/queryHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
 import { s3ImageUrlBuilder } from "@/lib/utils";
-import { getCurrencyImage } from "@/lib/service/currencyHelper";
+import { getChainIcon } from "@/lib/service/currencyHelper";
 import {
   addPhase,
   submitCollectionForReview,
@@ -91,7 +91,7 @@ const NFTLaunchInterface = () => {
   const [showAddPhaseModal, setShowAddPhaseModal] = useState(false);
   const [showEditPhaseModal, setShowEditPhaseModal] = useState(false);
   const [editingPhase, setEditingPhase] = useState<EditingPhaseData | null>(
-    null
+    null,
   );
 
   // Phases local state (public exists by default)
@@ -111,7 +111,7 @@ const NFTLaunchInterface = () => {
   ]);
 
   const [nextPhaseType, setNextPhaseType] = useState<PhaseType>(
-    PHASE_TYPES.WHITELIST
+    PHASE_TYPES.WHITELIST,
   );
 
   const [newPhase, setNewPhase] = useState<NewPhase>({
@@ -177,7 +177,7 @@ const NFTLaunchInterface = () => {
   const computePhaseTimes = (
     baseDate: string,
     baseTime: string,
-    sorted: Phase[]
+    sorted: Phase[],
   ) => {
     if (!baseDate || !baseTime)
       return sorted.map((p) => ({ ...p, startTime: 0, endTime: 0 }));
@@ -217,7 +217,7 @@ const NFTLaunchInterface = () => {
       setLoading(true);
       const list = await createrCollection(userLayerId, 1, 100);
       const target = list.find(
-        (c: CreatorCollection) => c.collectionId === collectionId
+        (c: CreatorCollection) => c.collectionId === collectionId,
       );
       if (!target) {
         setError("Collection not found");
@@ -237,7 +237,7 @@ const NFTLaunchInterface = () => {
   const sortedPhases = React.useMemo(() => sortPhasesByType(phases), [phases]);
   const computedPhases = React.useMemo(
     () => computePhaseTimes(mintStartDate, mintStartTime, sortedPhases),
-    [mintStartDate, mintStartTime, sortedPhases]
+    [mintStartDate, mintStartTime, sortedPhases],
   );
 
   const handleAddPhase = () => {
@@ -324,10 +324,10 @@ const NFTLaunchInterface = () => {
     setPhases(remaining);
 
     const hasWhitelist = remaining.some(
-      (p) => p.type === PHASE_TYPES.WHITELIST
+      (p) => p.type === PHASE_TYPES.WHITELIST,
     );
     const hasFcfs = remaining.some(
-      (p) => p.type === PHASE_TYPES.FCFS_WHITELIST
+      (p) => p.type === PHASE_TYPES.FCFS_WHITELIST,
     );
 
     if (!hasWhitelist) setNextPhaseType(PHASE_TYPES.WHITELIST);
@@ -405,7 +405,7 @@ const NFTLaunchInterface = () => {
 
           if (msg.toLowerCase().includes("overlap")) {
             toast.error(
-              `Skipping ${phase.name}: overlaps an existing phase on server.`
+              `Skipping ${phase.name}: overlaps an existing phase on server.`,
             );
           } else {
             toast.error(`Failed to add ${phase.name}.`);
@@ -417,7 +417,7 @@ const NFTLaunchInterface = () => {
 
       // Step 2: Whitelist allowlist (only if WL actually created)
       const whitelistPhase = calculatedPhases.find(
-        (p) => p.type === PHASE_TYPES.WHITELIST
+        (p) => p.type === PHASE_TYPES.WHITELIST,
       );
       if (
         whitelistPhase &&
@@ -443,7 +443,7 @@ const NFTLaunchInterface = () => {
 
       // Step 3: FCFS allowlist (only if FCFS actually created)
       const fcfsPhase = calculatedPhases.find(
-        (p) => p.type === PHASE_TYPES.FCFS_WHITELIST
+        (p) => p.type === PHASE_TYPES.FCFS_WHITELIST,
       );
       if (
         fcfsPhase &&
@@ -557,7 +557,7 @@ const NFTLaunchInterface = () => {
               <span className="flex items-center gap-4 px-2 py-1 border border-transLight4 rounded-lg bg-darkTertiary">
                 <div className="w-[16px] h-[16px]">
                   <Image
-                    src={getCurrencyImage(collection.layer)}
+                    src={getChainIcon(collection.layer)}
                     alt="layer"
                     width={16}
                     height={16}
@@ -597,8 +597,8 @@ const NFTLaunchInterface = () => {
                   type="date"
                   value={mintStartDate}
                   onChange={(e) => setMintStartDate(e.target.value)}
-                  className="bg-transparent text-lg font-medium text-white border-hidden focus:outline-none 
-                  [&::-webkit-calendar-picker-indicator]:hidden 
+                  className="bg-transparent text-lg font-medium text-white border-hidden focus:outline-none
+                  [&::-webkit-calendar-picker-indicator]:hidden
                   [&::-webkit-inner-spin-button]:hidden"
                 />
               </div>

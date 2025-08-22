@@ -12,7 +12,7 @@ import { LAUNCH_STATE } from "@/lib/hooks/useLaunchState";
 import {
   findLayerByLayerId,
   getCurrencyIcon,
-  getCurrencyImage,
+  getChainIcon,
   getCurrencySymbol,
 } from "@/lib/service/currencyHelper";
 import { useAuth } from "@/components/provider/auth-context-provider";
@@ -128,7 +128,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id, currentLayer }) => {
 
     // If all phases have ended, return the price of the last ended phase
     const endedPhases = phases.filter(
-      (phase) => phase.endsAt && now >= phase.endsAt
+      (phase) => phase.endsAt && now >= phase.endsAt,
     );
     if (endedPhases.length > 0) {
       // Sort by end time (latest first)
@@ -194,11 +194,7 @@ const LaunchpadCard: React.FC<LaunchProps> = ({ data, id, currentLayer }) => {
             width={28}
             height={28}
             draggable="false"
-            src={
-              LaunchLayer?.layer
-                ? getCurrencyImage(LaunchLayer.layer)
-                : ""
-            }
+            src={LaunchLayer?.layer ? getChainIcon(LaunchLayer.layer) : ""}
             alt="Icon"
             className="aspect-square h-7 w-7 rounded-full"
           />

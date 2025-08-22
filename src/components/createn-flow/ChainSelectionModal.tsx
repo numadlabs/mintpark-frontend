@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useCreationFlow } from "./CreationFlowProvider";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../provider/auth-context-provider";
-import { getCurrencyImage } from "@/lib/service/currencyHelper";
+import { getChainIcon } from "@/lib/service/currencyHelper";
 import Image from "next/image";
 import { toast } from "sonner";
 
@@ -38,7 +38,7 @@ export function ChainSelectionModal({
         layer.name !== "Hemi Testnet" &&
         layer.name !== "EDU Chain Testnet" &&
         layer.name !== "EDU Chain" &&
-        layer.name !== "CORE Testnet"
+        layer.name !== "CORE Testnet",
     );
   }, [availableLayers]);
 
@@ -101,7 +101,7 @@ export function ChainSelectionModal({
               <div className="flex flex-col items-center text-center mb-6">
                 <div className="w-16 h-16 bg-transLight8 rounded-xl flex items-center justify-center mb-4">
                   <Image
-                    src={getCurrencyImage(layer.layer)}
+                    src={getChainIcon(layer.layer)}
                     alt={layer.name}
                     width={32}
                     height={32}
