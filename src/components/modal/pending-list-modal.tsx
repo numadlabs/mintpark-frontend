@@ -18,6 +18,11 @@ import {
 } from "@/lib/service/postRequest";
 import { toast } from "sonner";
 import { Progress } from "../ui/progress";
+import {
+  getCurrencyIcon,
+  getCurrencySymbol,
+} from "@/lib/service/currencyHelper";
+import { useWallet } from "@/lib/hooks/useWallet";
 
 interface ModalProps {
   open: boolean;
@@ -49,6 +54,7 @@ const PendingListModal: React.FC<ModalProps> = ({
   collectionId,
 }) => {
   const router = useRouter();
+  const { currentUserLayer, currentLayer } = useWallet();
   const queryClient = useQueryClient();
   const [price, setPrice] = useState<string>("0");
   const [isLoading, setIsLoading] = useState(false);
@@ -258,18 +264,40 @@ const PendingListModal: React.FC<ModalProps> = ({
       <div className="bg-white8 w-full h-[1px]" />
       <div className="flex flex-col gap-3 w-full">
         <p>Listing Price</p>
-        <Input
-          placeholder="Enter listing price"
-          className={`bg-gray50 border-transparent ${
-            isSpecialCollection ? "cursor-not-allowed opacity-70" : ""
-          }`}
-          type="text"
-          value={price}
-          onChange={handlePriceChange}
-          onBlur={handlePriceBlur}
-          onKeyDown={handleKeyDown}
-          disabled={isSpecialCollection}
-        />
+        <div className="relative w-full">
+          <Input
+            placeholder="Enter listing price"
+            className={`bg-gray50 border-transparent pr-16 ${
+              isSpecialCollection ? "cursor-not-allowed opacity-70" : ""
+            }`}
+            type="text"
+            value={price}
+            onChange={handlePriceChange}
+            onBlur={handlePriceBlur}
+            onKeyDown={handleKeyDown}
+            disabled={isSpecialCollection}
+          />
+          {/* Currency symbol + icon */}
+          <div className="absolute inset-y-0 right-3 flex items-center gap-1 text-neutral200">
+            {/* Example: Bitcoin logo or any currency icon */}
+            <Image
+              src={
+                currentLayer?.layer ? getCurrencyIcon(currentLayer.layer) : ""
+              }
+              alt="currency"
+              width={18}
+              height={18}
+              className="rounded-full"
+            />
+            {currentLayer && (
+              <span className="text-sm font-medium">
+                {getCurrencySymbol(currentLayer.layer)}{" "}
+                {/* <-- pass currentLayer instead of "btc" */}
+              </span>
+            )}
+          </div>
+        </div>
+
         {isSpecialCollection && (
           <p className="text-md2 text-neutral200 mt-1 flex items-center gap-2">
             <svg
