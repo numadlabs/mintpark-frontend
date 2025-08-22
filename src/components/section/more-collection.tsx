@@ -15,16 +15,21 @@ import CollectibleCardList from "../atom/cards/collectible-card-list";
 import CollectionSideBar from "./collections/sideBar";
 import { CollectionDetail } from "@/lib/validations/collection-validation";
 import { useAuth } from "../provider/auth-context-provider";
+import { Layer } from "@/lib/types/wallet";
+// import { Layer } from "@/lib/types";
 
 interface MoreCollectionProps {
   collection: CollectionDetail | null;
   currentAssetId?: string;
+  assetLayer: Layer | null;
 }
 
 const MoreCollection: React.FC<MoreCollectionProps> = ({
   collection,
   currentAssetId,
+  assetLayer,
 }) => {
+  console.log("collection more", collection);
   const [active, setActive] = useState(false);
   const { currentLayer, isConnected } = useAuth();
   const [searchFilter, setSearchFilter] = useState(""); // Add this state
@@ -148,7 +153,7 @@ const MoreCollection: React.FC<MoreCollectionProps> = ({
                     <div key={item.id}>
                       <CollectibleCard
                         data={item}
-                        currentLayer={currentLayer}
+                        collectibleLayer={assetLayer}
                       />
                     </div>
                   ))}

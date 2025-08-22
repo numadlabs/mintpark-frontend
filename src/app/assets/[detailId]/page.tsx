@@ -246,7 +246,7 @@ export default function AssetDetail() {
                         <h1>
                           {collectible.price && formatPrice(collectible.price)}{" "}
                           {/* Fix: Use assetLayer instead of assetLayerData.layer */}
-                          {getCurrencySymbol(assetLayer?.name ?? "Unknown")}
+                          {getCurrencySymbol(assetLayer?.layer ?? "Unknown")}
                         </h1>
                       </span>
                     </div>
@@ -464,11 +464,12 @@ export default function AssetDetail() {
               </TabsContent>
               <TabsContent value="more">
                 {collection &&
-                collection.collectibles &&
+                assetLayer &&
                 collection.collectibles.length > 0 ? (
                   <MoreCollection
                     collection={collection}
                     currentAssetId={collectible.id}
+                    assetLayer={assetLayer}
                   />
                 ) : (
                   <div className="flex justify-center items-center mt-8 rounded-3xl w-full bg-neutral500 bg-opacity-[50%] h-[430px]">
