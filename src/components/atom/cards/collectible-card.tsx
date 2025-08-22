@@ -11,13 +11,13 @@ interface CollectibleCardProps {
   data: CollectionSchema;
   isOwnListing?: boolean;
   isConnected?: boolean;
-  currentLayer: { id: string; layer: string } | null;
+  collectibleLayer: { id: string; layer: string } | null;
 }
 
 export default function CollectibleCard({
   data,
   isConnected,
-  currentLayer,
+  collectibleLayer,
 }: CollectibleCardProps) {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -72,8 +72,8 @@ export default function CollectibleCard({
                         <p className="text-neutral50">
                           {formatPrice(data.price)}
                           <span className="ml-1">
-                            {currentLayer
-                              ? getCurrencySymbol(currentLayer.id)
+                            {collectibleLayer
+                              ? getCurrencySymbol(collectibleLayer.layer)
                               : ""}
                           </span>
                         </p>
