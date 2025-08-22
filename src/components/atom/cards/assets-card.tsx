@@ -183,7 +183,7 @@ const AssetsCard: React.FC<CardProps> = ({
           txid={txid}
           id={data.id}
           isOwnListing={false}
-          collectionId={data.collectionId} // add to this line
+          collectionId={data.collectionId}
         />
       )}
     </>
