@@ -26,7 +26,7 @@ import { LayerType } from "@/lib/types";
 import { toast } from "sonner";
 import { Check, Loader2, MenuIcon, X } from "lucide-react";
 import { WalletConnectionModal } from "../modal/wallet-connect-modal";
-import { getCurrencyImage } from "@/lib/service/currencyHelper";
+import { getChainIcon } from "@/lib/service/currencyHelper";
 
 interface RouteItem {
   title: string;
@@ -74,7 +74,7 @@ export default function CreaterHeader() {
       { title: "Collections", pageUrl: "/collections" },
       { title: "Creator-tool", pageUrl: "/creater-tool" },
     ],
-    []
+    [],
   );
 
   // Handle mobile menu - prevent scroll when open
@@ -115,7 +115,7 @@ export default function CreaterHeader() {
           // User is already connected - switch layer without signing
           console.log(
             "Switching layer from header (no signing required):",
-            selectedLayerObj.name
+            selectedLayerObj.name,
           );
           await switchLayer(selectedLayerObj);
           toast.success(`Switched to ${selectedLayerObj.name}`);
@@ -123,7 +123,7 @@ export default function CreaterHeader() {
           // User not connected - just update the selection for when they connect
           console.log(
             "Layer selected for future connection:",
-            selectedLayerObj.name
+            selectedLayerObj.name,
           );
           localStorage.setItem("selectedLayer", selectedLayerObj.layer);
           localStorage.setItem("selectedNetwork", selectedLayerObj.network);
@@ -143,7 +143,7 @@ export default function CreaterHeader() {
       isConnected,
       user,
       currentLayer,
-    ]
+    ],
   );
 
   // Handle logout
@@ -170,7 +170,7 @@ export default function CreaterHeader() {
       router.push(pageUrl);
       setMobileMenuOpen(false);
     },
-    [isConnected, router]
+    [isConnected, router],
   );
 
   // Filtered layers for display
@@ -183,8 +183,8 @@ export default function CreaterHeader() {
         layer.layer !== "BITCOIN" &&
         layer.name !== "Hemi Testnet" &&
         layer.name !== "EDU Chain Testnet" &&
-        layer.name !== "EDU Chain"
-        && layer.name !== "CORE Testnet"
+        layer.name !== "EDU Chain" &&
+        layer.name !== "CORE Testnet",
     );
   }, [availableLayers]);
 
@@ -212,7 +212,7 @@ export default function CreaterHeader() {
             <div className="flex gap-2">
               <div className="relative">
                 <Image
-                  src={getCurrencyImage(layer.layer)}
+                  src={getChainIcon(layer.layer)}
                   alt={layer.layer}
                   width={24}
                   height={24}
@@ -222,7 +222,7 @@ export default function CreaterHeader() {
               <div className="flex items-center gap-2 flex-1">
                 {layer.name ||
                   `${capitalizeFirstLetter(
-                    layer.layer
+                    layer.layer,
                   )} ${capitalizeFirstLetter(layer.network)}`}
               </div>
             </div>
@@ -231,7 +231,7 @@ export default function CreaterHeader() {
         </SelectItem>
       );
     },
-    [currentLayer?.id, isConnected]
+    [currentLayer?.id, isConnected],
   );
 
   // Render current layer value in select trigger
@@ -258,7 +258,7 @@ export default function CreaterHeader() {
         <div className="flex flex-row gap-2 items-center w-max">
           <div className="relative">
             <Image
-              src={getCurrencyImage(displayLayer.layer)}
+              src={getChainIcon(displayLayer.layer)}
               alt={displayLayer.layer}
               width={24}
               height={24}

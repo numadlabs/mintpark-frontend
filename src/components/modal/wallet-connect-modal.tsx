@@ -2,7 +2,11 @@ import React, { useState, useCallback, useMemo, useEffect } from "react";
 import { X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../provider/auth-context-provider";
-import { getCurrencyImage, getWalletImage, getWalletName } from "@/lib/service/currencyHelper";
+import {
+  getChainIcon,
+  getWalletImage,
+  getWalletName,
+} from "@/lib/service/currencyHelper";
 import { useAccount, useSwitchChain } from "wagmi";
 import { getWagmiChainByLayerConfig } from "@/lib/wagmiConfig";
 import {
@@ -62,7 +66,7 @@ export function WalletConnectionModal({
           layer.name !== "Hemi Testnet" &&
           layer.name !== "EDU Chain Testnet" &&
           layer.name !== "EDU Chain" &&
-          layer.name !== "CORE Testnet"
+          layer.name !== "CORE Testnet",
       )
       .sort((a, b) => {
         if (a.layer !== b.layer) {
@@ -88,7 +92,7 @@ export function WalletConnectionModal({
       try {
         const wagmiChain = getWagmiChainByLayerConfig(
           layer.layer,
-          layer.network
+          layer.network,
         );
 
         if (!wagmiChain) {
@@ -100,7 +104,7 @@ export function WalletConnectionModal({
         console.log(
           "Switching to chain with wagmi:",
           wagmiChain.name,
-          wagmiChain.id
+          wagmiChain.id,
         );
 
         await switchChain({ chainId: wagmiChain.id });
@@ -119,7 +123,7 @@ export function WalletConnectionModal({
         return false;
       }
     },
-    [switchChain]
+    [switchChain],
   );
 
   // Handle wallet connection step
@@ -161,7 +165,7 @@ export function WalletConnectionModal({
         }
       }
     },
-    [disconnectWallet, switchToChain]
+    [disconnectWallet, switchToChain],
   );
 
   // Handle signing step
@@ -233,7 +237,7 @@ export function WalletConnectionModal({
       currentLayer,
       switchLayer,
       switchToChain,
-    ]
+    ],
   );
 
   // Reset state when modal opens/closes
@@ -259,8 +263,6 @@ export function WalletConnectionModal({
       setIsSigning(false);
     }
   };
-
-
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -289,7 +291,7 @@ export function WalletConnectionModal({
                 style={{
                   gridTemplateColumns: `repeat(${Math.min(
                     displayLayers.length,
-                    3
+                    3,
                   )}, 1fr)`,
                 }}
               >
@@ -303,7 +305,7 @@ export function WalletConnectionModal({
                     <div className="relative">
                       <Avatar className="w-8 h-8">
                         <AvatarImage
-                          src={getCurrencyImage(layer.layer)}
+                          src={getChainIcon(layer.layer)}
                           alt={layer.layer.toLowerCase()}
                           sizes="100%"
                         />
@@ -347,7 +349,7 @@ export function WalletConnectionModal({
             <div className="flex flex-col items-center gap-4">
               <Avatar className="w-16 h-16">
                 <AvatarImage
-                  src={getCurrencyImage(selectedLayer.layer)}
+                  src={getChainIcon(selectedLayer.layer)}
                   alt={selectedLayer.layer.toLowerCase()}
                 />
               </Avatar>
@@ -378,7 +380,7 @@ export function WalletConnectionModal({
               <div className="flex items-center gap-3">
                 <Avatar className="w-12 h-12">
                   <AvatarImage
-                    src={getCurrencyImage(selectedLayer.layer)}
+                    src={getChainIcon(selectedLayer.layer)}
                     alt={selectedLayer.layer.toLowerCase()}
                   />
                 </Avatar>

@@ -20,7 +20,7 @@ export const getCurrencySymbol = (layerType: string): string => {
 };
 
 // Helper function to get appropriate image for currency
-export const getCurrencyImage = (layerType: string): string => {
+export const getChainIcon = (layerType: string): string => {
   const config = WALLET_CONFIGS[layerType];
   return config?.icon || WALLET_CONFIGS.BITCOIN.icon;
 };
@@ -195,7 +195,6 @@ export const findLayerByLayerId = ({
   }
 };
 
-
 type WalletConfig = {
   image: string;
   name: string;
@@ -233,4 +232,3 @@ export const getWalletImage = (layer: string) =>
 
 export const getWalletName = (layer: string) =>
   walletMap[layer]?.name || "Wallet";
-
