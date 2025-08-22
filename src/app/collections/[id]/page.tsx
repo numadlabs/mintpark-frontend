@@ -778,7 +778,7 @@ const CollectionDetailPage = () => {
                             <div key={item.id}>
                               <CollectibleCard
                                 data={item}
-                                currentLayer={collectionLayer}
+                                collectibleLayer={collectionLayer}
                               />
                             </div>
                           ))}

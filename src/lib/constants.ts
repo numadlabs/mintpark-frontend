@@ -47,7 +47,7 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
     chainId: "0x13FB", // 5115 in hex
     name: "Citrea",
     icon: "/wallets/Citrea.png",
-    currencyIcon: "/wallets/Bitcoin.png",
+    currencyIcon: "/wallets/Citrea.png",
     currencyPrice: CITREA_PRICE,
     networks: {
       TESTNET: {
@@ -217,30 +217,26 @@ export const WALLET_CONFIGS: { [key: string]: WalletConfig } = {
   },
 };
 
-
-
-  export const layerFeatureMap: Record<string, string[]> = {
-    "Hemi Mainnet": [
-      "NFTs bridging Bitcoin and Ethereum",
-      "Secure with Bitcoin's PoP consensus.",
-      "Handles high transaction volumes",
-      "Developer-friendly with hVM and tools.",
-    ],
-    "Core Mainnet": [
-      "Low fees for minting and trading.",
-      "High scalability for large projects.",
-      "Large user base for visibility.",
-      "EVM-compatible for easy development.",
-    ],
-    Citrea: [
-      "ZK rollups boost Bitcoin scalability",
-      "Inherits Bitcoin's robust security",
-      "Lowers fees with off-chain processing",
-      "EVM compatibility eases development",
-    ],
-  };
-
-
+export const layerFeatureMap: Record<string, string[]> = {
+  "Hemi Mainnet": [
+    "NFTs bridging Bitcoin and Ethereum",
+    "Secure with Bitcoin's PoP consensus.",
+    "Handles high transaction volumes",
+    "Developer-friendly with hVM and tools.",
+  ],
+  "Core Mainnet": [
+    "Low fees for minting and trading.",
+    "High scalability for large projects.",
+    "Large user base for visibility.",
+    "EVM-compatible for easy development.",
+  ],
+  Citrea: [
+    "ZK rollups boost Bitcoin scalability",
+    "Inherits Bitcoin's robust security",
+    "Lowers fees with off-chain processing",
+    "EVM compatibility eases development",
+  ],
+};
 
 export const serviceData = [
   {

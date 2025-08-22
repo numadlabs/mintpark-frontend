@@ -98,7 +98,7 @@ export default function AssetsDetails() {
       const response = await getCollectibleActivity(
         id,
         activityPageSize,
-        pageParam * activityPageSize
+        pageParam * activityPageSize,
       );
       setHasMoreActivity(response.length === activityPageSize);
       return response;
@@ -170,12 +170,12 @@ export default function AssetsDetails() {
             fetchNextActivity();
           }
         },
-        { rootMargin: "200px", threshold: 0.1 }
+        { rootMargin: "200px", threshold: 0.1 },
       );
       observer.observe(node);
       return () => observer.disconnect();
     },
-    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity]
+    [hasMoreActivity, isFetchingNextActivity, fetchNextActivity],
   );
 
   if (isCollectibleLoading) {
@@ -336,7 +336,7 @@ export default function AssetsDetails() {
                           collectible.ownedBy
                             ? getAddressExplorerUrl(
                                 collectible.layer,
-                                collectible.ownedBy
+                                collectible.ownedBy,
                               )
                             : "#"
                         }
@@ -356,7 +356,7 @@ export default function AssetsDetails() {
                         collectible.floorDifference === 1
                           ? "-"
                           : `${Number(
-                              collectible.floorDifference
+                              collectible.floorDifference,
                             ).toLocaleString("en-US", {
                               minimumFractionDigits: 0,
                               maximumFractionDigits: 4,
@@ -463,22 +463,25 @@ export default function AssetsDetails() {
           </Tabs>
         </div>
       </div>
-      <PendingListModal
-        open={isVisible}
-        onClose={toggleModal}
-        imageUrl={
-          collectible.highResolutionImageUrl
-            ? collectible.highResolutionImageUrl
-            : s3ImageUrlBuilder(collectible.fileKey)
-        }
-        uniqueIdx={collectible.uniqueIdx}
-        name={collectible.name}
-        collectionName={collectible.collectionName}
-        collectibleId={collectible.id}
-        txid={txid}
-        id={id}
-        isOwnListing={collectible.isOwnListing}
-      />
+      {collectible && (
+        <PendingListModal
+          open={isVisible}
+          onClose={toggleModal}
+          imageUrl={
+            collectible.highResolutionImageUrl
+              ? collectible.highResolutionImageUrl
+              : s3ImageUrlBuilder(collectible.fileKey)
+          }
+          uniqueIdx={collectible.uniqueIdx}
+          name={collectible.name}
+          collectionName={collectible.collectionName}
+          collectibleId={collectible.id}
+          txid={txid}
+          id={id}
+          isOwnListing={collectible.isOwnListing}
+          collectionId={collectible.collectionId}
+        />
+      )}
       <CancelListModal
         open={cancelModal}
         onClose={toggleCancelModal}
