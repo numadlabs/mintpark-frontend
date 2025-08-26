@@ -49,16 +49,16 @@ const LoyaltyPoints = ({
   if (!isConnected) return null;
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-xl border border-yellow-500/20 backdrop-blur-lg">
+    <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r bg-white8 rounded-xl border border-yellow-500/20 backdrop-blur-lg">
       <div className="relative">
         <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
         <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-orange-400 rounded-full animate-pulse" />
       </div>
       <div className="flex flex-col">
-        <span className="text-xs text-neutral-300 font-medium leading-tight">
+        {/* <span className="text-xs text-neutral-300 font-medium leading-tight">
           Points
-        </span>
-        <span className="text-sm text-white font-semibold leading-tight">
+        </span> */}
+        <span className=" text-neutral50 font-semibold leading-tight">
           {points.toLocaleString()}
         </span>
       </div>
@@ -77,7 +77,7 @@ const MobileLoyaltyPoints = ({
   if (!isConnected) return null;
 
   return (
-    <div className="flex items-center justify-between w-full p-4 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-xl border border-yellow-500/20 backdrop-blur-lg">
+    <div className="flex items-center justify-between w-full py-2 px-4  bg-white8 rounded-xl border border-yellow-500/20 backdrop-blur-lg">
       <div className="flex items-center gap-3">
         <div className="relative">
           <Star className="h-6 w-6 text-yellow-400 fill-yellow-400" />
@@ -87,7 +87,7 @@ const MobileLoyaltyPoints = ({
           <span className="text-sm text-neutral-200 font-medium">
             Loyalty Points
           </span>
-          <span className="text-lg text-white font-bold">
+          <span className="text-neutral50 font-bold">
             {points.toLocaleString()}
           </span>
         </div>
