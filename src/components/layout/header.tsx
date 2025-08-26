@@ -26,9 +26,76 @@ import { truncateAddress, capitalizeFirstLetter } from "@/lib/utils";
 import { LayerType } from "@/lib/types";
 import { toast } from "sonner";
 import Badge from "../atom/badge";
-import { ArrowDown, Check, Loader2, MenuIcon, X } from "lucide-react";
+import {
+  ArrowDown,
+  Check,
+  Loader2,
+  MenuIcon,
+  Star,
+  Trophy,
+  X,
+} from "lucide-react";
 import { WalletConnectionModal } from "../modal/wallet-connect-modal";
 import { getChainIcon } from "@/lib/service/currencyHelper";
+import { useLoyaltyPoints } from "@/lib/hooks/useLoyaltyPoint";
+
+const LoyaltyPoints = ({
+  points,
+  isConnected,
+}: {
+  points: number;
+  isConnected: boolean;
+}) => {
+  if (!isConnected) return null;
+
+  return (
+    <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r bg-white8 rounded-xl border border-yellow-500/20 backdrop-blur-lg">
+      <div className="relative">
+        <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-orange-400 rounded-full animate-pulse" />
+      </div>
+      <div className="flex flex-col">
+        {/* <span className="text-xs text-neutral-300 font-medium leading-tight">
+          Points
+        </span> */}
+        <span className=" text-neutral50 font-semibold leading-tight">
+          {points.toLocaleString()}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+// Mobile Loyalty Points Component
+const MobileLoyaltyPoints = ({
+  points,
+  isConnected,
+}: {
+  points: number;
+  isConnected: boolean;
+}) => {
+  if (!isConnected) return null;
+
+  return (
+    <div className="flex items-center justify-between w-full py-2 px-4  bg-white8 rounded-xl border border-yellow-500/20 backdrop-blur-lg">
+      <div className="flex items-center gap-3">
+        <div className="relative">
+          <Star className="h-6 w-6 text-yellow-400 fill-yellow-400" />
+          <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-orange-400 rounded-full animate-pulse" />
+        </div>
+        <div className="flex flex-col">
+          <span className="text-sm text-neutral-200 font-medium">
+            Loyalty Points
+          </span>
+          <span className="text-neutral50 font-bold">
+            {points.toLocaleString()}
+          </span>
+        </div>
+      </div>
+      <Trophy className="h-5 w-5 text-yellow-400" />
+    </div>
+  );
+};
 
 // Type definitions
 interface RouteItem {
@@ -75,6 +142,8 @@ export default function Header() {
     ],
     [],
   );
+
+  const loyaltyPoints = useLoyaltyPoints();
   //modalOpenHandle...
   // Handle layer selection from header dropdown
   const handleLayerSelect = useCallback(
@@ -292,8 +361,16 @@ export default function Header() {
                 </div>
               </div>
 
-              {/* Desktop Controls - Layer selector and wallet */}
+              {/* Desktop Controls - Loyalty points, Layer selector and wallet */}
               <div className="hidden lg:flex items-center gap-4">
+                {/* Loyalty Points */}
+                {loyaltyPoints && loyaltyPoints.pointsData && (
+                  <LoyaltyPoints
+                    points={loyaltyPoints.pointsData.balance}
+                    isConnected={isConnected}
+                  />
+                )}
+
                 {/* Layer Selector */}
                 <Select
                   onValueChange={handleLayerSelect}
@@ -415,6 +492,14 @@ export default function Header() {
 
                     {/* Mobile layer and wallet controls */}
                     <div className="grid items-center pt-6 border-t border-neutral400 gap-4">
+                      {/* Mobile Loyalty Points */}
+                      {loyaltyPoints && loyaltyPoints.pointsData && (
+                        <MobileLoyaltyPoints
+                          points={loyaltyPoints.pointsData.balance}
+                          isConnected={isConnected}
+                        />
+                      )}
+
                       {/* Same layer selector as desktop but with mobile styling */}
                       <Select
                         onValueChange={handleLayerSelect}

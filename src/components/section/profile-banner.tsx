@@ -8,6 +8,8 @@ import { useAssetsContext } from "@/lib/hooks/useAssetContext";
 import { getCurrencySymbol, getChainIcon } from "@/lib/service/currencyHelper";
 import { useBalance, useAccount } from "wagmi";
 import { formatEther } from "viem";
+import { useLoyaltyPoints } from "@/lib/hooks/useLoyaltyPoint";
+import { Star } from "lucide-react";
 
 declare global {
   interface Window {
@@ -24,6 +26,13 @@ interface Balance {
 const ProfileBanner: React.FC = () => {
   const { currentUserLayer, currentLayer } = useAuth();
   const { address, isConnected } = useAccount();
+
+  // Loyalty points hook
+  const {
+    loyaltyPoints,
+    isLoading: isPointsLoading,
+    isError: isPointsError,
+  } = useLoyaltyPoints();
 
   const [balance, setBalance] = useState<Balance>({
     amount: 0,
@@ -72,8 +81,6 @@ const ProfileBanner: React.FC = () => {
       const ethAmount = Number(BigInt(balance)) / 1e18;
       const usdAmount = ethAmount * (currentUserLayerData?.price || 0);
 
-      console.log("Manual balance result:", { balance, ethAmount, usdAmount });
-
       setBalance({
         amount: ethAmount,
         usdAmount: usdAmount,
@@ -119,22 +126,12 @@ const ProfileBanner: React.FC = () => {
     }
   };
 
-  // Update balance when wagmi balance changes or fallback to manual
+  //todo: remove manual balance fetching function. Wagmi is enough
   useEffect(() => {
-    console.log("Balance update effect triggered:", {
-      layerType: currentUserLayerData?.type,
-      wagmiBalance: wagmiBalance?.formatted,
-      wagmiBalanceValue: wagmiBalance?.value,
-      isConnected,
-      hasAddress: !!(address || currentUserLayer?.address),
-    });
-
     // Try wagmi first
     if (wagmiBalance && wagmiBalance.value) {
       const ethAmount = parseFloat(formatEther(wagmiBalance.value));
       const usdAmount = ethAmount * (currentUserLayerData?.price || 0);
-
-      console.log("Setting balance from wagmi:", { ethAmount, usdAmount });
 
       setBalance({
         amount: ethAmount,
@@ -148,7 +145,6 @@ const ProfileBanner: React.FC = () => {
       !isBalanceLoading &&
       !wagmiBalance
     ) {
-      console.log("Falling back to manual balance fetch");
       getManualBalance();
     }
     // Bitcoin handling
@@ -199,6 +195,7 @@ const ProfileBanner: React.FC = () => {
 
   // Show loading state
   const showLoading = isLoading || isBalanceLoading;
+  const showPointsLoading = isPointsLoading;
 
   return (
     <section className="mt-[43.5px] w-full">
@@ -263,48 +260,75 @@ const ProfileBanner: React.FC = () => {
               </div>
 
               {/* Balance and Items Info */}
-              <div className="flex flex-col md:flex-row gap-4 justify-between w-full">
-                {/* Wallet Balance Section */}
-                {(isConnected || currentUserLayer?.address) && (
-                  <div className="rounded-2xl bg-white4 p-3 sm:p-4 flex gap-4 items-center w-full md:w-fit justify-center md:justify-start">
-                    <div className="flex flex-row items-center gap-2 md:gap-3">
-                      <Image
-                        src={
-                          currentLayer?.layer
-                            ? getCurrencySymbol(currentLayer.layer)
-                            : ""
-                        }
-                        alt="crypto"
-                        draggable="false"
-                        width={24}
-                        height={24}
-                        className="h-5 w-5 sm:h-6 sm:w-6 rounded-lg"
-                      />
-                      <p className="flex items-center font-bold text-lg md:text-xl text-white">
+              <div className="flex flex-col lg:flex-row gap-4 justify-between w-full">
+                {/* Left section - Balance and Loyalty Points */}
+                <div className="flex flex-col md:flex-row gap-4 w-full lg:w-fit">
+                  {/* Wallet Balance Section */}
+                  {(isConnected || currentUserLayer?.address) && (
+                    <div className="rounded-2xl bg-white4 p-3 sm:p-4 flex gap-4 items-center w-full md:w-fit justify-center md:justify-start">
+                      <div className="flex flex-row items-center gap-2 md:gap-3">
+                        <Image
+                          src={
+                            currentLayer?.layer
+                              ? getCurrencySymbol(currentLayer.layer)
+                              : ""
+                          }
+                          alt="crypto"
+                          draggable="false"
+                          width={24}
+                          height={24}
+                          className="h-5 w-5 sm:h-6 sm:w-6 rounded-lg"
+                        />
+                        <p className="flex items-center font-bold text-lg md:text-xl text-white">
+                          {showLoading ? (
+                            <span className="animate-pulse">Loading...</span>
+                          ) : (
+                            <>
+                              {formatPriceBtc(balance.amount)}{" "}
+                              {currentLayer?.layer
+                                ? getCurrencySymbol(currentLayer.layer)
+                                : ""}
+                            </>
+                          )}
+                        </p>
+                      </div>
+                      <div className="h-6 w-[1px] bg-white16" />
+                      <p className="h-5 text-neutral100 text-md flex items-center">
                         {showLoading ? (
                           <span className="animate-pulse">Loading...</span>
                         ) : (
-                          <>
-                            {formatPriceBtc(balance.amount)}{" "}
-                            {currentLayer?.layer
-                              ? getCurrencySymbol(currentLayer.layer)
-                              : ""}
-                          </>
+                          `${formatPriceUsd(balance.usdAmount)}`
                         )}
                       </p>
                     </div>
-                    <div className="h-6 w-[1px] bg-white16" />
-                    <p className="h-5 text-neutral100 text-md flex items-center">
-                      {showLoading ? (
-                        <span className="animate-pulse">Loading...</span>
-                      ) : (
-                        `${formatPriceUsd(balance.usdAmount)}`
-                      )}
-                    </p>
-                  </div>
-                )}
+                  )}
 
-                {/* Items Count Section */}
+                  {/* Loyalty Points Section */}
+                  {(isConnected || currentUserLayer?.address) && (
+                    <div className="rounded-2xl  bg-white4  border-yellow-500/20 p-3 sm:p-4 flex gap-3 items-center w-full md:w-fit justify-center md:justify-start backdrop-blur-lg">
+                      <div className="flex flex-row items-center gap-2 md:gap-3">
+                        <div className="relative">
+                          <Star className="h-5 w-5 sm:h-6 sm:w-6 text-yellow-400 fill-yellow-400" />
+                          <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-orange-400 rounded-full animate-pulse" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs text-neutral-300 font-medium leading-tight">
+                            Loyalty Points
+                          </span>
+                          <span className="text-lg md:text-xl text-white font-bold leading-tight">
+                            {showPointsLoading ? (
+                              <span className="animate-pulse">Loading...</span>
+                            ) : (
+                              loyaltyPoints.toLocaleString()
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right section - Items Count */}
                 <div className="grid grid-cols-2 md:flex flex-row md:flex-col lg:flex-row justify-center lg:justify-end gap-4 items-center lg:ml-auto">
                   <span className="py-3 px-4 items-center justify-center flex gap-2 sm:gap-3 rounded-xl text-neutral50 bg-white4">
                     <p className="text-neutral100 text-sm sm:text-md font-medium">
@@ -322,9 +346,9 @@ const ProfileBanner: React.FC = () => {
               </div>
 
               {/* Error Display */}
-              {error && (
+              {(error || isPointsError) && (
                 <div className="text-errorMsg text-sm mt-2 text-center md:text-left">
-                  {error}
+                  {error || (isPointsError && "Failed to load loyalty points")}
                 </div>
               )}
             </div>
