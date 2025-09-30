@@ -135,7 +135,7 @@ export default function Header() {
       //   disabled: true,
       //   badge: "Soon",
       // },
-      { title: "Create", pageUrl: "/creater-tool" },
+      // { title: "Create", pageUrl: "/creater-tool" },
       { title: "Launchpad", pageUrl: "/launchpad" },
       { title: "Collections", pageUrl: "/collections" },
       // { title: "Verify", pageUrl: "/discord/verify" },
