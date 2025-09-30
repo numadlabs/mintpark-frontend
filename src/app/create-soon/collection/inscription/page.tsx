@@ -3,8 +3,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Banner from "@/components/section/create-banner";
-import Header from "@/components/layout/header";
 import { Input } from "@/components/ui/input";
 import UploadFile from "@/components/section/upload-file";
 import { useRouter } from "next/navigation";
