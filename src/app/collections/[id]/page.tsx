@@ -77,7 +77,7 @@ const CollectionDetailPage = () => {
     Record<string, string[]> | string
   >({});
 
-  const [isListed, setIsListed] = useState(false);
+  const [isListed, setIsListed] = useState(true);
 
   // Activity pagination state
   const [activityPageSize] = useState(ACTIVITY_PER_PAGE);
