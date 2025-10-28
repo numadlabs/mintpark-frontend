@@ -125,7 +125,7 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
 
     // Default fallback
     return "UPCOMING";
-  }
+}
 
   const updateStatus = () => {
     const now = Math.floor(Date.now() / 1000);
