@@ -228,7 +228,8 @@ const PhaseCard: React.FC<PhaseCardProps> = ({
             {phaseType === "guaranteed"
               ? "Guaranteed"
               : phaseType === "FCFS"
-                ? "FCFS"
+                // ? "FCFS"
+                ? "Special WL"
                 : "Public"}
           </p>
           {!isClickable && <Lock1 size={16} color="#D7D8D8" />}
