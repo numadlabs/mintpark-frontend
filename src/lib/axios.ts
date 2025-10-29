@@ -11,7 +11,8 @@ export const BACKEND_URL =
   process.env.NODE_ENV === "development"
     ? // ? "http://127.0.0.1:4000" // development api
       "https://mintpark-staging-e569c5c4d83c.herokuapp.com" // staging api
-    : "https://mintpark-production-0006d54da9fb.herokuapp.com";
+    : // "https://mintpark-production-0006d54da9fb.herokuapp.com"
+      "https://mintpark-production-0006d54da9fb.herokuapp.com";
 
 const instance = axios.create({
   baseURL: BACKEND_URL,
